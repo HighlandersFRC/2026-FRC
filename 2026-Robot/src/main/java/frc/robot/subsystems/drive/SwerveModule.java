@@ -117,7 +117,7 @@ public class SwerveModule extends SubsystemBase {
     angleMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     angleMotorConfig.Feedback.FeedbackRemoteSensorID = canCoder.getDeviceID();
     angleMotorConfig.Feedback.SensorToMechanismRatio = 1.0;
-    angleMotorConfig.Feedback.RotorToSensorRatio = Constants.Ratios.STEER_GEAR_RATIO;
+    angleMotorConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Drive.STEER_GEAR_RATIO;
 
     // if (moduleNumber == 2 || moduleNumber == 3) {
     // driveMotorConfig.Slot0.kP = 9.4;
@@ -197,7 +197,7 @@ public class SwerveModule extends SubsystemBase {
    * @return - Motor angle in rotations
    */
   public double wheelToSteerMotorRotations(double rotations) {
-    return (rotations * Constants.Ratios.STEER_GEAR_RATIO);
+    return (rotations * Constants.Ratios.Drive.STEER_GEAR_RATIO);
   }
 
   /**
@@ -207,7 +207,7 @@ public class SwerveModule extends SubsystemBase {
    * @return Wheel angle in rotations
    */
   public double steerMotorToWheelRotations(double rotations) {
-    return (rotations / Constants.Ratios.STEER_GEAR_RATIO);
+    return (rotations / Constants.Ratios.Drive.STEER_GEAR_RATIO);
   }
 
   /**
@@ -217,7 +217,7 @@ public class SwerveModule extends SubsystemBase {
    * @return Motor rotations
    */
   public double wheelToDriveMotorRotations(double rotations) {
-    return (rotations * Constants.Ratios.DRIVE_GEAR_RATIO);
+    return (rotations * Constants.Ratios.Drive.DRIVE_GEAR_RATIO);
   }
 
   /**
@@ -227,7 +227,7 @@ public class SwerveModule extends SubsystemBase {
    * @return Wheel rotations
    */
   public double driveMotorToWheelRotations(double rotations) {
-    return (rotations / Constants.Ratios.DRIVE_GEAR_RATIO);
+    return (rotations / Constants.Ratios.Drive.DRIVE_GEAR_RATIO);
   }
 
   public double degreesToRotations(double degrees) {

@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.OI;
-import frc.robot.subsystems.manipulator.Manipulator.ArmItem;
 
 public class Lights extends SubsystemBase {
   /** Creates a new Lights. */
@@ -113,20 +112,6 @@ public class Lights extends SubsystemBase {
       manualState = ManualState.MANUAL;
     } else {
       manualState = ManualState.AUTO;
-    }
-  }
-
-  public void updateIntakeItem(ArmItem intakeItem) {
-    switch (intakeItem) {
-      case CORAL:
-        itemState = ItemState.CORAL;
-        break;
-      case ALGAE:
-        itemState = ItemState.ALGAE;
-        break;
-      default:
-        itemState = ItemState.NONE;
-        break;
     }
   }
 
