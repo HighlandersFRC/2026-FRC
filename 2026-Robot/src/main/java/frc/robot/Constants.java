@@ -249,6 +249,18 @@ public final class Constants {
                 public static final int CANDLE_ID_0 = 0;
                 public static final int CANDLE_ID_1 = 1;
                 public static final int CANDLE_ID_2 = 2;
+
+                // Shooter
+                public static final int FLYWHEEL_MASTER_ID = 9;
+                public static final int FLYWHEEL_SLAVE_ID = 10;
+                public static final int HOOD_MOTOR_ID = 11;
+                public static final int TURRET_MOTOR_ID = 12;
+                public static final int TURRET_CANCODER_ONE_ID = 5;
+                public static final int TURRET_CANCODER_TWO_ID = 6;
+
+                // Intake
+                public static final int INTAKE_PIVOT_MOTOR_ID = 13;
+                public static final int INTAKE_ROLLER_MOTOR_ID = 15;
         }
 
         // Misc. controller values
