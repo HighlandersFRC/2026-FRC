@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -135,7 +137,8 @@ public class Superstructure extends SubsystemBase {
       lastState = tempLastState;
       tempLastState = currentSuperState;
     }
-
+    Logger.recordOutput("Super State", currentSuperState);
     applyStates();
+
   }
 }

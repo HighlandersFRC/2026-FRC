@@ -4,8 +4,12 @@ import java.util.logging.Level;
 
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import edu.wpi.first.math.util.Units;
 
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.Timer;
@@ -108,6 +112,10 @@ public class Robot extends LoggedRobot {
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
     Globals.drive2dVelocity = m_robotContainer.drive.getRobotVelocityVector();
+    LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
+    LoggedMechanism2d bot = new LoggedMechanism2d(2.0, 2.6);
+    bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
+    Logger.recordOutput("Arm Sim", bot);
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();

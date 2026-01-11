@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import edu.wpi.first.math.util.Units;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
@@ -36,6 +38,10 @@ public class Intake extends SubsystemBase {
   public enum IntakeState {
     INTAKING,
     UP,
+  }
+
+  public LoggedMechanismLigament2d getLigament() {
+    return new LoggedMechanismLigament2d("Intake", Units.inchesToMeters(29), io.getIntakePosition() * 360);
   }
 
   private IntakeState wantedState = IntakeState.UP;
