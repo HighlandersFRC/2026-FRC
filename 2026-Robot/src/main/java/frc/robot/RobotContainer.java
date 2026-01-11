@@ -21,6 +21,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.lights.Lights;
 
 /**
@@ -38,7 +39,8 @@ public class RobotContainer {
         Peripherals peripherals = new Peripherals();
         Drive drive = new Drive(peripherals);
         Lights lights = new Lights();
-        Superstructure superstructure = new Superstructure(drive, lights);
+        Intake intake = new Intake();
+        Superstructure superstructure = new Superstructure(drive, lights, intake);
 
         public boolean algaeMode = false;
         boolean manualMode = false;

@@ -1,14 +1,79 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
+  private final IntakeIO io;
 
   public Intake() {
+    if (RobotBase.isReal()) {
+      io = new IntakeIOComp();
+    } else {
+      io = new IntakeIOSim();
+    }
+  }
+
+  public void init() {
+    io.init();
+  }
+
+  public double getIntakePosition() {
+    return io.getIntakePosition();
+  }
+
+  public void setIntakePosition(double intakePosition) {
+    io.setIntakePosition(intakePosition);
+  }
+
+  public void setRollerPercent(double percent) {
+    io.setRollerPercent(percent);
+  }
+
+  public enum IntakeState {
+    INTAKING,
+    UP,
+  }
+
+  private IntakeState wantedState = IntakeState.UP;
+  private IntakeState systemState = IntakeState.UP;
+
+  public void setWantedState(IntakeState wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  private IntakeState handleStateTransition() {
+    switch (wantedState) {
+      case UP:
+        return IntakeState.UP;
+      case INTAKING:
+        return IntakeState.INTAKING;
+      default:
+        return IntakeState.UP;
+    }
   }
 
   @Override
   public void periodic() {
-
+    io.updateInputs(systemState);
+    systemState = handleStateTransition();
+    Logger.recordOutput("Intake State", systemState);
+    switch (systemState) {
+      case UP:
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        setRollerPercent(0.0);
+        break;
+      case INTAKING:
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setRollerPercent(1.0);
+        break;
+      default:
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        setRollerPercent(0.0);
+        break;
+    }
   }
 }
