@@ -20,6 +20,8 @@ public class Superstructure extends SubsystemBase {
   public enum SuperState {
     DEFAULT,
     IDLE,
+    INTAKING,
+    SHOOTING,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -54,6 +56,12 @@ public class Superstructure extends SubsystemBase {
       case DEFAULT:
         handleDefaultState();
         break;
+      case INTAKING:
+        handleIntakeingState();
+        break;
+      case SHOOTING:
+        handleShootingState();
+        break;
       default:
         handleIdleState();
         break;
@@ -77,6 +85,12 @@ public class Superstructure extends SubsystemBase {
       case DEFAULT:
         currentSuperState = SuperState.DEFAULT;
         break;
+      case INTAKING:
+        currentSuperState = SuperState.INTAKING;
+        break;
+      case SHOOTING:
+        currentSuperState = SuperState.SHOOTING;
+        break;
       default:
         currentSuperState = SuperState.IDLE;
         break;
@@ -88,6 +102,12 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
+  }
+
+  public void handleIntakeingState() {
+  }
+
+  public void handleShootingState() {
   }
 
   public void handleIdleState() {
