@@ -107,7 +107,7 @@ public class Robot extends LoggedRobot {
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-
+    Globals.drive2dVelocity = m_robotContainer.drive.getRobotVelocityVector();
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();
