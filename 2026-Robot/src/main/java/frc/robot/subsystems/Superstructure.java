@@ -1,16 +1,21 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightsState;
 
 public class Superstructure extends SubsystemBase {
   private final Drive drive;
   private final Lights lights;
+  private final Intake intake;
   double outakeIdleInitTime = 0;
   boolean outakeIdleInit = false;
   boolean firstTimeDefault = true;
@@ -20,6 +25,8 @@ public class Superstructure extends SubsystemBase {
   public enum SuperState {
     DEFAULT,
     IDLE,
+    INTAKING,
+    SHOOTING,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -28,9 +35,10 @@ public class Superstructure extends SubsystemBase {
   public boolean algaeMode = false;
 
   public Superstructure(Drive drive,
-      Lights lights) {
+      Lights lights, Intake intake) {
     this.drive = drive;
     this.lights = lights;
+    this.intake = intake;
   }
 
   public void setWantedState(SuperState wantedState) {
@@ -53,6 +61,12 @@ public class Superstructure extends SubsystemBase {
     switch (currentSuperState) {
       case DEFAULT:
         handleDefaultState();
+        break;
+      case INTAKING:
+        handleIntakeingState();
+        break;
+      case SHOOTING:
+        handleShootingState();
         break;
       default:
         handleIdleState();
@@ -77,6 +91,12 @@ public class Superstructure extends SubsystemBase {
       case DEFAULT:
         currentSuperState = SuperState.DEFAULT;
         break;
+      case INTAKING:
+        currentSuperState = SuperState.INTAKING;
+        break;
+      case SHOOTING:
+        currentSuperState = SuperState.SHOOTING;
+        break;
       default:
         currentSuperState = SuperState.IDLE;
         break;
@@ -88,11 +108,20 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
+    intake.setWantedState(IntakeState.UP);
+  }
+
+  public void handleIntakeingState() {
+    intake.setWantedState(IntakeState.INTAKING);
+  }
+
+  public void handleShootingState() {
   }
 
   public void handleIdleState() {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
+    intake.setWantedState(IntakeState.UP);
   }
 
   public void PARTY() {
@@ -108,7 +137,8 @@ public class Superstructure extends SubsystemBase {
       lastState = tempLastState;
       tempLastState = currentSuperState;
     }
-
+    Logger.recordOutput("Super State", currentSuperState);
     applyStates();
+
   }
 }

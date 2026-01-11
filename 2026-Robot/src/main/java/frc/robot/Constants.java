@@ -94,15 +94,34 @@ public final class Constants {
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION / ROBOT_RADIUS;
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
+
+                public static final class Intake {
+                        public static final int NUM_PIVOT_MOTORS = 1;
+                        public static final int NUM_ROLLER_MOTORS = 1;
+                        public static final double INTAKE_MASS_LB = 5.98; // TODO: make this the correct number
+                        public static final double R_CG_M = 11.68; // TODO: make this the correct number
+                        public static final double MOI = Units.lbsToKilograms(
+                                        INTAKE_MASS_LB)
+                                        * Math.pow(Units.inchesToMeters(R_CG_M), 2.0);
+                }
         }
 
         // Subsystem setpoint constants
         public static final class SetPoints {
+                public static final class Intake {
+                        public static final double INTAKE_DOWN_POSITION = Constants.degreesToRotations(90.0);
+                        public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
+                }
         }
 
         // PID constants
         public static final class PIDConstants {
-
+                public static final class Intake {
+                        public static final double kP0 = 15.0; // TODO: make all of these actually good
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.5;
+                        public static final double kG0 = 0.0;
+                }
         }
 
         // Vision constants (e.g. camera offsets)
@@ -225,6 +244,10 @@ public final class Constants {
                         // public static final double DRIVE_GEAR_RATIO = 5.27; // mk5 R3
                         public static final double STEER_GEAR_RATIO = 26.09; // mk5
                 }
+
+                public static final class Intake {
+                        public static final double INTAKE_PIVOT_GEAR_RATIO = 1.0;
+                }
         }
 
         // Can info such as IDs
@@ -260,7 +283,7 @@ public final class Constants {
 
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
-                public static final int INTAKE_ROLLER_MOTOR_ID = 15;
+                public static final int INTAKE_ROLLER_MOTOR_ID = 14;
         }
 
         // Misc. controller values
