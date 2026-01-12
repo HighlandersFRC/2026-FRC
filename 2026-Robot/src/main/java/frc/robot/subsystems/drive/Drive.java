@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Globals;
 import frc.robot.OI;
 import frc.robot.tools.controlloops.PID;
 import frc.robot.tools.math.Vector;
@@ -151,8 +152,6 @@ public class Drive extends SubsystemBase {
   private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
   private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
-  private String m_fieldSide = "blue";
-
   public boolean algaeMode = false;
 
   public enum DriveState {
@@ -179,20 +178,7 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  // public boolean atSetpoint() {
-  // double currentAngle = gyro.getYawDegrees();
-  // if (getFieldSide().equals("red")) {
-  // currentAngle -= 180;
-  // }
-  // return (Math.abs(Constants.standardizeAngleDegrees(currentAngle)
-  // - Constants.standardizeAngleDegrees(angleSetpoint)) < 2);
-  // }
-
   public void setWantedState(DriveState wantedState) {
-    this.wantedState = wantedState;
-  }
-
-  public void setWantedState(DriveState wantedState, double angle) {
     this.wantedState = wantedState;
   }
 
@@ -206,10 +192,8 @@ public class Drive extends SubsystemBase {
    *
    * @param fieldSide The side of the field (e.g., "red" or "blue").
    */
-  public void init(String fieldSide) {
+  public void init() {
     // sets configurations when run on robot initalization
-    this.m_fieldSide = fieldSide;
-
     xxPID.setMinOutput(-3.0);
     xxPID.setMaxOutput(3.0);
 
@@ -346,7 +330,7 @@ public class Drive extends SubsystemBase {
 
     // changing odometry if on red side, don't need to change y because it will be
     // the same for autos on either side
-    if (this.m_fieldSide == "blue") {
+    if (Globals.fieldSide == "blue") {
       firstPointX = Constants.Physical.FIELD_LENGTH - firstPointX;
       firstPointY = Constants.Physical.FIELD_WIDTH - firstPointY;
       firstPointAngle = Math.PI + firstPointAngle;
@@ -363,23 +347,13 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Sets the current field side designation.
-   * 
-   * @param side The field side designation to set, indicating whether the robot
-   *             is positioned on the "blue" or "red" side of the field.
-   */
-  public void setFieldSide(String side) {
-    m_fieldSide = side;
-  }
-
-  /**
    * Retrieves the current field side designation.
    * 
    * @return The current field side designation, indicating whether the robot is
    *         positioned on the "blue" or "red" side of the field.
    */
   public String getFieldSide() {
-    return m_fieldSide;
+    return Globals.fieldSide;
   }
 
   public void setOdometry(Pose2d pose) {
@@ -966,7 +940,7 @@ public class Drive extends SubsystemBase {
       JSONArray pathPoints, boolean fullSend, boolean accurate) {
     JSONObject targetPoint = pathPoints.getJSONObject(pathPoints.length() - 1);
     int targetIndex = pathPoints.length() - 1;
-    if (this.m_fieldSide == "blue") {
+    if (Globals.fieldSide == "blue") {
       currentX = Constants.Physical.FIELD_LENGTH - currentX;
       currentY = Constants.Physical.FIELD_WIDTH - currentY;
       currentTheta = Math.PI + currentTheta;
@@ -1025,7 +999,7 @@ public class Drive extends SubsystemBase {
     double finalX = xVelNoFF + feedForwardX;
     double finalY = yVelNoFF + feedForwardY;
     double finalTheta = (thetaVelNoFF + feedForwardTheta) * 1.25;
-    if (m_fieldSide == "blue") {
+    if (Globals.fieldSide == "blue") {
       finalX = -finalX;
       finalY = -finalY;
     }

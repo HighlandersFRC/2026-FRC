@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -83,9 +87,6 @@ public final class Constants {
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
                 public static final double SIM_MAX_ACCELERATION = 4.0; // meters per second
-                public static final double TWIST_MOI = Units.lbsToKilograms(5.98)
-                                * Math.pow(Units.inchesToMeters(0.5), 2.0);// used cad to find
-                public static final int TWIST_MOTOR_COUNT = 1;
                 public static final double ROBOT_LENGTH = inchesToMeters(26);
                 public static final double ROBOT_WIDTH = inchesToMeters(26);
                 public static final double MODULE_OFFSET = inchesToMeters(2.625); // TODO: is this different for mk5s?
@@ -94,14 +95,93 @@ public final class Constants {
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION / ROBOT_RADIUS;
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
+
+                public static class Shooter {
+                        public static final double SHOOTER_HEIGHT = 0.635;
+                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(540);
+                        public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
+                                        .rotationsToRadians(4167 / 60);
+                        public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
+                        public static final double SHOOTER_FRICTION_COEFFICIENT = SHOOTER_FLYWHEEL_ACCELERATION_RAD_S /
+                                        SHOOTER_MAX_SPEED_RAD_S;
+                        public static final double SHOOTER_WHEEL_RADIUS = inchesToMeters(2);
+                        public static final int TURRET_MOTOR_COUNT = 1;
+                        public static final double TURRET_MOI = 0.06; // kg*m^2
+                        public static final int HOOD_MOTOR_COUNT = 1;
+                        public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
+
+                        public static double getTrajectoryHeight(double distanceFromHub) {
+                                return 3 + 0.2 * distanceFromHub;
+                        }
+                }
+        }
+
+        public static final class Field {
+                public static final double BLUE_HUB_X = inchesToMeters(182.1);
+                public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
+                public static final double HUB_Y = Constants.Physical.FIELD_WIDTH / 2;
+                public static final double HUB_Z = 1.83;
+                public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
+                public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
         }
 
         // Subsystem setpoint constants
         public static final class SetPoints {
+                public static class Hood {
+                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(0);
+                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(20);
+                        public static final double HOOD_MIN_LAUNCH_ANGLE = degreesToRadians(72.5);
+                        public static final double HOOD_PRECISION = degreesToRadians(0.5);
+
+                        public static Rotation2d getHoodAngleSetpointForTrajectory(Vector3D trajectory) {
+                                double dz = trajectory.getZ();
+                                double dr = Math.hypot(trajectory.getX(), trajectory.getY());
+                                double angleRadians = Math.atan(dz / dr);
+                                angleRadians = HOOD_MIN_LAUNCH_ANGLE - angleRadians;
+                                return new Rotation2d(angleRadians);
+                        }
+                }
+
+                public static class Turret {
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+                        public static final double TURRET_PRECISION = degreesToRadians(2);
+
+                        public static Rotation2d getTurretAngleSetpointForTrajectory(Vector3D _trajectorySetpoint) {
+                                return new Rotation2d(Math.atan2(_trajectorySetpoint.getY(),
+                                                _trajectorySetpoint.getX()));
+                        }
+                }
+
+                public static class Flywheel {
+                        public static final double FLYWHEEL_RPM_PRECISION = 25.0;
+
+                        public static double getFlywheelRPMSetpointForTrajectory(Vector3D _trajectorySetpoint) {
+                                double v = _trajectorySetpoint.getNorm();
+                                double wheelRadiusMeters = Physical.Shooter.SHOOTER_WHEEL_RADIUS;
+                                double wheelCircumferenceMeters = 2 * Math.PI * wheelRadiusMeters;
+                                double wheelRotationsPerSecond = v / wheelCircumferenceMeters;
+                                double wheelRPM = wheelRotationsPerSecond * 60;
+                                return wheelRPM;
+                        }
+                }
         }
 
         // PID constants
         public static final class PIDConstants {
+                public static final class Turret {
+                        public static final double kP0 = 4.0;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.0005;
+                }
+
+                public static final class Hood {
+                        public static final double kP0 = 8.0;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.0005;
+                }
 
         }
 
@@ -224,6 +304,12 @@ public final class Constants {
                         public static final double DRIVE_GEAR_RATIO = 6.03; // mk5 R2
                         // public static final double DRIVE_GEAR_RATIO = 5.27; // mk5 R3
                         public static final double STEER_GEAR_RATIO = 26.09; // mk5
+                }
+
+                public static final class Shooter {
+                        public static final double FLYWHEEL_GEAR_RATIO = 1 / 1.0;
+                        public static final double HOOD_GEAR_RATIO = 180.73;
+                        public static final double TURRET_GEAR_RATIO = 46.67;
                 }
         }
 

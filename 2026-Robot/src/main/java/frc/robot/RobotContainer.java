@@ -16,12 +16,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
+import frc.robot.commands.SetRobotState;
 import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
 import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.shooter.Shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -35,10 +37,11 @@ import frc.robot.subsystems.lights.Lights;
 public class RobotContainer {
 
         // Subsystems
-        Peripherals peripherals = new Peripherals();
-        Drive drive = new Drive(peripherals);
-        Lights lights = new Lights();
-        Superstructure superstructure = new Superstructure(drive, lights);
+        final Peripherals peripherals = new Peripherals();
+        final Drive drive = new Drive(peripherals);
+        final Lights lights = new Lights();
+        final Shooter shooter = new Shooter();
+        Superstructure superstructure = new Superstructure(drive, lights, shooter);
 
         public boolean algaeMode = false;
         boolean manualMode = false;
@@ -107,7 +110,7 @@ public class RobotContainer {
         private void configureBindings() {
                 // COMPETITION CONTROLS
                 // Driver
-
+                OI.driverB.whileTrue(new SetRobotState(superstructure, SuperState.SHOOT));
                 // Operator
 
         }

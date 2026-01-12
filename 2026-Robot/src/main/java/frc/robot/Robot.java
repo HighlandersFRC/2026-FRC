@@ -20,7 +20,6 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
-  String m_fieldSide = "blue";
   boolean bPressed = false;
   boolean yPressed = false;
   boolean xPressed = false;
@@ -67,14 +66,14 @@ public class Robot extends LoggedRobot {
 
     java.util.logging.Logger.getGlobal().info("Robot Init");
 
-    this.m_fieldSide = "blue";
+    Globals.fieldSide = "blue";
     SmartDashboard.putNumber("Shooter Angle Degrees (tuning)", 0);
     SmartDashboard.putNumber("Shooter RPM (input)", 0);
     m_robotContainer = new RobotContainer();
 
     m_robotContainer.peripherals.init();
-    m_robotContainer.drive.init(m_fieldSide);
-    m_robotContainer.lights.init(m_fieldSide);
+    m_robotContainer.drive.init();
+    m_robotContainer.lights.init();
 
     PortForwarder.add(5800, "orangepi1.local", 5800);
     PortForwarder.add(5801, "orangepi1.local", 5801);
@@ -89,6 +88,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+    Logger.recordOutput("FieldSide", Globals.fieldSide);
+    Logger.recordOutput("Blue Hub", Constants.Field.HUB_POSE_BLUE);
+
     CommandScheduler.getInstance().run();
     Logger.recordOutput("MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
     m_robotContainer.superstructure.algaeMode = m_robotContainer.algaeMode;
@@ -107,10 +109,10 @@ public class Robot extends LoggedRobot {
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-    Globals.drive2dVelocity = m_robotContainer.drive.getRobotVelocityVector();
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();
+    Logger.recordOutput("SuperState", m_robotContainer.superstructure.getCurrentSuperState().toString());
   }
 
   @Override
@@ -131,12 +133,11 @@ public class Robot extends LoggedRobot {
     m_robotContainer.superstructure.setWantedState(SuperState.IDLE);
     if (OI.isBlueSide()) {
       java.util.logging.Logger.getGlobal().info("ON BLUE SIDE");
-      m_fieldSide = "blue";
+      Globals.fieldSide = "blue";
     } else {
       java.util.logging.Logger.getGlobal().info("ON RED SIDE");
-      m_fieldSide = "red";
+      Globals.fieldSide = "red";
     }
-    this.m_robotContainer.drive.setFieldSide(m_fieldSide);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     java.util.logging.Logger.getGlobal().info("Auto init time" + (Timer.getFPGATimestamp() - autoInitTime));
     m_autonomousCommand.schedule();
@@ -154,19 +155,18 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
     if (OI.isBlueSide()) {
-      m_fieldSide = "blue";
+      Globals.fieldSide = "blue";
     } else {
-      m_fieldSide = "red";
+      Globals.fieldSide = "red";
     }
 
     // Leave uncommented to use field relative theta system. Instead we are flipping
     // joystick values on red side.
-    // if (this.m_fieldSide == "red") {
+    // if (this.Globals.fieldSide == "red") {
     // this.m_robotContainer.drive.setPigeonAfterAuto();
     // }
-    java.util.logging.Logger.getGlobal().info("field side" + m_fieldSide);
+    java.util.logging.Logger.getGlobal().info("field side" + Globals.fieldSide);
 
-    this.m_robotContainer.drive.setFieldSide(m_fieldSide);
     this.m_robotContainer.drive.teleopInit();
   }
 
