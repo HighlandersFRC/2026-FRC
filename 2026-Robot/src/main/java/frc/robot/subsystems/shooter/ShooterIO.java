@@ -1,15 +1,9 @@
 package frc.robot.subsystems.shooter;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 
 abstract class ShooterIO {
-    protected abstract void shoot(Vector3D initialVelocity);
-
     protected abstract void updateInputs();
-
-    protected abstract boolean readyToShoot();
 
     protected abstract Rotation2d getHoodAngle();
 

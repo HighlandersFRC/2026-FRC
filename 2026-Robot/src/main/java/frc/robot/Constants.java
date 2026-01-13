@@ -109,6 +109,12 @@ public final class Constants {
                         public static final double TURRET_MOI = 0.06; // kg*m^2
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
+                        public static final Translation3d SHOOTER_POSITION = new Translation3d(
+                                        inchesToMeters(20.0), inchesToMeters(20.0), SHOOTER_HEIGHT);
+                        public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
+                        public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
+                        public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
+                                        HOOD_MAX_SPEED_RAD_S;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 3 + 0.2 * distanceFromHub;
@@ -128,16 +134,14 @@ public final class Constants {
         // Subsystem setpoint constants
         public static final class SetPoints {
                 public static class Hood {
-                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(0);
-                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(20);
-                        public static final double HOOD_MIN_LAUNCH_ANGLE = degreesToRadians(72.5);
-                        public static final double HOOD_PRECISION = degreesToRadians(0.5);
+                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
+                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
+                        public static final double HOOD_PRECISION = degreesToRadians(1);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Vector3D trajectory) {
                                 double dz = trajectory.getZ();
                                 double dr = Math.hypot(trajectory.getX(), trajectory.getY());
                                 double angleRadians = Math.atan(dz / dr);
-                                angleRadians = HOOD_MIN_LAUNCH_ANGLE - angleRadians;
                                 return new Rotation2d(angleRadians);
                         }
                 }
@@ -145,7 +149,7 @@ public final class Constants {
                 public static class Turret {
                         public static final double TURRET_MIN_ANGLE_RADIANS = -Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
                         public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-                        public static final double TURRET_PRECISION = degreesToRadians(2);
+                        public static final double TURRET_PRECISION = degreesToRadians(5);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(Vector3D _trajectorySetpoint) {
                                 return new Rotation2d(Math.atan2(_trajectorySetpoint.getY(),
@@ -154,7 +158,7 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 25.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 100.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Vector3D _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
@@ -170,10 +174,10 @@ public final class Constants {
         // PID constants
         public static final class PIDConstants {
                 public static final class Turret {
-                        public static final double kP0 = 4.0;
+                        public static final double kP0 = 100.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.0005;
+                        public static final double kS0 = 5.0;
                 }
 
                 public static final class Hood {

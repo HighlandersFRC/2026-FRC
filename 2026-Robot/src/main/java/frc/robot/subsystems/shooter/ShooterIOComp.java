@@ -1,27 +1,13 @@
 package frc.robot.subsystems.shooter;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 
 class ShooterIOComp extends ShooterIO {
 
     @Override
-    protected void shoot(Vector3D initialVelocity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'shoot'");
-    }
-
-    @Override
     protected void updateInputs() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateInputs'");
-    }
-
-    @Override
-    protected boolean readyToShoot() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readyToShoot'");
     }
 
     @Override

@@ -57,11 +57,26 @@ public class Shooter extends SubsystemBase {
   }
 
   private void shoot() {
-    io.shoot(_trajectorySetpoint);
+    setHoodAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
+    setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
+    setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
   }
 
   public boolean readyToShoot() {
-    return io.readyToShoot();
+    double hoodAngleError = Math
+        .abs(getHoodAngle()
+            .minus(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint))
+            .getRadians());
+    double turretAngleError = Math.abs(
+        getRobotRelativeTurretAngle()
+            .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
+            .getRadians());
+    double flywheelRPMError = Math
+        .abs(getFlywheelRPM()
+            - Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
+    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+        && turretAngleError < Constants.SetPoints.Turret.TURRET_PRECISION
+        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
   }
 
   public Rotation2d getHoodAngle() {
@@ -90,6 +105,17 @@ public class Shooter extends SubsystemBase {
 
   public void setFlywheelRPM(double rpm) {
     io.setFlywheelRPM(rpm);
+  }
+
+  public Vector3D getCurrentShooterTrajectory() {
+    double mag = io.getFlywheelRPM() / Constants.Physical.Shooter.SHOOTER_WHEEL_RADIUS;
+    Rotation2d hoodAngle = io.getHoodAngle();
+    double vz = mag * hoodAngle.getSin();
+    double vr = mag * hoodAngle.getCos();
+    Rotation2d turretAngle = io.getTurretAngle();
+    double vx = vr * turretAngle.getCos();
+    double vy = vr * turretAngle.getSin();
+    return new Vector3D(vx, vy, vz);
   }
 
   protected double getRelativeAngleFromRotation2d(Rotation2d angle) {
@@ -126,6 +152,16 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs();
+    Logger.recordOutput("Hood SP",
+        Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
+    Logger.recordOutput("Turret SP",
+        Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
+    Logger.recordOutput("Flywheel RPM SP", Constants.SetPoints.Flywheel
+        .getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
+    Logger.recordOutput("Hood Angle", getHoodAngle().getDegrees());
+    Logger.recordOutput("Turret Angle", getRobotRelativeTurretAngle().getDegrees());
+    Logger.recordOutput("Flywheel RPM", getFlywheelRPM());
+    Logger.recordOutput("Ready to Shoot", readyToShoot());
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {
       systemState = newState;
