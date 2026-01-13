@@ -96,6 +96,16 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
+                public static final class Intake {
+                        public static final int NUM_PIVOT_MOTORS = 1;
+                        public static final int NUM_ROLLER_MOTORS = 1;
+                        public static final double INTAKE_MASS_LB = 5.98; // TODO: make this the correct number
+                        public static final double R_CG_M = 11.68; // TODO: make this the correct number
+                        public static final double MOI = Units.lbsToKilograms(
+                                        INTAKE_MASS_LB)
+                                        * Math.pow(Units.inchesToMeters(R_CG_M), 2.0);
+                }
+
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
                         public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(540);
@@ -169,6 +179,11 @@ public final class Constants {
                                 return wheelRPM;
                         }
                 }
+
+                public static final class Intake {
+                        public static final double INTAKE_DOWN_POSITION = Constants.degreesToRotations(90.0);
+                        public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
+                }
         }
 
         // PID constants
@@ -187,6 +202,12 @@ public final class Constants {
                         public static final double kS0 = 0.0005;
                 }
 
+                public static final class Intake {
+                        public static final double kP0 = 15.0; // TODO: make all of these actually good
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.5;
+                        public static final double kG0 = 0.0;
+                }
         }
 
         // Vision constants (e.g. camera offsets)
@@ -315,6 +336,10 @@ public final class Constants {
                         public static final double HOOD_GEAR_RATIO = 180.73;
                         public static final double TURRET_GEAR_RATIO = 46.67;
                 }
+
+                public static final class Intake {
+                        public static final double INTAKE_PIVOT_GEAR_RATIO = 1.0;
+                }
         }
 
         // Can info such as IDs
@@ -350,7 +375,7 @@ public final class Constants {
 
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
-                public static final int INTAKE_ROLLER_MOTOR_ID = 15;
+                public static final int INTAKE_ROLLER_MOTOR_ID = 14;
         }
 
         // Misc. controller values

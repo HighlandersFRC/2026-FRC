@@ -113,7 +113,6 @@ public class Robot extends LoggedRobot {
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-    Globals.drive2dVelocity = m_robotContainer.drive.getRobotVelocityVector();
     LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
     LoggedMechanism2d bot = new LoggedMechanism2d(2.0, 2.6);
     bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
