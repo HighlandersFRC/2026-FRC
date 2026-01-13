@@ -1081,12 +1081,12 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() || OI.driverPOVLeft.getAsBoolean()
-            || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
-          robotCentricDrive(195.0);
-        } else {
-          teleopDrive();
-        }
+        // if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() || OI.driverPOVLeft.getAsBoolean()
+        //     || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
+        //   robotCentricDrive(195.0);
+        // } else {
+        teleopDrive();
+        // }
         break;
       case IDLE:
         break;

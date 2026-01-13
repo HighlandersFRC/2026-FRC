@@ -1,7 +1,8 @@
 package frc.robot.subsystems;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.littletonrobotics.junction.Logger;
+
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,6 +15,8 @@ import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightsState;
 import frc.robot.subsystems.shooter.Shooter;
@@ -24,6 +27,7 @@ public class Superstructure extends SubsystemBase {
   private final Drive drive;
   private final Lights lights;
   private final Shooter shooter;
+  private final Intake intake;
   double outakeIdleInitTime = 0;
   boolean outakeIdleInit = false;
   boolean firstTimeDefault = true;
@@ -36,6 +40,8 @@ public class Superstructure extends SubsystemBase {
     DEFAULT,
     IDLE,
     SHOOT,
+    INTAKING,
+    SHOOTING,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -44,10 +50,11 @@ public class Superstructure extends SubsystemBase {
   public boolean algaeMode = false;
 
   public Superstructure(Drive drive,
-      Lights lights, Shooter shooter) {
+      Lights lights, Shooter shooter, Intake intake) {
     this.drive = drive;
     this.lights = lights;
     this.shooter = shooter;
+    this.intake = intake;
   }
 
   public void setWantedState(SuperState wantedState) {
@@ -73,6 +80,12 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOT:
         handleShootState();
+        break;
+      case INTAKING:
+        handleIntakeingState();
+        break;
+      case SHOOTING:
+        handleShootingState();
         break;
       default:
         handleIdleState();
@@ -160,6 +173,12 @@ public class Superstructure extends SubsystemBase {
         trajectoryPoint = initial;
         trajectoryVelocity = new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ());
         break;
+      case INTAKING:
+        currentSuperState = SuperState.INTAKING;
+        break;
+      case SHOOTING:
+        currentSuperState = SuperState.SHOOTING;
+        break;
       default:
         currentSuperState = SuperState.IDLE;
         break;
@@ -171,11 +190,20 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
+    intake.setWantedState(IntakeState.UP);
+  }
+
+  public void handleIntakeingState() {
+    intake.setWantedState(IntakeState.INTAKING);
+  }
+
+  public void handleShootingState() {
   }
 
   public void handleIdleState() {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
+    intake.setWantedState(IntakeState.UP);
   }
 
   public void PARTY() {
@@ -195,7 +223,8 @@ public class Superstructure extends SubsystemBase {
       lastState = tempLastState;
       tempLastState = currentSuperState;
     }
-
+    Logger.recordOutput("Super State", currentSuperState);
     applyStates();
+
   }
 }
