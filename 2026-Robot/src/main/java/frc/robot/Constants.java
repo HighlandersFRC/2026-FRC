@@ -128,6 +128,17 @@ public final class Constants {
                                 return 3 + 0.2 * distanceFromHub;
                         }
                 }
+
+                public static class Feeder {
+                        public static final double LINEARIZER_MAX_SPEED_MPS = 3.0;
+                        public static final double HOPPER_MAX_SPEED_MPS = 3.0;
+                        public static final double HOPPER_ACCELERATION_MPS2 = 6.0;
+                        public static final double LINEARIZER_ACCELERATION_MPS2 = 6.0;
+                        public static final double HOPPER_FRICTION_COEFFICIENT = HOPPER_ACCELERATION_MPS2 /
+                                        HOPPER_MAX_SPEED_MPS;
+                        public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
+                                        LINEARIZER_MAX_SPEED_MPS;
+                }
         }
 
         public static final class Field {
@@ -182,6 +193,13 @@ public final class Constants {
                 public static final class Intake {
                         public static final double INTAKE_DOWN_POSITION = Constants.degreesToRotations(90.0);
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
+                }
+
+                public static final class Feeder {
+                        public static final double HOPPER_PERCENT = 1.0 / 3.0;
+                        public static final double LINEARIZER_PERCENT = 1.0 / 3.0;
+                        public static final double LINEARIZER_SPEED_MPS = 1.0;
+                        public static final double HOPPER_SPEED_MPS = 1.0;
                 }
         }
 
