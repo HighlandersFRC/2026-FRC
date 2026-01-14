@@ -17,7 +17,7 @@ import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.tools.controlloops.PID;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakeIOSim implements IntakeIO {
+class IntakeIOSim implements IntakeIO {
     DCMotor gearbox = Constants.MotorSpecs.x44.getX44Gearbox(Constants.Physical.Intake.NUM_PIVOT_MOTORS)
             .withReduction(Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO);
     private final Matrix<N2, N2> A = MatBuilder.fill(
@@ -83,7 +83,8 @@ public class IntakeIOSim implements IntakeIO {
     @Override
     public void setRollerPercent(double percent) { // TODO: do we need to simulate the intake rollers?
         // double velocity = simState.get(1);
-        // double currentRequired = gearbox.getCurrent(velocity, 24 * percent /* volts * (Kv in rad/s/V) = rad/s */);
+        // double currentRequired = gearbox.getCurrent(velocity, 24 * percent /* volts *
+        // (Kv in rad/s/V) = rad/s */);
         // inputTorqueCurrent = currentRequired;
         // closedLoop = false;
     }

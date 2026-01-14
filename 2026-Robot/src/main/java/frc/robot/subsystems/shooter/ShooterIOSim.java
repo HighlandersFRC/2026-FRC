@@ -16,7 +16,7 @@ import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.tools.controlloops.PID;
 
-class ShooterIOSim extends ShooterIO {
+class ShooterIOSim implements ShooterIO {
     private double flywheelVelocity = 0.0;
     private double flywheelWantedVelocity = 0.0;
     private double hoodPositionSetpointRad = Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS;
@@ -50,37 +50,37 @@ class ShooterIOSim extends ShooterIO {
     }
 
     @Override
-    protected Rotation2d getHoodAngle() {
+    public Rotation2d getHoodAngle() {
         return new Rotation2d(hoodPositionRad);
     }
 
     @Override
-    protected Rotation2d getTurretAngle() {
+    public Rotation2d getTurretAngle() {
         return new Rotation2d(turretSimState.get(0, 0));
     }
 
     @Override
-    protected double getFlywheelRPM() {
+    public double getFlywheelRPM() {
         return Units.radiansPerSecondToRotationsPerMinute(flywheelVelocity);
     }
 
     @Override
-    protected void setHoodAngle(Rotation2d angle) {
+    public void setHoodAngle(Rotation2d angle) {
         hoodPositionSetpointRad = angle.getRadians();
     }
 
     @Override
-    protected void setTurretAngle(Rotation2d angle) {
+    public void setTurretAngle(Rotation2d angle) {
         turretPositionSetpointRad = shooter.getRelativeAngleFromRotation2d(angle);
     }
 
     @Override
-    protected void setFlywheelRPM(double rpm) {
+    public void setFlywheelRPM(double rpm) {
         flywheelWantedVelocity = Units.rotationsPerMinuteToRadiansPerSecond(rpm);
     }
 
     @Override
-    protected double getRelativeTurretAngleRadians() {
+    public double getRelativeTurretAngleRadians() {
         return turretSimState.get(0, 0);
     }
 
@@ -121,7 +121,7 @@ class ShooterIOSim extends ShooterIO {
     }
 
     @Override
-    protected void updateInputs() {
+    public void updateInputs() {
         double dt = Globals.loopPeriodSecs;
         int numSteps = (int) Math.floor(dt / Constants.closedLoopSimResolution);
         turretSlot0.setSetPoint(turretPositionSetpointRad);

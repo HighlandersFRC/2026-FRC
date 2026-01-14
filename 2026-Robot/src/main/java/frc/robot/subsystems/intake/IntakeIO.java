@@ -2,7 +2,7 @@ package frc.robot.subsystems.intake;
 
 import frc.robot.subsystems.intake.Intake.IntakeState;
 
-public interface IntakeIO {
+interface IntakeIO {
     public void init();
 
     public void updateInputs(IntakeState systemState);
