@@ -2,7 +2,7 @@ package frc.robot.tools.math;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Constants;
 
 public class PhysicsModel {
@@ -12,9 +12,9 @@ public class PhysicsModel {
      * maximum height.
      *
      * @param initialPosition The starting position of the projectile as a
-     *                        {@link Pose3d}.
+     *                        {@link Translation3d}.
      * @param finalPosition   The target position of the projectile as a
-     *                        {@link Pose3d}.
+     *                        {@link Translation3d}.
      * @param maxHeight       The maximum height the projectile should reach during
      *                        its trajectory.
      * @return A {@link Vector3D} representing the initial velocity vector (vxi,
@@ -25,8 +25,9 @@ public class PhysicsModel {
      *                                  (e.g., maxHeight is less than the initial or
      *                                  final z-coordinate).
      */
-    public static Vector3D getHeightBoundTrajectory(Pose3d initialPosition,
-            Pose3d finalPosition, double maxHeight) {
+    public static Translation3d getHeightBoundTrajectory(
+            Translation3d initialPosition,
+            Translation3d finalPosition, double maxHeight) {
         if (maxHeight <= initialPosition.getZ() || maxHeight <= finalPosition.getZ()) {
             throw new IllegalArgumentException("Max height must be greater than both initial and final z-coordinates.");
         }
@@ -38,6 +39,6 @@ public class PhysicsModel {
         double totalTime = timeUp + timeDown;
         double vxi = dx / totalTime;
         double vyi = dy / totalTime;
-        return new Vector3D(vxi, vyi, vzi);
+        return new Translation3d(vxi, vyi, vzi);
     }
 }

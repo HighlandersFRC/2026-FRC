@@ -2,29 +2,42 @@ package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Globals;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightsState;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.tools.math.PhysicsModel;
+import frc.robot.tools.math.Vector;
 
 public class Superstructure extends SubsystemBase {
   private final Drive drive;
   private final Lights lights;
+  private final Shooter shooter;
   private final Intake intake;
   double outakeIdleInitTime = 0;
   boolean outakeIdleInit = false;
   boolean firstTimeDefault = true;
   private SuperState lastState = SuperState.IDLE;
   private SuperState tempLastState = SuperState.IDLE;
+  private Translation3d trajectoryPoint = new Translation3d(0, 0, 0);
+  private Translation3d trajectoryVelocity = new Translation3d(0, 0, 0);
 
   public enum SuperState {
     DEFAULT,
     IDLE,
+    SHOOT,
     INTAKING,
     SHOOTING,
   }
@@ -35,9 +48,10 @@ public class Superstructure extends SubsystemBase {
   public boolean algaeMode = false;
 
   public Superstructure(Drive drive,
-      Lights lights, Intake intake) {
+      Lights lights, Shooter shooter, Intake intake) {
     this.drive = drive;
     this.lights = lights;
+    this.shooter = shooter;
     this.intake = intake;
   }
 
@@ -62,6 +76,9 @@ public class Superstructure extends SubsystemBase {
       case DEFAULT:
         handleDefaultState();
         break;
+      case SHOOT:
+        handleShootState();
+        break;
       case INTAKING:
         handleIntakeingState();
         break;
@@ -72,6 +89,46 @@ public class Superstructure extends SubsystemBase {
         handleIdleState();
         break;
     }
+  }
+
+  private void handleShootState() {
+    Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
+        .getMt2Pose2dY(), 0)
+        .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
+    Translation3d target;
+    if (Globals.fieldSide.equals("blue")) {
+      target = Constants.Field.HUB_POSE_BLUE;
+    } else {
+      target = Constants.Field.HUB_POSE_RED;
+    }
+    Rotation2d gyro = drive.getMt2Pose2d().getRotation();
+    double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
+    double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
+    Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+    Vector robotVelocity = drive.getRobotVelocityVector();
+    Translation3d onTheMove = new Translation3d(initialVelocity.getX() - robotVelocity.getI(),
+        initialVelocity.getY() - robotVelocity.getJ(),
+        initialVelocity.getZ());
+    Translation3d trajectory = initialVelocity;
+    Translation3d loggedTrajectory = trajectory.plus(initial);
+    Logger.recordOutput("Trajectory", loggedTrajectory);
+    Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
+        .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
+    gyro = gyro.unaryMinus();
+    trajectory = new Translation3d(
+        trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
+        trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
+        trajectory.getZ());
+    shooter.setWantedState(Shooter.ShooterState.SHOOT, trajectory);
+    Translation3d realVector = shooter.getCurrentShooterTrajectory();
+    gyro = gyro.unaryMinus();
+    Translation3d realTrajectory = new Translation3d(
+        realVector.getX() * gyro.getCos() - realVector.getY() * gyro.getSin(),
+        realVector.getX() * gyro.getSin() + realVector.getY() * gyro.getCos(),
+        realVector.getZ());
+    Logger.recordOutput("Shooter Trajectory",
+        realTrajectory);
+    Logger.recordOutput("Shooter State", "SHOOT");
   }
 
   /**
@@ -90,6 +147,24 @@ public class Superstructure extends SubsystemBase {
     switch (wantedSuperState) {
       case DEFAULT:
         currentSuperState = SuperState.DEFAULT;
+        break;
+      case SHOOT:
+        currentSuperState = SuperState.SHOOT;
+        Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
+            .getMt2Pose2dY(), 0)
+            .plus(Constants.Physical.Shooter.SHOOTER_POSITION
+                .rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
+        Translation3d target;
+        if (Globals.fieldSide.equals("blue")) {
+          target = Constants.Field.HUB_POSE_BLUE;
+        } else {
+          target = Constants.Field.HUB_POSE_RED;
+        }
+        double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
+        double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
+        Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+        trajectoryPoint = initial;
+        trajectoryVelocity = new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ());
         break;
       case INTAKING:
         currentSuperState = SuperState.INTAKING;
@@ -132,7 +207,11 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     PARTY();
     currentSuperState = handleStateTransitions();
-
+    trajectoryVelocity = new Translation3d(trajectoryVelocity.getX(),
+        trajectoryVelocity.getY(),
+        trajectoryVelocity.getZ() - Constants.G * Globals.loopPeriodSecs);
+    trajectoryPoint = trajectoryPoint.plus(trajectoryVelocity.times(Globals.loopPeriodSecs));
+    Logger.recordOutput("Trajectory Point", new Pose3d(trajectoryPoint, new Rotation3d()));
     if (currentSuperState != tempLastState) {
       lastState = tempLastState;
       tempLastState = currentSuperState;
