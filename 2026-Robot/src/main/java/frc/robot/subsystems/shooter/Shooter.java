@@ -4,10 +4,10 @@
 
 package frc.robot.subsystems.shooter;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,7 +24,7 @@ public class Shooter extends SubsystemBase {
 
   private ShooterState wantedState = ShooterState.IDLE;
   private ShooterState systemState = ShooterState.IDLE;
-  private Vector3D _trajectorySetpoint = new Vector3D(0, 0, 0);
+  private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -38,7 +38,7 @@ public class Shooter extends SubsystemBase {
     this.wantedState = wantedState;
   }
 
-  public void setWantedState(ShooterState wantedState, Vector3D trajectorySetpoint) {
+  public void setWantedState(ShooterState wantedState, Translation3d trajectorySetpoint) {
     this.wantedState = wantedState;
     this._trajectorySetpoint = trajectorySetpoint;
   }
@@ -107,7 +107,7 @@ public class Shooter extends SubsystemBase {
     io.setFlywheelRPM(rpm);
   }
 
-  public Vector3D getCurrentShooterTrajectory() {
+  public Translation3d getCurrentShooterTrajectory() {
     double mag = io.getFlywheelRPM() / Constants.Physical.Shooter.SHOOTER_WHEEL_RADIUS;
     Rotation2d hoodAngle = io.getHoodAngle();
     double vz = mag * hoodAngle.getSin();
@@ -115,7 +115,7 @@ public class Shooter extends SubsystemBase {
     Rotation2d turretAngle = io.getTurretAngle();
     double vx = vr * turretAngle.getCos();
     double vy = vr * turretAngle.getSin();
-    return new Vector3D(vx, vy, vz);
+    return new Translation3d(vx, vy, vz);
   }
 
   protected double getRelativeAngleFromRotation2d(Rotation2d angle) {

@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -148,7 +146,7 @@ public final class Constants {
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
                         public static final double HOOD_PRECISION = degreesToRadians(1);
 
-                        public static Rotation2d getHoodAngleSetpointForTrajectory(Vector3D trajectory) {
+                        public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
                                 double dr = Math.hypot(trajectory.getX(), trajectory.getY());
                                 double angleRadians = Math.atan(dz / dr);
@@ -161,7 +159,8 @@ public final class Constants {
                         public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
                         public static final double TURRET_PRECISION = degreesToRadians(5);
 
-                        public static Rotation2d getTurretAngleSetpointForTrajectory(Vector3D _trajectorySetpoint) {
+                        public static Rotation2d getTurretAngleSetpointForTrajectory(
+                                        Translation3d _trajectorySetpoint) {
                                 return new Rotation2d(Math.atan2(_trajectorySetpoint.getY(),
                                                 _trajectorySetpoint.getX()));
                         }
@@ -170,7 +169,7 @@ public final class Constants {
                 public static class Flywheel {
                         public static final double FLYWHEEL_RPM_PRECISION = 100.0;
 
-                        public static double getFlywheelRPMSetpointForTrajectory(Vector3D _trajectorySetpoint) {
+                        public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
                                 double wheelRadiusMeters = Physical.Shooter.SHOOTER_WHEEL_RADIUS;
                                 double wheelCircumferenceMeters = 2 * Math.PI * wheelRadiusMeters;

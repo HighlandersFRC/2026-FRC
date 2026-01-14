@@ -25,7 +25,7 @@ public class PhysicsModel {
      *                                  (e.g., maxHeight is less than the initial or
      *                                  final z-coordinate).
      */
-    public static Vector3D getHeightBoundTrajectory(
+    public static Translation3d getHeightBoundTrajectory(
             Translation3d initialPosition,
             Translation3d finalPosition, double maxHeight) {
         if (maxHeight <= initialPosition.getZ() || maxHeight <= finalPosition.getZ()) {
@@ -39,6 +39,6 @@ public class PhysicsModel {
         double totalTime = timeUp + timeDown;
         double vxi = dx / totalTime;
         double vyi = dy / totalTime;
-        return new Vector3D(vxi, vyi, vzi);
+        return new Translation3d(vxi, vyi, vzi);
     }
 }

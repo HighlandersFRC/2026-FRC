@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -106,16 +104,12 @@ public class Superstructure extends SubsystemBase {
     Rotation2d gyro = drive.getMt2Pose2d().getRotation();
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
-    Vector3D initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+    Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
     Vector robotVelocity = drive.getRobotVelocityVector();
-    Vector3D onTheMove = new Vector3D(initialVelocity.getX() - robotVelocity.getI(),
+    Translation3d onTheMove = new Translation3d(initialVelocity.getX() - robotVelocity.getI(),
         initialVelocity.getY() - robotVelocity.getJ(),
         initialVelocity.getZ());
-    Vector3D trajectoryVector = initialVelocity;
-    Translation3d trajectory = new Translation3d(
-        trajectoryVector.getX(),
-        trajectoryVector.getY(),
-        trajectoryVector.getZ());
+    Translation3d trajectory = initialVelocity;
     Translation3d loggedTrajectory = trajectory.plus(initial);
     Logger.recordOutput("Trajectory", loggedTrajectory);
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
@@ -125,9 +119,8 @@ public class Superstructure extends SubsystemBase {
         trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
         trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
         trajectory.getZ());
-    trajectoryVector = new Vector3D(trajectory.getX(), trajectory.getY(), trajectory.getZ());
-    shooter.setWantedState(Shooter.ShooterState.SHOOT, trajectoryVector);
-    Vector3D realVector = shooter.getCurrentShooterTrajectory();
+    shooter.setWantedState(Shooter.ShooterState.SHOOT, trajectory);
+    Translation3d realVector = shooter.getCurrentShooterTrajectory();
     gyro = gyro.unaryMinus();
     Translation3d realTrajectory = new Translation3d(
         realVector.getX() * gyro.getCos() - realVector.getY() * gyro.getSin(),
@@ -169,7 +162,7 @@ public class Superstructure extends SubsystemBase {
         }
         double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
         double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
-        Vector3D initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+        Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
         trajectoryPoint = initial;
         trajectoryVelocity = new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ());
         break;
