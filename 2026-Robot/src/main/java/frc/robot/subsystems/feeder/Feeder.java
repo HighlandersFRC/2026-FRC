@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.feeder;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -93,5 +95,6 @@ public class Feeder extends SubsystemBase {
         setLinearizerPercent(0.0);
         break;
     }
+    Logger.recordOutput("Feeder State", systemState);
   }
 }
