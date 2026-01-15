@@ -23,6 +23,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.shooter.Shooter;
@@ -43,8 +44,9 @@ public class RobotContainer {
         final Drive drive = new Drive(peripherals);
         final Lights lights = new Lights();
         final Shooter shooter = new Shooter();
-        Intake intake = new Intake();
-        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake);
+        final Feeder feeder = new Feeder();
+        final Intake intake = new Intake();
+        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder);
 
         public boolean algaeMode = false;
         boolean manualMode = false;
