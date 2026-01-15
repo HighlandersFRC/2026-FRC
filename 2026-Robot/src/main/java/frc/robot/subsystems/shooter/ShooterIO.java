@@ -11,11 +11,13 @@ interface ShooterIO {
 
     double getFlywheelRPM();
 
-    void setHoodAngle(Rotation2d angle);
+    void moveHoodToAngle(Rotation2d angle);
 
     void setTurretAngle(Rotation2d angle);
 
     void setFlywheelRPM(double rpm);
 
     double getRelativeTurretAngleRadians();
+
+    void setHoodAngle(Rotation2d angle);
 }

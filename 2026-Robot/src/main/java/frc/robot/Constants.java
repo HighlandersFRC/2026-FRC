@@ -393,6 +393,10 @@ public final class Constants {
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
                 public static final int INTAKE_ROLLER_MOTOR_ID = 14;
+
+                // Feeder
+                public static final int HOPPER_MOTOR_ID = 15;
+                public static final int LINEARIZER_MOTOR_ID = 16;
         }
 
         // Misc. controller values

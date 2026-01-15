@@ -65,8 +65,13 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
-    public void setHoodAngle(Rotation2d angle) {
+    public void moveHoodToAngle(Rotation2d angle) {
         hoodPositionSetpointRad = angle.getRadians();
+    }
+
+    @Override
+    public void setHoodAngle(Rotation2d angle) {
+        hoodPositionRad = angle.getRadians();
     }
 
     @Override

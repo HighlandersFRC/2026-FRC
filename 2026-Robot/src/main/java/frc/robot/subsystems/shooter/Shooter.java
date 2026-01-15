@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
   }
 
   private void shoot() {
-    setHoodAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
+    moveHoodToAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
     setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
     setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
   }
@@ -93,6 +93,10 @@ public class Shooter extends SubsystemBase {
 
   public double getFlywheelRPM() {
     return io.getFlywheelRPM();
+  }
+
+  public void moveHoodToAngle(Rotation2d angle) {
+    io.moveHoodToAngle(angle);
   }
 
   public void setHoodAngle(Rotation2d angle) {
