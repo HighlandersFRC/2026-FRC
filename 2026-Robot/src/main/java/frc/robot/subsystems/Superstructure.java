@@ -136,16 +136,13 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Shooter State", "SHOOT");
 
     // Feeder
-    if (feeder.getLinearizerSensorTripped()) {
-      if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
-        trajectoryPoint.add(initial);
-        trajectoryVelocity
-            .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
-      }
-      feeder.setWantedState(FeederState.HOP); // Wait for shooter to be ready
+    if (shooter.readyToShoot()) {
+      feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+      trajectoryPoint.add(initial);
+      trajectoryVelocity
+          .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     } else {
-      feeder.setWantedState(FeederState.FEED); // Get balls into linearizer
+      feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
     }
   }
 
@@ -186,32 +183,20 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
-    if (feeder.getLinearizerSensorTripped()) { // If a ball is in position to pass, stop running linearizer
-      feeder.setWantedState(FeederState.HOP); // Only run hopper
-    } else {
-      feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
-    }
+    feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
     intake.setWantedState(IntakeState.UP);
   }
 
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.INTAKING);
-    if (feeder.getLinearizerSensorTripped()) { // If a ball is in position to pass, stop running linearizer
-      feeder.setWantedState(FeederState.HOP); // Only run hopper
-    } else {
-      feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
-    }
+    feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
   }
 
   public void handleIdleState() {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
     intake.setWantedState(IntakeState.UP);
-    if (feeder.getLinearizerSensorTripped()) { // If a ball is in position to pass, stop running linearizer
-      feeder.setWantedState(FeederState.HOP); // Only run hopper
-    } else {
-      feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
-    }
+    feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
   }
 
   public void PARTY() {

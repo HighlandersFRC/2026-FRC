@@ -15,7 +15,8 @@ public class Feeder extends SubsystemBase {
   public enum FeederState {
     IDLE, // Stop all movement
     HOP, // Move balls toward shooter
-    FEED, // Move balls into shooter
+    FEED, // Move balls into linearizer
+    SHOOT, // Move balls into shooter
   }
 
   private final FeederIO io;
@@ -40,7 +41,13 @@ public class Feeder extends SubsystemBase {
       case HOP:
         return FeederState.HOP;
       case FEED:
-        return FeederState.FEED;
+        if (getLinearizerSensorTripped()) {
+          return FeederState.HOP; // Only run hopper
+        } else {
+          return FeederState.FEED; // Run hopper and linearizer
+        }
+      case SHOOT:
+        return FeederState.SHOOT;
       default:
         return FeederState.IDLE;
     }
@@ -89,6 +96,10 @@ public class Feeder extends SubsystemBase {
       case FEED:
         setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
         setLinearizerPercent(Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        break;
+      case SHOOT:
+        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
+        setLinearizerSpeed(Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
         break;
       default:
         setHopperPercent(0.0);
