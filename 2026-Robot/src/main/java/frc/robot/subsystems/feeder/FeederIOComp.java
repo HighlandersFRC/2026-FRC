@@ -1,5 +1,6 @@
 package frc.robot.subsystems.feeder;
 
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANrange;
@@ -7,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.UpdateModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
@@ -39,6 +41,11 @@ class FeederIOComp implements FeederIO {
         linearizerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.LINEARIZER_GEAR_RATIO;
         linearizer.getConfigurator().apply(linearizerConfig);
         linearizer.setNeutralMode(NeutralModeValue.Brake);
+
+        CANrangeConfiguration config = new CANrangeConfiguration();
+        config.ProximityParams.ProximityThreshold = Constants.Physical.Feeder.LINEARIZER_SENSOR_TRIGGER_DISTANCE_M;
+        config.ToFParams.UpdateMode = UpdateModeValue.ShortRange100Hz;
+        linearizerSensor.getConfigurator().apply(config);
     }
 
     @Override
@@ -55,8 +62,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public boolean getLinearizerSensorTripped() {
-        return linearizerSensor.getDistance()
-                .getValueAsDouble() < Constants.Physical.Feeder.LINEARIZER_SENSOR_TRIGGER_DISTANCE_M;
+        return linearizerSensor.getIsDetected().getValue();
     }
 
     @Override
