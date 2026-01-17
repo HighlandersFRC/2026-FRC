@@ -17,13 +17,17 @@ import frc.robot.Constants;
 import frc.robot.tools.controlloops.PID;
 
 class ShooterIOComp implements ShooterIO {
-    private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID, "canivore");
-    private final TalonFX flywheelSlave = new TalonFX(Constants.CANInfo.FLYWHEEL_SLAVE_ID, "canivore");
-    private final TalonFX turretMotor = new TalonFX(Constants.CANInfo.TURRET_MOTOR_ID, "canivore");
-    private final TalonFX hoodMotor = new TalonFX(Constants.CANInfo.HOOD_MOTOR_ID, "canivore");
+    private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID,
+            Constants.CANInfo.CANBUS_NAME);
+    private final TalonFX flywheelSlave = new TalonFX(Constants.CANInfo.FLYWHEEL_SLAVE_ID,
+            Constants.CANInfo.CANBUS_NAME);
+    private final TalonFX turretMotor = new TalonFX(Constants.CANInfo.TURRET_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
+    private final TalonFX hoodMotor = new TalonFX(Constants.CANInfo.HOOD_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
 
-    private final CANcoder encoderOne = new CANcoder(Constants.CANInfo.TURRET_CANCODER_ONE_ID, "canivore");
-    private final CANcoder encoderTwo = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID, "canivore");
+    private final CANcoder encoderOne = new CANcoder(Constants.CANInfo.TURRET_CANCODER_ONE_ID,
+            Constants.CANInfo.CANBUS_NAME);
+    private final CANcoder encoderTwo = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID,
+            Constants.CANInfo.CANBUS_NAME);
     private final double SLOPE = ((double) (Constants.Physical.Shooter.TURRET_GEAR_1_TOOTH_COUNT
             - Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT))
             / (double) Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT;

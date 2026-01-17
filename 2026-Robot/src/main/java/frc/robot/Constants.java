@@ -95,7 +95,7 @@ public final class Constants {
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
                 public static final class Intake {
-                        public static final int NUM_PIVOT_MOTORS = 1;
+                        public static final int NUM_INTAKE_MOTORS = 1;
                         public static final int NUM_ROLLER_MOTORS = 1;
                         public static final double INTAKE_MASS_LB = 5.98; // TODO: make this the correct number
                         public static final double R_CG_M = 11.68; // TODO: make this the correct number
@@ -142,6 +142,9 @@ public final class Constants {
                                         HOPPER_MAX_SPEED_MPS;
                         public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
                                         LINEARIZER_MAX_SPEED_MPS;
+                        public static final double LINEARIZER_SENSOR_TRIGGER_DISTANCE_M = inchesToMeters(3);
+                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(2);
+                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(2);
                 }
         }
 
@@ -204,6 +207,8 @@ public final class Constants {
                         public static final double LINEARIZER_PERCENT = 1.0 / 3.0;
                         public static final double LINEARIZER_SPEED_MPS = 1.0;
                         public static final double HOPPER_SPEED_MPS = 1.0;
+                        public static final double LINEARIZER_AMPS = 60.0;
+                        public static final double HOPPER_AMPS = 60.0;
                 }
         }
 
@@ -374,6 +379,11 @@ public final class Constants {
                 public static final class Intake {
                         public static final double INTAKE_PIVOT_GEAR_RATIO = 1.0;
                 }
+
+                public static final class Feeder {
+                        public static final double HOPPER_GEAR_RATIO = 1.0 / 1.0;
+                        public static final double LINEARIZER_GEAR_RATIO = 1.0 / 1.0;
+                }
         }
 
         // Can info such as IDs
@@ -404,7 +414,7 @@ public final class Constants {
                 public static final int FLYWHEEL_SLAVE_ID = 10;
                 public static final int HOOD_MOTOR_ID = 11;
                 public static final int TURRET_MOTOR_ID = 12;
-                public static final int TURRET_CANCODER_ONE_ID = 5;
+                public static final int TURRET_CANCODER_ONE_ID = 5; // on driving pulley
                 public static final int TURRET_CANCODER_TWO_ID = 6;
 
                 // Intake
@@ -414,6 +424,7 @@ public final class Constants {
                 // Feeder
                 public static final int HOPPER_MOTOR_ID = 15;
                 public static final int LINEARIZER_MOTOR_ID = 16;
+                public static final int LINEARIZER_CANRANGE_ID = 0;
         }
 
         // Misc. controller values
