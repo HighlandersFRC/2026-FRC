@@ -142,7 +142,7 @@ public class VariableSpeedFollower extends AutoFollower {
       odometryFusedTheta = Math.PI + odometryFusedTheta;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       odometryFusedY = Constants.Physical.FIELD_WIDTH - odometryFusedY;
       odometryFusedTheta = -odometryFusedTheta;
     }

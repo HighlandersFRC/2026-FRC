@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.util.ArrayList;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Constants {
@@ -33,37 +37,34 @@ public final class Constants {
                 // Feed Forward Multiplier
                 public static final double FEED_FORWARD_MULTIPLIER = 0.8044;
                 public static final double ACCURATE_FOLLOWER_FEED_FORWARD_MULTIPLIER = 1;
-                public static final String[] paths = new String[] {
-                                "2AlgaeCenter.polarauto",
-                                "2+1PieceFeeder.polarauto",
-                                "3PieceFeederSmart.polarauto",
-                                "4PieceFeederGroundSmart.polarauto",
-                                "TushPush.polarauto",
-                };
+                public static String[] paths;
+
+                static {
+                        ArrayList<String> autoPaths = new ArrayList<>();
+                        File[] dir = Filesystem.getDeployDirectory().listFiles();
+                        for (File file : dir) {
+                                if (file.getName().contains(".polarauto")) {
+                                        autoPaths.add(file.getName());
+                                }
+                        }
+                        paths = new String[autoPaths.size()];
+                        for (int i = 0; i < autoPaths.size(); i++) {
+                                paths[i] = autoPaths.get(i);
+                        }
+                }
 
                 public static int getSelectedPathIndex() {
-                        if (OI.autoChooserConnected()) {
-                                if (OI.autoChooser.getRawButton(1)) {
-                                        return 0;
+                        String path = OI.getSelectedPath();
+                        if (path.equals("None")) {
+                                return -1;
+                        }
+                        for (int i = 0; i < paths.length; i++) {
+                                if (path.equals(paths[i])) {
+                                        return i;
                                 }
-                                if (OI.autoChooser.getRawButton(2)) {
-                                        return 1;
-                                }
-                                if (OI.autoChooser.getRawButton(3)) {
-                                        return 2;
-                                }
-                                if (OI.autoChooser.getRawButton(4)) {
-                                        return 3;
-                                }
-                                if (OI.autoChooser.getRawButton(5)) {
-                                        return 4;
-                                }
-                        } else {
-                                return (int) Math.round(SmartDashboard.getNumber("ROBOT AUTO OVERIDE", -1));
                         }
                         return -1;
                 }
-
         }
 
         public static final double closedLoopSimResolution = 0.01; // seconds
@@ -95,7 +96,7 @@ public final class Constants {
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
                 public static final class Intake {
-                        public static final int NUM_PIVOT_MOTORS = 1;
+                        public static final int NUM_INTAKE_MOTORS = 1;
                         public static final int NUM_ROLLER_MOTORS = 1;
                         public static final double INTAKE_MASS_LB = 5.98; // TODO: make this the correct number
                         public static final double R_CG_M = 11.68; // TODO: make this the correct number
@@ -123,6 +124,10 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
+                        public static final int TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final int TURRET_PULLEY_0_TOOTH_COUNT = 130;
+                        public static final int TURRET_GEAR_2_TOOTH_COUNT = 39;
+                        public static final int TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 3 + 0.2 * distanceFromHub;
@@ -138,6 +143,9 @@ public final class Constants {
                                         HOPPER_MAX_SPEED_MPS;
                         public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
                                         LINEARIZER_MAX_SPEED_MPS;
+                        public static final double LINEARIZER_SENSOR_TRIGGER_DISTANCE_M = inchesToMeters(3);
+                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(2);
+                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(2);
                 }
         }
 
@@ -200,16 +208,24 @@ public final class Constants {
                         public static final double LINEARIZER_PERCENT = 1.0 / 3.0;
                         public static final double LINEARIZER_SPEED_MPS = 1.0;
                         public static final double HOPPER_SPEED_MPS = 1.0;
+                        public static final double LINEARIZER_AMPS = 60.0;
+                        public static final double HOPPER_AMPS = 60.0;
                 }
         }
 
         // PID constants
         public static final class PIDConstants {
                 public static final class Turret {
+                        // Position PID
                         public static final double kP0 = 100.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
                         public static final double kS0 = 5.0;
+                        // Motor Velocity PID
+                        public static final double kP1 = 8.0;
+                        public static final double kI1 = 0.0;
+                        public static final double kD1 = 0.0;
+                        public static final double kS1 = 0.0005;
                 }
 
                 public static final class Hood {
@@ -224,6 +240,13 @@ public final class Constants {
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.5;
                         public static final double kG0 = 0.0;
+                }
+
+                public static final class Flywheel {
+                        public static final double kP0 = 0.00015;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.05;
                 }
         }
 
@@ -349,15 +372,22 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 1 / 1.0;
-                        public static final double HOOD_GEAR_RATIO = 180.73;
-                        public static final double TURRET_GEAR_RATIO = 46.67;
+                        public static final double FLYWHEEL_GEAR_RATIO = 1.0 / 1.0;
+                        public static final double HOOD_GEAR_RATIO = 1014.0 / 7.0;
+                        public static final double TURRET_GEAR_RATIO = 455.0 / 9.0;
                 }
 
                 public static final class Intake {
                         public static final double INTAKE_PIVOT_GEAR_RATIO = 1.0;
                 }
+
+                public static final class Feeder {
+                        public static final double HOPPER_GEAR_RATIO = 1.0 / 1.0;
+                        public static final double LINEARIZER_GEAR_RATIO = 1.0 / 1.0;
+                }
         }
+
+        public static final ArrayList<String> paths = new ArrayList<String>();
 
         // Can info such as IDs
         public static final class CANInfo {
@@ -387,12 +417,17 @@ public final class Constants {
                 public static final int FLYWHEEL_SLAVE_ID = 10;
                 public static final int HOOD_MOTOR_ID = 11;
                 public static final int TURRET_MOTOR_ID = 12;
-                public static final int TURRET_CANCODER_ONE_ID = 5;
+                public static final int TURRET_CANCODER_ONE_ID = 5; // on driving pulley
                 public static final int TURRET_CANCODER_TWO_ID = 6;
 
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
                 public static final int INTAKE_ROLLER_MOTOR_ID = 14;
+
+                // Feeder
+                public static final int HOPPER_MOTOR_ID = 15;
+                public static final int LINEARIZER_MOTOR_ID = 16;
+                public static final int LINEARIZER_CANRANGE_ID = 0;
         }
 
         // Misc. controller values

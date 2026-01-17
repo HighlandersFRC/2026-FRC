@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
@@ -153,6 +155,7 @@ public class Drive extends SubsystemBase {
   private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
   public boolean algaeMode = false;
+  public boolean robotCentric = false;
 
   public enum DriveState {
     DEFAULT,
@@ -336,7 +339,7 @@ public class Drive extends SubsystemBase {
       firstPointAngle = Math.PI + firstPointAngle;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       firstPointY = Constants.Physical.FIELD_WIDTH - firstPointY;
       firstPointAngle = -firstPointAngle;
     }
@@ -946,7 +949,7 @@ public class Drive extends SubsystemBase {
       currentTheta = Math.PI + currentTheta;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       currentY = Constants.Physical.FIELD_WIDTH - currentY;
       currentTheta = -currentTheta;
     }
@@ -1004,7 +1007,7 @@ public class Drive extends SubsystemBase {
       finalY = -finalY;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       finalY = -finalY;
       finalTheta = -finalTheta;
     }
@@ -1066,9 +1069,20 @@ public class Drive extends SubsystemBase {
     return io.getPosition().getX() < Constants.Physical.FIELD_LENGTH / 2.0;
   }
 
+  Field2d field = new Field2d();
+
   @Override
   public void periodic() {
+    SmartDashboard.putData("Field", field);
+    field.setRobotPose(getMt2Pose2d());
     io.update(systemState);
+
+    if (robotCentric) {
+      Logger.recordOutput("Driving Mode", "Robot Centric");
+    } else {
+      Logger.recordOutput("Driving Mode", "Field Centric");
+    }
+
     // process inputs
     DriveState newState = handleStateTransition();
     if (newState != systemState) {
@@ -1081,11 +1095,17 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        // if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() || OI.driverPOVLeft.getAsBoolean()
-        //     || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
-        //   robotCentricDrive(195.0);
+        // if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() ||
+        // OI.driverPOVLeft.getAsBoolean()
+        // || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
+        // robotCentricDrive(195.0);
         // } else {
-        teleopDrive();
+        if (robotCentric) {
+          robotCentricDrive(0);
+        } else {
+          teleopDrive();
+        }
+
         // }
         break;
       case IDLE:
