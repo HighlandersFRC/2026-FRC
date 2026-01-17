@@ -95,9 +95,9 @@ public class OI {
         fieldSide.addOption("blue", "blue");
         fieldSide.setDefaultOption("blue", "blue");
         SmartDashboard.putData("Field Side", fieldSide);
-        leftRight.addOption("processor", "processor");
-        leftRight.addOption("net", "net");
-        leftRight.setDefaultOption("net", "net");
+        leftRight.addOption("left", "left");
+        leftRight.addOption("right", "right");
+        leftRight.setDefaultOption("right", "right");
         for (String path : Constants.Autonomous.paths) {
             auto.addOption(path, path);
         }
@@ -257,8 +257,8 @@ public class OI {
         }
     }
 
-    public static boolean isProcessorSide() {
-        return leftRight.getSelected().equals("processor");
+    public static boolean isLeftSide() {
+        return leftRight.getSelected().equals("left");
     }
 
     public static boolean isRecalculateMode() {

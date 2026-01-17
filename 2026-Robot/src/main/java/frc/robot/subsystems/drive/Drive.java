@@ -339,7 +339,7 @@ public class Drive extends SubsystemBase {
       firstPointAngle = Math.PI + firstPointAngle;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       firstPointY = Constants.Physical.FIELD_WIDTH - firstPointY;
       firstPointAngle = -firstPointAngle;
     }
@@ -949,7 +949,7 @@ public class Drive extends SubsystemBase {
       currentTheta = Math.PI + currentTheta;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       currentY = Constants.Physical.FIELD_WIDTH - currentY;
       currentTheta = -currentTheta;
     }
@@ -1007,7 +1007,7 @@ public class Drive extends SubsystemBase {
       finalY = -finalY;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       finalY = -finalY;
       finalTheta = -finalTheta;
     }
