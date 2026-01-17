@@ -25,11 +25,11 @@ public class Feeder extends SubsystemBase {
   private FeederState systemState = FeederState.IDLE;
 
   public Feeder() {
-    if (RobotBase.isReal()) {
-      this.io = new FeederIOComp();
-    } else {
-      this.io = new FeederIOSim();
-    }
+    // if (RobotBase.isReal()) {
+    // this.io = new FeederIOComp();
+    // } else {
+    this.io = new FeederIOSim();
+    // }
   }
 
   public void setWantedState(FeederState wantedState) {

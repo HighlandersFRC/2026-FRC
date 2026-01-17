@@ -343,9 +343,9 @@ public final class Constants {
         public static final class Ratios {
                 public static final class Drive {
                         // public static final double DRIVE_GEAR_RATIO = 7.03; // mk5 R1
-                        public static final double DRIVE_GEAR_RATIO = 6.03; // mk5 R2
+                        public static final double DRIVE_GEAR_RATIO = 6.75; // mk5 R2
                         // public static final double DRIVE_GEAR_RATIO = 5.27; // mk5 R3
-                        public static final double STEER_GEAR_RATIO = 26.09; // mk5
+                        public static final double STEER_GEAR_RATIO = 12.8; // mk5
                 }
 
                 public static final class Shooter {

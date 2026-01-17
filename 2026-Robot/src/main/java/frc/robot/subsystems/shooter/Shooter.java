@@ -27,11 +27,11 @@ public class Shooter extends SubsystemBase {
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
 
   public Shooter() {
-    if (RobotBase.isReal()) {
-      this.io = new ShooterIOComp();
-    } else {
-      this.io = new ShooterIOSim(this);
-    }
+    // if (RobotBase.isReal()) {
+    // this.io = new ShooterIOComp();
+    // } else {
+    this.io = new ShooterIOSim(this);
+    // }
   }
 
   public void setWantedState(ShooterState wantedState) {
