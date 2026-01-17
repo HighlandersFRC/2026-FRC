@@ -158,6 +158,7 @@ public class Drive extends SubsystemBase {
     DEFAULT,
     IDLE,
     STOP,
+    SHOOTING,
   }
 
   private DriveState wantedState = DriveState.IDLE;
@@ -644,9 +645,9 @@ public class Drive extends SubsystemBase {
     double x = pose.getX();
     double y = pose.getY();
     double theta = pose.getRotation().getRadians();
-    Logger.recordOutput("Error for semi-generous", Math
-        .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)));
+    // Logger.recordOutput("Error for semi-generous", Math
+    //     .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    //         + Math.pow((y - getMt2Pose2dY()), 2)));
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
             + Math.pow((y - getMt2Pose2dY()), 2)) < 0.05
@@ -873,7 +874,7 @@ public class Drive extends SubsystemBase {
   public void driveToTheta(double theta) {
     theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2dAngle());
 
-    // Logger.recordOutput("Drive Angle Setpoint", theta);
+    Logger.recordOutput("Drive Angle Setpoint", theta);
     turningPID.setSetPoint(theta);
     turningPID.updatePID(Math.toDegrees(getMt2Pose2dAngle()));
 
@@ -1045,7 +1046,8 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean insideRadius(double deltaX, double deltaY, double deltaTheta, double radius) {
-    Logger.recordOutput("Error", Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)));
+    Logger.recordOutput("Error inside radius",
+        Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)));
     return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)) < radius;
   }
 
@@ -1057,6 +1059,8 @@ public class Drive extends SubsystemBase {
         return DriveState.IDLE;
       case STOP:
         return DriveState.STOP;
+      case SHOOTING:
+        return DriveState.SHOOTING;
       default:
         return DriveState.IDLE;
     }
@@ -1064,6 +1068,16 @@ public class Drive extends SubsystemBase {
 
   public boolean isOnBlueSide() {
     return io.getPosition().getX() < Constants.Physical.FIELD_LENGTH / 2.0;
+  }
+
+  private double goalShootingTheta = 0.0;
+
+  public void setGoalShootingTheta(double theta) {
+    goalShootingTheta = theta;
+  }
+
+  public double getGoalShootingTheta() {
+    return goalShootingTheta;
   }
 
   @Override
@@ -1075,6 +1089,7 @@ public class Drive extends SubsystemBase {
       systemState = newState;
     }
     Logger.recordOutput("Drive State", systemState);
+    Logger.recordOutput("MT2 Odometry", getMt2Pose2d());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
@@ -1089,6 +1104,9 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case IDLE:
+        break;
+      case SHOOTING:
+        driveToTheta(getGoalShootingTheta());
         break;
       case STOP:
         Vector velocityVector = new Vector();

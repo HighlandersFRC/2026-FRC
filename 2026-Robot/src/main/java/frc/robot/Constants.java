@@ -105,7 +105,7 @@ public final class Constants {
                 }
 
                 public static class Shooter {
-                        public static final double SHOOTER_HEIGHT = 0.635;
+                        public static final double SHOOTER_HEIGHT = inchesToMeters(26.0);
                         public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(540);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
@@ -118,7 +118,7 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(20.0), inchesToMeters(20.0), SHOOTER_HEIGHT);
+                                        inchesToMeters(0.0), inchesToMeters(0.0), SHOOTER_HEIGHT);
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
@@ -342,15 +342,14 @@ public final class Constants {
         // Gear ratios and conversions
         public static final class Ratios {
                 public static final class Drive {
-                        // public static final double DRIVE_GEAR_RATIO = 7.03; // mk5 R1
-                        public static final double DRIVE_GEAR_RATIO = 6.75; // mk5 R2
-                        // public static final double DRIVE_GEAR_RATIO = 5.27; // mk5 R3
-                        public static final double STEER_GEAR_RATIO = 12.8; // mk5
+                        public static final double DRIVE_GEAR_RATIO = 6.75;
+                        public static final double STEER_GEAR_RATIO = 12.8;
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 1 / 1.0;
-                        public static final double HOOD_GEAR_RATIO = 180.73;
+                        public static final double FLYWHEEL_GEAR_RATIO = 1.0 / 1.0;
+                        // public static final double HOOD_GEAR_RATIO = (24.0 / 3.5) / (81.0 * 42.0);
+                        public static final double HOOD_GEAR_RATIO = (32.1 - 7.5) / (3469.0);
                         public static final double TURRET_GEAR_RATIO = 46.67;
                 }
 
@@ -383,16 +382,17 @@ public final class Constants {
                 public static final int CANDLE_ID_2 = 2;
 
                 // Shooter
-                public static final int FLYWHEEL_MASTER_ID = 9;
-                public static final int FLYWHEEL_SLAVE_ID = 10;
-                public static final int HOOD_MOTOR_ID = 11;
-                public static final int TURRET_MOTOR_ID = 12;
-                public static final int TURRET_CANCODER_ONE_ID = 5;
-                public static final int TURRET_CANCODER_TWO_ID = 6;
+                public static final int SHOOTER_FLYWHEEL_MOTOR_MASTER_ID = 9;
+                public static final int SHOOTER_FLYWHEEL_MOTOR_FOLLOWER_ID = 10;
+                public static final int SHOOTER_HOOD_MOTOR_ID = 13;
 
                 // Intake
-                public static final int INTAKE_PIVOT_MOTOR_ID = 13;
-                public static final int INTAKE_ROLLER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_ID = 12;
+
+                // Feeder
+                public static final int FEEDER_1_MOTOR_ID = 14;
+                public static final int FEEDER_2_MOTOR_ID = 15;
+
         }
 
         // Misc. controller values

@@ -8,44 +8,55 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.subsystems.feeder.FeederIOComp;
+import frc.robot.subsystems.feeder.FeederIOSim;
 
 public class Feeder extends SubsystemBase {
-  /** Creates a new Feeder. */
-  public enum FeederState {
-    IDLE, // Stop all movement
-    HOP, // Move balls toward shooter
-    FEED, // Move balls into linearizer
-    SHOOT, // Move balls into shooter
-  }
 
   private final FeederIO io;
 
-  private FeederState wantedState = FeederState.IDLE;
-  private FeederState systemState = FeederState.IDLE;
-
   public Feeder() {
-    // if (RobotBase.isReal()) {
-    // this.io = new FeederIOComp();
-    // } else {
-    this.io = new FeederIOSim();
-    // }
+    if (RobotBase.isReal()) {
+      io = new FeederIOComp();
+    } else {
+      io = new FeederIOSim();
+    }
+  }
+
+  public void init() {
+    io.init();
+  }
+
+  public void setFirstFeederPercent(double percent) {
+    io.setFirstFeederPercent(percent);
+  }
+
+  public void setSecondFeederPercent(double percent) {
+    io.setSecondFeederPercent(percent);
+  }
+
+  public enum FeederState {
+    IDLE,
+    INTAKE,
+    OUTAKE,
+    SHOOT,
   }
 
   public void setWantedState(FeederState wantedState) {
     this.wantedState = wantedState;
   }
 
+  private FeederState wantedState = FeederState.IDLE;
+  private FeederState systemState = FeederState.IDLE;
+
   private FeederState handleStateTransition() {
     switch (wantedState) {
-      case HOP:
-        return FeederState.HOP;
-      case FEED:
-        if (getLinearizerSensorTripped()) {
-          return FeederState.HOP; // Only run hopper
-        } else {
-          return FeederState.FEED; // Run hopper and linearizer
-        }
+      case IDLE:
+        return FeederState.IDLE;
+      case INTAKE:
+        return FeederState.INTAKE;
+      case OUTAKE:
+        return FeederState.OUTAKE;
       case SHOOT:
         return FeederState.SHOOT;
       default:
@@ -53,59 +64,32 @@ public class Feeder extends SubsystemBase {
     }
   }
 
-  public void setHopperPercent(double percent) {
-    io.setHopperPercent(percent);
-  }
-
-  public void setLinearizerPercent(double percent) {
-    io.setLinearizerPercent(percent);
-  }
-
-  public void setLinearizerSpeed(double metersPerSecond) {
-    io.setLinearizerSpeed(
-        metersPerSecond);
-  }
-
-  public double getLinearizerSpeed() {
-    return io.getLinearizerSpeed();
-  }
-
-  public void setHopperSpeed(double metersPerSecond) {
-    io.setHopperSpeed(
-        metersPerSecond);
-  }
-
-  public double getHopperSpeed() {
-    return io.getHopperSpeed();
-  }
-
-  public boolean getLinearizerSensorTripped() {
-    return io.getLinearizerSensorTripped();
-  }
-
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
     io.updateInputs(systemState);
     systemState = handleStateTransition();
+    Logger.recordOutput("Feeder State", systemState);
     switch (systemState) {
-      case HOP:
-        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(0.0);
+      case IDLE:
+        setFirstFeederPercent(0.0);
+        setSecondFeederPercent(0.0);
         break;
-      case FEED:
-        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+      case INTAKE:
+        setFirstFeederPercent(0.5);
+        setSecondFeederPercent(0.5);
+        break;
+      case OUTAKE:
+        setFirstFeederPercent(-0.5);
+        setSecondFeederPercent(-0.5);
         break;
       case SHOOT:
-        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerSpeed(Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setFirstFeederPercent(0.5);
+        setSecondFeederPercent(0.5);
         break;
       default:
-        setHopperPercent(0.0);
-        setLinearizerPercent(0.0);
+        setFirstFeederPercent(0.0);
+        setSecondFeederPercent(0.0);
         break;
     }
-    Logger.recordOutput("Feeder State", systemState);
   }
 }

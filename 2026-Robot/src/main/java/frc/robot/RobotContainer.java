@@ -118,8 +118,9 @@ public class RobotContainer {
                 // COMPETITION CONTROLS
                 // Driver
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
-                OI.driverB.whileTrue(new SetRobotState(superstructure, SuperState.SHOOT));
-                OI.driverA.whileTrue(new SetRobotStateOnce(superstructure, SuperState.INTAKING));
+                OI.driverA.whileTrue(new SetRobotState(superstructure, SuperState.SHOOT));
+                OI.driverRT.whileTrue(new SetRobotStateOnce(superstructure, SuperState.INTAKING));
+                OI.driverB.whileTrue(new SetRobotState(superstructure, SuperState.SHOOT_BASIC));
                 // Operator
 
         }

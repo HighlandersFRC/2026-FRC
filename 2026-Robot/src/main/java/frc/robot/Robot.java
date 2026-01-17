@@ -78,6 +78,9 @@ public class Robot extends LoggedRobot {
     m_robotContainer.peripherals.init();
     m_robotContainer.drive.init();
     m_robotContainer.lights.init();
+    m_robotContainer.shooter.init();
+    m_robotContainer.intake.init();
+    m_robotContainer.feeder.init();
 
     PortForwarder.add(5800, "orangepi1.local", 5800);
     PortForwarder.add(5801, "orangepi1.local", 5801);
@@ -101,7 +104,7 @@ public class Robot extends LoggedRobot {
     m_robotContainer.lights.updateAlgaeMode(m_robotContainer.algaeMode);
     m_robotContainer.lights.updateManualMode(m_robotContainer.manualMode);
     m_robotContainer.drive.algaeMode = m_robotContainer.algaeMode;
-    Logger.recordOutput("Algae Mode", m_robotContainer.algaeMode);
+    // Logger.recordOutput("Algae Mode", m_robotContainer.algaeMode);
     Logger.recordOutput("Manual Mode", m_robotContainer.manualMode);
     Logger.recordOutput("IMU", m_robotContainer.drive.getGyroYaw());
     int index = Constants.Autonomous.getSelectedPathIndex();
@@ -113,14 +116,14 @@ public class Robot extends LoggedRobot {
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-    LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
+    // LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
     LoggedMechanism2d bot = new LoggedMechanism2d(2.0, 2.6);
-    bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
+    // bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
     Logger.recordOutput("Arm Sim", bot);
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();
-    Logger.recordOutput("SuperState", m_robotContainer.superstructure.getCurrentSuperState().toString());
+    // Logger.recordOutput("SuperState", m_robotContainer.superstructure.getCurrentSuperState().toString());
   }
 
   @Override

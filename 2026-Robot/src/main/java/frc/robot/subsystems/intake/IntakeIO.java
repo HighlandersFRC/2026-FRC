@@ -7,9 +7,5 @@ interface IntakeIO {
 
     public void updateInputs(IntakeState systemState);
 
-    public void setIntakePosition(double rotations);
-
-    public void setRollerPercent(double percent);
-
-    public double getIntakePosition();
+    public void setIntakePercent(double percent);
 }

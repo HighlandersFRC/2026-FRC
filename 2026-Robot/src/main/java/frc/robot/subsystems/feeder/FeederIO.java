@@ -3,20 +3,11 @@ package frc.robot.subsystems.feeder;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
 
 interface FeederIO {
+    public void init();
 
-    void setHopperPercent(double percent);
+    public void updateInputs(FeederState systemState);
 
-    void setLinearizerPercent(double percent);
+    public void setFirstFeederPercent(double percent);
 
-    boolean getLinearizerSensorTripped();
-
-    void setLinearizerSpeed(double metersPerSecond);
-
-    double getLinearizerSpeed();
-
-    void setHopperSpeed(double metersPerSecond);
-
-    double getHopperSpeed();
-
-    void updateInputs(FeederState systemState);
+    public void setSecondFeederPercent(double percent);
 }

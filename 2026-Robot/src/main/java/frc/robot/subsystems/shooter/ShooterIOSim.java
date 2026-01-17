@@ -50,6 +50,16 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
+    public void init() {
+        // Nothing to initialize for sim
+    }
+
+    @Override
+    public double getShooterStatorCurrent() {
+        return 0.0;
+    }
+
+    @Override
     public Rotation2d getHoodAngle() {
         return new Rotation2d(hoodPositionRad);
     }
@@ -136,5 +146,13 @@ class ShooterIOSim implements ShooterIO {
         }
         updateHood(Globals.loopPeriodSecs);
         updateFlywheel(Globals.loopPeriodSecs);
+    }
+
+    @Override
+    public void setShooterPercent(double percent) {
+    }
+
+    @Override
+    public void setHoodPercent(double percent) {
     }
 }
