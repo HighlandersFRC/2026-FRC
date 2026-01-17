@@ -123,6 +123,10 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
+                        public static final int TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final int TURRET_PULLEY_0_TOOTH_COUNT = 130;
+                        public static final int TURRET_GEAR_2_TOOTH_COUNT = 39;
+                        public static final int TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 3 + 0.2 * distanceFromHub;
@@ -206,10 +210,16 @@ public final class Constants {
         // PID constants
         public static final class PIDConstants {
                 public static final class Turret {
+                        // Position PID
                         public static final double kP0 = 100.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
                         public static final double kS0 = 5.0;
+                        // Motor Velocity PID
+                        public static final double kP1 = 8.0;
+                        public static final double kI1 = 0.0;
+                        public static final double kD1 = 0.0;
+                        public static final double kS1 = 0.0005;
                 }
 
                 public static final class Hood {
@@ -224,6 +234,13 @@ public final class Constants {
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.5;
                         public static final double kG0 = 0.0;
+                }
+
+                public static final class Flywheel {
+                        public static final double kP0 = 0.00015;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.05;
                 }
         }
 
@@ -349,9 +366,9 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 1 / 1.0;
-                        public static final double HOOD_GEAR_RATIO = 180.73;
-                        public static final double TURRET_GEAR_RATIO = 46.67;
+                        public static final double FLYWHEEL_GEAR_RATIO = 1.0 / 1.0;
+                        public static final double HOOD_GEAR_RATIO = 1014.0 / 7.0;
+                        public static final double TURRET_GEAR_RATIO = 455.0 / 9.0;
                 }
 
                 public static final class Intake {

@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
     if (RobotBase.isReal()) {
       this.io = new ShooterIOComp();
     } else {
-      this.io = new ShooterIOSim(this);
+      this.io = new ShooterIOSim();
     }
   }
 
@@ -104,7 +104,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setTurretAngle(Rotation2d angle) {
-    io.setTurretAngle(angle);
+    io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
   }
 
   public void setFlywheelRPM(double rpm) {
