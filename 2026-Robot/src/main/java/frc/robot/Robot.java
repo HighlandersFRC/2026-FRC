@@ -1,7 +1,12 @@
 package frc.robot;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.logging.Level;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -12,22 +17,38 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import edu.wpi.first.math.util.Units;
 
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
+import frc.robot.tools.logging.Elastic;
 
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
+  String m_fieldSide = "blue";
+
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
   boolean bPressed = false;
   boolean yPressed = false;
   boolean xPressed = false;
   boolean autoChooserCenterSwitch = false;
+
+  File[] autoFiles;
+  Command[] autos;
+  JSONObject[] autoJSONs;
+  JSONArray[] autoPoints;
+  SendableChooser<String> fieldSideChooser = new SendableChooser<String>();
+
+  JSONObject autoPath;
+  PolarAutoFollower autoCommand;
 
   @Override
   public void robotInit() {
@@ -85,15 +106,37 @@ public class Robot extends LoggedRobot {
     PortForwarder.add(5800, "10.44.99.34", 5800);
     PortForwarder.add(5801, "10.44.99.34", 5801);
 
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
     m_robotContainer.lights.clearAnimations();
 
     // m_robotContainer.lights.setFlashYellow();
+
+    autoFiles = new File[Constants.paths.size()];
+    autos = new Command[Constants.paths.size()];
+    autoJSONs = new JSONObject[Constants.paths.size()];
+    autoPoints = new JSONArray[Constants.paths.size()];
+    for (int i = 0; i < Constants.paths.size(); i++) {
+      try {
+        autoFiles[i] = new File(Filesystem.getDeployDirectory().getPath() + "/" + Constants.paths.get(i));
+        FileReader scanner = new FileReader(autoFiles[i]);
+        autoJSONs[i] = new JSONObject(new JSONTokener(scanner));
+        autoPoints[i] = (JSONArray) autoJSONs[i].getJSONArray("paths").getJSONObject(0)
+            .getJSONArray("sampled_points");
+        autos[i] = new PolarAutoFollower(autoJSONs[i],
+            m_robotContainer.drive, m_robotContainer.lights, m_robotContainer.peripherals, m_robotContainer.commandMap,
+            m_robotContainer.conditionMap);
+      } catch (Exception e) {
+        System.out.println("ERROR LOADING PATH " + Constants.paths.get(i) + ":" + e);
+      }
+    }
   }
 
   @Override
   public void robotPeriodic() {
     Logger.recordOutput("FieldSide", Globals.fieldSide);
     Logger.recordOutput("Blue Hub", Constants.Field.HUB_POSE_BLUE);
+    Globals.fieldSide = OI.fieldSide.getSelected();
 
     CommandScheduler.getInstance().run();
     Logger.recordOutput("MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
@@ -137,14 +180,15 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    Elastic.selectTab("Autonomous");
     double autoInitTime = Timer.getFPGATimestamp();
     m_robotContainer.superstructure.setWantedState(SuperState.IDLE);
-    if (OI.isBlueSide()) {
+    if (Globals.fieldSide == "blue") {
       java.util.logging.Logger.getGlobal().info("ON BLUE SIDE");
-      Globals.fieldSide = "blue";
+      m_fieldSide = "blue";
     } else {
       java.util.logging.Logger.getGlobal().info("ON RED SIDE");
-      Globals.fieldSide = "red";
+      m_fieldSide = "red";
     }
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     java.util.logging.Logger.getGlobal().info("Auto init time" + (Timer.getFPGATimestamp() - autoInitTime));
@@ -157,12 +201,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    Elastic.selectTab("Teleoperated");
     m_robotContainer.superstructure.setWantedState(SuperState.DEFAULT);
     m_robotContainer.lights.clearAnimations();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    if (OI.isBlueSide()) {
+    if (OI.isRedSide()) {
       Globals.fieldSide = "blue";
     } else {
       Globals.fieldSide = "red";
@@ -187,6 +232,14 @@ public class Robot extends LoggedRobot {
       }
     } else {
       xPressed = true;
+    }
+
+    if (m_robotContainer.manualMode) {
+      m_robotContainer.drive.robotCentric = true;
+      Elastic.selectTab("Camera View");
+    } else {
+      m_robotContainer.drive.robotCentric = false;
+      Elastic.selectTab("Teleoperated");
     }
   }
 
