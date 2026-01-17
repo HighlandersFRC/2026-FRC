@@ -274,8 +274,8 @@
             "title": "Field",
             "x": 0.0,
             "y": 0.0,
-            "width": 1024.0,
-            "height": 512.0,
+            "width": 896.0,
+            "height": 384.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -294,7 +294,7 @@
           {
             "title": "Field Side",
             "x": 384.0,
-            "y": 512.0,
+            "y": 384.0,
             "width": 128.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -307,7 +307,7 @@
           {
             "title": "Selected Auto",
             "x": 0.0,
-            "y": 512.0,
+            "y": 384.0,
             "width": 384.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -320,7 +320,7 @@
           {
             "title": "Algae Mode",
             "x": 512.0,
-            "y": 512.0,
+            "y": 384.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -336,7 +336,7 @@
           },
           {
             "title": "Console",
-            "x": 1024.0,
+            "x": 896.0,
             "y": 0.0,
             "width": 512.0,
             "height": 128.0,
@@ -350,7 +350,7 @@
           },
           {
             "title": "Hood Angle",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 128.0,
             "width": 128.0,
             "height": 128.0,
@@ -365,7 +365,7 @@
           {
             "title": "Drive State",
             "x": 1152.0,
-            "y": 512.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -379,8 +379,8 @@
           {
             "title": "Ready to Shoot",
             "x": 640.0,
-            "y": 512.0,
-            "width": 384.0,
+            "y": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -395,7 +395,7 @@
           },
           {
             "title": "Turret SP",
-            "x": 1024.0,
+            "x": 896.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
@@ -409,7 +409,7 @@
           },
           {
             "title": "Turret Angle",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
@@ -423,8 +423,8 @@
           },
           {
             "title": "SuperState",
-            "x": 1024.0,
-            "y": 512.0,
+            "x": 1280.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -437,7 +437,7 @@
           },
           {
             "title": "Hood SP",
-            "x": 1024.0,
+            "x": 896.0,
             "y": 128.0,
             "width": 128.0,
             "height": 128.0,
@@ -451,8 +451,8 @@
           },
           {
             "title": "Feeder State",
-            "x": 1408.0,
-            "y": 512.0,
+            "x": 1280.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -465,8 +465,8 @@
           },
           {
             "title": "Intake State",
-            "x": 1280.0,
-            "y": 512.0,
+            "x": 1152.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -478,22 +478,8 @@
             }
           },
           {
-            "title": "IMU",
-            "x": 1280.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/IMU",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "Flywheel RPM",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
@@ -507,7 +493,7 @@
           },
           {
             "title": "Flywheel RPM SP",
-            "x": 1024.0,
+            "x": 896.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
@@ -521,18 +507,20 @@
           },
           {
             "title": "Voltage",
-            "x": 1280.0,
+            "x": 1152.0,
             "y": 384.0,
             "width": 256.0,
             "height": 128.0,
-            "type": "Graph",
+            "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/PowerDistribution/Voltage",
               "period": 0.033,
               "data_type": "double",
-              "time_displayed": 20.0,
-              "color": 4278244375,
-              "line_width": 2.0
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
             }
           }
         ]

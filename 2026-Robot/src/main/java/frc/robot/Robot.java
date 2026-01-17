@@ -33,7 +33,6 @@ import frc.robot.tools.logging.Elastic;
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
-  String m_fieldSide = "blue";
 
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
   boolean bPressed = false;
@@ -106,8 +105,6 @@ public class Robot extends LoggedRobot {
     PortForwarder.add(5800, "10.44.99.34", 5800);
     PortForwarder.add(5801, "10.44.99.34", 5801);
 
-    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-
     m_robotContainer.lights.clearAnimations();
 
     // m_robotContainer.lights.setFlashYellow();
@@ -130,6 +127,7 @@ public class Robot extends LoggedRobot {
         System.out.println("ERROR LOADING PATH " + Constants.paths.get(i) + ":" + e);
       }
     }
+    Elastic.selectTab("Autonomous");
   }
 
   @Override
@@ -185,10 +183,8 @@ public class Robot extends LoggedRobot {
     m_robotContainer.superstructure.setWantedState(SuperState.IDLE);
     if (Globals.fieldSide == "blue") {
       java.util.logging.Logger.getGlobal().info("ON BLUE SIDE");
-      m_fieldSide = "blue";
     } else {
       java.util.logging.Logger.getGlobal().info("ON RED SIDE");
-      m_fieldSide = "red";
     }
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     java.util.logging.Logger.getGlobal().info("Auto init time" + (Timer.getFPGATimestamp() - autoInitTime));
@@ -208,9 +204,9 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
     if (OI.isRedSide()) {
-      Globals.fieldSide = "blue";
-    } else {
       Globals.fieldSide = "red";
+    } else {
+      Globals.fieldSide = "blue";
     }
 
     // Leave uncommented to use field relative theta system. Instead we are flipping
