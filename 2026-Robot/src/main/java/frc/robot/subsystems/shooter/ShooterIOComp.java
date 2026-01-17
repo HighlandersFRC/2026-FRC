@@ -53,6 +53,7 @@ class ShooterIOComp implements ShooterIO {
         hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
         hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        hoodMotor.setNeutralMode(NeutralModeValue.Brake);
 
         // Flywheel Configuration
         TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
