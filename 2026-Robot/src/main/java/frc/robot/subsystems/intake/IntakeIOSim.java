@@ -18,7 +18,7 @@ import frc.robot.tools.controlloops.PID;
 import org.littletonrobotics.junction.Logger;
 
 class IntakeIOSim implements IntakeIO {
-    DCMotor gearbox = Constants.MotorSpecs.x44.getX44Gearbox(Constants.Physical.Intake.NUM_PIVOT_MOTORS)
+    DCMotor gearbox = Constants.MotorSpecs.x44.getX44Gearbox(Constants.Physical.Intake.NUM_INTAKE_MOTORS)
             .withReduction(Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO);
     private final Matrix<N2, N2> A = MatBuilder.fill(
             Nat.N2(),
@@ -59,8 +59,8 @@ class IntakeIOSim implements IntakeIO {
                         gearbox.getCurrent(simState.get(0), wantedSpeed / gearbox.KvRadPerSecPerVolt), wantedSpeed);
                 update(dt / numSteps);
             }
-            Logger.recordOutput("pivot sim error", Units.radiansToDegrees(positionSetpointRad - simState.get(0)));
-            Logger.recordOutput("pivot sim current", inputTorqueCurrent);
+            Logger.recordOutput("intake sim error", Units.radiansToDegrees(positionSetpointRad - simState.get(0)));
+            Logger.recordOutput("intake sim current", inputTorqueCurrent);
         }
     }
 
