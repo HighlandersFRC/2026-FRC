@@ -1,16 +1,11 @@
 package frc.robot.subsystems.intake;
 
-import java.util.logging.Logger;
-
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.UpdateModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.Intake.IntakeState;
@@ -31,8 +26,6 @@ class IntakeIOComp implements IntakeIO {
                         intakeJerk);
 
         private final double intakeProfileScalarFactor = 1;
-
-        private final CANrange canRange = new CANrange(0, Constants.CANInfo.CANBUS_NAME);
 
         @Override
         public void init() {
@@ -60,22 +53,10 @@ class IntakeIOComp implements IntakeIO {
 
                 pivotMotor.getConfigurator().apply(intakeConfig);
                 pivotMotor.setNeutralMode(NeutralModeValue.Brake);
-
-                CANrangeConfiguration config = new CANrangeConfiguration();
-                config.ProximityParams.MinSignalStrengthForValidMeasurement = 2000;
-                config.ProximityParams.ProximityThreshold = 0.1;
-                config.ToFParams.UpdateMode = UpdateModeValue.ShortRange100Hz;
-
-                canRange.getConfigurator().apply(config);
         }
 
         @Override
         public void updateInputs(IntakeState systemState) {
-                org.littletonrobotics.junction.Logger.recordOutput("Can Range (meters)", getCANRangeDistance());
-                org.littletonrobotics.junction.Logger.recordOutput("Can Range Signal Strength",
-                                getCANRangeSignalStrength());
-                org.littletonrobotics.junction.Logger.recordOutput("Can Range Proximity Detected",
-                                getCANRangeProximity());
         }
 
         @Override
@@ -99,17 +80,5 @@ class IntakeIOComp implements IntakeIO {
         @Override
         public double getIntakePosition() {
                 return (pivotMotor.getPosition().getValueAsDouble());
-        }
-
-        public double getCANRangeDistance() {
-                return canRange.getDistance().getValueAsDouble();
-        }
-
-        public double getCANRangeSignalStrength() {
-                return canRange.getSignalStrength().getValueAsDouble();
-        }
-
-        public boolean getCANRangeProximity() {
-                return canRange.getIsDetected().getValue();
         }
 }
