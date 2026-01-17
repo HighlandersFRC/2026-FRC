@@ -42,10 +42,8 @@ class ShooterIOSim implements ShooterIO {
             Units.radiansToRotations(Constants.PIDConstants.Turret.kD0));
     private double kTurretS0 = Units.radiansToRotations(Constants.PIDConstants.Turret.kS0);
     private Vector<N2> turretSimState;
-    private final Shooter shooter;
 
-    ShooterIOSim(Shooter shooter) {
-        this.shooter = shooter;
+    ShooterIOSim() {
         turretSimState = VecBuilder.fill(0.0, 0.0);
     }
 
@@ -65,13 +63,18 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
-    public void setHoodAngle(Rotation2d angle) {
+    public void moveHoodToAngle(Rotation2d angle) {
         hoodPositionSetpointRad = angle.getRadians();
     }
 
     @Override
-    public void setTurretAngle(Rotation2d angle) {
-        turretPositionSetpointRad = shooter.getRelativeAngleFromRotation2d(angle);
+    public void setHoodAngle(Rotation2d angle) {
+        hoodPositionRad = angle.getRadians();
+    }
+
+    @Override
+    public void setTurretAngle(double angle) {
+        turretPositionSetpointRad = angle;
     }
 
     @Override

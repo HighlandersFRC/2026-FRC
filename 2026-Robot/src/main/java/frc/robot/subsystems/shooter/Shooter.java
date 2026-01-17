@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
     if (RobotBase.isReal()) {
       this.io = new ShooterIOComp();
     } else {
-      this.io = new ShooterIOSim(this);
+      this.io = new ShooterIOSim();
     }
   }
 
@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
   }
 
   private void shoot() {
-    setHoodAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
+    moveHoodToAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
     setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
     setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
   }
@@ -95,12 +95,16 @@ public class Shooter extends SubsystemBase {
     return io.getFlywheelRPM();
   }
 
+  public void moveHoodToAngle(Rotation2d angle) {
+    io.moveHoodToAngle(angle);
+  }
+
   public void setHoodAngle(Rotation2d angle) {
     io.setHoodAngle(angle);
   }
 
   public void setTurretAngle(Rotation2d angle) {
-    io.setTurretAngle(angle);
+    io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
   }
 
   public void setFlywheelRPM(double rpm) {
