@@ -646,8 +646,8 @@ public class Drive extends SubsystemBase {
     double y = pose.getY();
     double theta = pose.getRotation().getRadians();
     // Logger.recordOutput("Error for semi-generous", Math
-    //     .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-    //         + Math.pow((y - getMt2Pose2dY()), 2)));
+    // .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    // + Math.pow((y - getMt2Pose2dY()), 2)));
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
             + Math.pow((y - getMt2Pose2dY()), 2)) < 0.05
@@ -872,9 +872,9 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToTheta(double theta) {
+    Logger.recordOutput("Drive Angle Setpoint", theta);
     theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2dAngle());
 
-    Logger.recordOutput("Drive Angle Setpoint", theta);
     turningPID.setSetPoint(theta);
     turningPID.updatePID(Math.toDegrees(getMt2Pose2dAngle()));
 
@@ -1096,9 +1096,10 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        // if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() || OI.driverPOVLeft.getAsBoolean()
-        //     || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
-        //   robotCentricDrive(195.0);
+        // if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() ||
+        // OI.driverPOVLeft.getAsBoolean()
+        // || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
+        // robotCentricDrive(195.0);
         // } else {
         teleopDrive();
         // }

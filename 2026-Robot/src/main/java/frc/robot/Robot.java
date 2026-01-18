@@ -89,7 +89,8 @@ public class Robot extends LoggedRobot {
     PortForwarder.add(5801, "10.44.99.34", 5801);
 
     m_robotContainer.lights.clearAnimations();
-
+    SmartDashboard.putNumber("RPM", 0.0);
+    SmartDashboard.putNumber("Angle", Math.toDegrees(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
     // m_robotContainer.lights.setFlashYellow();
   }
 
@@ -97,6 +98,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     Logger.recordOutput("FieldSide", Globals.fieldSide);
     Logger.recordOutput("Blue Hub", Constants.Field.HUB_POSE_BLUE);
+    Logger.recordOutput("Red Hub", Constants.Field.HUB_POSE_RED);
 
     CommandScheduler.getInstance().run();
     Logger.recordOutput("MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
@@ -116,14 +118,17 @@ public class Robot extends LoggedRobot {
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-    // LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
+    // LoggedMechanismLigament2d intakeLigament2d =
+    // m_robotContainer.intake.getLigament();
     LoggedMechanism2d bot = new LoggedMechanism2d(2.0, 2.6);
-    // bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
+    // bot.getRoot("Intake", 1.0,
+    // Units.inchesToMeters(12.5)).append(intakeLigament2d);
     Logger.recordOutput("Arm Sim", bot);
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();
-    // Logger.recordOutput("SuperState", m_robotContainer.superstructure.getCurrentSuperState().toString());
+    // Logger.recordOutput("SuperState",
+    // m_robotContainer.superstructure.getCurrentSuperState().toString());
   }
 
   @Override

@@ -10,15 +10,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
-  private final Rotation2d shootBasicHoodAngle = new Rotation2d(Math.toRadians(10.0));
-  private final double shootBasicFlywheelRPM = 2500.0;
   private double zeroTime = Timer.getFPGATimestamp();
   private boolean firstTimeZero = true;
+  private Rotation2d shootBasicHoodAngle = new Rotation2d(
+      Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS - Math.toRadians(5.0));
+  private double shootBasicFlywheelRPM = 900.0;
 
   public enum ShooterState {
     DEFAULT,
@@ -87,9 +89,9 @@ public class Shooter extends SubsystemBase {
             .minus(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint))
             .getRadians());
     // double turretAngleError = Math.abs(
-    //     getRobotRelativeTurretAngle()
-    //         .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
-    //         .getRadians());
+    // getRobotRelativeTurretAngle()
+    // .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
+    // .getRadians());
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
@@ -185,18 +187,20 @@ public class Shooter extends SubsystemBase {
 
   protected double clampAngleToTurretRange(double radians) {
     double clampedAngle = radians;
-    while (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle += 2 * Math.PI;
-    }
-    while (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle -= 2 * Math.PI;
-    }
-    if (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle = -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-    }
-    if (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle = Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-    }
+    // while (clampedAngle <
+    // -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    // clampedAngle += 2 * Math.PI;
+    // }
+    // while (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS)
+    // {
+    // clampedAngle -= 2 * Math.PI;
+    // }
+    // if (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    // clampedAngle = -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+    // }
+    // if (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    // clampedAngle = Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+    // }
     return clampedAngle;
   }
 
@@ -204,12 +208,15 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     io.updateInputs();
     // Logger.recordOutput("Hood SP",
-    //     Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
+    // Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
     // Logger.recordOutput("Turret SP",
-    //     Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
+    // Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
     // Logger.recordOutput("Flywheel RPM SP", Constants.SetPoints.Flywheel
-    //     .getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
-
+    // .getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
+    shootBasicHoodAngle = new Rotation2d(
+        Math.toRadians(SmartDashboard.getNumber("Angle", shootBasicHoodAngle.getDegrees())));
+    shootBasicFlywheelRPM = SmartDashboard.getNumber("RPM", shootBasicFlywheelRPM);
+    Logger.recordOutput("Hood Setpoint", shootBasicHoodAngle.getDegrees());
     Logger.recordOutput("Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Flywheel RPM", getFlywheelRPM());
@@ -233,15 +240,15 @@ public class Shooter extends SubsystemBase {
         setHoodPercent(0.0);
         break;
       case SHOOT:
-        // shoot();
+        shoot();
 
-        setHoodPercent(-0.1);
+        // setHoodPercent(0.1);
         break;
       case SHOOT_BASIC:
-        // setFlywheelRPM(shootBasicFlywheelRPM);
+        setFlywheelRPM(shootBasicFlywheelRPM);
         setHoodAngle(shootBasicHoodAngle);
         // setShooterPercent(0.3);
-        // setHoodPercent(0.1);
+        // setHoodPercent(-0.1);
         break;
       case ZERO:
         if (firstTimeZero) {

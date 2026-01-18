@@ -243,11 +243,12 @@ public class OI {
     }
 
     public static boolean isBlueSide() {
-        if (autoChooserConnected()) {
-            return autoChooser.getRawButton(8);
-        } else {
-            return DriverStation.getAlliance().get() == DriverStation.Alliance.Blue;
-        }
+        return false ? true : false;
+        // if (autoChooserConnected()) {
+        // return autoChooser.getRawButton(8);
+        // } else {
+        // return DriverStation.getAlliance().get() == DriverStation.Alliance.Blue;
+        // }
     }
 
     public static boolean is4PieceFarBottom231Auto() {
