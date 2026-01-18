@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 class ShooterIOComp implements ShooterIO {
@@ -28,8 +29,8 @@ class ShooterIOComp implements ShooterIO {
     private final TalonFXConfiguration shooterMotorConfiguration = new TalonFXConfiguration();
 
     private final double hoodJerk = 0.0;
-    private final double hoodAcceleration = 1.0 / Constants.Ratios.Shooter.HOOD_GEAR_RATIO;
-    private final double hoodCruiseVelocity = 1.0 / Constants.Ratios.Shooter.HOOD_GEAR_RATIO;;
+    private final double hoodAcceleration = 1.0;
+    private final double hoodCruiseVelocity = 1.0;
 
     private final DynamicMotionMagicVoltage hoodMotionProfileRequest = new DynamicMotionMagicVoltage(0,
             hoodCruiseVelocity,
@@ -49,7 +50,7 @@ class ShooterIOComp implements ShooterIO {
 
         hoodMotor.setNeutralMode(NeutralModeValue.Brake);
         TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
-        hoodConfig.Slot0.kP = 10.0;
+        hoodConfig.Slot0.kP = 1000.0;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 5.0;
 
@@ -68,10 +69,10 @@ class ShooterIOComp implements ShooterIO {
         hoodConfig.CurrentLimits.StatorCurrentLimit = 40;
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 40;
         hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        hoodConfig.Feedback.SensorToMechanismRatio = 1.0;
+        hoodConfig.Feedback.SensorToMechanismRatio = 1 / Constants.Ratios.Shooter.HOOD_GEAR_RATIO;
         hoodConfig.Feedback.RotorToSensorRatio = 1.0;
-        hoodConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        hoodMotor.setPosition(0.0);
+        hoodConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        hoodMotor.setPosition(Units.radiansToRotations(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
         hoodMotor.getConfigurator().apply(hoodConfig);
         hoodMotor.setNeutralMode(NeutralModeValue.Brake);
 
@@ -84,6 +85,12 @@ class ShooterIOComp implements ShooterIO {
         shooterMotorConfiguration.CurrentLimits.StatorCurrentLimit = 140;
         shooterMotorConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
         shooterMotorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+        // shooterMotorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // shooterMotorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        // shooterMotorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+        // Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS;
+        // shooterMotorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+        // Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS;
         shooterMotorMaster.getConfigurator().apply(shooterMotorConfiguration);
         shooterMotorMaster.setNeutralMode(NeutralModeValue.Coast);
         shooterMotorFollower.getConfigurator().apply(shooterMotorConfiguration);
@@ -93,13 +100,15 @@ class ShooterIOComp implements ShooterIO {
     @Override
     public void updateInputs() {
         // // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'updateInputs'");
+        // throw new UnsupportedOperationException("Unimplemented method
+        // 'updateInputs'");
+        Logger.recordOutput("hood amps", hoodMotor.getTorqueCurrent().getValueAsDouble());
     }
 
     @Override
     public Rotation2d getHoodAngle() {
         return new Rotation2d(
-                hoodMotor.getPosition().getValueAsDouble() * Math.PI * 2.0 * Constants.Ratios.Shooter.HOOD_GEAR_RATIO);
+                hoodMotor.getPosition().getValueAsDouble() * Math.PI * 2.0);
     }
 
     @Override
@@ -118,14 +127,13 @@ class ShooterIOComp implements ShooterIO {
         System.out.println("angle" + angle.getDegrees());
         hoodMotor.setControl(this.hoodMotionProfileRequest
                 .withPosition(
-                        angle.getRotations() / Constants.Ratios.Shooter.HOOD_GEAR_RATIO)
+                        angle.getRotations())
                 .withVelocity(this.hoodCruiseVelocity * hoodProfileScalarFactor)
                 .withAcceleration(this.hoodAcceleration * hoodProfileScalarFactor)
                 .withJerk(
                         this.hoodJerk * hoodProfileScalarFactor)
                 .withSlot(0));
 
-        Logger.recordOutput("hood amps", hoodMotor.getTorqueCurrent().getValueAsDouble());
     }
 
     @Override

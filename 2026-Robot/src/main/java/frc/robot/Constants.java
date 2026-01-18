@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -72,8 +74,8 @@ public final class Constants {
 
         // Physical constants (e.g. field and robot dimensions)
         public static final class Physical {
-                public static final double FIELD_WIDTH = inchesToMeters(316.64);
-                public static final double FIELD_LENGTH = inchesToMeters(650.12);
+                public static final double FIELD_WIDTH = 8.069;
+                public static final double FIELD_LENGTH = 16.541;
                 public static final double WHEEL_DIAMETER = inchesToMeters(4);
                 public static final double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
                 public static final double WHEEL_ROTATION_PER_METER = 1 / WHEEL_CIRCUMFERENCE;
@@ -112,7 +114,7 @@ public final class Constants {
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
                         public static final double SHOOTER_FRICTION_COEFFICIENT = SHOOTER_FLYWHEEL_ACCELERATION_RAD_S /
                                         SHOOTER_MAX_SPEED_RAD_S;
-                        public static final double SHOOTER_WHEEL_RADIUS = inchesToMeters(2);
+                        public static final double SHOOTER_WHEEL_RADIUS = inchesToMeters(3);
                         public static final int TURRET_MOTOR_COUNT = 1;
                         public static final double TURRET_MOI = 0.06; // kg*m^2
                         public static final int HOOD_MOTOR_COUNT = 1;
@@ -154,13 +156,13 @@ public final class Constants {
         public static final class SetPoints {
                 public static class Hood {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
-                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
+                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(90 - 7.4);
                         public static final double HOOD_PRECISION = degreesToRadians(1);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
                                 double dr = Math.hypot(trajectory.getX(), trajectory.getY());
-                                double angleRadians = Math.atan(dz / dr);
+                                double angleRadians = Math.atan(dz / dr) - Math.toRadians(7.5);
                                 return new Rotation2d(angleRadians);
                         }
                 }
@@ -182,10 +184,12 @@ public final class Constants {
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
+                                Logger.recordOutput("Velocity of traj", v);
                                 double wheelRadiusMeters = Physical.Shooter.SHOOTER_WHEEL_RADIUS;
                                 double wheelCircumferenceMeters = 2 * Math.PI * wheelRadiusMeters;
                                 double wheelRotationsPerSecond = v / wheelCircumferenceMeters;
-                                double wheelRPM = wheelRotationsPerSecond * 60;
+                                double wheelRPM = wheelRotationsPerSecond * 60 * 1.4;
+                                Logger.recordOutput("RPM Setpoint", wheelRPM);
                                 return wheelRPM;
                         }
                 }

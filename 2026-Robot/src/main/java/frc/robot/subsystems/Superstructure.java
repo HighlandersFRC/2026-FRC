@@ -139,12 +139,12 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.SHOOTING;
         break;
       case SHOOT_BASIC:
-        if (shooter.readyToShootBasic()) {
-          wantedSuperState = SuperState.SHOOTING_BASIC;
-          currentSuperState = SuperState.SHOOTING_BASIC;
-        } else {
-          currentSuperState = SuperState.SHOOT_BASIC;
-        }
+        // if (shooter.readyToShootBasic()) {
+        // wantedSuperState = SuperState.SHOOTING_BASIC;
+        // currentSuperState = SuperState.SHOOTING_BASIC;
+        // } else {
+        currentSuperState = SuperState.SHOOT_BASIC;
+        // }
         break;
       case SHOOTING_BASIC:
         currentSuperState = SuperState.SHOOTING_BASIC;
@@ -158,11 +158,9 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void handleShootState() {
-    drive.setGoalShootingTheta(shooter.getGoalShootingTheta());
-    drive.setWantedState(DriveState.SHOOTING);
     // Shooter
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
-        .getMt2Pose2dY(), 0)
+        .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
     Translation3d target;
     if (Globals.fieldSide.equals("blue")) {
@@ -185,10 +183,10 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
         .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
     gyro = gyro.unaryMinus();
-    trajectory = new Translation3d(
-        trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
-        trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
-        trajectory.getZ());
+    // trajectory = new Translation3d(
+    // trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
+    // trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
+    // trajectory.getZ());
     shooter.setWantedState(ShooterState.SHOOT, trajectory);
     Translation3d realVector = shooter.getCurrentShooterTrajectory();
     gyro = gyro.unaryMinus();
@@ -198,25 +196,26 @@ public class Superstructure extends SubsystemBase {
         realVector.getZ());
     Logger.recordOutput("Shooter Trajectory",
         realTrajectory);
+    drive.setGoalShootingTheta(shooter.getGoalShootingTheta());
+    drive.setWantedState(DriveState.SHOOTING);
     // Logger.recordOutput("Shooter State", "SHOOT");
 
     // Feeder
     // if (shooter.readyToShoot()) {
-    //   feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
-    //   trajectoryPoint.add(initial);
-    //   trajectoryVelocity
-    //       .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
+    // feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    // trajectoryPoint.add(initial);
+    // trajectoryVelocity
+    // .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(),
+    // initialVelocity.getZ()));
     // } else {
     feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
     // }
   }
 
   private void handleShootingState() {
-    drive.setGoalShootingTheta(shooter.getGoalShootingTheta());
-    drive.setWantedState(DriveState.SHOOTING);
     // Shooter
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
-        .getMt2Pose2dY(), 0)
+        .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
     Translation3d target;
     if (Globals.fieldSide.equals("blue")) {
@@ -239,10 +238,10 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
         .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
     gyro = gyro.unaryMinus();
-    trajectory = new Translation3d(
-        trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
-        trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
-        trajectory.getZ());
+    // trajectory = new Translation3d(
+    // trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
+    // trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
+    // trajectory.getZ());
     shooter.setWantedState(ShooterState.SHOOT, trajectory);
     Translation3d realVector = shooter.getCurrentShooterTrajectory();
     gyro = gyro.unaryMinus();
@@ -252,16 +251,24 @@ public class Superstructure extends SubsystemBase {
         realVector.getZ());
     Logger.recordOutput("Shooter Trajectory",
         realTrajectory);
+    drive.setGoalShootingTheta(shooter.getGoalShootingTheta());
+    drive.setWantedState(DriveState.SHOOTING);
     // Logger.recordOutput("Shooter State", "SHOOT");
 
     // Feeder
     // if (shooter.readyToShoot()) {
+    // feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    // trajectoryPoint.add(initial);
+    // trajectoryVelocity
+    // .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(),
+    // initialVelocity.getZ()));
+    // } else {
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
     trajectoryPoint.add(initial);
     trajectoryVelocity
         .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     // } else {
-    //   feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
+    // feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
     // }
   }
 

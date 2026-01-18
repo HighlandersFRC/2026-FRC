@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -179,6 +180,17 @@ public class DriveIOComp extends DriveIO {
         @Override
         void zeroIMU() {
                 gyro.setYaw(0.0);
+                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
+                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
+                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
+                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
+                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
+                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
+                                new Rotation2d(backRight.getCanCoderPositionRadians()));
+                mt2Odometry.resetPosition(new Rotation2d(), swerveModulePositions,
+                                mt2Odometry.getEstimatedPosition());
         }
 
         @Override
@@ -244,6 +256,26 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Pose = mt2Odometry.update(getYaw(), swerveModulePositions);
 
+                LimelightHelpers.SetRobotOrientation("limelight-goon",
+                                gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-goon");
+
+                // if our angular velocity is greater than 360 degrees per second, ignore vision
+                // updates
+                boolean doRejectUpdate = false;
+                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                // doRejectUpdate = true;
+                // }
+                if (mt2.tagCount == 0) {
+                        doRejectUpdate = true;
+                }
+                if (!doRejectUpdate) {
+                        // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                        mt2Odometry.addVisionMeasurement(
+                                        mt2.pose,
+                                        mt2.timestampSeconds);
+                }
         }
 
         @Override
