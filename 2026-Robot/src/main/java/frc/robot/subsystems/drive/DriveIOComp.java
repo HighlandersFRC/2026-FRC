@@ -126,6 +126,11 @@ public class DriveIOComp extends DriveIO {
 
         public DriveIOComp(Peripherals peripherals) {
                 this.peripherals = peripherals;
+                frontRight.init();
+                frontLeft.init();
+                backRight.init();
+                backLeft.init();
+                gyro.init();
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
                 swerveModulePositions[0] = new SwerveModulePosition(0,
                                 new Rotation2d(frontLeft.getCanCoderPositionRadians()));
@@ -169,11 +174,6 @@ public class DriveIOComp extends DriveIO {
 
                 gamePiecePhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
                                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, gamePieceReefRobotToCam);
-
-                frontRight.init();
-                frontLeft.init();
-                backRight.init();
-                backLeft.init();
         }
 
         @Override

@@ -77,20 +77,19 @@ public final class Constants {
                 public static final double FIELD_LENGTH = inchesToMeters(650.12);
                 public static final double WHEEL_DIAMETER = inchesToMeters(4);
                 public static final double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
-                public static final double WHEEL_ROTATION_PER_METER = 1 / WHEEL_CIRCUMFERENCE;
-                public static final double WHEEL_TO_FRAME_DISTANCE = inchesToMeters(2.5); // TODO: is this different for
-                                                                                          // mk5s?
+                public static final double WHEEL_ROTATION_PER_METER = 1.0 / WHEEL_CIRCUMFERENCE;
                 public static final double TOP_SPEED = feetToMeters(30.0);
                 public static final double SIM_TOP_SPEED = 6.0; // meters per second
                 public static final double MAX_ACCELERATION = feetToMeters(30.0); // TODO: actually tune the top speed
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
                 public static final double SIM_MAX_ACCELERATION = 4.0; // meters per second
-                public static final double ROBOT_LENGTH = inchesToMeters(26);
-                public static final double ROBOT_WIDTH = inchesToMeters(26);
-                public static final double MODULE_OFFSET = inchesToMeters(2.625); // TODO: is this different for mk5s?
-                public static final double ROBOT_RADIUS = Math.hypot(ROBOT_LENGTH / 2 - WHEEL_TO_FRAME_DISTANCE,
-                                ROBOT_WIDTH / 2 - WHEEL_TO_FRAME_DISTANCE);
+                public static final double ROBOT_LENGTH = inchesToMeters(29.5);
+                public static final double ROBOT_WIDTH = inchesToMeters(24.5);
+                public static final double MODULE_OFFSET = inchesToMeters(2.625); // Wheel to frame distance TODO: is
+                                                                                  // this different for mk5s?
+                public static final double ROBOT_RADIUS = Math.hypot((ROBOT_LENGTH / 2.0) - MODULE_OFFSET,
+                                (ROBOT_WIDTH / 2.0) - MODULE_OFFSET);
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION / ROBOT_RADIUS;
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
@@ -365,8 +364,8 @@ public final class Constants {
         // Gear ratios and conversions
         public static final class Ratios {
                 public static final class Drive {
-                        // public static final double DRIVE_GEAR_RATIO = 7.03; // mk5 R1
-                        public static final double DRIVE_GEAR_RATIO = 6.03; // mk5 R2
+                        public static final double DRIVE_GEAR_RATIO = 7.03; // mk5 R1
+                        // public static final double DRIVE_GEAR_RATIO = 6.03; // mk5 R2
                         // public static final double DRIVE_GEAR_RATIO = 5.27; // mk5 R3
                         public static final double STEER_GEAR_RATIO = 26.09; // mk5
                 }

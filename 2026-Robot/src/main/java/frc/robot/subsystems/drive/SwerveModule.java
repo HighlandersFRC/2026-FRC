@@ -69,7 +69,9 @@ public class SwerveModule extends SubsystemBase {
    */
   public double torqueAngle() {
     // math to find turn angle
-    double length = Constants.Physical.ROBOT_LENGTH / 2, width = Constants.Physical.ROBOT_WIDTH / 2, angle;
+    double length = 24.5 / 2, width = 29.5 / 2, angle;
+    // double length = Constants.Physical.ROBOT_LENGTH / 2, width =
+    // Constants.Physical.ROBOT_WIDTH / 2, angle;
     length -= Constants.Physical.MODULE_OFFSET;
     width -= Constants.Physical.MODULE_OFFSET;
 
@@ -89,6 +91,7 @@ public class SwerveModule extends SubsystemBase {
       default:
         angle = 1;
     }
+    System.out.println("Module " + moduleNumber + " turn Angle: " + Math.toDegrees(angle));
     return angle;
   }
 
