@@ -1107,7 +1107,7 @@ public class Drive extends SubsystemBase {
       case IDLE:
         break;
       case SHOOTING:
-        driveToTheta(getGoalShootingTheta());
+        driveToTheta(getGoalShootingTheta() - 10.0);
         break;
       case STOP:
         Vector velocityVector = new Vector();

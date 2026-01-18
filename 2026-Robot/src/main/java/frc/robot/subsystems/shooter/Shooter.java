@@ -74,9 +74,13 @@ public class Shooter extends SubsystemBase {
   }
 
   private void shoot() {
-    moveHoodToAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
+    // moveHoodToAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
+    moveHoodToAngle(Constants.launchAngleToHoodAngle(
+        Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint),
+        Constants.shooterMPSToRPM(_trajectorySetpoint.getNorm())));
     // setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
-    setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
+    setFlywheelRPM(
+        Constants.shooterMPSToRPM(_trajectorySetpoint.getNorm()));
   }
 
   public double getGoalShootingTheta() {
@@ -153,7 +157,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isZeroed() {
-    if (io.getHoodVelocity() < 1.0 && io.getHoodCurrent() > 1.0 && Timer.getFPGATimestamp() - zeroTime > 1.0) {
+    if (Math.abs(io.getHoodVelocity()) < 1.0 && Math.abs(io.getHoodCurrent()) > 1.0
+        && Timer.getFPGATimestamp() - zeroTime > 1.0) {
+
       return true;
     } else {
       return false;

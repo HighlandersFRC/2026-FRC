@@ -127,7 +127,7 @@ public final class Constants {
                                         HOOD_MAX_SPEED_RAD_S;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
-                                return 3 + 0.2 * distanceFromHub;
+                                return 3 + 0.0 * distanceFromHub;
                         }
                 }
 
@@ -162,7 +162,7 @@ public final class Constants {
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
                                 double dr = Math.hypot(trajectory.getX(), trajectory.getY());
-                                double angleRadians = Math.atan(dz / dr) - Math.toRadians(7.5);
+                                double angleRadians = Math.atan(dz / dr);
                                 return new Rotation2d(angleRadians);
                         }
                 }
@@ -423,6 +423,14 @@ public final class Constants {
                                                 numMotors);
                         }
                 }
+        }
+
+        public static double shooterMPSToRPM(double mps) {
+                return (mps - 0.809) / (0.0037 * 1.18);
+        }
+
+        public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
+                return Rotation2d.fromDegrees(launchAngle.getDegrees() + 18.374 - (0.014 * rpm));
         }
 
         /**
