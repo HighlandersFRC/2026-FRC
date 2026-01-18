@@ -255,26 +255,29 @@ public class DriveIOComp extends DriveIO {
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Pose = mt2Odometry.update(getYaw(), swerveModulePositions);
+                try {
+                        LimelightHelpers.SetRobotOrientation("limelight-goon",
+                                        gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-goon");
 
-                LimelightHelpers.SetRobotOrientation("limelight-goon",
-                                gyro.getYawDegrees(), 0, 0, 0, 0, 0);
-                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-goon");
-
-                // if our angular velocity is greater than 360 degrees per second, ignore vision
-                // updates
-                boolean doRejectUpdate = false;
-                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
-                // doRejectUpdate = true;
-                // }
-                if (mt2.tagCount == 0) {
-                        doRejectUpdate = true;
-                }
-                if (!doRejectUpdate) {
-                        // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-                        mt2Odometry.addVisionMeasurement(
-                                        mt2.pose,
-                                        mt2.timestampSeconds);
+                        // if our angular velocity is greater than 360 degrees per second, ignore vision
+                        // updates
+                        boolean doRejectUpdate = false;
+                        // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                        // doRejectUpdate = true;
+                        // }
+                        if (mt2.tagCount == 0) {
+                                doRejectUpdate = true;
+                        }
+                        if (!doRejectUpdate) {
+                                // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                                mt2Odometry.addVisionMeasurement(
+                                                mt2.pose,
+                                                mt2.timestampSeconds);
+                        }
+                } catch (Exception e) {
+                        System.out.println(e);
                 }
         }
 
