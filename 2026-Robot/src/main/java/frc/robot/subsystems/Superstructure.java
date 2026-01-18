@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,6 +48,7 @@ public class Superstructure extends SubsystemBase {
     SHOOTING,
     SHOOT_BASIC,
     SHOOTING_BASIC,
+    ZERO,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -99,6 +101,9 @@ public class Superstructure extends SubsystemBase {
       case SHOOTING_BASIC:
         handleShootingBasicState();
         break;
+      case ZERO:
+        handleZeroState();
+        break;
       default:
         handleIdleState();
         break;
@@ -148,6 +153,19 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOTING_BASIC:
         currentSuperState = SuperState.SHOOTING_BASIC;
+        break;
+      case ZERO:
+        if (shooter.isZeroed()) {
+          if (DriverStation.isAutonomousEnabled()) {
+            wantedSuperState = SuperState.IDLE;
+            currentSuperState = SuperState.IDLE;
+          } else {
+            wantedSuperState = SuperState.DEFAULT;
+            currentSuperState = SuperState.DEFAULT;
+          }
+        } else {
+          currentSuperState = SuperState.ZERO;
+        }
         break;
       default:
         currentSuperState = SuperState.IDLE;
@@ -298,6 +316,14 @@ public class Superstructure extends SubsystemBase {
     intake.setWantedState(IntakeState.IDLE);
     feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
     shooter.setWantedState(ShooterState.DEFAULT);
+  }
+
+  public void handleZeroState() {
+    drive.setWantedState(DriveState.IDLE);
+    lights.setWantedState(LightsState.DEFAULT);
+    intake.setWantedState(IntakeState.IDLE);
+    feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
+    shooter.setWantedState(ShooterState.ZERO);
   }
 
   public void PARTY() {

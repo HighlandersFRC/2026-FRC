@@ -155,4 +155,14 @@ class ShooterIOSim implements ShooterIO {
     @Override
     public void setHoodPercent(double percent) {
     }
+
+    @Override
+    public double getHoodVelocity() {
+        return 0.0;
+    }
+
+    @Override
+    public double getHoodCurrent() {
+        return 0.0;
+    }
 }

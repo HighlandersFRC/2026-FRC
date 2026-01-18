@@ -166,4 +166,14 @@ class ShooterIOComp implements ShooterIO {
         return shooterMotorMaster.getStatorCurrent().getValueAsDouble();
     }
 
+    @Override
+    public double getHoodCurrent() {
+        return hoodMotor.getTorqueCurrent().getValueAsDouble();
+    }
+
+    @Override
+    public double getHoodVelocity() {
+        return hoodMotor.getVelocity().getValueAsDouble();
+    }
+
 }

@@ -27,4 +27,9 @@ interface ShooterIO {
     void setShooterPercent(double percent);
 
     void setHoodPercent(double percent);
+
+    double getHoodVelocity();
+
+    double getHoodCurrent();
+
 }

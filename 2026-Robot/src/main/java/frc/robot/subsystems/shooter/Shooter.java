@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -16,13 +17,16 @@ public class Shooter extends SubsystemBase {
   private final ShooterIO io;
   private final Rotation2d shootBasicHoodAngle = new Rotation2d(Math.toRadians(10.0));
   private final double shootBasicFlywheelRPM = 2500.0;
+  private double zeroTime = Timer.getFPGATimestamp();
+  private boolean firstTimeZero = true;
 
   public enum ShooterState {
     DEFAULT,
     IDLE,
     SHOOT,
     MANUAL_SHOOT,
-    SHOOT_BASIC
+    SHOOT_BASIC,
+    ZERO,
   }
 
   private ShooterState wantedState = ShooterState.IDLE;
@@ -60,6 +64,8 @@ public class Shooter extends SubsystemBase {
         return ShooterState.SHOOT;
       case SHOOT_BASIC:
         return ShooterState.SHOOT_BASIC;
+      case ZERO:
+        return ShooterState.ZERO;
       default:
         return ShooterState.IDLE;
     }
@@ -144,6 +150,14 @@ public class Shooter extends SubsystemBase {
     io.setHoodPercent(percent);
   }
 
+  public boolean isZeroed() {
+    if (io.getHoodVelocity() < 1.0 && io.getHoodCurrent() > 1.0 && Timer.getFPGATimestamp() - zeroTime > 1.0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public Translation3d getCurrentShooterTrajectory() {
     double mag = io.getFlywheelRPM() / Constants.Physical.Shooter.SHOOTER_WHEEL_RADIUS;
     Rotation2d hoodAngle = io.getHoodAngle();
@@ -205,6 +219,10 @@ public class Shooter extends SubsystemBase {
     if (newState != systemState) {
       systemState = newState;
     }
+    if (systemState != ShooterState.ZERO) {
+      firstTimeZero = true;
+      zeroTime = Timer.getFPGATimestamp();
+    }
     switch (systemState) {
       case DEFAULT:
         setShooterPercent(0.0);
@@ -224,6 +242,14 @@ public class Shooter extends SubsystemBase {
         setHoodAngle(shootBasicHoodAngle);
         // setShooterPercent(0.3);
         // setHoodPercent(0.1);
+        break;
+      case ZERO:
+        if (firstTimeZero) {
+          firstTimeZero = false;
+          zeroTime = Timer.getFPGATimestamp();
+        }
+        setShooterPercent(0.0);
+        setHoodPercent(-0.2);
         break;
       default:
         setShooterPercent(0.0);
