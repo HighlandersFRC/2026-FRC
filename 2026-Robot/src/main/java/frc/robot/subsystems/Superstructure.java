@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -191,7 +192,8 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    Vector robotVelocity = drive.getRobotVelocityVector();
+    ChassisSpeeds velocity = drive.getRobotVelocityVector();
+    Vector robotVelocity = new Vector(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
     double angVel = drive.getRobotAngularVelocity();
     double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
     double vy = angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
@@ -252,7 +254,8 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    Vector robotVelocity = drive.getRobotVelocityVector();
+    ChassisSpeeds velocity = drive.getRobotVelocityVector();
+    Vector robotVelocity = new Vector(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
     double angVel = drive.getRobotAngularVelocity();
     double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
     double vy = angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());

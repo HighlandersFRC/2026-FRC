@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.subsystems.drive.Drive.DriveState;
@@ -68,8 +69,11 @@ public class DriveIOSim extends DriveIO {
     }
 
     @Override
-    protected Vector getVelocityVector() {
-        return velocityVector;
+    protected ChassisSpeeds getChassisSpeeds() {
+        return new ChassisSpeeds(
+                velocityVector.getI(),
+                velocityVector.getJ(),
+                angularVelocity);
     }
 
     @Override
@@ -89,11 +93,6 @@ public class DriveIOSim extends DriveIO {
             angularVelocity += angularAcceleration * dt;
             angle += angularVelocity * dt;
         }
-    }
-
-    @Override
-    protected double getAngularVelocity() {
-        return angularVelocity;
     }
 
     @Override

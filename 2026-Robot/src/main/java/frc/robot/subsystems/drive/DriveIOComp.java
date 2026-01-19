@@ -9,12 +9,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -128,12 +130,13 @@ public class DriveIOComp extends DriveIO {
         private Pose2d mt2Pose;
         private Vector mt2Vel;
         private Peripherals peripherals;
-        private int i = 0;
+        private LinearFilter filterX = LinearFilter.movingAverage(10);
         private int j = 0;
-        private final Vector[] prevVelocities;
+        private LinearFilter filterY = LinearFilter.movingAverage(10);
         private final Vector[] prevAccelerations;
-        private final double[] prevThetaVelocities;
-        private Pose2d prevPose = new Pose2d();
+        private LinearFilter filterOmega = LinearFilter.movingAverage(10);
+
+        private final ChassisSpeeds[] prevVelocities;
         private Vector prevVelVector = new Vector();
 
         public DriveIOComp(Peripherals peripherals) {
@@ -186,12 +189,13 @@ public class DriveIOComp extends DriveIO {
                 frontLeft.init();
                 backRight.init();
                 backLeft.init();
-                prevVelocities = new Vector[10];
+                prevVelocities = new ChassisSpeeds[10];
                 prevAccelerations = new Vector[500];
-                prevThetaVelocities = new double[prevVelocities.length];
                 for (int j = 0; j < prevVelocities.length; j++) {
-                        prevVelocities[j] = new Vector();
-                        prevThetaVelocities[j] = 0.0;
+                        prevVelocities[j] = new ChassisSpeeds();
+                }
+                for (int j = 0; j < prevAccelerations.length; j++) {
+                        prevAccelerations[j] = new Vector();
                 }
                 for (int j = 0; j < prevAccelerations.length; j++) {
                         prevAccelerations[j] = new Vector();
@@ -275,7 +279,7 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backLeft.getCanCoderPositionRadians()));
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
-                mt2Pose = mt2Odometry.update(getYaw(), swerveModulePositions);
+                mt2Odometry.update(getYaw(), swerveModulePositions);
                 mt2Vel = getVelocityVectorNoDamp();
                 try {
                         LimelightHelpers.SetRobotOrientation("limelight-goon",
@@ -301,6 +305,18 @@ public class DriveIOComp extends DriveIO {
                 } catch (Exception e) {
                         System.out.println(e);
                 }
+
+                // Module states
+                var frontLeftState = frontLeft.getSwerveModuleState(gyro.getYaw());
+                var frontRightState = frontRight.getSwerveModuleState(gyro.getYaw());
+                var backLeftState = backLeft.getSwerveModuleState(gyro.getYaw());
+                var backRightState = backRight.getSwerveModuleState(gyro.getYaw());
+                // Convert to chassis speeds
+                ChassisSpeeds robotSpeeds = m_kinematics.toChassisSpeeds(
+                                frontLeftState, frontRightState, backLeftState, backRightState);
+                filterX.calculate(robotSpeeds.vxMetersPerSecond);
+                filterY.calculate(robotSpeeds.vyMetersPerSecond);
+                filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
         }
 
         @Override
@@ -334,14 +350,12 @@ public class DriveIOComp extends DriveIO {
         }
 
         @Override
-        protected Vector getVelocityVector() {
-                Vector avg = new Vector();
-                for (int j = 0; j < prevVelocities.length; j++) {
-                        avg = avg.add(prevVelocities[j]);
-                }
-                avg = avg.scaled(1.0 / (prevVelocities.length));
-                Logger.recordOutput("Robot Velocity/X", avg.getI());
-                Logger.recordOutput("Robot Velocity/Y", avg.getJ());
+        protected ChassisSpeeds getChassisSpeeds() {
+                ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
+                                filterOmega.lastValue());
+                Logger.recordOutput("RobotVelocities/X", avg.vxMetersPerSecond);
+                Logger.recordOutput("RobotVelocities/Y", avg.vyMetersPerSecond);
+                Logger.recordOutput("RobotVelocities/Omega", avg.omegaRadiansPerSecond);
                 return avg;
         }
 
@@ -358,13 +372,14 @@ public class DriveIOComp extends DriveIO {
         }
 
         private Vector getVelocityVectorNoDamp() {
-                Pose2d current = mt2Odometry.getEstimatedPosition();
-                Translation2d change = current.getTranslation().minus(prevPose.getTranslation());
-                Translation2d velocity = change;
-                if (Globals.loopPeriodSecs != 0) {
-                        velocity = change.times(1 / Globals.loopPeriodSecs);
-                }
-                return new Vector(velocity.getX(), velocity.getY());
+                // Pose2d current = mt2Odometry.getEstimatedPosition();
+                // Translation2d change = current.getTranslation().minus(prevPose.getTranslation());
+                // Translation2d velocity = change;
+                // if (Globals.loopPeriodSecs != 0) {
+                //         velocity = change.times(1 / Globals.loopPeriodSecs);
+                // }
+                // return new Vector(velocity.getX(), velocity.getY());
+                return new Vector(0.0, 0.0);
         }
 
         private Vector getAccelerationVectorNoDamp() {
@@ -378,37 +393,30 @@ public class DriveIOComp extends DriveIO {
                 return new Vector(acceleration.getI(), acceleration.getJ());
         }
 
-        @Override
+        // @Override
         protected double getAngularVelocity() {
-                double avg = 0.0;
-                for (int j = 0; j < prevThetaVelocities.length; j++) {
-                        avg += prevThetaVelocities[j];
-                }
-                avg = avg / (prevThetaVelocities.length);
-                Logger.recordOutput("Robot Angular Velocity", avg);
-                return avg;
-        }
-
-        private double getAngularVelocityNoDamp() {
-                Pose2d current = mt2Odometry.getEstimatedPosition();
-                double deltaTheta = current.getRotation().minus(prevPose.getRotation()).getRadians();
-                double angularVelocity = deltaTheta;
-                if (Globals.loopPeriodSecs != 0) {
-                        angularVelocity = deltaTheta / Globals.loopPeriodSecs;
-                }
-                return angularVelocity;
+                // double avg = 0.0;
+                // for (int j = 0; j < prevThetaVelocities.length; j++) {
+                //         avg += prevThetaVelocities[j];
+                // }
+                // avg = avg / (prevThetaVelocities.length);
+                // Logger.recordOutput("Robot Angular Velocity", avg);
+                // return avg;
+                return 0.0;
         }
 
         @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
 
-                prevVelocities[i] = getVelocityVectorNoDamp();
-                prevAccelerations[j] = getAccelerationVectorNoDamp();
-                prevThetaVelocities[i] = getAngularVelocityNoDamp();
-                prevPose = mt2Pose;
+                getChassisSpeeds();
+
+                // prevVelocities[i] = getVelocityVectorNoDamp();
+                // prevAccelerations[j] = getAccelerationVectorNoDamp();
+                // prevThetaVelocities[i] = getAngularVelocityNoDamp();
+                // prevPose = mt2Pose;
                 prevVelVector = mt2Vel;
-                i = i % (prevVelocities.length - 1);
+                // i = i % (prevVelocities.length - 1);
                 j = j % (prevAccelerations.length - 1);
         }
 }

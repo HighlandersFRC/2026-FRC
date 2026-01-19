@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.tools.math.Vector;
@@ -478,6 +480,11 @@ public class SwerveModule extends SubsystemBase {
       direction = -(Math.signum(direction) * (2 * Math.PI)) + direction;
     }
     return direction;
+  }
+
+  public SwerveModuleState getSwerveModuleState(Rotation2d robotYaw) {
+    return new SwerveModuleState(getWheelSpeed() * Constants.Physical.WHEEL_CIRCUMFERENCE,
+        new Rotation2d(getWheelPosition()).plus(robotYaw));
   }
 
   @Override
