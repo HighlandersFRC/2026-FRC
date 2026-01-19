@@ -873,7 +873,7 @@ public class Drive extends SubsystemBase {
 
   public void driveToTheta(double theta) {
     Logger.recordOutput("Drive Angle Setpoint", theta);
-    theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2dAngle());
+    theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2d().getRotation().getDegrees());
 
     turningPID.setSetPoint(theta);
     turningPID.updatePID(Math.toDegrees(getMt2Pose2dAngle()));
