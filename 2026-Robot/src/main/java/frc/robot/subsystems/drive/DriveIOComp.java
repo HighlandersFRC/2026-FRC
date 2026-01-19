@@ -115,20 +115,20 @@ public class DriveIOComp extends DriveIO {
         private final double moduleY = ((Constants.Physical.ROBOT_WIDTH) / 2) - Constants.Physical.MODULE_OFFSET;
 
         // Locations for the swerve drive modules relative to the robot center.
-        Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
-        Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
-        Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
-        Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
+        private Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
+        private Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
+        private Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
+        private Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
 
-        SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+        private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
-        SwerveDrivePoseEstimator mt2Odometry;
-        Pose2d mt2Pose;
-        Peripherals peripherals;
-        int i = 0;
-        Vector[] prevVelocities = new Vector[10];
-        Pose2d prevPose = new Pose2d();
+        private SwerveDrivePoseEstimator mt2Odometry;
+        private Pose2d mt2Pose;
+        private Peripherals peripherals;
+        private int i = 0;
+        private final Vector[] prevVelocities;
+        private Pose2d prevPose = new Pose2d();
 
         public DriveIOComp(Peripherals peripherals) {
                 this.peripherals = peripherals;
@@ -180,6 +180,10 @@ public class DriveIOComp extends DriveIO {
                 frontLeft.init();
                 backRight.init();
                 backLeft.init();
+                prevVelocities = new Vector[10];
+                for (int j = 0; j < prevVelocities.length; j++) {
+                        prevVelocities[j] = new Vector();
+                }
         }
 
         @Override
@@ -320,21 +324,12 @@ public class DriveIOComp extends DriveIO {
         protected Vector getVelocityVector() {
                 Vector avg = new Vector();
                 for (int j = 0; j < prevVelocities.length; j++) {
-                        avg = avg.add(prevVelocities[i]);
+                        avg = avg.add(prevVelocities[j]);
                 }
                 avg = avg.scaled(1.0 / (prevVelocities.length));
                 Logger.recordOutput("Robot Velocity/X", avg.getI());
                 Logger.recordOutput("Robot Velocity/Y", avg.getJ());
                 return avg;
-        }
-
-        @Override
-        void update(DriveState currentState) {
-                updateOdometryFusedArray(currentState);
-                prevVelocities[i] = getVelocityVectorNoDamp();
-                prevPose = mt2Pose;
-                i++;
-                i = i % (prevVelocities.length - 1);
         }
 
         private Vector getVelocityVectorNoDamp() {
@@ -345,5 +340,14 @@ public class DriveIOComp extends DriveIO {
                         velocity = change.times(1 / Globals.loopPeriodSecs);
                 }
                 return new Vector(velocity.getX(), velocity.getY());
+        }
+
+        @Override
+        void update(DriveState currentState) {
+                updateOdometryFusedArray(currentState);
+                prevVelocities[i] = getVelocityVectorNoDamp();
+                prevPose = mt2Pose;
+                i++;
+                i = i % (prevVelocities.length - 1);
         }
 }
