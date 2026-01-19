@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -125,7 +126,10 @@ public class DriveIOComp extends DriveIO {
 
         private SwerveDrivePoseEstimator mt2Odometry;
         private Peripherals peripherals;
-        private int i = 0;
+        private LinearFilter filterX = LinearFilter.movingAverage(10);
+        private LinearFilter filterY = LinearFilter.movingAverage(10);
+        private LinearFilter filterOmega = LinearFilter.movingAverage(10);
+
         private final ChassisSpeeds[] prevVelocities;
 
         public DriveIOComp(Peripherals peripherals) {
@@ -293,8 +297,11 @@ public class DriveIOComp extends DriveIO {
                 var backLeftState = backLeft.getSwerveModuleState(gyro.getYaw());
                 var backRightState = backRight.getSwerveModuleState(gyro.getYaw());
                 // Convert to chassis speeds
-                prevVelocities[i] = m_kinematics.toChassisSpeeds(
+                ChassisSpeeds robotSpeeds = m_kinematics.toChassisSpeeds(
                                 frontLeftState, frontRightState, backLeftState, backRightState);
+                filterX.calculate(robotSpeeds.vxMetersPerSecond);
+                filterY.calculate(robotSpeeds.vyMetersPerSecond);
+                filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
         }
 
         @Override
@@ -329,22 +336,17 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected ChassisSpeeds getChassisSpeeds() {
-                ChassisSpeeds avg = new ChassisSpeeds();
-                for (int j = 0; j < prevVelocities.length; j++) {
-                        avg = avg.plus(prevVelocities[j]);
-                }
-                avg = avg.times(1.0 / (prevVelocities.length));
-                Logger.recordOutput("Robot Velocity/X", avg.vxMetersPerSecond);
-                Logger.recordOutput("Robot Velocity/Y", avg.vyMetersPerSecond);
-                Logger.recordOutput("Robot Velocity/Theta", Math.toDegrees(avg.omegaRadiansPerSecond));
+                ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
+                                filterOmega.lastValue());
+                Logger.recordOutput("RobotVelocities/X", avg.vxMetersPerSecond);
+                Logger.recordOutput("RobotVelocities/Y", avg.vyMetersPerSecond);
+                Logger.recordOutput("RobotVelocities/Omega", avg.omegaRadiansPerSecond);
                 return avg;
         }
 
         @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
-                i++;
-                i = i % (prevVelocities.length - 1);
                 getChassisSpeeds();
         }
 }
