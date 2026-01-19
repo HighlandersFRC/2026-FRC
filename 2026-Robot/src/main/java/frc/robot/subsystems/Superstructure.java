@@ -192,9 +192,14 @@ public class Superstructure extends SubsystemBase {
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
     Vector robotVelocity = drive.getRobotVelocityVector();
+    double angVel = drive.getRobotAngularVelocity();
+    double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
+    double vy = angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
+    Vector tangentialVelocity = new Vector(vx, vy);
+    Vector shooterVelocity = robotVelocity.add(tangentialVelocity);
     Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
-        robotVelocity.getI(),
-        initialVelocity.getY() - robotVelocity.getJ(),
+        shooterVelocity.getI(),
+        initialVelocity.getY() - shooterVelocity.getJ(),
         initialVelocity.getZ());
     Translation3d trajectory = onTheMove;
     Translation3d loggedTrajectory = trajectory.plus(initial);
@@ -202,7 +207,8 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
         .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
     gyro = gyro.unaryMinus();
-    // trajectory = new Translation3d(
+    // trajectory = new Translation3d( // For Turret, make the0 trajectory robot
+    // centric
     // trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
     // trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
     // trajectory.getZ());
@@ -247,9 +253,14 @@ public class Superstructure extends SubsystemBase {
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
     Vector robotVelocity = drive.getRobotVelocityVector();
+    double angVel = drive.getRobotAngularVelocity();
+    double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
+    double vy = angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
+    Vector tangentialVelocity = new Vector(vx, vy);
+    Vector shooterVelocity = robotVelocity.add(tangentialVelocity);
     Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
-        robotVelocity.getI(),
-        initialVelocity.getY() - robotVelocity.getJ(),
+        shooterVelocity.getI(),
+        initialVelocity.getY() - shooterVelocity.getJ(),
         initialVelocity.getZ());
     Translation3d trajectory = onTheMove;
     Translation3d loggedTrajectory = trajectory.plus(initial);
@@ -257,7 +268,8 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
         .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
     gyro = gyro.unaryMinus();
-    // trajectory = new Translation3d(
+    // trajectory = new Translation3d( // For Turret, make the0 trajectory robot
+    // centric
     // trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
     // trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
     // trajectory.getZ());

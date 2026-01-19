@@ -909,6 +909,18 @@ public class Drive extends SubsystemBase {
   }
 
   /**
+   * Retrieves the current angular velocity of the robot in radians/s.
+   * The velocity vector is calculated based on the individual wheel speeds and
+   * orientations.
+   *
+   * @return The current angular velocity of the robot in radians per second.
+   */
+  public double getRobotAngularVelocity() {
+    double angVel = io.getAngularVelocity();
+    return angVel;
+  }
+
+  /**
    * Retrieves the path point closest to the specified time from the given path.
    * If the specified time is before the first path point, the first point is
    * returned.

@@ -128,6 +128,7 @@ public class DriveIOComp extends DriveIO {
         private Peripherals peripherals;
         private int i = 0;
         private final Vector[] prevVelocities;
+        private final double[] prevThetaVelocities;
         private Pose2d prevPose = new Pose2d();
 
         public DriveIOComp(Peripherals peripherals) {
@@ -181,8 +182,10 @@ public class DriveIOComp extends DriveIO {
                 backRight.init();
                 backLeft.init();
                 prevVelocities = new Vector[10];
+                prevThetaVelocities = new double[prevVelocities.length];
                 for (int j = 0; j < prevVelocities.length; j++) {
                         prevVelocities[j] = new Vector();
+                        prevThetaVelocities[j] = 0.0;
                 }
         }
 
@@ -343,9 +346,31 @@ public class DriveIOComp extends DriveIO {
         }
 
         @Override
+        protected double getAngularVelocity() {
+                double avg = 0.0;
+                for (int j = 0; j < prevThetaVelocities.length; j++) {
+                        avg += prevThetaVelocities[j];
+                }
+                avg = avg / (prevThetaVelocities.length);
+                Logger.recordOutput("Robot Angular Velocity", avg);
+                return avg;
+        }
+
+        private double getAngularVelocityNoDamp() {
+                Pose2d current = mt2Odometry.getEstimatedPosition();
+                double deltaTheta = current.getRotation().minus(prevPose.getRotation()).getRadians();
+                double angularVelocity = deltaTheta;
+                if (Globals.loopPeriodSecs != 0) {
+                        angularVelocity = deltaTheta / Globals.loopPeriodSecs;
+                }
+                return angularVelocity;
+        }
+
+        @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 prevVelocities[i] = getVelocityVectorNoDamp();
+                prevThetaVelocities[i] = getAngularVelocityNoDamp();
                 prevPose = mt2Pose;
                 i++;
                 i = i % (prevVelocities.length - 1);

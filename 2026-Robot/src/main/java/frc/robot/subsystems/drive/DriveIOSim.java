@@ -90,4 +90,9 @@ public class DriveIOSim extends DriveIO {
             angle += angularVelocity * dt;
         }
     }
+
+    @Override
+    protected double getAngularVelocity() {
+        return angularVelocity;
+    }
 }
