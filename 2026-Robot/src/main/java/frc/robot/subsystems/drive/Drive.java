@@ -116,8 +116,9 @@ public class Drive extends SubsystemBase {
 
   // teleop targeting PID values
   private double kTurningP = 0.04;
-  private double kTurningI = 0;
+  private double kTurningI = 0.0;
   private double kTurningD = 0.06;
+
   private double kRotateP = 0.04;
   private double kRotateI = 0.0;
   private double kRotateD = 0.06;
@@ -149,10 +150,14 @@ public class Drive extends SubsystemBase {
   private PID xPID = new PID(kXP, kXI, kXD);
   private PID yPID = new PID(kYP, kYI, kYD);
   private PID thetaPID = new PID(kThetaP, kThetaI, kThetaD);
-  private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
+  private PID turningPID = new PID(kTurningP, kTurningI, kTurningD); // shooting while moving pid
   private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
   public boolean algaeMode = false;
+  private Vector joystick;
+  private int l = 0;
+  private final Vector[] prevJoysticks;
+  private Vector prevJoystick = new Vector();
 
   public enum DriveState {
     DEFAULT,
@@ -176,6 +181,11 @@ public class Drive extends SubsystemBase {
       this.io = new DriveIOComp(this.peripherals);
     } else {
       this.io = new DriveIOSim();
+    }
+
+    prevJoysticks = new Vector[1000];
+    for (int j = 0; j < prevJoysticks.length; j++) {
+      prevJoysticks[j] = new Vector();
     }
   }
 
@@ -1092,8 +1102,121 @@ public class Drive extends SubsystemBase {
     return goalShootingTheta;
   }
 
+  private Vector getControllerVector() {
+    double oiRX = OI.getDriverRightX();
+    double oiLX = OI.getDriverLeftX();
+    double oiRY = OI.getDriverRightY();
+    double oiLY = OI.getDriverLeftY();
+    if (OI.operatorLT.getAsBoolean() && OI.operatorRT.getAsBoolean()) {
+      oiRX = OI.getOperatorRightX();
+      oiLX = OI.getOperatorLeftX();
+      oiRY = OI.getOperatorRightY();
+      oiLY = OI.getOperatorLeftY();
+    }
+    double turnLimit = 0.17;
+
+    if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
+      // activate slowy spin
+      turnLimit = 0.1;
+      oiRX = oiRX * 0.8;
+      oiLX = oiLX * 0.8;
+      oiRY = oiRY * 0.8;
+      oiLY = oiLY * 0.8;
+    }
+    double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
+    double originalY = -(Math.copySign(oiLX * oiLX, oiLX));
+    double turn = turnLimit
+        * (oiRX * (Constants.Physical.TOP_SPEED) / (Constants.Physical.ROBOT_RADIUS));
+
+    if (Math.abs(turn) < 0.05) {
+      turn = 0.0;
+    }
+    double xPower = getAdjustedX(originalX, originalY);
+    double yPower = getAdjustedY(originalX, originalY);
+
+    double xSpeed = xPower * Constants.Physical.TOP_SPEED;
+    double ySpeed = yPower * Constants.Physical.TOP_SPEED;
+
+    Vector controllerVector = new Vector(xSpeed, ySpeed);
+    if (getFieldSide().equals("red")) {
+      controllerVector.setI(-xSpeed);
+      controllerVector.setJ(-ySpeed);
+    }
+    return controllerVector;
+  }
+
+  private Vector getJoystickVelocityNoDamp() {
+    Vector current = getControllerVector();
+    Vector change = current.subtract(prevJoystick);
+    Vector velocity = change;
+    if (Globals.loopPeriodSecs != 0) {
+      velocity.setI(change.getI() * (1 / Globals.loopPeriodSecs));
+      velocity.setJ(change.getJ() * (1 / Globals.loopPeriodSecs));
+    }
+    return new Vector(velocity.getI(), velocity.getJ());
+  }
+
+  protected Vector getJoystickVelocity() {
+    Vector avg = new Vector();
+    for (int j = 0; j < prevJoysticks.length; j++) {
+      avg = avg.add(prevJoysticks[j]);
+    }
+    avg = avg.scaled(1.0 / (prevJoysticks.length));
+    return avg;
+  }
+
+  public Vector getPredictedDriveVelocityVector(double secondsInFuture) {
+    Vector currentVelocity = getRobotVelocityVector();
+    Vector currentAcceleration = io.getAccelerationVector();
+    Vector predictedVelocity = new Vector();
+    Vector controllerVector = getControllerVector();
+    Vector controllerVelocity = getJoystickVelocity();
+
+    double controllerScalar = 0.0;
+    double accelerationScalar = 0.0;
+    double controllerVelocityScalar = 10.0;
+
+    currentAcceleration.setI(currentAcceleration.getI() * secondsInFuture * accelerationScalar);
+    currentAcceleration.setJ(currentAcceleration.getJ() * secondsInFuture * accelerationScalar);
+
+    controllerVector.setI(controllerVector.getI() * controllerScalar);
+    controllerVector.setJ(controllerVector.getJ() * controllerScalar * -1.0);
+
+    controllerVelocity.setI((Math.copySign(Math.log(Math.abs(controllerVelocity.getI()) + 1.0),
+        controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture));
+    controllerVelocity.setJ((Math.copySign(Math.log(Math.abs(controllerVelocity.getJ()) + 1.0),
+        controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture) * -1.0);
+
+    if (Math.abs(controllerVelocity.getI()) > 0.05) {
+      controllerVelocity.setI(Math.copySign(0.05, controllerVelocity.getI()));
+    }
+    if (Math.abs(controllerVelocity.getJ()) > 0.05) {
+      controllerVelocity.setJ(Math.copySign(0.05, controllerVelocity.getJ()));
+    }
+
+    Logger.recordOutput("Robot Controller /X", controllerVelocity.getI());
+    Logger.recordOutput("Robot Controller /Y", controllerVelocity.getJ());
+
+    Logger.recordOutput("adjusted controller thing", controllerVelocity.magnitude());
+
+    predictedVelocity.setI(currentVelocity.getI() +
+        currentAcceleration.getI() +
+        controllerVector.getI() +
+        controllerVelocity.getI());
+    predictedVelocity.setJ(currentVelocity.getJ() +
+        currentAcceleration.getJ() +
+        controllerVector.getJ() +
+        controllerVelocity.getJ());
+
+    return predictedVelocity;
+  }
+
   @Override
   public void periodic() {
+    joystick = getControllerVector();
+    prevJoysticks[l] = getJoystickVelocityNoDamp();
+    prevJoystick = joystick;
+    l = l % (prevJoysticks.length - 1);
     io.update(systemState);
     // process inputs
     DriveState newState = handleStateTransition();
@@ -1102,6 +1225,14 @@ public class Drive extends SubsystemBase {
     }
     Logger.recordOutput("Drive State", systemState);
     Logger.recordOutput("MT2 Odometry", getMt2Pose2d());
+    Logger.recordOutput("Goal Shooting Theta (with the -10 degrees)", (getGoalShootingTheta() - 10.0));
+    Logger.recordOutput("Shooting Theta Error Degrees",
+        Math.abs((getGoalShootingTheta() - 10.0)
+            - Constants.standardizeAngleToOtherDegrees(Math.toDegrees(getMt2Pose2dAngle()),
+                (getGoalShootingTheta() - 10.0))));
+    Logger.recordOutput("Drive Velocity Magnitude", getRobotVelocityVector().magnitude());
+    Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.5).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;

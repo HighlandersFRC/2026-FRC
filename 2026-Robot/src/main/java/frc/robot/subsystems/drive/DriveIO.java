@@ -30,5 +30,7 @@ abstract class DriveIO {
 
     protected abstract double getAngularVelocity();
 
+    protected abstract Vector getAccelerationVector();
+
     abstract void update(DriveState currentState);
 }

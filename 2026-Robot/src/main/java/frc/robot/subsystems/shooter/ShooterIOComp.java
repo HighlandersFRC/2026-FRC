@@ -124,7 +124,6 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void setHoodAngle(Rotation2d angle) {
-        System.out.println("angle" + angle.getDegrees());
         hoodMotor.setControl(this.hoodMotionProfileRequest
                 .withPosition(
                         angle.getRotations())

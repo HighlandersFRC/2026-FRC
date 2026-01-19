@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
+import frc.robot.OI;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -97,7 +98,7 @@ public class DriveIOComp extends DriveIO {
                         new Translation3d(Constants.inchesToMeters(-12.375), Constants.inchesToMeters(9.375),
                                         Constants.inchesToMeters(8.6875)),
                         new Rotation3d(Math.toRadians(1.2), Math.toRadians(-19.7), Math.toRadians(181.53))); // 0.4,
-                                                                                                             // -20.5
+                                                                                                                                                                                                                                                                                           // -20.5
 
         Transform3d backRightReefRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(
@@ -125,11 +126,15 @@ public class DriveIOComp extends DriveIO {
 
         private SwerveDrivePoseEstimator mt2Odometry;
         private Pose2d mt2Pose;
+        private Vector mt2Vel;
         private Peripherals peripherals;
         private int i = 0;
+        private int j = 0;
         private final Vector[] prevVelocities;
+        private final Vector[] prevAccelerations;
         private final double[] prevThetaVelocities;
         private Pose2d prevPose = new Pose2d();
+        private Vector prevVelVector = new Vector();
 
         public DriveIOComp(Peripherals peripherals) {
                 this.peripherals = peripherals;
@@ -182,10 +187,14 @@ public class DriveIOComp extends DriveIO {
                 backRight.init();
                 backLeft.init();
                 prevVelocities = new Vector[10];
+                prevAccelerations = new Vector[500];
                 prevThetaVelocities = new double[prevVelocities.length];
                 for (int j = 0; j < prevVelocities.length; j++) {
                         prevVelocities[j] = new Vector();
                         prevThetaVelocities[j] = 0.0;
+                }
+                for (int j = 0; j < prevAccelerations.length; j++) {
+                        prevAccelerations[j] = new Vector();
                 }
         }
 
@@ -267,6 +276,7 @@ public class DriveIOComp extends DriveIO {
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Pose = mt2Odometry.update(getYaw(), swerveModulePositions);
+                mt2Vel = getVelocityVectorNoDamp();
                 try {
                         LimelightHelpers.SetRobotOrientation("limelight-goon",
                                         gyro.getYawDegrees(), 0, 0, 0, 0, 0);
@@ -335,6 +345,18 @@ public class DriveIOComp extends DriveIO {
                 return avg;
         }
 
+        @Override
+        protected Vector getAccelerationVector() {
+                Vector avg = new Vector();
+                for (int j = 0; j < prevAccelerations.length; j++) {
+                        avg = avg.add(prevAccelerations[j]);
+                }
+                avg = avg.scaled(1.0 / (prevAccelerations.length));
+                Logger.recordOutput("Robot Acceleration/X", avg.getI());
+                Logger.recordOutput("Robot Acceleration/Y", avg.getJ());
+                return avg;
+        }
+
         private Vector getVelocityVectorNoDamp() {
                 Pose2d current = mt2Odometry.getEstimatedPosition();
                 Translation2d change = current.getTranslation().minus(prevPose.getTranslation());
@@ -343,6 +365,17 @@ public class DriveIOComp extends DriveIO {
                         velocity = change.times(1 / Globals.loopPeriodSecs);
                 }
                 return new Vector(velocity.getX(), velocity.getY());
+        }
+
+        private Vector getAccelerationVectorNoDamp() {
+                Vector current = getVelocityVectorNoDamp();
+                Vector change = current.subtract(prevVelVector);
+                Vector acceleration = change;
+                if (Globals.loopPeriodSecs != 0) {
+                        acceleration.setI(change.getI() * (1 / Globals.loopPeriodSecs));
+                        acceleration.setJ(change.getJ() * (1 / Globals.loopPeriodSecs));
+                }
+                return new Vector(acceleration.getI(), acceleration.getJ());
         }
 
         @Override
@@ -369,10 +402,13 @@ public class DriveIOComp extends DriveIO {
         @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
+
                 prevVelocities[i] = getVelocityVectorNoDamp();
+                prevAccelerations[j] = getAccelerationVectorNoDamp();
                 prevThetaVelocities[i] = getAngularVelocityNoDamp();
                 prevPose = mt2Pose;
-                i++;
+                prevVelVector = mt2Vel;
                 i = i % (prevVelocities.length - 1);
+                j = j % (prevAccelerations.length - 1);
         }
 }

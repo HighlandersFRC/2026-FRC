@@ -95,4 +95,9 @@ public class DriveIOSim extends DriveIO {
     protected double getAngularVelocity() {
         return angularVelocity;
     }
+
+    @Override
+    protected Vector getAccelerationVector() {
+        return new Vector(0.0, 0.0);
+    }
 }
