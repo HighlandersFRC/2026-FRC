@@ -1167,7 +1167,8 @@ public class Drive extends SubsystemBase {
   }
 
   public Vector getPredictedDriveVelocityVector(double secondsInFuture) {
-    Vector currentVelocity = getRobotVelocityVector();
+    // Vector currentVelocity = getRobotVelocityVector();
+    Vector currentVelocity = new Vector(0.0, 0.0);
     Vector currentAcceleration = io.getAccelerationVector();
     Vector predictedVelocity = new Vector();
     Vector controllerVector = getControllerVector();
@@ -1231,7 +1232,7 @@ public class Drive extends SubsystemBase {
         Math.abs((getGoalShootingTheta() - 10.0)
             - Constants.standardizeAngleToOtherDegrees(Math.toDegrees(getMt2Pose2dAngle()),
                 (getGoalShootingTheta() - 10.0))));
-    Logger.recordOutput("Drive Velocity Magnitude", getRobotVelocityVector().magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude", getRobotVelocityVector().vxMetersPerSecond);
     Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
     Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.5).magnitude());
     // Stop moving when disabled
