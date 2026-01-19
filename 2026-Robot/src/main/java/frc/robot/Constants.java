@@ -84,8 +84,8 @@ public final class Constants {
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
                 public static final double SIM_MAX_ACCELERATION = 4.0; // meters per second
-                public static final double ROBOT_LENGTH = inchesToMeters(29.5);
-                public static final double ROBOT_WIDTH = inchesToMeters(24.5);
+                public static final double ROBOT_LENGTH = inchesToMeters(24.5);
+                public static final double ROBOT_WIDTH = inchesToMeters(29.5);
                 public static final double MODULE_OFFSET = inchesToMeters(2.625); // Wheel to frame distance TODO: is
                                                                                   // this different for mk5s?
                 public static final double ROBOT_RADIUS = Math.hypot((ROBOT_LENGTH / 2.0) - MODULE_OFFSET,

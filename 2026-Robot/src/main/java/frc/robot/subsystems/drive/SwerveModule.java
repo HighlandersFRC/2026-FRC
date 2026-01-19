@@ -69,29 +69,26 @@ public class SwerveModule extends SubsystemBase {
    */
   public double torqueAngle() {
     // math to find turn angle
-    double length = 24.5 / 2, width = 29.5 / 2, angle;
-    // double length = Constants.Physical.ROBOT_LENGTH / 2, width =
-    // Constants.Physical.ROBOT_WIDTH / 2, angle;
+    double length = Constants.Physical.ROBOT_LENGTH / 2, width = Constants.Physical.ROBOT_WIDTH / 2, angle;
     length -= Constants.Physical.MODULE_OFFSET;
     width -= Constants.Physical.MODULE_OFFSET;
 
     switch (moduleNumber) {
       case 1:
-        angle = (Math.atan2(-width, length)) - Math.PI;
+        angle = (Math.atan2(-length, width)) - Math.PI;
         break;
       case 2:
-        angle = Math.atan2(width, length);
+        angle = Math.atan2(length, width);
         break;
       case 3:
-        angle = Math.PI + Math.atan2(width, -length);
+        angle = Math.PI + Math.atan2(length, -width);
         break;
       case 4:
-        angle = (2 * Math.PI) + (Math.atan2(-width, -length));
+        angle = (2 * Math.PI) + (Math.atan2(-length, -width));
         break;
       default:
         angle = 1;
     }
-    System.out.println("Module " + moduleNumber + " turn Angle: " + Math.toDegrees(angle));
     return angle;
   }
 
@@ -150,7 +147,7 @@ public class SwerveModule extends SubsystemBase {
 
     driveMotorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.1;
 
-    driveMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     double absolutePosition = canCoder.getAbsolutePosition().getValueAsDouble();
     angleMotor.setPosition(absolutePosition);
