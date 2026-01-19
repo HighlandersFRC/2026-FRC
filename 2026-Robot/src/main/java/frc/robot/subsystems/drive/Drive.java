@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -903,8 +904,8 @@ public class Drive extends SubsystemBase {
    *
    * @return The current velocity vector of the robot in meters per second (m/s).
    */
-  public Vector getRobotVelocityVector() {
-    Vector velocityVector = io.getVelocityVector();
+  public ChassisSpeeds getRobotVelocityVector() {
+    ChassisSpeeds velocityVector = io.getChassisSpeeds();
     return velocityVector;
   }
 
@@ -916,7 +917,7 @@ public class Drive extends SubsystemBase {
    * @return The current angular velocity of the robot in radians per second.
    */
   public double getRobotAngularVelocity() {
-    double angVel = io.getAngularVelocity();
+    double angVel = io.getChassisSpeeds().omegaRadiansPerSecond;
     return angVel;
   }
 
