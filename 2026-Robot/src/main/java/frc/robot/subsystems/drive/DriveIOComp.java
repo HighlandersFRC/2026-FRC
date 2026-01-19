@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
+import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
@@ -124,6 +126,9 @@ public class DriveIOComp extends DriveIO {
         SwerveDrivePoseEstimator mt2Odometry;
         Pose2d mt2Pose;
         Peripherals peripherals;
+        int i = 0;
+        Vector[] prevVelocities = new Vector[10];
+        Pose2d prevPose = new Pose2d();
 
         public DriveIOComp(Peripherals peripherals) {
                 this.peripherals = peripherals;
@@ -313,33 +318,32 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected Vector getVelocityVector() {
-                Vector velocityVector = new Vector();
-                double pigeonAngleRadians = getYaw().getRadians();
-
-                double frV = this.frontRight.getGroundSpeed();
-                double frTheta = this.frontRight.getWheelPosition() + pigeonAngleRadians;
-                double frVX = frV * Math.cos(frTheta);
-                double frVY = frV * Math.sin(frTheta);
-                double flV = this.frontLeft.getGroundSpeed();
-                double flTheta = this.frontLeft.getWheelPosition() + pigeonAngleRadians;
-                double flVX = flV * Math.cos(flTheta);
-                double flVY = flV * Math.sin(flTheta);
-                double blV = this.backLeft.getGroundSpeed();
-                double blTheta = this.backLeft.getWheelPosition() + pigeonAngleRadians;
-                double blVX = blV * Math.cos(blTheta);
-                double blVY = blV * Math.sin(blTheta);
-                double brV = this.backRight.getGroundSpeed();
-                double brTheta = this.backRight.getWheelPosition() + pigeonAngleRadians;
-                double brVX = brV * Math.cos(brTheta);
-                double brVY = brV * Math.sin(brTheta);
-
-                velocityVector.setI(frVX + flVX + blVX + brVX);
-                velocityVector.setJ(frVY + flVY + blVY + brVY);
-                return velocityVector;
+                Vector avg = new Vector();
+                for (int j = 0; j < prevVelocities.length; j++) {
+                        avg = avg.add(prevVelocities[i]);
+                }
+                avg = avg.scaled(1.0 / (prevVelocities.length));
+                Logger.recordOutput("Robot Velocity/X", avg.getI());
+                Logger.recordOutput("Robot Velocity/Y", avg.getJ());
+                return avg;
         }
 
         @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
+                prevVelocities[i] = getVelocityVectorNoDamp();
+                prevPose = mt2Pose;
+                i++;
+                i = i % (prevVelocities.length - 1);
+        }
+
+        private Vector getVelocityVectorNoDamp() {
+                Pose2d current = mt2Odometry.getEstimatedPosition();
+                Translation2d change = current.getTranslation().minus(prevPose.getTranslation());
+                Translation2d velocity = change;
+                if (Globals.loopPeriodSecs != 0) {
+                        velocity = change.times(1 / Globals.loopPeriodSecs);
+                }
+                return new Vector(velocity.getX(), velocity.getY());
         }
 }

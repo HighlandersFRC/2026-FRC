@@ -25,6 +25,7 @@ import frc.robot.subsystems.lights.Lights.LightsState;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterState;
 import frc.robot.tools.math.PhysicsModel;
+import frc.robot.tools.math.Vector;
 
 public class Superstructure extends SubsystemBase {
   private final Drive drive;
@@ -190,12 +191,12 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    // Vector robotVelocity = drive.getRobotVelocityVector();
-    // Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
-    // robotVelocity.getI(),
-    // initialVelocity.getY() - robotVelocity.getJ(),
-    // initialVelocity.getZ());
-    Translation3d trajectory = initialVelocity;
+    Vector robotVelocity = drive.getRobotVelocityVector();
+    Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
+        robotVelocity.getI(),
+        initialVelocity.getY() - robotVelocity.getJ(),
+        initialVelocity.getZ());
+    Translation3d trajectory = onTheMove;
     Translation3d loggedTrajectory = trajectory.plus(initial);
     Logger.recordOutput("Trajectory", loggedTrajectory);
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
@@ -245,12 +246,12 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    // Vector robotVelocity = drive.getRobotVelocityVector();
-    // Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
-    // robotVelocity.getI(),
-    // initialVelocity.getY() - robotVelocity.getJ(),
-    // initialVelocity.getZ());
-    Translation3d trajectory = initialVelocity;
+    Vector robotVelocity = drive.getRobotVelocityVector();
+    Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
+        robotVelocity.getI(),
+        initialVelocity.getY() - robotVelocity.getJ(),
+        initialVelocity.getZ());
+    Translation3d trajectory = onTheMove;
     Translation3d loggedTrajectory = trajectory.plus(initial);
     Logger.recordOutput("Trajectory", loggedTrajectory);
     Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
