@@ -1234,7 +1234,7 @@ public class Drive extends SubsystemBase {
             - Constants.standardizeAngleToOtherDegrees(Math.toDegrees(getMt2Pose2dAngle()),
                 (getGoalShootingTheta() - 10.0))));
     Logger.recordOutput("Drive Velocity Magnitude", chassisSpeedsToVector(getChassisSpeeds()).magnitude());
-    // Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
+    Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
     Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.01).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
