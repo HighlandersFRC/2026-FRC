@@ -19,7 +19,7 @@ public class Shooter extends SubsystemBase {
     DEFAULT,
     IDLE,
     SHOOT,
-    MANUAL_SHOOT
+    MANUAL_SHOOT, SHOOT_BASIC
   }
 
   private ShooterState wantedState = ShooterState.IDLE;

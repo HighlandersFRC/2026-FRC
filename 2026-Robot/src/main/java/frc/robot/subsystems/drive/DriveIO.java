@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -26,7 +27,7 @@ abstract class DriveIO {
 
     protected abstract void driveCamCentric(Vector velocityVector, double turnRadiansPerSec, double camAngle);
 
-    protected abstract Vector getVelocityVector();
+    protected abstract ChassisSpeeds getChassisSpeeds();
 
     abstract void update(DriveState currentState);
 }

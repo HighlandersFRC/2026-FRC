@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.tools.math.Vector;
@@ -75,16 +77,16 @@ public class SwerveModule extends SubsystemBase {
 
     switch (moduleNumber) {
       case 1:
-        angle = (Math.atan2(-length, width)) - Math.PI;
+        angle = (Math.atan2(-width, length)) - Math.PI;
         break;
       case 2:
-        angle = Math.atan2(length, width);
+        angle = Math.atan2(width, length);
         break;
       case 3:
-        angle = Math.PI + Math.atan2(length, -width);
+        angle = Math.PI + Math.atan2(width, -length);
         break;
       case 4:
-        angle = (2 * Math.PI) + (Math.atan2(-length, -width));
+        angle = (2 * Math.PI) + (Math.atan2(-width, -length));
         break;
       default:
         angle = 1;
@@ -97,7 +99,7 @@ public class SwerveModule extends SubsystemBase {
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
 
-    angleMotorConfig.Slot0.kP = 850.0;
+    angleMotorConfig.Slot0.kP = 300.0;
     angleMotorConfig.Slot0.kI = 0.0;
     angleMotorConfig.Slot0.kD = 15;
 
@@ -125,7 +127,7 @@ public class SwerveModule extends SubsystemBase {
     // driveMotorConfig.Slot0.kD = 0.0;
     // driveMotorConfig.Slot0.kV = 0.0;
     // } else {
-    driveMotorConfig.Slot0.kP = 8.0;
+    driveMotorConfig.Slot0.kP = 6.0;
     driveMotorConfig.Slot0.kI = 0.0;
     driveMotorConfig.Slot0.kD = 0.0;
     driveMotorConfig.Slot0.kV = 0.0;
@@ -147,7 +149,7 @@ public class SwerveModule extends SubsystemBase {
 
     driveMotorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.1;
 
-    driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    driveMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     double absolutePosition = canCoder.getAbsolutePosition().getValueAsDouble();
     angleMotor.setPosition(absolutePosition);
@@ -478,6 +480,11 @@ public class SwerveModule extends SubsystemBase {
       direction = -(Math.signum(direction) * (2 * Math.PI)) + direction;
     }
     return direction;
+  }
+
+  public SwerveModuleState getSwerveModuleState(Rotation2d robotYaw) {
+    return new SwerveModuleState(getWheelSpeed() * Constants.Physical.WHEEL_CIRCUMFERENCE,
+        new Rotation2d(getWheelPosition()).plus(robotYaw));
   }
 
   @Override

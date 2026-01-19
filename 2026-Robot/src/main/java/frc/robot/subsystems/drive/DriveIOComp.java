@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -8,12 +9,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -112,25 +115,22 @@ public class DriveIOComp extends DriveIO {
         private final double moduleY = ((Constants.Physical.ROBOT_WIDTH) / 2) - Constants.Physical.MODULE_OFFSET;
 
         // Locations for the swerve drive modules relative to the robot center.
-        Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
-        Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
-        Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
-        Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
+        private Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
+        private Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
+        private Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
+        private Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
 
-        SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+        private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
-        SwerveDrivePoseEstimator mt2Odometry;
-        Pose2d mt2Pose;
-        Peripherals peripherals;
+        private SwerveDrivePoseEstimator mt2Odometry;
+        private Peripherals peripherals;
+        private LinearFilter filterX = LinearFilter.movingAverage(10);
+        private LinearFilter filterY = LinearFilter.movingAverage(10);
+        private LinearFilter filterOmega = LinearFilter.movingAverage(10);
 
         public DriveIOComp(Peripherals peripherals) {
                 this.peripherals = peripherals;
-                frontRight.init();
-                frontLeft.init();
-                backRight.init();
-                backLeft.init();
-                gyro.init();
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
                 swerveModulePositions[0] = new SwerveModulePosition(0,
                                 new Rotation2d(frontLeft.getCanCoderPositionRadians()));
@@ -174,11 +174,27 @@ public class DriveIOComp extends DriveIO {
 
                 gamePiecePhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
                                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, gamePieceReefRobotToCam);
+
+                frontRight.init();
+                frontLeft.init();
+                backRight.init();
+                backLeft.init();
         }
 
         @Override
         void zeroIMU() {
                 gyro.setYaw(0.0);
+                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
+                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
+                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
+                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
+                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
+                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
+                                new Rotation2d(backRight.getCanCoderPositionRadians()));
+                mt2Odometry.resetPosition(new Rotation2d(), swerveModulePositions,
+                                mt2Odometry.getEstimatedPosition());
         }
 
         @Override
@@ -242,8 +258,19 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backLeft.getCanCoderPositionRadians()));
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
-                mt2Pose = mt2Odometry.update(getYaw(), swerveModulePositions);
+                mt2Odometry.update(getYaw(), swerveModulePositions);
 
+                // Module states
+                var frontLeftState = frontLeft.getSwerveModuleState(gyro.getYaw());
+                var frontRightState = frontRight.getSwerveModuleState(gyro.getYaw());
+                var backLeftState = backLeft.getSwerveModuleState(gyro.getYaw());
+                var backRightState = backRight.getSwerveModuleState(gyro.getYaw());
+                // Convert to chassis speeds
+                ChassisSpeeds robotSpeeds = m_kinematics.toChassisSpeeds(
+                                frontLeftState, frontRightState, backLeftState, backRightState);
+                filterX.calculate(robotSpeeds.vxMetersPerSecond);
+                filterY.calculate(robotSpeeds.vyMetersPerSecond);
+                filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
         }
 
         @Override
@@ -277,34 +304,18 @@ public class DriveIOComp extends DriveIO {
         }
 
         @Override
-        protected Vector getVelocityVector() {
-                Vector velocityVector = new Vector();
-                double pigeonAngleRadians = getYaw().getRadians();
-
-                double frV = this.frontRight.getGroundSpeed();
-                double frTheta = this.frontRight.getWheelPosition() + pigeonAngleRadians;
-                double frVX = frV * Math.cos(frTheta);
-                double frVY = frV * Math.sin(frTheta);
-                double flV = this.frontLeft.getGroundSpeed();
-                double flTheta = this.frontLeft.getWheelPosition() + pigeonAngleRadians;
-                double flVX = flV * Math.cos(flTheta);
-                double flVY = flV * Math.sin(flTheta);
-                double blV = this.backLeft.getGroundSpeed();
-                double blTheta = this.backLeft.getWheelPosition() + pigeonAngleRadians;
-                double blVX = blV * Math.cos(blTheta);
-                double blVY = blV * Math.sin(blTheta);
-                double brV = this.backRight.getGroundSpeed();
-                double brTheta = this.backRight.getWheelPosition() + pigeonAngleRadians;
-                double brVX = brV * Math.cos(brTheta);
-                double brVY = brV * Math.sin(brTheta);
-
-                velocityVector.setI(frVX + flVX + blVX + brVX);
-                velocityVector.setJ(frVY + flVY + blVY + brVY);
-                return velocityVector;
+        protected ChassisSpeeds getChassisSpeeds() {
+                ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
+                                filterOmega.lastValue());
+                Logger.recordOutput("RobotVelocities/X", avg.vxMetersPerSecond);
+                Logger.recordOutput("RobotVelocities/Y", avg.vyMetersPerSecond);
+                Logger.recordOutput("RobotVelocities/Omega", avg.omegaRadiansPerSecond);
+                return avg;
         }
 
         @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
+                getChassisSpeeds();
         }
 }

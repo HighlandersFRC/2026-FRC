@@ -38,6 +38,7 @@ public class Intake extends SubsystemBase {
   public enum IntakeState {
     INTAKING,
     UP,
+    IDLE
   }
 
   public LoggedMechanismLigament2d getLigament() {
@@ -58,7 +59,7 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         return IntakeState.INTAKING;
       default:
-        return IntakeState.UP;
+        return IntakeState.IDLE;
     }
   }
 

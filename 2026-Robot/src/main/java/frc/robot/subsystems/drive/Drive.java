@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -154,7 +155,6 @@ public class Drive extends SubsystemBase {
   private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
   private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
-  public boolean algaeMode = false;
   public boolean robotCentric = false;
 
   public enum DriveState {
@@ -647,9 +647,9 @@ public class Drive extends SubsystemBase {
     double x = pose.getX();
     double y = pose.getY();
     double theta = pose.getRotation().getRadians();
-    Logger.recordOutput("Error for semi-generous", Math
-        .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)));
+    // Logger.recordOutput("Error for semi-generous", Math
+    // .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    // + Math.pow((y - getMt2Pose2dY()), 2)));
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
             + Math.pow((y - getMt2Pose2dY()), 2)) < 0.05
@@ -874,9 +874,9 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToTheta(double theta) {
-    theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2dAngle());
+    Logger.recordOutput("Drive Angle Setpoint", theta);
+    theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2d().getRotation().getDegrees());
 
-    // Logger.recordOutput("Drive Angle Setpoint", theta);
     turningPID.setSetPoint(theta);
     turningPID.updatePID(Math.toDegrees(getMt2Pose2dAngle()));
 
@@ -905,9 +905,21 @@ public class Drive extends SubsystemBase {
    *
    * @return The current velocity vector of the robot in meters per second (m/s).
    */
-  public Vector getRobotVelocityVector() {
-    Vector velocityVector = io.getVelocityVector();
+  public ChassisSpeeds getRobotVelocityVector() {
+    ChassisSpeeds velocityVector = io.getChassisSpeeds();
     return velocityVector;
+  }
+
+  /**
+   * Retrieves the current angular velocity of the robot in radians/s.
+   * The velocity vector is calculated based on the individual wheel speeds and
+   * orientations.
+   *
+   * @return The current angular velocity of the robot in radians per second.
+   */
+  public double getRobotAngularVelocity() {
+    double angVel = io.getChassisSpeeds().omegaRadiansPerSecond;
+    return angVel;
   }
 
   /**
@@ -1048,7 +1060,8 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean insideRadius(double deltaX, double deltaY, double deltaTheta, double radius) {
-    Logger.recordOutput("Error", Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)));
+    Logger.recordOutput("Error inside radius",
+        Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)));
     return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)) < radius;
   }
 
@@ -1089,24 +1102,18 @@ public class Drive extends SubsystemBase {
       systemState = newState;
     }
     Logger.recordOutput("Drive State", systemState);
+    Logger.recordOutput("MT2 Odometry", getMt2Pose2d());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
     }
     switch (systemState) {
       case DEFAULT:
-        // if (OI.driverA.getAsBoolean() && !(OI.driverPOVDown.getAsBoolean() ||
-        // OI.driverPOVLeft.getAsBoolean()
-        // || OI.driverPOVUp.getAsBoolean() || OI.driverPOVRight.getAsBoolean())) {
-        // robotCentricDrive(195.0);
-        // } else {
         if (robotCentric) {
           robotCentricDrive(0);
         } else {
           teleopDrive();
         }
-
-        // }
         break;
       case IDLE:
         break;
