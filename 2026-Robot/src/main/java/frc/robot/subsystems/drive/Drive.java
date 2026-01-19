@@ -3,6 +3,8 @@ package frc.robot.subsystems.drive;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -156,8 +158,6 @@ public class Drive extends SubsystemBase {
 
   public boolean algaeMode = false;
   private Vector joystick;
-  private int l = 0;
-  private final Vector[] prevJoysticks;
   private Vector prevJoystick = new Vector();
 
   public enum DriveState {
@@ -182,11 +182,6 @@ public class Drive extends SubsystemBase {
       this.io = new DriveIOComp(this.peripherals);
     } else {
       this.io = new DriveIOSim();
-    }
-
-    prevJoysticks = new Vector[1000];
-    for (int j = 0; j < prevJoysticks.length; j++) {
-      prevJoysticks[j] = new Vector();
     }
   }
 
@@ -914,9 +909,9 @@ public class Drive extends SubsystemBase {
    *
    * @return The current velocity vector of the robot in meters per second (m/s).
    */
-  public ChassisSpeeds getRobotVelocityVector() {
-    ChassisSpeeds velocityVector = io.getChassisSpeeds();
-    return velocityVector;
+  public ChassisSpeeds getChassisSpeeds() {
+    ChassisSpeeds chassisSpeeds = io.getChassisSpeeds();
+    return chassisSpeeds;
   }
 
   /**
@@ -1158,67 +1153,74 @@ public class Drive extends SubsystemBase {
   }
 
   protected Vector getJoystickVelocity() {
-    Vector avg = new Vector();
-    for (int j = 0; j < prevJoysticks.length; j++) {
-      avg = avg.add(prevJoysticks[j]);
-    }
-    avg = avg.scaled(1.0 / (prevJoysticks.length));
+    Vector avg = new Vector(joystickX.lastValue(), joystickY.lastValue());
     return avg;
   }
 
   public Vector getPredictedDriveVelocityVector(double secondsInFuture) {
-    // Vector currentVelocity = getRobotVelocityVector();
-    Vector currentVelocity = new Vector(0.0, 0.0);
+    Vector currentVelocity = chassisSpeedsToVector(getChassisSpeeds());
     Vector currentAcceleration = io.getAccelerationVector();
     Vector predictedVelocity = new Vector();
-    Vector controllerVector = getControllerVector();
-    Vector controllerVelocity = getJoystickVelocity();
+    // Vector controllerVector = getControllerVector();
+    // Vector controllerVelocity = getJoystickVelocity();
 
-    double controllerScalar = 0.0;
-    double accelerationScalar = 0.0;
-    double controllerVelocityScalar = 10.0;
+    // double controllerScalar = 0.0;
+    double accelerationScalar = 1.0;
+    // double controllerVelocityScalar = 0.0;
+    // double maxControllerEffect = 0.01 + 0.1 * controllerVector.magnitude();
 
     currentAcceleration.setI(currentAcceleration.getI() * secondsInFuture * accelerationScalar);
     currentAcceleration.setJ(currentAcceleration.getJ() * secondsInFuture * accelerationScalar);
 
-    controllerVector.setI(controllerVector.getI() * controllerScalar);
-    controllerVector.setJ(controllerVector.getJ() * controllerScalar * -1.0);
+    Logger.recordOutput("Acceleration/X", currentAcceleration.getI());
+    Logger.recordOutput("Acceleration/Y", currentAcceleration.getJ());
+    Logger.recordOutput("Velocity/X", currentVelocity.getI());
+    Logger.recordOutput("Velocity/Y", currentVelocity.getJ());
 
-    controllerVelocity.setI((Math.copySign(Math.log(Math.abs(controllerVelocity.getI()) + 1.0),
-        controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture));
-    controllerVelocity.setJ((Math.copySign(Math.log(Math.abs(controllerVelocity.getJ()) + 1.0),
-        controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture) * -1.0);
+    // controllerVector.setI(controllerVector.getI() * controllerScalar);
+    // controllerVector.setJ(controllerVector.getJ() * controllerScalar * -1.0);
 
-    if (Math.abs(controllerVelocity.getI()) > 0.05) {
-      controllerVelocity.setI(Math.copySign(0.05, controllerVelocity.getI()));
-    }
-    if (Math.abs(controllerVelocity.getJ()) > 0.05) {
-      controllerVelocity.setJ(Math.copySign(0.05, controllerVelocity.getJ()));
-    }
+    // controllerVelocity.setI((Math.copySign(Math.log(Math.abs(controllerVelocity.getI()) + 1.0),
+    //     controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture));
+    // controllerVelocity.setJ((Math.copySign(Math.log(Math.abs(controllerVelocity.getJ()) + 1.0),
+    //     controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture) * -1.0);
 
-    Logger.recordOutput("Robot Controller /X", controllerVelocity.getI());
-    Logger.recordOutput("Robot Controller /Y", controllerVelocity.getJ());
-
-    Logger.recordOutput("adjusted controller thing", controllerVelocity.magnitude());
+    // if (Math.abs(controllerVelocity.getI()) > maxControllerEffect) {
+    //   controllerVelocity.setI(Math.copySign(maxControllerEffect, controllerVelocity.getI()));
+    // }
+    // if (Math.abs(controllerVelocity.getJ()) > maxControllerEffect) {
+    //   controllerVelocity.setJ(Math.copySign(maxControllerEffect, controllerVelocity.getJ()));
+    // }
 
     predictedVelocity.setI(currentVelocity.getI() +
-        currentAcceleration.getI() +
-        controllerVector.getI() +
-        controllerVelocity.getI());
+        currentAcceleration.getI()
+    //  +
+    // controllerVector.getI() +
+    // controllerVelocity.getI()
+    );
     predictedVelocity.setJ(currentVelocity.getJ() +
-        currentAcceleration.getJ() +
-        controllerVector.getJ() +
-        controllerVelocity.getJ());
+        currentAcceleration.getJ()
+    // +
+    // controllerVector.getJ() +
+    // controllerVelocity.getJ()
+    );
 
     return predictedVelocity;
   }
 
+  private Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
+    return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+  }
+
+  private LinearFilter joystickX = LinearFilter.movingAverage(100);
+  private LinearFilter joystickY = LinearFilter.movingAverage(100);
+
   @Override
   public void periodic() {
     joystick = getControllerVector();
-    prevJoysticks[l] = getJoystickVelocityNoDamp();
+    joystickX.calculate(getJoystickVelocityNoDamp().getI());
+    joystickY.calculate(getJoystickVelocityNoDamp().getJ());
     prevJoystick = joystick;
-    l = l % (prevJoysticks.length - 1);
     io.update(systemState);
     // process inputs
     DriveState newState = handleStateTransition();
@@ -1227,14 +1229,13 @@ public class Drive extends SubsystemBase {
     }
     Logger.recordOutput("Drive State", systemState);
     Logger.recordOutput("MT2 Odometry", getMt2Pose2d());
-    Logger.recordOutput("Goal Shooting Theta (with the -10 degrees)", (getGoalShootingTheta() - 10.0));
     Logger.recordOutput("Shooting Theta Error Degrees",
         Math.abs((getGoalShootingTheta() - 10.0)
             - Constants.standardizeAngleToOtherDegrees(Math.toDegrees(getMt2Pose2dAngle()),
                 (getGoalShootingTheta() - 10.0))));
-    Logger.recordOutput("Drive Velocity Magnitude", getRobotVelocityVector().vxMetersPerSecond);
-    Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
-    Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.5).magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude", chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    // Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.01).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
