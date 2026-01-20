@@ -74,14 +74,14 @@ public class Shooter extends SubsystemBase {
   }
 
   private void shoot() {
-    // moveHoodToAngle(Constants.launchAngleToHoodAngle(
-    //     Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint), // TODO: uncomment
-    //     Constants.shooterMPSToRPM(_trajectorySetpoint.getNorm())));
+    moveHoodToAngle(Constants.launchAngleToHoodAngle(
+        Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint), // TODO: uncomment
+        Constants.shooterMPSToRPM(_trajectorySetpoint.getNorm())));
 
     // setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
 
-    // setFlywheelRPM(
-    //     Constants.shooterMPSToRPM(_trajectorySetpoint.getNorm())); // TODO: uncomment
+    setFlywheelRPM(
+        Constants.shooterMPSToRPM(_trajectorySetpoint.getNorm())); // TODO: uncomment
   }
 
   public double getGoalShootingTheta() {
