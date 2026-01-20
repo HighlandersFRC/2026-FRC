@@ -160,6 +160,8 @@ public class Drive extends SubsystemBase {
   private Vector joystick;
   private Vector prevJoystick = new Vector();
 
+  private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+
   public enum DriveState {
     DEFAULT,
     IDLE,
@@ -1158,7 +1160,7 @@ public class Drive extends SubsystemBase {
   }
 
   public Vector getPredictedDriveVelocityVector(double secondsInFuture) {
-    Vector currentVelocity = chassisSpeedsToVector(getChassisSpeeds());
+    Vector currentVelocity = Constants.chassisSpeedsToVector(getChassisSpeeds());
     Vector currentAcceleration = io.getAccelerationVector();
     Vector predictedVelocity = new Vector();
     // Vector controllerVector = getControllerVector();
@@ -1180,21 +1182,26 @@ public class Drive extends SubsystemBase {
     // controllerVector.setI(controllerVector.getI() * controllerScalar);
     // controllerVector.setJ(controllerVector.getJ() * controllerScalar * -1.0);
 
-    // controllerVelocity.setI((Math.copySign(Math.log(Math.abs(controllerVelocity.getI()) + 1.0),
-    //     controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture));
-    // controllerVelocity.setJ((Math.copySign(Math.log(Math.abs(controllerVelocity.getJ()) + 1.0),
-    //     controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture) * -1.0);
+    // controllerVelocity.setI((Math.copySign(Math.log(Math.abs(controllerVelocity.getI())
+    // + 1.0),
+    // controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture));
+    // controllerVelocity.setJ((Math.copySign(Math.log(Math.abs(controllerVelocity.getJ())
+    // + 1.0),
+    // controllerVelocity.getI()) * controllerVelocityScalar * secondsInFuture) *
+    // -1.0);
 
     // if (Math.abs(controllerVelocity.getI()) > maxControllerEffect) {
-    //   controllerVelocity.setI(Math.copySign(maxControllerEffect, controllerVelocity.getI()));
+    // controllerVelocity.setI(Math.copySign(maxControllerEffect,
+    // controllerVelocity.getI()));
     // }
     // if (Math.abs(controllerVelocity.getJ()) > maxControllerEffect) {
-    //   controllerVelocity.setJ(Math.copySign(maxControllerEffect, controllerVelocity.getJ()));
+    // controllerVelocity.setJ(Math.copySign(maxControllerEffect,
+    // controllerVelocity.getJ()));
     // }
 
     predictedVelocity.setI(currentVelocity.getI() +
         currentAcceleration.getI()
-    //  +
+    // +
     // controllerVector.getI() +
     // controllerVelocity.getI()
     );
@@ -1208,8 +1215,15 @@ public class Drive extends SubsystemBase {
     return predictedVelocity;
   }
 
-  private Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
-    return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+  public Vector getPredictedDriveVelocityFromSim(double secondsInFuture) {
+    Vector c = getControllerVector();
+    Logger.recordOutput("Controller/X", Math.abs(c.getI()));
+    Logger.recordOutput("Controller/Y", Math.abs(c.getJ()));
+    wantedChassisSpeeds = new ChassisSpeeds(c.getI(), -c.getJ(), 0.0);
+    ChassisSpeeds expected = Constants.Physical.getExpectedDriveSpeeds(1.0,
+        getChassisSpeeds(),
+        wantedChassisSpeeds);
+    return Constants.chassisSpeedsToVector(expected);
   }
 
   private LinearFilter joystickX = LinearFilter.movingAverage(100);
@@ -1233,9 +1247,12 @@ public class Drive extends SubsystemBase {
         Math.abs((getGoalShootingTheta() - 10.0)
             - Constants.standardizeAngleToOtherDegrees(Math.toDegrees(getMt2Pose2dAngle()),
                 (getGoalShootingTheta() - 10.0))));
-    Logger.recordOutput("Drive Velocity Magnitude", chassisSpeedsToVector(getChassisSpeeds()).magnitude());
-    // Logger.recordOutput("Drive Acceleration Magnitude", io.getAccelerationVector().magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    // Logger.recordOutput("Drive Acceleration Magnitude",
+    // io.getAccelerationVector().magnitude());
     Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.01).magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude Simulated 0.1", getPredictedDriveVelocityFromSim(1).magnitude());
+
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;

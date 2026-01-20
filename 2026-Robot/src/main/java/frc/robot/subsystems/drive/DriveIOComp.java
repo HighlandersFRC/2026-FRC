@@ -100,7 +100,7 @@ public class DriveIOComp extends DriveIO {
                         new Translation3d(Constants.inchesToMeters(-12.375), Constants.inchesToMeters(9.375),
                                         Constants.inchesToMeters(8.6875)),
                         new Rotation3d(Math.toRadians(1.2), Math.toRadians(-19.7), Math.toRadians(181.53))); // 0.4,
-                                                                                                                                                                                                                                                                                           // -20.5
+                                                                                                             // -20.5
 
         Transform3d backRightReefRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(
@@ -281,7 +281,7 @@ public class DriveIOComp extends DriveIO {
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Odometry.update(getYaw(), swerveModulePositions);
-                mt2Vel = chassisSpeedsToVector(getChassisSpeeds());
+                mt2Vel = Constants.chassisSpeedsToVector(getChassisSpeeds());
                 try {
                         LimelightHelpers.SetRobotOrientation("limelight-goon",
                                         gyro.getYawDegrees(), 0, 0, 0, 0, 0);
@@ -369,7 +369,7 @@ public class DriveIOComp extends DriveIO {
         }
 
         private Vector getAccelerationVectorNoDamp() {
-                Vector current = chassisSpeedsToVector(getChassisSpeeds());
+                Vector current = Constants.chassisSpeedsToVector(getChassisSpeeds());
                 Vector change = current.subtract(prevVelVector);
                 Vector acceleration = change;
                 if (Globals.loopPeriodSecs != 0) {
@@ -377,10 +377,6 @@ public class DriveIOComp extends DriveIO {
                         acceleration.setJ(change.getJ() * (1 / Globals.loopPeriodSecs));
                 }
                 return new Vector(acceleration.getI(), acceleration.getJ());
-        }
-
-        private Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
-                return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
         }
 
         @Override

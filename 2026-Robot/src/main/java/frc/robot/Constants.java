@@ -10,9 +10,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
@@ -82,11 +84,62 @@ public final class Constants {
                 public static final double WHEEL_TO_FRAME_DISTANCE = inchesToMeters(2.5); // TODO: is this different for
                                                                                           // mk5s?
                 public static final double TOP_SPEED = feetToMeters(30.0);
-                public static final double SIM_TOP_SPEED = 6.0; // meters per second
                 public static final double MAX_ACCELERATION = feetToMeters(30.0); // TODO: actually tune the top speed
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
-                public static final double SIM_MAX_ACCELERATION = 4.0; // meters per second
+
+                public static final double SIM_TOP_SPEED = 6.741; // meters per second
+                public static final double SIM_STATIC_VELOCITY_THRESHOLD = 2.0; // meters per second
+                public static final double SIM_BRAKE_MODE_THRESHOLD = 0.05;
+                public static final double SIM_MAX_ACCELERATION = 15.0; // meters per second
+                public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
+                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4167;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 5.0 * SIM_FRICTION_COEFFICIENT;
+
+                public static ChassisSpeeds getExpectedDriveSpeeds(double simTime, ChassisSpeeds current,
+                                ChassisSpeeds wanted) {
+                        Vector velocityVector = chassisSpeedsToVector(current);
+                        Vector wantedVelocityVector = chassisSpeedsToVector(wanted);
+                        double angularVelocity = current.omegaRadiansPerSecond;
+                        double wantedAngularVelocity = wanted.omegaRadiansPerSecond;
+                        int numSteps = (int) Math.floor(simTime / Constants.closedLoopSimResolution);
+                        double dt = simTime / numSteps;
+                        for (int i = 0; i < numSteps; i++) {
+                                Vector acceleration = wantedVelocityVector.subtract(velocityVector);
+                                if (acceleration.magnitude() > Constants.Physical.SIM_MAX_ACCELERATION) {
+                                        acceleration = acceleration.scaled(Constants.Physical.SIM_MAX_ACCELERATION
+                                                        / acceleration.magnitude());
+                                }
+                                Vector friction;
+                                if (wantedVelocityVector.magnitude() < Constants.Physical.SIM_BRAKE_MODE_THRESHOLD) {
+                                        friction = velocityVector.unit()
+                                                        .scaled(Constants.Physical.SIM_STATIC_VELOCITY_THRESHOLD)
+                                                        .sameDirectionSquare()
+                                                        .scaled(-Constants.Physical.SIM_BRAKE_FRICTION_COEFFICIENT);
+                                }
+                                // else if (velocityVector
+                                // .magnitude() < Constants.Physical.SIM_STATIC_VELOCITY_THRESHOLD) {
+                                // friction = velocityVector.unit()
+                                // .scaled(Constants.Physical.SIM_STATIC_VELOCITY_THRESHOLD)
+                                // .sameDirectionSquare()
+                                // .scaled(-Constants.Physical.SIM_FRICTION_COEFFICIENT);
+                                // }
+                                else {
+                                        friction = velocityVector.sameDirectionSquare()
+                                                        .scaled(-Constants.Physical.SIM_FRICTION_COEFFICIENT);
+                                }
+                                velocityVector = velocityVector.add(acceleration.scaled(dt)).add(friction.scaled(dt));
+                                if (velocityVector.magnitude() > Constants.Physical.SIM_TOP_SPEED) {
+                                        velocityVector = velocityVector.scaled(
+                                                        Constants.Physical.SIM_TOP_SPEED / velocityVector.magnitude());
+                                }
+                                double angularAcceleration = Math.signum(wantedAngularVelocity - angularVelocity)
+                                                * Constants.Physical.SIM_MAX_ANGULAR_ACCELERATION;
+                                angularVelocity += angularAcceleration * dt;
+                        }
+                        return new ChassisSpeeds(velocityVector.getI(), velocityVector.getJ(), angularVelocity);
+                }
+
                 public static final double ROBOT_LENGTH = inchesToMeters(26);
                 public static final double ROBOT_WIDTH = inchesToMeters(26);
                 public static final double MODULE_OFFSET = inchesToMeters(2.625); // TODO: is this different for mk5s?
@@ -515,6 +568,10 @@ public final class Constants {
          */
         public static double angleToUnitVectorI(double angle) {
                 return (Math.cos(angle));
+        }
+
+        public static Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
+                return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
         }
 
         /**
