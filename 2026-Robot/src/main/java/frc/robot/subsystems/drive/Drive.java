@@ -1215,7 +1215,7 @@ public class Drive extends SubsystemBase {
     return predictedVelocity;
   }
 
-  public Vector getPredictedDriveVelocityFromSim(double secondsInFuture) {
+  public ChassisSpeeds getPredictedDriveVelocityFromSim(double secondsInFuture) {
     Vector c = getControllerVector();
     Logger.recordOutput("Controller/X", Math.abs(c.getI()));
     Logger.recordOutput("Controller/Y", Math.abs(c.getJ()));
@@ -1223,7 +1223,7 @@ public class Drive extends SubsystemBase {
     ChassisSpeeds expected = Constants.Physical.getExpectedDriveSpeeds(1.0,
         getChassisSpeeds(),
         wantedChassisSpeeds);
-    return Constants.chassisSpeedsToVector(expected);
+    return expected;
   }
 
   private LinearFilter joystickX = LinearFilter.movingAverage(100);
@@ -1251,7 +1251,9 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("Drive Acceleration Magnitude",
     // io.getAccelerationVector().magnitude());
     Logger.recordOutput("Drive Velocity Magnitude Predicted 0.5", getPredictedDriveVelocityVector(0.01).magnitude());
-    Logger.recordOutput("Drive Velocity Magnitude Simulated 0.1", getPredictedDriveVelocityFromSim(1).magnitude());
+    Logger.recordOutput("Drive Velocity Magnitude Simulated 0.1",
+        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1))
+            .magnitude());
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {

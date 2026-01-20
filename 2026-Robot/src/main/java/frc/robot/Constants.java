@@ -70,7 +70,7 @@ public final class Constants {
 
         }
 
-        public static final double closedLoopSimResolution = 0.01; // seconds
+        public static final double closedLoopSimResolution = 0.1; // seconds
 
         public static final double G = 9.80665;
 
