@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,6 +58,10 @@ public class Superstructure extends SubsystemBase {
   private SuperState currentSuperState = SuperState.IDLE;
 
   public boolean algaeMode = false;
+
+  private double shotClock = 0;
+  private double shotStart = 0;
+  private boolean countingShotTime = false;
 
   public Superstructure(Drive drive,
       Lights lights, Shooter shooter, Intake intake, Feeder feeder) {
@@ -130,13 +135,19 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        if (shooter.readyToShoot() &&
-            Math.abs(Math.toDegrees(drive.getMt2Pose2dAngle()) - shooter.getGoalShootingTheta()) < Math
-                .toDegrees(Constants.SetPoints.Turret.TURRET_PRECISION)) {
+        // if (shooter.readyToShoot() &&
+        // Math.abs(Math.toDegrees(drive.getMt2Pose2dAngle()) -
+        // shooter.getGoalShootingTheta()) < Math
+        // .toDegrees(Constants.SetPoints.Turret.TURRET_PRECISION)) {
+        // wantedSuperState = SuperState.SHOOTING;
+        // currentSuperState = SuperState.SHOOTING;
+        // } else {
+        currentSuperState = SuperState.SHOOT;
+        // }
+        if (countingShotTime && Timer.getFPGATimestamp() - shotStart > (shotClock)) {
           wantedSuperState = SuperState.SHOOTING;
           currentSuperState = SuperState.SHOOTING;
-        } else {
-          currentSuperState = SuperState.SHOOT;
+          countingShotTime = false;
         }
         break;
       case INTAKING:
@@ -173,11 +184,19 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.IDLE;
         break;
     }
+    if (currentSuperState != SuperState.SHOOT) {
+      countingShotTime = false;
+    }
     return currentSuperState;
 
   }
 
   private void handleShootState() {
+    if (!countingShotTime) {
+      shotClock = Math.random() * 5 + 3;
+      shotStart = Timer.getFPGATimestamp();
+      countingShotTime = true;
+    }
     // Shooter
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
@@ -357,6 +376,8 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     PARTY();
     currentSuperState = handleStateTransitions();
+    Logger.recordOutput("ShotClock", shotClock);
+    Logger.recordOutput("ShotStart", shotStart);
     for (int i = 0; i < trajectoryVelocity.size(); i++) {
       trajectoryVelocity.set(i, new Translation3d(trajectoryVelocity.get(i).getX(),
           trajectoryVelocity.get(i).getY(),
