@@ -19,7 +19,7 @@ public class Shooter extends SubsystemBase {
     DEFAULT,
     IDLE,
     SHOOT,
-    MANUAL_SHOOT
+    MANUAL_SHOOT,
   }
 
   private ShooterState wantedState = ShooterState.IDLE;
@@ -51,6 +51,8 @@ public class Shooter extends SubsystemBase {
         return ShooterState.IDLE;
       case SHOOT:
         return ShooterState.SHOOT;
+      case MANUAL_SHOOT:
+        return ShooterState.MANUAL_SHOOT;
       default:
         return ShooterState.IDLE;
     }
@@ -177,6 +179,9 @@ public class Shooter extends SubsystemBase {
         break;
       case SHOOT:
         shoot();
+        break;
+      case MANUAL_SHOOT:
+        setFlywheelRPM(1000);
         break;
       default:
         break;

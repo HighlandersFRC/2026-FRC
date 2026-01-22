@@ -45,6 +45,7 @@ public class Superstructure extends SubsystemBase {
     SHOOT,
     INTAKING,
     SHOOTING,
+    MANUAL_SHOOT,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -84,6 +85,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOT:
         handleShootState();
+        break;
+      case MANUAL_SHOOT:
+        handleManualShootState();
         break;
       case INTAKING:
         handleIntakeingState();
@@ -166,6 +170,9 @@ public class Superstructure extends SubsystemBase {
       case SHOOT:
         currentSuperState = SuperState.SHOOT;
         break;
+      case MANUAL_SHOOT:
+        currentSuperState = SuperState.MANUAL_SHOOT;
+        break;
       case INTAKING:
         currentSuperState = SuperState.INTAKING;
         break;
@@ -185,6 +192,12 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.DEFAULT);
     feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
     intake.setWantedState(IntakeState.UP);
+  }
+
+  public void handleManualShootState() {
+    shooter.setWantedState(ShooterState.MANUAL_SHOOT);
+    feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    drive.setWantedState(DriveState.DEFAULT);
   }
 
   public void handleIntakeingState() {
