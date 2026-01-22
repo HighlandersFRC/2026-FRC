@@ -155,4 +155,8 @@ public class Vector {
     public Vector flipY() {
         return new Vector(i, -j);
     }
+
+    public Vector sameDirectionSquare() {
+        return new Vector(Math.copySign(i * i, i), Math.copySign(j * j, j));
+    }
 }

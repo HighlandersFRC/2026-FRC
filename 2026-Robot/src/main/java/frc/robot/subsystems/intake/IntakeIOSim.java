@@ -48,7 +48,7 @@ class IntakeIOSim implements IntakeIO {
             update(Globals.loopPeriodSecs);
         } else {
             double dt = Globals.loopPeriodSecs;
-            int numSteps = (int) Math.floor(dt / Constants.closedLoopSimResolution);
+            int numSteps = (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution);
             slot0.setSetPoint(positionSetpointRad);
             for (int i = 0; i < numSteps; i++) {
                 double pidOutput;

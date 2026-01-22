@@ -905,9 +905,16 @@ public class Drive extends SubsystemBase {
    *
    * @return The current velocity vector of the robot in meters per second (m/s).
    */
-  public ChassisSpeeds getRobotVelocityVector() {
+  public ChassisSpeeds getChassisSpeeds() {
     ChassisSpeeds velocityVector = io.getChassisSpeeds();
     return velocityVector;
+  }
+
+  public ChassisSpeeds getPredictedDriveVelocityFromSim(double secondsInFuture) {
+    ChassisSpeeds expected = Constants.Simulation.getExpectedDriveSpeeds(secondsInFuture,
+        getChassisSpeeds(),
+        io.getWantedChassisSpeeds());
+    return expected;
   }
 
   /**
@@ -1103,6 +1110,9 @@ public class Drive extends SubsystemBase {
     }
     Logger.recordOutput("Drive State", systemState);
     Logger.recordOutput("MT2 Odometry", getMt2Pose2d());
+    Logger.recordOutput("Expected Speed",
+        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    Logger.recordOutput("Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;

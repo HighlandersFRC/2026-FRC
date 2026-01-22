@@ -174,7 +174,7 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    ChassisSpeeds velocity = drive.getRobotVelocityVector();
+    ChassisSpeeds velocity = drive.getChassisSpeeds();
     Vector robotVelocity = new Vector(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
     double angVel = drive.getRobotAngularVelocity();
     double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
@@ -224,7 +224,7 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
     double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
     Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    ChassisSpeeds velocity = drive.getRobotVelocityVector();
+    ChassisSpeeds velocity = drive.getChassisSpeeds();
     Vector robotVelocity = new Vector(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
     double angVel = drive.getRobotAngularVelocity();
     double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());

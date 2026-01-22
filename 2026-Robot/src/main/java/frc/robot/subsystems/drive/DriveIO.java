@@ -30,4 +30,6 @@ abstract class DriveIO {
     protected abstract ChassisSpeeds getChassisSpeeds();
 
     abstract void update(DriveState currentState);
+
+    protected abstract ChassisSpeeds getWantedChassisSpeeds();
 }

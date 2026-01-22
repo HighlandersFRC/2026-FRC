@@ -129,6 +129,8 @@ public class DriveIOComp extends DriveIO {
         private LinearFilter filterY = LinearFilter.movingAverage(10);
         private LinearFilter filterOmega = LinearFilter.movingAverage(10);
 
+        private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+
         public DriveIOComp(Peripherals peripherals) {
                 this.peripherals = peripherals;
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
@@ -213,6 +215,7 @@ public class DriveIOComp extends DriveIO {
                 frontLeft.setWheelPID(0.0, 0.0);
                 backLeft.setWheelPID(0.0, 0.0);
                 backRight.setWheelPID(0.0, 0.0);
+                wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
         }
 
         @Override
@@ -285,6 +288,11 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnVelocity, yaw);
                 backLeft.drive(velocityVector, turnVelocity, yaw);
                 backRight.drive(velocityVector, turnVelocity, yaw);
+                velocityVector = velocityVector.rotate(yaw);
+                wantedChassisSpeeds = new ChassisSpeeds(
+                                velocityVector.getI(),
+                                velocityVector.getJ(),
+                                turnVelocity);
         }
 
         @Override
@@ -293,6 +301,10 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnRadiansPerSec, 0);
                 backLeft.drive(velocityVector, turnRadiansPerSec, 0);
                 backRight.drive(velocityVector, turnRadiansPerSec, 0);
+                wantedChassisSpeeds = new ChassisSpeeds(
+                                velocityVector.getI(),
+                                velocityVector.getJ(),
+                                turnRadiansPerSec);
         }
 
         @Override
@@ -301,6 +313,11 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnRadiansPerSec, camAngle);
                 backLeft.drive(velocityVector, turnRadiansPerSec, camAngle);
                 backRight.drive(velocityVector, turnRadiansPerSec, camAngle);
+                velocityVector = velocityVector.rotate(camAngle);
+                wantedChassisSpeeds = new ChassisSpeeds(
+                                velocityVector.getI(),
+                                velocityVector.getJ(),
+                                turnRadiansPerSec);
         }
 
         @Override
@@ -317,5 +334,10 @@ public class DriveIOComp extends DriveIO {
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
+        }
+
+        @Override
+        protected ChassisSpeeds getWantedChassisSpeeds() {
+                return wantedChassisSpeeds;
         }
 }
