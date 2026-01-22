@@ -192,6 +192,7 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.DEFAULT);
     feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
     intake.setWantedState(IntakeState.UP);
+    shooter.setWantedState(ShooterState.DEFAULT);
   }
 
   public void handleManualShootState() {

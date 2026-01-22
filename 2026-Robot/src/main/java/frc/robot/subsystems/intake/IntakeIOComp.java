@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
@@ -31,6 +32,8 @@ class IntakeIOComp implements IntakeIO {
         public void init() {
                 pivotMotor.setNeutralMode(NeutralModeValue.Brake);
                 TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
+                TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
+
                 intakeConfig.Slot0.kP = 100.0;
                 intakeConfig.Slot0.kI = 0.0;
                 intakeConfig.Slot0.kD = 5.0;
@@ -50,9 +53,19 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
+                intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 pivotMotor.getConfigurator().apply(intakeConfig);
                 pivotMotor.setNeutralMode(NeutralModeValue.Brake);
+
+                rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+                rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+                rollerConfig.CurrentLimits.StatorCurrentLimit = 40;
+                rollerConfig.CurrentLimits.SupplyCurrentLimit = 40;
+                rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+                rollerMotor.getConfigurator().apply(intakeConfig);
+                rollerMotor.setNeutralMode(NeutralModeValue.Brake);
         }
 
         @Override

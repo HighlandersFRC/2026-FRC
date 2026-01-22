@@ -242,10 +242,10 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.00015;
+                        public static final double kP0 = 10.0;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.05;
+                        public static final double kD0 = 0.1;
+                        public static final double kS0 = 3.0;
                 }
         }
 

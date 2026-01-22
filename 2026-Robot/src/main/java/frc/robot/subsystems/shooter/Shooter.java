@@ -168,12 +168,15 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Flywheel RPM", getFlywheelRPM());
     Logger.recordOutput("Ready to Shoot", readyToShoot());
+
+    Logger.recordOutput("Shooter State", systemState);
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {
       systemState = newState;
     }
     switch (systemState) {
       case DEFAULT:
+        // setFlywheelRPM(0.0);
         break;
       case IDLE:
         break;
@@ -181,7 +184,7 @@ public class Shooter extends SubsystemBase {
         shoot();
         break;
       case MANUAL_SHOOT:
-        setFlywheelRPM(1000);
+        setFlywheelRPM(2700);
         break;
       default:
         break;
