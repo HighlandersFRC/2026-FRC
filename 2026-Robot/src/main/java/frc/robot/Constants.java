@@ -258,8 +258,8 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_PERCENT = 1.0 / 3.0;
-                        public static final double LINEARIZER_PERCENT = 1.0 / 3.0;
+                        public static final double HOPPER_PERCENT = 0.7;
+                        public static final double LINEARIZER_PERCENT = 0.67;
                         public static final double LINEARIZER_SPEED_MPS = 1.0;
                         public static final double HOPPER_SPEED_MPS = 1.0;
                         public static final double LINEARIZER_AMPS = 60.0;
@@ -305,10 +305,10 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.00015;
+                        public static final double kP0 = 10.0;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.05;
+                        public static final double kD0 = 0.1;
+                        public static final double kS0 = 3.0;
                 }
         }
 

@@ -1,18 +1,24 @@
 package frc.robot.subsystems.shooter;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Torque;
 import frc.robot.Constants;
 import frc.robot.tools.controlloops.PID;
 
@@ -23,6 +29,8 @@ class ShooterIOComp implements ShooterIO {
             Constants.CANInfo.CANBUS_NAME);
     private final TalonFX turretMotor = new TalonFX(Constants.CANInfo.TURRET_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
     private final TalonFX hoodMotor = new TalonFX(Constants.CANInfo.HOOD_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
+
+    private final VelocityTorqueCurrentFOC flywheelControl = new VelocityTorqueCurrentFOC(0.0);
 
     private final CANcoder encoderOne = new CANcoder(Constants.CANInfo.TURRET_CANCODER_ONE_ID,
             Constants.CANInfo.CANBUS_NAME);
@@ -66,6 +74,8 @@ class ShooterIOComp implements ShooterIO {
         flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
         flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
         flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        flywheelConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 2.0;
         flywheelMaster.getConfigurator().apply(flywheelConfig);
         flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
         flywheelSlave.getConfigurator().apply(flywheelConfig);
@@ -116,7 +126,7 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void moveHoodToAngle(Rotation2d angle) {
-        hoodMotor.setControl(new MotionMagicDutyCycle(angle.getRotations()));
+        hoodMotor.setControl(new PositionTorqueCurrentFOC(angle.getRotations()));
     }
 
     @Override
@@ -127,8 +137,8 @@ class ShooterIOComp implements ShooterIO {
     @Override
     public void setFlywheelRPM(double rpm) {
         double velocitySetpoint = rpm / 60 * Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
-        flywheelMaster.setControl(new VelocityDutyCycle(velocitySetpoint));
-        flywheelSlave.setControl(new Follower(Constants.CANInfo.FLYWHEEL_MASTER_ID, true));
+        flywheelMaster.setControl(flywheelControl.withVelocity(velocitySetpoint).withSlot(0));
+        flywheelSlave.setControl(flywheelControl.withVelocity(-velocitySetpoint).withSlot(0));
     }
 
     @Override
@@ -159,6 +169,6 @@ class ShooterIOComp implements ShooterIO {
         double output = turret.updatePID(currentAngle);
         output += Math.copySign(turretS, output);
         turretMotor.setControl(new VelocityDutyCycle(Units.radiansToRotations(output)));
-        flywheelSlave.setControl(new Follower(Constants.CANInfo.FLYWHEEL_MASTER_ID, true));
+        // flywheelSlave.setControl(new Follower(Constants.CANInfo.FLYWHEEL_MASTER_ID, true));
     }
 }

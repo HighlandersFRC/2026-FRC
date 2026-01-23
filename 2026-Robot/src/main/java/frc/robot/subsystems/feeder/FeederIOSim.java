@@ -58,4 +58,14 @@ class FeederIOSim implements FeederIO {
         friction = Constants.Physical.Feeder.HOPPER_FRICTION_COEFFICIENT * hopperVelocity;
         hopperVelocity += (hopperAcceleration - friction) * dt;
     }
+
+    @Override
+    public void setHopperTorque(double amps, double maxPercent) {
+
+    }
+
+    @Override
+    public void setLinearizerTorque(double amps, double maxPercent) {
+
+    }
 }
