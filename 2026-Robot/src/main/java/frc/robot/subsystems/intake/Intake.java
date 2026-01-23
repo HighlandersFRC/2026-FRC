@@ -69,15 +69,15 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("Intake State", systemState);
     switch (systemState) {
       case UP:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
         setRollerPercent(0.0);
         break;
       case INTAKING:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
-        setRollerPercent(1.0);
+        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setRollerPercent(0.7);
         break;
       default:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
         setRollerPercent(0.0);
         break;
     }

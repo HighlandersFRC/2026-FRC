@@ -11,5 +11,7 @@ interface IntakeIO {
 
     public void setRollerPercent(double percent);
 
+    public void setRollerTorque(double amps);
+
     public double getIntakePosition();
 }

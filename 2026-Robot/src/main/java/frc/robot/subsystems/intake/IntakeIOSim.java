@@ -93,4 +93,9 @@ class IntakeIOSim implements IntakeIO {
     public double getIntakePosition() {
         return Units.radiansToRotations(simState.get(0));
     }
+
+    @Override
+    public void setRollerTorque(double amps) {
+
+    }
 }

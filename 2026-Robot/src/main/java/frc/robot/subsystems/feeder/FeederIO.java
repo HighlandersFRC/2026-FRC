@@ -18,5 +18,9 @@ interface FeederIO {
 
     double getHopperSpeed();
 
+    void setHopperTorque(double amps);
+
+    void setLinearizerTorque(double amps);
+
     void updateInputs(FeederState systemState);
 }

@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -93,5 +94,10 @@ class IntakeIOComp implements IntakeIO {
         @Override
         public double getIntakePosition() {
                 return (pivotMotor.getPosition().getValueAsDouble());
+        }
+
+        @Override
+        public void setRollerTorque(double amps) {
+                rollerMotor.setControl(new TorqueCurrentFOC(amps));
         }
 }

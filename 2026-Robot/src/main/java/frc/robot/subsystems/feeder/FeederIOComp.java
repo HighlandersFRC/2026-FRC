@@ -14,8 +14,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
 
 class FeederIOComp implements FeederIO {
-    private final TalonFX hopper = new TalonFX(Constants.CANInfo.HOPPER_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
-    private final TalonFX linearizer = new TalonFX(Constants.CANInfo.LINEARIZER_MOTOR_ID,
+    private final TalonFX hopperMotor = new TalonFX(Constants.CANInfo.HOPPER_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
+    private final TalonFX linearizerMotor = new TalonFX(Constants.CANInfo.LINEARIZER_MOTOR_ID,
             Constants.CANInfo.CANBUS_NAME);
     private final CANrange linearizerSensor = new CANrange(Constants.CANInfo.LINEARIZER_CANRANGE_ID,
             Constants.CANInfo.CANBUS_NAME);
@@ -29,8 +29,8 @@ class FeederIOComp implements FeederIO {
         hopperConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         hopperConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.HOPPER_GEAR_RATIO;
         hopperConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        hopper.getConfigurator().apply(hopperConfig);
-        hopper.setNeutralMode(NeutralModeValue.Brake);
+        hopperMotor.getConfigurator().apply(hopperConfig);
+        hopperMotor.setNeutralMode(NeutralModeValue.Brake);
 
         TalonFXConfiguration linearizerConfig = new TalonFXConfiguration();
         linearizerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -39,8 +39,8 @@ class FeederIOComp implements FeederIO {
         linearizerConfig.CurrentLimits.SupplyCurrentLimit = 80;
         linearizerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         linearizerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.LINEARIZER_GEAR_RATIO;
-        linearizer.getConfigurator().apply(linearizerConfig);
-        linearizer.setNeutralMode(NeutralModeValue.Brake);
+        linearizerMotor.getConfigurator().apply(linearizerConfig);
+        linearizerMotor.setNeutralMode(NeutralModeValue.Brake);
 
         CANrangeConfiguration config = new CANrangeConfiguration();
         config.ProximityParams.ProximityThreshold = Constants.Physical.Feeder.LINEARIZER_SENSOR_TRIGGER_DISTANCE_M;
@@ -50,14 +50,15 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void setHopperPercent(double percent) {
-        hopper.setControl(new TorqueCurrentFOC(Math.copySign(Constants.SetPoints.Feeder.HOPPER_AMPS, percent))
+        hopperMotor.setControl(new TorqueCurrentFOC(Math.copySign(Constants.SetPoints.Feeder.HOPPER_AMPS, percent))
                 .withMaxAbsDutyCycle(Math.abs(percent)));
     }
 
     @Override
     public void setLinearizerPercent(double percent) {
-        linearizer.setControl(new TorqueCurrentFOC(Math.copySign(Constants.SetPoints.Feeder.LINEARIZER_AMPS, percent))
-                .withMaxAbsDutyCycle(Math.abs(percent)));
+        linearizerMotor
+                .setControl(new TorqueCurrentFOC(Math.copySign(Constants.SetPoints.Feeder.LINEARIZER_AMPS, percent))
+                        .withMaxAbsDutyCycle(Math.abs(percent)));
     }
 
     @Override
@@ -74,7 +75,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public double getLinearizerSpeed() {
-        return linearizer.getVelocity()
+        return linearizerMotor.getVelocity()
                 .getValueAsDouble()
                 * Constants.Physical.Feeder.LINEARIZER_WHEEL_DIAMETER_M * Math.PI;
     }
@@ -88,7 +89,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public double getHopperSpeed() {
-        return hopper.getVelocity()
+        return hopperMotor.getVelocity()
                 .getValueAsDouble()
                 * Constants.Physical.Feeder.HOPPER_WHEEL_DIAMETER_M * Math.PI;
     }
@@ -96,4 +97,15 @@ class FeederIOComp implements FeederIO {
     @Override
     public void updateInputs(FeederState systemState) {
     }
+
+    @Override
+    public void setHopperTorque(double amps) {
+        hopperMotor.setControl(new TorqueCurrentFOC(amps));
+    }
+
+    @Override
+    public void setLinearizerTorque(double amps) {
+        linearizerMotor.setControl(new TorqueCurrentFOC(amps));
+    }
+
 }

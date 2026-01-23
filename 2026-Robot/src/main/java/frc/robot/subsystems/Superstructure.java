@@ -190,20 +190,21 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
-    feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.DEFAULT); // Run hopper and linearizer
     intake.setWantedState(IntakeState.UP);
     shooter.setWantedState(ShooterState.DEFAULT);
   }
 
   public void handleManualShootState() {
-    shooter.setWantedState(ShooterState.MANUAL_SHOOT);
+    // shooter.setWantedState(ShooterState.MANUAL_SHOOT);
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
   }
 
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.INTAKING);
-    feeder.setWantedState(FeederState.FEED); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.HOP); // Run hopper and linearizer
+    drive.setWantedState(DriveState.DEFAULT);
   }
 
   public void handleIdleState() {
