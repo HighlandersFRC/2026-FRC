@@ -1,11 +1,7 @@
 package frc.robot.subsystems.shooter;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -18,7 +14,6 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Torque;
 import frc.robot.Constants;
 import frc.robot.tools.controlloops.PID;
 
@@ -169,6 +164,7 @@ class ShooterIOComp implements ShooterIO {
         double output = turret.updatePID(currentAngle);
         output += Math.copySign(turretS, output);
         turretMotor.setControl(new VelocityDutyCycle(Units.radiansToRotations(output)));
-        // flywheelSlave.setControl(new Follower(Constants.CANInfo.FLYWHEEL_MASTER_ID, true));
+        // flywheelSlave.setControl(new Follower(Constants.CANInfo.FLYWHEEL_MASTER_ID,
+        // true));
     }
 }

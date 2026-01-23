@@ -124,6 +124,7 @@ public class DriveIOComp extends DriveIO {
                         m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
         private SwerveDrivePoseEstimator mt2Odometry;
+        @SuppressWarnings("unused")
         private Peripherals peripherals;
         private LinearFilter filterX = LinearFilter.movingAverage(10);
         private LinearFilter filterY = LinearFilter.movingAverage(10);

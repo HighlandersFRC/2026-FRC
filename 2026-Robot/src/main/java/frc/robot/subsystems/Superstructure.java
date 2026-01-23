@@ -100,12 +100,6 @@ public class Superstructure extends SubsystemBase {
       case INTAKING:
         handleIntakeingState();
         break;
-      case SHOOT_BASIC:
-        handleShootBasicState();
-        break;
-      case SHOOTING_BASIC:
-        handleShootingBasicState();
-        break;
       case ZERO:
         handleZeroState();
         break;
@@ -267,18 +261,6 @@ public class Superstructure extends SubsystemBase {
     trajectoryPoint.add(initial);
     trajectoryVelocity
         .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
-  }
-
-  private void handleShootBasicState() {
-    drive.setWantedState(DriveState.DEFAULT);
-    shooter.setWantedState(ShooterState.SHOOT_BASIC);
-    feeder.setWantedState(FeederState.FEED);
-  }
-
-  private void handleShootingBasicState() {
-    drive.setWantedState(DriveState.DEFAULT);
-    shooter.setWantedState(ShooterState.SHOOT_BASIC);
-    feeder.setWantedState(FeederState.SHOOT);
   }
 
   public void handleDefaultState() {
