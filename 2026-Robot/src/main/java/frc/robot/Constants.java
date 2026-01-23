@@ -126,7 +126,7 @@ public final class Constants {
                         public static final int TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
-                                return 3 + 0.2 * distanceFromHub;
+                                return 3 + 0.0 * distanceFromHub;
                         }
                 }
 
@@ -265,6 +265,14 @@ public final class Constants {
                         public static final double LINEARIZER_AMPS = 60.0;
                         public static final double HOPPER_AMPS = 60.0;
                 }
+        }
+
+        public static double shooterMPSToRPM(double mps) {
+                return (mps - 0.809) / (0.0037 * 1.18);
+        }
+
+        public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
+                return Rotation2d.fromDegrees(launchAngle.getDegrees() + 18.374 - (0.014 * rpm));
         }
 
         // PID constants
