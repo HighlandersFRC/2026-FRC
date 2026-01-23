@@ -203,7 +203,7 @@ public class Superstructure extends SubsystemBase {
 
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.INTAKING);
-    feeder.setWantedState(FeederState.HOP); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.SHOOT); // Run hopper and linearizer
     drive.setWantedState(DriveState.DEFAULT);
   }
 

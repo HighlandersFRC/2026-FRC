@@ -60,12 +60,12 @@ class FeederIOSim implements FeederIO {
     }
 
     @Override
-    public void setHopperTorque(double amps) {
+    public void setHopperTorque(double amps, double maxPercent) {
 
     }
 
     @Override
-    public void setLinearizerTorque(double amps) {
+    public void setLinearizerTorque(double amps, double maxPercent) {
 
     }
 }

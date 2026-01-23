@@ -39,6 +39,7 @@ class FeederIOComp implements FeederIO {
         linearizerConfig.CurrentLimits.SupplyCurrentLimit = 80;
         linearizerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         linearizerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.LINEARIZER_GEAR_RATIO;
+        hopperConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         linearizerMotor.getConfigurator().apply(linearizerConfig);
         linearizerMotor.setNeutralMode(NeutralModeValue.Brake);
 
@@ -50,15 +51,13 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void setHopperPercent(double percent) {
-        hopperMotor.setControl(new TorqueCurrentFOC(Math.copySign(Constants.SetPoints.Feeder.HOPPER_AMPS, percent))
-                .withMaxAbsDutyCycle(Math.abs(percent)));
+        hopperMotor.set(percent);
     }
 
     @Override
     public void setLinearizerPercent(double percent) {
         linearizerMotor
-                .setControl(new TorqueCurrentFOC(Math.copySign(Constants.SetPoints.Feeder.LINEARIZER_AMPS, percent))
-                        .withMaxAbsDutyCycle(Math.abs(percent)));
+                .set(percent);
     }
 
     @Override
@@ -99,13 +98,13 @@ class FeederIOComp implements FeederIO {
     }
 
     @Override
-    public void setHopperTorque(double amps) {
-        hopperMotor.setControl(new TorqueCurrentFOC(amps));
+    public void setHopperTorque(double amps, double maxPercent) {
+        hopperMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
     @Override
-    public void setLinearizerTorque(double amps) {
-        linearizerMotor.setControl(new TorqueCurrentFOC(amps));
+    public void setLinearizerTorque(double amps, double maxPercent) {
+        linearizerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
 }

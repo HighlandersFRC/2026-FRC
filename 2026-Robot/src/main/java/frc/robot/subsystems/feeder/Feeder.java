@@ -64,6 +64,10 @@ public class Feeder extends SubsystemBase {
     io.setLinearizerPercent(percent);
   }
 
+  public void setLinearizerTorque(double amps, double maxPercent) {
+    io.setLinearizerTorque(amps, maxPercent);
+  }
+
   public void setLinearizerSpeed(double metersPerSecond) {
     io.setLinearizerSpeed(
         metersPerSecond);
@@ -98,11 +102,11 @@ public class Feeder extends SubsystemBase {
         break;
       case FEED:
         setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
         break;
       case SHOOT:
         setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerSpeed(Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
         break;
       case DEFAULT:
         setHopperPercent(0.1);

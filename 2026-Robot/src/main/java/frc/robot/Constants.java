@@ -203,8 +203,8 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_PERCENT = 1.0 / 3.0;
-                        public static final double LINEARIZER_PERCENT = 1.0 / 3.0;
+                        public static final double HOPPER_PERCENT = 0.7;
+                        public static final double LINEARIZER_PERCENT = 0.67;
                         public static final double LINEARIZER_SPEED_MPS = 1.0;
                         public static final double HOPPER_SPEED_MPS = 1.0;
                         public static final double LINEARIZER_AMPS = 60.0;
