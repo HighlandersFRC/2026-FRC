@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -277,6 +278,31 @@ public class DriveIOComp extends DriveIO {
                 filterX.calculate(robotSpeeds.vxMetersPerSecond);
                 filterY.calculate(robotSpeeds.vyMetersPerSecond);
                 filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
+
+                try {
+                        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
+                                        gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                        .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
+
+                        // if our angular velocity is greater than 360 degrees per second, ignore vision
+                        // updates
+                        boolean doRejectUpdate = false;
+                        // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                        // doRejectUpdate = true;
+                        // }
+                        if (mt2.tagCount == 0) {
+                                doRejectUpdate = true;
+                        }
+                        if (!doRejectUpdate) {
+                                // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                                mt2Odometry.addVisionMeasurement(
+                                                mt2.pose,
+                                                mt2.timestampSeconds);
+                        }
+                } catch (Exception e) {
+                        System.out.println(e);
+                }
         }
 
         @Override

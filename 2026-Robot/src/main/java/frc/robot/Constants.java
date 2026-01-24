@@ -324,11 +324,17 @@ public final class Constants {
         // Vision constants (e.g. camera offsets)
         public static final class Vision {
 
+                public static final String LIMELIGHT_NAME = "limelight-goon";
+
                 // Poses of cameras relative to robot, {x, y, z, rx, ry, rz}, in meters and
                 // radians
                 public static final double[] FRONT_CAMERA_POSE = { Constants.inchesToMeters(1.75),
                                 Constants.inchesToMeters(11.625),
                                 Constants.inchesToMeters(33.5), 0, -33.5, 0 };
+
+                public static final double[] DEFAULT_LIMELIGHT_POSE = { Constants.inchesToMeters(1.75),
+                                Constants.inchesToMeters(0.0),
+                                Constants.inchesToMeters(33.5), 0, 0, 0 };
 
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;

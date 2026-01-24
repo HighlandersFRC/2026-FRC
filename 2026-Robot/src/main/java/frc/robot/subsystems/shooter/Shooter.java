@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
@@ -193,6 +194,19 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Ready to Shoot", readyToShoot());
 
     Logger.recordOutput("Shooter State", systemState);
+
+    try {
+      LimelightHelpers.setCameraPose_RobotSpace(Constants.Vision.LIMELIGHT_NAME,
+          Constants.Vision.DEFAULT_LIMELIGHT_POSE[0],
+          Constants.Vision.DEFAULT_LIMELIGHT_POSE[1],
+          Constants.Vision.DEFAULT_LIMELIGHT_POSE[2],
+          Math.toDegrees(Constants.Vision.DEFAULT_LIMELIGHT_POSE[3]),
+          Math.toDegrees(Constants.Vision.DEFAULT_LIMELIGHT_POSE[4]),
+          Math.toDegrees(Constants.Vision.DEFAULT_LIMELIGHT_POSE[5]));
+    } catch (Exception e) {
+      System.out.println("Could not set limelight pose: " + e.getMessage());
+    }
+
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {
       systemState = newState;
