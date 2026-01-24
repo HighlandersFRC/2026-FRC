@@ -41,9 +41,9 @@ public class Superstructure extends SubsystemBase {
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();
   private ArrayList<Translation3d> trajectoryVelocity = new ArrayList<Translation3d>();
-  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 3000);
-  private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 80);
-  private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0);
+  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 1000);
+  private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 15.0);
+  private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0.0);
 
   public enum SuperState {
     DEFAULT,
@@ -275,7 +275,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.MANUAL_SHOOT, Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
-    feeder.setWantedState(FeederState.SHOOT); // Run Hopper Only
+    // feeder.setWantedState(FeederState.SHOOT); // Run Hopper Only
     drive.setWantedState(DriveState.DEFAULT);
   }
 
@@ -283,7 +283,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.MANUAL_SHOOT, Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
-    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
+    // feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
   }
 

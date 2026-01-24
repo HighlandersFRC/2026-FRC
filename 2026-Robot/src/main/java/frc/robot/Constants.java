@@ -289,10 +289,11 @@ public final class Constants {
                 }
 
                 public static final class Hood {
-                        public static final double kP0 = 8.0;
+                        public static final double kP0 = 600.0;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.0005;
+                        public static final double kD0 = 0.1;
+                        public static final double kS0 = 0.0;
+                        public static final double kG0 = 0.4;
                 }
 
                 public static final class Intake {
@@ -303,10 +304,10 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 10.0;
+                        public static final double kP0 = 1.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.1;
-                        public static final double kS0 = 3.0;
+                        public static final double kS0 = 0.0;
                 }
         }
 

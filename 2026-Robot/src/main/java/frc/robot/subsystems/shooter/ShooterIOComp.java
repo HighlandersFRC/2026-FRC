@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -9,6 +10,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -46,8 +48,15 @@ class ShooterIOComp implements ShooterIO {
     private TunableNumber hoodI = new TunableNumber("Hood Position kI", Constants.PIDConstants.Hood.kI0);
     private TunableNumber hoodD = new TunableNumber("Hood Position kD", Constants.PIDConstants.Hood.kD0);
     private TunableNumber hoodS = new TunableNumber("Hood Position kS", Constants.PIDConstants.Hood.kS0);
-    private TunableNumber hoodVelocity = new TunableNumber("Hood Position Velocity", 2.0);
+    private TunableNumber hoodG = new TunableNumber("Hood Position kG", Constants.PIDConstants.Hood.kG0);
+    private TunableNumber hoodCruiseVelocity = new TunableNumber("Hood Position Velocity", 2.0);
     private TunableNumber hoodAcceleration = new TunableNumber("Hood Position Acceleration", 2.0);
+    private final double hoodProfileScalarFactor = 1.0;
+
+    private final DynamicMotionMagicVoltage hoodMotionProfileRequest = new DynamicMotionMagicVoltage(0,
+            hoodCruiseVelocity.get(),
+            hoodAcceleration.get(),
+            0.0);
 
     private TunableNumber flywheelP = new TunableNumber("Flywheel Position kP", Constants.PIDConstants.Flywheel.kP0);
     private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI", Constants.PIDConstants.Flywheel.kI0);
@@ -63,6 +72,8 @@ class ShooterIOComp implements ShooterIO {
         hoodConfig.Slot0.kI = Constants.PIDConstants.Hood.kI0;
         hoodConfig.Slot0.kD = Constants.PIDConstants.Hood.kD0;
         hoodConfig.Slot0.kS = Constants.PIDConstants.Hood.kS0;
+        hoodConfig.Slot0.kG = Constants.PIDConstants.Hood.kG0;
+        hoodConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         hoodConfig.MotionMagic.MotionMagicAcceleration = Units
                 .radiansToRotations(Constants.Physical.Shooter.HOOD_ACCELERATION_RAD_S);
         hoodConfig.MotionMagic.MotionMagicCruiseVelocity = Units
@@ -74,6 +85,7 @@ class ShooterIOComp implements ShooterIO {
         hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         hoodMotor.getConfigurator().apply(hoodConfig);
         hoodMotor.setNeutralMode(NeutralModeValue.Brake);
+        hoodMotor.setPosition(0.0);
 
         // Flywheel Configuration
         TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
@@ -142,7 +154,16 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void moveHoodToAngle(Rotation2d angle) {
-        hoodMotor.setControl(new MotionMagicTorqueCurrentFOC(angle.getRotations()));
+        // System.out.println("angle" + angle.getDegrees());
+        // hoodMotor.setControl(new MotionMagicTorqueCurrentFOC(angle.getRotations()));
+        System.out.println("error" + hoodMotor.getClosedLoopError().getValueAsDouble());
+
+        hoodMotor.setControl(this.hoodMotionProfileRequest
+                .withPosition(
+                        angle.getRotations())
+                .withVelocity(this.hoodCruiseVelocity.get() * hoodProfileScalarFactor)
+                .withAcceleration(this.hoodAcceleration.get() * hoodProfileScalarFactor)
+                .withSlot(0));
     }
 
     @Override
@@ -198,7 +219,8 @@ class ShooterIOComp implements ShooterIO {
             turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
             turretMotor.getConfigurator().apply(turretConfig);
         }
-        if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed() || hoodVelocity.changed()
+        if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed() || hoodG.changed()
+                || hoodCruiseVelocity.changed()
                 || hoodAcceleration.changed()) {
             System.out.println("Updating Hood PID Constants");
             TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
@@ -206,8 +228,9 @@ class ShooterIOComp implements ShooterIO {
             hoodConfig.Slot0.kI = hoodI.get();
             hoodConfig.Slot0.kD = hoodD.get();
             hoodConfig.Slot0.kS = hoodS.get();
+            hoodConfig.Slot0.kG = hoodG.get();
             hoodConfig.MotionMagic.MotionMagicAcceleration = hoodAcceleration.get();
-            hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodVelocity.get();
+            hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodCruiseVelocity.get();
             hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_GEAR_RATIO;
             hoodConfig.Feedback.RotorToSensorRatio = 1.0;
             hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
