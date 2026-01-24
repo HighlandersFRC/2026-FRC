@@ -154,13 +154,14 @@ class ShooterIOComp implements ShooterIO {
     public Rotation2d getHoodAngle() {
         return Constants.SetPoints.Hood
                 .motorAngleToHoodAngle(Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
-                                                                                                              // try
-        // getLatencyCompensatedValueAsDouble()
+                                                                                                                                             // try
+                                                                                                                                             // getLatencyCompensatedValueAsDouble()
     }
 
     @Override
     public Rotation2d getTurretAngle() {
-        return new Rotation2d(getRelativeTurretAngleRadians());
+        // return new Rotation2d(getRelativeTurretAngleRadians());
+        return new Rotation2d(Math.PI / 2);
     }
 
     @Override

@@ -329,16 +329,13 @@ public final class Constants {
 
                 // Poses of cameras relative to robot, {x, y, z, rx, ry, rz}, in meters and
                 // radians
-                public static final double[] FRONT_CAMERA_POSE = { Constants.inchesToMeters(1.75),
-                                Constants.inchesToMeters(11.625),
-                                Constants.inchesToMeters(33.5), 0, -33.5, 0 };
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
                                 inchesToMeters(-5.5), inchesToMeters(0.0), inchesToMeters(11.388));
 
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
-                                0.0,
-                                0.0,
+                                0.8,
+                                21.2,
                                 0.0);
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;
