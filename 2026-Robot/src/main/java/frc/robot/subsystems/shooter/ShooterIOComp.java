@@ -84,6 +84,10 @@ class ShooterIOComp implements ShooterIO {
         hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
         hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
+                .radiansToRotations(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS
+                        - Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS);
         hoodMotor.getConfigurator().apply(hoodConfig);
         hoodMotor.setNeutralMode(NeutralModeValue.Brake);
         hoodMotor.setPosition(0.0);
@@ -140,8 +144,10 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public Rotation2d getHoodAngle() {
-        return new Rotation2d(Units.rotationsToRadians(hoodMotor.getPosition().getValueAsDouble())); // TODO: try
-                                                                                                     // getLatencyCompensatedValueAsDouble()
+        return Constants.SetPoints.Hood
+                .motorAngleToHoodAngle(Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
+                                                                                                              // try
+        // getLatencyCompensatedValueAsDouble()
     }
 
     @Override
@@ -159,10 +165,10 @@ class ShooterIOComp implements ShooterIO {
         // System.out.println("angle" + angle.getDegrees());
         // hoodMotor.setControl(new MotionMagicTorqueCurrentFOC(angle.getRotations()));
         System.out.println("error" + hoodMotor.getClosedLoopError().getValueAsDouble());
-
+        double wantedAngle = Constants.SetPoints.Hood.hoodAngleToMotorAngle(angle).getRotations();
         hoodMotor.setControl(this.hoodMotionProfileRequest
                 .withPosition(
-                        angle.getRotations())
+                        wantedAngle)
                 .withVelocity(this.hoodCruiseVelocity.get() * hoodProfileScalarFactor)
                 .withAcceleration(this.hoodAcceleration.get() * hoodProfileScalarFactor)
                 .withSlot(0));

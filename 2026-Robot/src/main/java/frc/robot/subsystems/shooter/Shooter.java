@@ -25,7 +25,8 @@ public class Shooter extends SubsystemBase {
   private ShooterState wantedState = ShooterState.IDLE;
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
-  private Rotation2d manualTurretAngle = new Rotation2d(0), manualHoodAngle = new Rotation2d(Math.toRadians(15.0));
+  private Rotation2d manualTurretAngle = new Rotation2d(0),
+      manualHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
   private double manualFlywheelRPM = 1000.0;
 
   public Shooter() {
@@ -47,8 +48,9 @@ public class Shooter extends SubsystemBase {
 
   public void setWantedState(ShooterState wantedState, Rotation2d turretAngle, Rotation2d hoodAngle,
       double flywheelRPM) {
-    // System.out.println("Setting Manual Shooter State: Hood Angle: " + hoodAngle.getDegrees() + " Turret Angle: "
-    //     + turretAngle.getDegrees() + " Flywheel RPM: " + flywheelRPM);
+    // System.out.println("Setting Manual Shooter State: Hood Angle: " +
+    // hoodAngle.getDegrees() + " Turret Angle: "
+    // + turretAngle.getDegrees() + " Flywheel RPM: " + flywheelRPM);
     this.wantedState = wantedState;
     this.manualTurretAngle = turretAngle;
     this.manualHoodAngle = hoodAngle;
