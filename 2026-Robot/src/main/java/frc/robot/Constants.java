@@ -226,6 +226,14 @@ public final class Constants {
                                 return launchAngleToHoodAngle(new Rotation2d(angleRadians),
                                                 shooterMPSToRPM(trajectory.getNorm()));
                         }
+
+                        public static final Rotation2d hoodAngleToMotorAngle(Rotation2d hoodAngle) {
+                                return Rotation2d.fromRadians(HOOD_MAX_ANGLE_RADIANS).minus(hoodAngle);
+                        }
+
+                        public static final Rotation2d motorAngleToHoodAngle(Rotation2d motorAngle) {
+                                return Rotation2d.fromRadians(HOOD_MAX_ANGLE_RADIANS).minus(motorAngle);
+                        }
                 }
 
                 public static class Turret {
