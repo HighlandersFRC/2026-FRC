@@ -143,6 +143,9 @@ public class Superstructure extends SubsystemBase {
       case MANUAL_SHOOT:
         currentSuperState = SuperState.MANUAL_SHOOT;
         break;
+      case MANUAL_SHOOTING:
+        currentSuperState = SuperState.MANUAL_SHOOTING;
+        break;
       case INTAKING:
         currentSuperState = SuperState.INTAKING;
         break;
@@ -275,7 +278,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.MANUAL_SHOOT, Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
-    feeder.setWantedState(FeederState.SHOOT); // Run Hopper Only
+    feeder.setWantedState(FeederState.HOP); // Run Hopper Only
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING);
   }
@@ -284,14 +287,14 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.MANUAL_SHOOT, Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
-    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
+    feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING);
   }
 
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.INTAKING);
-    feeder.setWantedState(FeederState.SHOOT); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.HOP); // Run hopper and linearizer
     drive.setWantedState(DriveState.DEFAULT);
   }
 

@@ -102,11 +102,13 @@ public class Feeder extends SubsystemBase {
         break;
       case FEED:
         setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        // setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setLinearizerTorque(-67, 0.50);
         break;
       case SHOOT:
         setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        // setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setLinearizerTorque(-67, 0.50);
         break;
       case DEFAULT:
         setHopperPercent(0.1);
