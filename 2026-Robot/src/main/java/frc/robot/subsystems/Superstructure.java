@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -163,8 +164,7 @@ public class Superstructure extends SubsystemBase {
 
   }
 
-  private void handleShootState() {
-    // Shooter
+  private Translation3d calculateTurretRelativeOnTheMoveTrajectory() {
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
@@ -199,7 +199,6 @@ public class Superstructure extends SubsystemBase {
         trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
         trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
         trajectory.getZ());
-    shooter.setWantedState(ShooterState.SHOOT, trajectory);
     Translation3d realVector = shooter.getCurrentShooterTrajectory();
     gyro = gyro.unaryMinus();
     Translation3d realTrajectory = new Translation3d(
@@ -208,6 +207,13 @@ public class Superstructure extends SubsystemBase {
         realVector.getZ());
     Logger.recordOutput("Shooter Trajectory",
         realTrajectory);
+    return trajectory;
+  }
+
+  private void handleShootState() {
+    // Shooter
+    Translation3d trajectory = calculateTurretRelativeOnTheMoveTrajectory();
+    shooter.setWantedState(ShooterState.SHOOT, trajectory);
 
     // Feeder
     feeder.setWantedState(FeederState.FEED);
@@ -215,55 +221,31 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootingState() {
     // Shooter
-    Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
-        .getMt2Pose2dY(), 0.0)
-        .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
-    Translation3d target;
-    if (Globals.fieldSide.equals("blue")) {
-      target = Constants.Field.HUB_POSE_BLUE;
-    } else {
-      target = Constants.Field.HUB_POSE_RED;
-    }
-    Rotation2d gyro = drive.getMt2Pose2d().getRotation();
-    double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
-    double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
-    Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
-    ChassisSpeeds velocity = drive.getChassisSpeeds();
-    Vector robotVelocity = new Vector(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
-    double angVel = drive.getRobotAngularVelocity();
-    double vx = -angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
-    double vy = angVel * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
-    Vector tangentialVelocity = new Vector(vx, vy);
-    Vector shooterVelocity = robotVelocity.add(tangentialVelocity);
-    Translation3d onTheMove = new Translation3d(initialVelocity.getX() -
-        shooterVelocity.getI(),
-        initialVelocity.getY() - shooterVelocity.getJ(),
-        initialVelocity.getZ());
-    Translation3d trajectory = onTheMove;
-    Translation3d loggedTrajectory = trajectory.plus(initial);
-    Logger.recordOutput("Trajectory", loggedTrajectory);
-    Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
-        .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
-    gyro = gyro.unaryMinus();
-    trajectory = new Translation3d( // For Turret, make the0 trajectory robotcentric
-        trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
-        trajectory.getX() * gyro.getSin() + trajectory.getY() * gyro.getCos(),
-        trajectory.getZ());
+    Translation3d trajectory = calculateTurretRelativeOnTheMoveTrajectory();
     shooter.setWantedState(ShooterState.SHOOT, trajectory);
-    Translation3d realVector = shooter.getCurrentShooterTrajectory();
-    gyro = gyro.unaryMinus();
-    Translation3d realTrajectory = new Translation3d(
-        realVector.getX() * gyro.getCos() - realVector.getY() * gyro.getSin(),
-        realVector.getX() * gyro.getSin() + realVector.getY() * gyro.getCos(),
-        realVector.getZ());
-    Logger.recordOutput("Shooter Trajectory",
-        realTrajectory);
 
     // Feeder
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
-    trajectoryPoint.add(initial);
-    trajectoryVelocity
-        .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
+
+    // Log Fuel Trajectory
+    if (RobotBase.isSimulation()) {
+      Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
+          .getMt2Pose2dY(), 0.0)
+          .plus(
+              Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
+      Translation3d target;
+      if (Globals.fieldSide.equals("blue")) {
+        target = Constants.Field.HUB_POSE_BLUE;
+      } else {
+        target = Constants.Field.HUB_POSE_RED;
+      }
+      double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
+      double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
+      Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+      trajectoryPoint.add(initial);
+      trajectoryVelocity
+          .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
+    }
   }
 
   public void handleDefaultState() {
