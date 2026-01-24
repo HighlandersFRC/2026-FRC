@@ -274,11 +274,12 @@ public final class Constants {
         }
 
         public static double shooterMPSToRPM(double mps) {
-                return (mps - 0.809) / (0.0037 * 1.18);
+                return -369.004 * (1.17 - mps);
+                // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
         }
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
-                return Rotation2d.fromDegrees(launchAngle.getDegrees() + 18.374 - (0.014 * rpm));
+                return Rotation2d.fromDegrees(-1.26743 * (13.8 - launchAngle.getDegrees()));
         }
 
         // PID constants
