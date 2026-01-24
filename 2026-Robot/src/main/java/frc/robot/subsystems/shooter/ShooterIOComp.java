@@ -23,7 +23,7 @@ import frc.robot.tools.logging.TunableNumber;
 class ShooterIOComp implements ShooterIO {
     private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID,
             Constants.CANInfo.CANBUS_NAME);
-    private final TalonFX flywheelSlave = new TalonFX(Constants.CANInfo.FLYWHEEL_SLAVE_ID,
+    private final TalonFX flywheelFollower = new TalonFX(Constants.CANInfo.FLYWHEEL_SLAVE_ID,
             Constants.CANInfo.CANBUS_NAME);
     private final TalonFX turretMotor = new TalonFX(Constants.CANInfo.TURRET_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
     private final TalonFX hoodMotor = new TalonFX(Constants.CANInfo.HOOD_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
@@ -62,6 +62,7 @@ class ShooterIOComp implements ShooterIO {
     private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI", Constants.PIDConstants.Flywheel.kI0);
     private TunableNumber flywheelD = new TunableNumber("Flywheel Position kD", Constants.PIDConstants.Flywheel.kD0);
     private TunableNumber flywheelS = new TunableNumber("Flywheel Position kS", Constants.PIDConstants.Flywheel.kS0);
+    private TunableNumber flywheelV = new TunableNumber("Flywheel Position kV", Constants.PIDConstants.Flywheel.kV0);
     private TunableNumber flywheelVelocity = new TunableNumber("Flywheel Position Velocity", 2.0);
     private TunableNumber flywheelAcceleration = new TunableNumber("Flywheel Position Acceleration", 2.0);
 
@@ -93,17 +94,18 @@ class ShooterIOComp implements ShooterIO {
         flywheelConfig.Slot0.kI = Constants.PIDConstants.Flywheel.kI0;
         flywheelConfig.Slot0.kD = Constants.PIDConstants.Flywheel.kD0;
         flywheelConfig.Slot0.kS = Constants.PIDConstants.Flywheel.kS0;
+        flywheelConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
         flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
         flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
         flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
         flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
         flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        flywheelConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 2.0;
+        flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
         flywheelMaster.getConfigurator().apply(flywheelConfig);
         flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
-        flywheelSlave.getConfigurator().apply(flywheelConfig);
-        flywheelSlave.setNeutralMode(NeutralModeValue.Coast);
+        flywheelFollower.getConfigurator().apply(flywheelConfig);
+        flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
 
         // Turret Motor Configuration
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
@@ -175,7 +177,7 @@ class ShooterIOComp implements ShooterIO {
     public void setFlywheelRPM(double rpm) {
         double velocitySetpoint = rpm / 60 * Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
         flywheelMaster.setControl(flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-        flywheelSlave.setControl(flywheelControl.withVelocity(-velocitySetpoint).withSlot(0).withEnableFOC(true));
+        flywheelFollower.setControl(flywheelControl.withVelocity(-velocitySetpoint).withSlot(0).withEnableFOC(true));
     }
 
     @Override
@@ -198,6 +200,12 @@ class ShooterIOComp implements ShooterIO {
     @Override
     public void setHoodAngle(Rotation2d angle) {
         hoodMotor.setPosition(angle.getRotations());
+    }
+
+    @Override
+    public void setFlywheelPercent(double percent) {
+        flywheelMaster.set(percent);
+        flywheelFollower.set(-percent);
     }
 
     @Override
@@ -238,23 +246,24 @@ class ShooterIOComp implements ShooterIO {
             hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
             hoodMotor.getConfigurator().apply(hoodConfig);
         }
-        if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() || flywheelS.changed()
-                || flywheelVelocity.changed() || flywheelAcceleration.changed()) {
+        if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() || flywheelS.changed() || flywheelV
+                .changed()) {
             System.out.println("Updating Flywheel PID Constants");
             TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
             flywheelConfig.Slot0.kP = flywheelP.get();
             flywheelConfig.Slot0.kI = flywheelI.get();
             flywheelConfig.Slot0.kD = flywheelD.get();
             flywheelConfig.Slot0.kS = flywheelS.get();
+            flywheelConfig.Slot0.kV = flywheelV.get();
             flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
             flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
             flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
             flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
             flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
             flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-            flywheelConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 2.0;
+            flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
             flywheelMaster.getConfigurator().apply(flywheelConfig);
-            flywheelSlave.getConfigurator().apply(flywheelConfig);
+            flywheelFollower.getConfigurator().apply(flywheelConfig);
         }
     }
 }

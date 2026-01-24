@@ -197,6 +197,7 @@ public class Shooter extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
+        io.setFlywheelPercent(0.0);
         break;
       case IDLE:
         break;

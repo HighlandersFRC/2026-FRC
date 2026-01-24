@@ -304,10 +304,11 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 1.0;
+                        public static final double kP0 = 0.5;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.1;
                         public static final double kS0 = 0.0;
+                        public static final double kV0 = 0.13;
                 }
         }
 
