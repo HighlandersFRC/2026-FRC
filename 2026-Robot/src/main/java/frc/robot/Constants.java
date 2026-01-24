@@ -427,6 +427,8 @@ public final class Constants {
                 public static final int HOPPER_MOTOR_ID = 15;
                 public static final int LINEARIZER_MOTOR_ID = 16;
                 public static final int LINEARIZER_CANRANGE_ID = 0;
+
+                public static final int CLIMBER_MOTOR_ID = 20;
         }
 
         // Misc. controller values
