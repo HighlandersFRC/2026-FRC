@@ -218,7 +218,7 @@ public final class Constants {
                 public static class Hood {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
-                        public static final double HOOD_PRECISION = degreesToRadians(1);
+                        public static final double HOOD_PRECISION = degreesToRadians(1.0);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -250,7 +250,7 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 100.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 150.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();

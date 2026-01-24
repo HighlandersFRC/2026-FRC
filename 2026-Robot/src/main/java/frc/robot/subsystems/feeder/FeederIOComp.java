@@ -62,7 +62,8 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public boolean getLinearizerSensorTripped() {
-        return linearizerSensor.getIsDetected().getValue();
+        return true;
+        // return linearizerSensor.getIsDetected().getValue();
     }
 
     @Override

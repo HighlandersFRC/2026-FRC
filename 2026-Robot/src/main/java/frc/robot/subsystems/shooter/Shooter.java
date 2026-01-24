@@ -93,15 +93,15 @@ public class Shooter extends SubsystemBase {
         .abs(getHoodAngle()
             .minus(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint))
             .getRadians());
-    double turretAngleError = Math.abs(
-        getRobotRelativeTurretAngle()
-            .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
-            .getRadians());
+    // double turretAngleError = Math.abs(
+    //     getRobotRelativeTurretAngle()
+    //         .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
+    //         .getRadians());
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
     return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
-        && turretAngleError < Constants.SetPoints.Turret.TURRET_PRECISION
+        // && turretAngleError < Constants.SetPoints.Turret.TURRET_PRECISION
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
   }
 
