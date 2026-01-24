@@ -77,16 +77,16 @@ public class SwerveModule extends SubsystemBase {
 
     switch (moduleNumber) {
       case 1:
-        angle = (Math.atan2(-width, length)) - Math.PI;
+        angle = (Math.atan2(-length, width)) - Math.PI;
         break;
       case 2:
-        angle = Math.atan2(width, length);
+        angle = Math.atan2(length, width);
         break;
       case 3:
-        angle = Math.PI + Math.atan2(width, -length);
+        angle = Math.PI + Math.atan2(length, -width);
         break;
       case 4:
-        angle = (2 * Math.PI) + (Math.atan2(-width, -length));
+        angle = (2 * Math.PI) + (Math.atan2(-length, -width));
         break;
       default:
         angle = 1;
@@ -99,7 +99,7 @@ public class SwerveModule extends SubsystemBase {
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
 
-    angleMotorConfig.Slot0.kP = 300.0;
+    angleMotorConfig.Slot0.kP = 850.0;
     angleMotorConfig.Slot0.kI = 0.0;
     angleMotorConfig.Slot0.kD = 15;
 
@@ -127,7 +127,7 @@ public class SwerveModule extends SubsystemBase {
     // driveMotorConfig.Slot0.kD = 0.0;
     // driveMotorConfig.Slot0.kV = 0.0;
     // } else {
-    driveMotorConfig.Slot0.kP = 6.0;
+    driveMotorConfig.Slot0.kP = 8.0;
     driveMotorConfig.Slot0.kI = 0.0;
     driveMotorConfig.Slot0.kD = 0.0;
     driveMotorConfig.Slot0.kV = 0.0;
@@ -149,7 +149,7 @@ public class SwerveModule extends SubsystemBase {
 
     driveMotorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.1;
 
-    driveMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     double absolutePosition = canCoder.getAbsolutePosition().getValueAsDouble();
     angleMotor.setPosition(absolutePosition);
