@@ -32,8 +32,18 @@ public class Climber extends SubsystemBase {
     this.wantedState = wantedState;
   }
 
+  private ClimberState handleStateTransition() {
+    switch (wantedState) {
+      case CLIMBING:
+        return ClimberState.CLIMBING;
+      default:
+        return ClimberState.IDLE;
+    }
+  }
+
   @Override
   public void periodic() {
+    systemState = handleStateTransition();
 
     switch (systemState) {
       case CLIMBING:
