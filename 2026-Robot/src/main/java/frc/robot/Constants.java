@@ -103,7 +103,7 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(540);
+                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(200);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -140,8 +140,8 @@ public final class Constants {
                         public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
                                         LINEARIZER_MAX_SPEED_MPS;
                         public static final double LINEARIZER_SENSOR_TRIGGER_DISTANCE_M = inchesToMeters(3);
-                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(2);
-                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(2);
+                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(3);
+                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(1.25);
                 }
         }
 
@@ -223,7 +223,8 @@ public final class Constants {
                                 double dz = trajectory.getZ();
                                 double dr = Math.hypot(trajectory.getX(), trajectory.getY());
                                 double angleRadians = Math.atan(dz / dr);
-                                return new Rotation2d(angleRadians);
+                                return launchAngleToHoodAngle(new Rotation2d(angleRadians),
+                                                shooterMPSToRPM(trajectory.getNorm()));
                         }
                 }
 
@@ -244,11 +245,8 @@ public final class Constants {
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
-                                double wheelRadiusMeters = Physical.Shooter.SHOOTER_WHEEL_RADIUS;
-                                double wheelCircumferenceMeters = 2 * Math.PI * wheelRadiusMeters;
-                                double wheelRotationsPerSecond = v / wheelCircumferenceMeters;
-                                double wheelRPM = wheelRotationsPerSecond * 60;
-                                return wheelRPM;
+                                double rpm = shooterMPSToRPM(v);
+                                return rpm;
                         }
                 }
 
@@ -435,17 +433,18 @@ public final class Constants {
 
                 public static final class Shooter {
                         public static final double FLYWHEEL_GEAR_RATIO = 1.0 / 1.0;
-                        public static final double HOOD_GEAR_RATIO = 1014.0 / 7.0;
+                        public static final double HOOD_GEAR_RATIO = 845.0 / 7.0;
                         public static final double TURRET_GEAR_RATIO = 455.0 / 9.0;
                 }
 
                 public static final class Intake {
                         public static final double INTAKE_PIVOT_GEAR_RATIO = 1.0;
+                        public static final double INTAKE_ROLLER_GEAR_RATIO = 1.0;
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_GEAR_RATIO = 1.0 / 1.0;
-                        public static final double LINEARIZER_GEAR_RATIO = 1.0 / 1.0;
+                        public static final double HOPPER_GEAR_RATIO = 3.0 / 1.0;
+                        public static final double LINEARIZER_GEAR_RATIO = 3.0 / 1.0;
                 }
         }
 

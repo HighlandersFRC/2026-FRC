@@ -24,6 +24,7 @@ import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.LightsState;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterState;
+import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.PhysicsModel;
 import frc.robot.tools.math.Vector;
 
@@ -40,6 +41,9 @@ public class Superstructure extends SubsystemBase {
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();
   private ArrayList<Translation3d> trajectoryVelocity = new ArrayList<Translation3d>();
+  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 3000);
+  private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 80);
+  private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0);
 
   public enum SuperState {
     DEFAULT,
@@ -47,10 +51,9 @@ public class Superstructure extends SubsystemBase {
     SHOOT,
     INTAKING,
     SHOOTING,
-    SHOOT_BASIC,
-    SHOOTING_BASIC,
     ZERO,
     MANUAL_SHOOT,
+    MANUAL_SHOOTING,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -97,6 +100,9 @@ public class Superstructure extends SubsystemBase {
       case MANUAL_SHOOT:
         handleManualShootState();
         break;
+      case MANUAL_SHOOTING:
+        handleManualShootingState();
+        break;
       case INTAKING:
         handleIntakeingState();
         break;
@@ -142,12 +148,6 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOTING:
         currentSuperState = SuperState.SHOOTING;
-        break;
-      case SHOOT_BASIC:
-        currentSuperState = SuperState.SHOOT_BASIC;
-        break;
-      case SHOOTING_BASIC:
-        currentSuperState = SuperState.SHOOTING_BASIC;
         break;
       case ZERO:
         currentSuperState = SuperState.ZERO;
@@ -272,8 +272,18 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void handleManualShootState() {
-    // shooter.setWantedState(ShooterState.MANUAL_SHOOT);
-    feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    shooter.setWantedState(ShooterState.MANUAL_SHOOT, Rotation2d.fromDegrees(manualShootTurretAngle.get()),
+        Rotation2d.fromDegrees(manualShootHoodAngle.get()),
+        manualShootRPM.get());
+    feeder.setWantedState(FeederState.SHOOT); // Run Hopper Only
+    drive.setWantedState(DriveState.DEFAULT);
+  }
+
+  public void handleManualShootingState() {
+    shooter.setWantedState(ShooterState.MANUAL_SHOOT, Rotation2d.fromDegrees(manualShootTurretAngle.get()),
+        Rotation2d.fromDegrees(manualShootHoodAngle.get()),
+        manualShootRPM.get());
+    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
   }
 
@@ -325,6 +335,9 @@ public class Superstructure extends SubsystemBase {
       tempLastState = currentSuperState;
     }
     Logger.recordOutput("Super State", currentSuperState);
+    Logger.recordOutput("Manual Shoot RPM", manualShootRPM.get());
+    Logger.recordOutput("Manual Shoot Hood Angle", manualShootHoodAngle.get());
+    Logger.recordOutput("Manual Shoot Turret Angle", manualShootTurretAngle.get());
     applyStates();
 
   }
