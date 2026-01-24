@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -332,10 +333,13 @@ public final class Constants {
                                 Constants.inchesToMeters(11.625),
                                 Constants.inchesToMeters(33.5), 0, -33.5, 0 };
 
-                public static final double[] DEFAULT_LIMELIGHT_POSE = { Constants.inchesToMeters(1.75),
-                                Constants.inchesToMeters(0.0),
-                                Constants.inchesToMeters(33.5), 0, 0, 0 };
+                public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
+                                inchesToMeters(20.0), inchesToMeters(20.0), 0);
 
+                public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
+                                0.0,
+                                0.0,
+                                0.0);
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;
 
@@ -367,6 +371,33 @@ public final class Constants {
                                 return 0.6;
                         } else {
                                 return 0.75;
+                        }
+                }
+
+                public static void updateLimelightPoseFromTurret(
+                                Rotation2d turretYaw,
+                                Translation3d turretOffsetFromRobot,
+                                Translation3d cameraOffsetFromTurret,
+                                Rotation3d cameraRotationRelativeToTurret,
+                                String limelightName) {
+
+                        Rotation3d turretRotation = new Rotation3d(0.0, 0.0, turretYaw.getRadians());
+                        Translation3d cameraRelativeToRobot = turretOffsetFromRobot
+                                        .plus(cameraOffsetFromTurret.rotateBy(turretRotation));
+                        Rotation3d cameraRotationRelativeToRobot = turretRotation.plus(cameraRotationRelativeToTurret);
+                        Pose3d limelightPose = new Pose3d(cameraRelativeToRobot, cameraRotationRelativeToRobot);
+
+                        try {
+                                LimelightHelpers.setCameraPose_RobotSpace(
+                                                limelightName,
+                                                limelightPose.getX(),
+                                                limelightPose.getY(),
+                                                limelightPose.getZ(),
+                                                Math.toDegrees(limelightPose.getRotation().getX()),
+                                                Math.toDegrees(limelightPose.getRotation().getY()),
+                                                Math.toDegrees(limelightPose.getRotation().getZ()));
+                        } catch (Exception e) {
+                                System.out.println("Could not set limelight pose: " + e.getMessage());
                         }
                 }
 

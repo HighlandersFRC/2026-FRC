@@ -15,9 +15,16 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
@@ -37,6 +44,7 @@ class ShooterIOComp implements ShooterIO {
     private final double SLOPE = ((double) (Constants.Physical.Shooter.TURRET_GEAR_1_TOOTH_COUNT
             - Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT))
             / (double) Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT;
+
     private TunableNumber turretP = new TunableNumber("Turret Position kP", Constants.PIDConstants.Turret.kP0);
     private TunableNumber turretI = new TunableNumber("Turret Position kI", Constants.PIDConstants.Turret.kI0);
     private TunableNumber turretD = new TunableNumber("Turret Position kD", Constants.PIDConstants.Turret.kD0);
@@ -216,6 +224,10 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void updateInputs() {
+        Constants.Vision.updateLimelightPoseFromTurret(getTurretAngle(), Constants.Physical.Shooter.SHOOTER_POSITION,
+                Constants.Vision.LIMELIGHT_TO_TURRET_OFFSET, Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET,
+                Constants.Vision.LIMELIGHT_NAME);
+
         if (turretP.changed() || turretI.changed() || turretD.changed() || turretS.changed() || turretVelocity.changed()
                 || turretAcceleration.changed()) {
             System.out.println("Updating Turret PID Constants");
