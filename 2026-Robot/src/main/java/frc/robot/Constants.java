@@ -116,7 +116,7 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(20.0), inchesToMeters(20.0), SHOOTER_HEIGHT);
+                                        inchesToMeters(-3.749), inchesToMeters(6.502), inchesToMeters(17.8125));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
@@ -334,7 +334,7 @@ public final class Constants {
                                 Constants.inchesToMeters(33.5), 0, -33.5, 0 };
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(20.0), inchesToMeters(20.0), 0);
+                                inchesToMeters(-5.5), inchesToMeters(0.0), inchesToMeters(11.388));
 
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 0.0,
