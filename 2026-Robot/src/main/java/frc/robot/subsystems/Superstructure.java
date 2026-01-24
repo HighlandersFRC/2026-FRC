@@ -42,7 +42,7 @@ public class Superstructure extends SubsystemBase {
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();
   private ArrayList<Translation3d> trajectoryVelocity = new ArrayList<Translation3d>();
-  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 3000);
+  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 2000);
   private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 60.0);
   private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0.0);
 
@@ -142,7 +142,12 @@ public class Superstructure extends SubsystemBase {
         }
         break;
       case MANUAL_SHOOT:
-        currentSuperState = SuperState.MANUAL_SHOOT;
+        if (shooter.readyToShoot()) {
+          wantedSuperState = SuperState.MANUAL_SHOOTING;
+          currentSuperState = SuperState.MANUAL_SHOOTING;
+        } else {
+          currentSuperState = SuperState.MANUAL_SHOOT;
+        }
         break;
       case MANUAL_SHOOTING:
         currentSuperState = SuperState.MANUAL_SHOOTING;
