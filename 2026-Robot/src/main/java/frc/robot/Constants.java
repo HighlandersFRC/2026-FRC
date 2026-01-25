@@ -19,6 +19,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.Vector;
 
 public final class Constants {
@@ -276,13 +277,21 @@ public final class Constants {
                 }
         }
 
+        public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.240000);
+        public static TunableNumber launchAngleToHoodAngle = new TunableNumber("launchAngleToHoodAngle", 1.2);
+        public static TunableNumber shooterOffset = new TunableNumber("shooterAngleOffset", 2.480000);
+
         public static double shooterMPSToRPM(double mps) {
-                return -369.004 * (1.17 - mps);
+
+                return -369.004 * (1.17 + shooterOffset.get() - mps) / Constants.shooterMPStoRPM.get();
                 // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
         }
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
-                return Rotation2d.fromDegrees(-1.26743 * (13.8 - launchAngle.getDegrees()));
+                return Rotation2d.fromDegrees(
+                                (-1.26743 * (13.8 - launchAngle.getDegrees()) / Constants.launchAngleToHoodAngle.get()))
+                                .plus(launchAngle);
+                // return Rotation2d.fromDegrees(launchAngle.getDegrees() + launchAngleOffset.get());
         }
 
         // PID constants

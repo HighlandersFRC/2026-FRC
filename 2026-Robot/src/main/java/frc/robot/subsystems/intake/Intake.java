@@ -74,7 +74,7 @@ public class Intake extends SubsystemBase {
         break;
       case INTAKING:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
-        setRollerPercent(0.7);
+        setRollerPercent(0.3);
         break;
       default:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
