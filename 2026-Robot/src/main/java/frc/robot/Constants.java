@@ -278,7 +278,6 @@ public final class Constants {
         }
 
         public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.150000);
-        public static TunableNumber launchAngleToHoodAngle = new TunableNumber("launchAngleToHoodAngle", 1.0);
         public static TunableNumber shooterOffset = new TunableNumber("shooterAngleOffset", 2.7190000000000);
 
         public static double shooterMPSToRPM(double mps) {
