@@ -7,6 +7,8 @@ package frc.robot;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -334,9 +336,9 @@ public final class Constants {
                                 inchesToMeters(-5.5), inchesToMeters(0.0), inchesToMeters(11.388));
 
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
-                                0.8,
-                                21.2,
-                                0.0);
+                                Math.toRadians(-21.2),
+                                Math.toRadians(0.8),
+                                Math.toRadians(0.0));
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;
 
@@ -379,10 +381,21 @@ public final class Constants {
                                 String limelightName) {
 
                         Rotation3d turretRotation = new Rotation3d(0.0, 0.0, turretYaw.getRadians());
+                        Logger.recordOutput("turret rotation", turretRotation);
+                        Logger.recordOutput("turret off from robot", turretOffsetFromRobot);
+                        Logger.recordOutput("cam off from turret", cameraOffsetFromTurret);
                         Translation3d cameraRelativeToRobot = turretOffsetFromRobot
                                         .plus(cameraOffsetFromTurret.rotateBy(turretRotation));
+
+                        Logger.recordOutput("cam rel to robot", cameraRelativeToRobot);
                         Rotation3d cameraRotationRelativeToRobot = turretRotation.plus(cameraRotationRelativeToTurret);
+                        Logger.recordOutput("cam rot rel to robot", cameraRotationRelativeToRobot);
+                        Logger.recordOutput("cam rot roll", Math.toDegrees(cameraRotationRelativeToRobot.getX()));
+                        Logger.recordOutput("cam rot pitch", Math.toDegrees(cameraRotationRelativeToRobot.getY()));
+                        Logger.recordOutput("cam rot yaw", Math.toDegrees(cameraRotationRelativeToRobot.getZ()));
                         Pose3d limelightPose = new Pose3d(cameraRelativeToRobot, cameraRotationRelativeToRobot);
+                        Logger.recordOutput("limelight pose", limelightPose);
+                        Logger.recordOutput("limelight name", limelightName);
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(

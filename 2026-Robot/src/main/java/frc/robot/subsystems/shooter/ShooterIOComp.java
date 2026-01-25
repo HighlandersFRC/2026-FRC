@@ -143,8 +143,8 @@ class ShooterIOComp implements ShooterIO {
         encoderOne.getConfigurator().apply(encoderOneConfig);
         CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
         encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        encoderOneConfig.MagnetSensor.MagnetOffset = 0.0;
-        encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
+        encoderTwoConfig.MagnetSensor.MagnetOffset = 0.0;
+        encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
         turretMotor.setPosition(getRelativeTurretAngleRadians());
@@ -154,8 +154,8 @@ class ShooterIOComp implements ShooterIO {
     public Rotation2d getHoodAngle() {
         return Constants.SetPoints.Hood
                 .motorAngleToHoodAngle(Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
-                                                                                                                                             // try
-                                                                                                                                             // getLatencyCompensatedValueAsDouble()
+                                                                                                              // try
+                                                                                                              // getLatencyCompensatedValueAsDouble()
     }
 
     @Override
