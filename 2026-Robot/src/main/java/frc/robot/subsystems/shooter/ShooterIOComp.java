@@ -154,8 +154,8 @@ class ShooterIOComp implements ShooterIO {
     public Rotation2d getHoodAngle() {
         return Constants.SetPoints.Hood
                 .motorAngleToHoodAngle(Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
-                                                                                                              // try
-                                                                                                              // getLatencyCompensatedValueAsDouble()
+                                                                                                                                             // try
+                                                                                                                                             // getLatencyCompensatedValueAsDouble()
     }
 
     @Override
@@ -171,9 +171,12 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void moveHoodToAngle(Rotation2d angle) {
-        // System.out.println("angle" + angle.getDegrees());
-        // hoodMotor.setControl(new MotionMagicTorqueCurrentFOC(angle.getRotations()));
-        System.out.println("error" + hoodMotor.getClosedLoopError().getValueAsDouble());
+        if (angle.getDegrees() > 85.0) {
+            angle = Rotation2d.fromDegrees(85.0);
+        }
+        if (angle.getDegrees() < 55.0) {
+            angle = Rotation2d.fromDegrees(55.0);
+        }
         double wantedAngle = Constants.SetPoints.Hood.hoodAngleToMotorAngle(angle).getRotations();
         hoodMotor.setControl(this.hoodMotionProfileRequest
                 .withPosition(
@@ -213,8 +216,8 @@ class ShooterIOComp implements ShooterIO {
     }
 
     @Override
-    public void setHoodAngle(Rotation2d angle) {
-        hoodMotor.setPosition(angle.getRotations());
+    public void setHoodAngle(Rotation2d angle) { // DON'T USE
+        // hoodMotor.setPosition(angle.getRotations());
     }
 
     @Override

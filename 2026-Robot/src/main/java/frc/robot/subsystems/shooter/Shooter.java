@@ -125,9 +125,9 @@ public class Shooter extends SubsystemBase {
     io.moveHoodToAngle(angle);
   }
 
-  public void setHoodAngle(Rotation2d angle) {
-    io.setHoodAngle(angle);
-  }
+  // public void setHoodAngle(Rotation2d angle) {
+  //   io.setHoodAngle(angle);
+  // }
 
   public void setTurretAngle(Rotation2d angle) {
     io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
