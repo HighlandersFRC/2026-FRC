@@ -277,9 +277,9 @@ public final class Constants {
                 }
         }
 
-        public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.240000);
-        public static TunableNumber launchAngleToHoodAngle = new TunableNumber("launchAngleToHoodAngle", 1.2);
-        public static TunableNumber shooterOffset = new TunableNumber("shooterAngleOffset", 2.480000);
+        public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.150000);
+        public static TunableNumber launchAngleToHoodAngle = new TunableNumber("launchAngleToHoodAngle", 1.0);
+        public static TunableNumber shooterOffset = new TunableNumber("shooterAngleOffset", 2.7190000000000);
 
         public static double shooterMPSToRPM(double mps) {
 
@@ -289,7 +289,7 @@ public final class Constants {
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
                 return Rotation2d.fromDegrees(
-                                (-1.26743 * (13.8 - launchAngle.getDegrees()) / Constants.launchAngleToHoodAngle.get()))
+                                (-1.26743 * (13.8 - launchAngle.getDegrees())))
                                 .plus(launchAngle);
                 // return Rotation2d.fromDegrees(launchAngle.getDegrees() + launchAngleOffset.get());
         }
