@@ -107,7 +107,7 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(200);
+                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(180);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -124,10 +124,10 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
-                        public static final int TURRET_PULLEY_1_TOOTH_COUNT = 15;
-                        public static final int TURRET_PULLEY_0_TOOTH_COUNT = 130;
-                        public static final int TURRET_GEAR_2_TOOTH_COUNT = 39;
-                        public static final int TURRET_GEAR_1_TOOTH_COUNT = 40;
+                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 130;
+                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 39;
+                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 3 + 0.0 * distanceFromHub;
@@ -290,7 +290,8 @@ public final class Constants {
                 return Rotation2d.fromDegrees(
                                 (-1.26743 * (13.8 - launchAngle.getDegrees())))
                                 .plus(launchAngle);
-                // return Rotation2d.fromDegrees(launchAngle.getDegrees() + launchAngleOffset.get());
+                // return Rotation2d.fromDegrees(launchAngle.getDegrees() +
+                // launchAngleOffset.get());
         }
 
         // PID constants

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -76,6 +78,7 @@ class ShooterIOComp implements ShooterIO {
 
     public ShooterIOComp() {
         // Hood Motor Configuration //TODO: Gotta tune all of the configs
+        System.out.println("slope: " + SLOPE);
         TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
         hoodConfig.Slot0.kP = Constants.PIDConstants.Hood.kP0;
         hoodConfig.Slot0.kI = Constants.PIDConstants.Hood.kI0;
@@ -138,12 +141,13 @@ class ShooterIOComp implements ShooterIO {
         // CANcoder Configuration
         CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
         encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoderOneConfig.MagnetSensor.MagnetOffset = 0.0; // TODO: Try calculating offset from previous zero data
+        encoderOneConfig.MagnetSensor.MagnetOffset = -0.271240234375; // TODO: Try calculating offset from previous zero
+                                                                      // data
         encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderOne.getConfigurator().apply(encoderOneConfig);
         CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
         encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        encoderTwoConfig.MagnetSensor.MagnetOffset = 0.0;
+        encoderTwoConfig.MagnetSensor.MagnetOffset = -0.516357421875;
         encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -154,8 +158,8 @@ class ShooterIOComp implements ShooterIO {
     public Rotation2d getHoodAngle() {
         return Constants.SetPoints.Hood
                 .motorAngleToHoodAngle(Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
-                                                                                                                                             // try
-                                                                                                                                             // getLatencyCompensatedValueAsDouble()
+                                                                                                              // try
+                                                                                                              // getLatencyCompensatedValueAsDouble()
     }
 
     @Override
@@ -202,6 +206,8 @@ class ShooterIOComp implements ShooterIO {
     public double getRelativeTurretAngleRadians() {
         double r1 = encoderOne.getAbsolutePosition().getValueAsDouble();
         double r2 = encoderTwo.getAbsolutePosition().getValueAsDouble();
+        Logger.recordOutput("encoderOnePosition", r1 * 4096);
+        Logger.recordOutput("encoderTwoPosition", r2 * 4096);
         double difference = r1 - r2;
         if (difference > 0.5) {
             difference -= 1.0;
@@ -209,9 +215,10 @@ class ShooterIOComp implements ShooterIO {
         if (difference < -0.5) {
             difference += 1.0;
         }
-        double gear1RelRotations = difference * SLOPE;
-        double turretRelativeRotations = gear1RelRotations * Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT
-                / Constants.Physical.Shooter.TURRET_GEAR_1_TOOTH_COUNT;
+        Logger.recordOutput("encoder difference", difference);
+        double gear1Rotations = -difference / SLOPE;
+        double turretRelativeRotations = gear1Rotations * Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT
+                / Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT;
         return Units.rotationsToRadians(turretRelativeRotations);
     }
 
@@ -231,7 +238,9 @@ class ShooterIOComp implements ShooterIO {
         Constants.Vision.updateLimelightPoseFromTurret(getTurretAngle(), Constants.Physical.Shooter.SHOOTER_POSITION,
                 Constants.Vision.LIMELIGHT_TO_TURRET_OFFSET, Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET,
                 Constants.Vision.LIMELIGHT_NAME);
-
+        Logger.recordOutput("Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
+        Logger.recordOutput("Motor Turret Angle",
+                Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
         if (turretP.changed() || turretI.changed() || turretD.changed() || turretS.changed() || turretVelocity.changed()
                 || turretAcceleration.changed()) {
             System.out.println("Updating Turret PID Constants");
