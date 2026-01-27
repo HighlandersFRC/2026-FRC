@@ -130,6 +130,7 @@ public class Shooter extends SubsystemBase {
   // }
 
   public void setTurretAngle(Rotation2d angle) {
+    System.out.println("OG: " + angle.getDegrees() + " Adj: " + getRelativeAngleFromRotation2d(angle));
     io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
   }
 

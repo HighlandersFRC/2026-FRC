@@ -152,15 +152,15 @@ class ShooterIOComp implements ShooterIO {
         encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
-        turretMotor.setPosition(getRelativeTurretAngleRadians());
+        turretMotor.setPosition(getRelativeTurretAngleRadians() / (Math.PI * 2));
     }
 
     @Override
     public Rotation2d getHoodAngle() {
         return Constants.SetPoints.Hood
                 .motorAngleToHoodAngle(Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
-                                                                                                              // try
-                                                                                                              // getLatencyCompensatedValueAsDouble()
+                                                                                                                                             // try
+                                                                                                                                             // getLatencyCompensatedValueAsDouble()
     }
 
     @Override
@@ -192,7 +192,11 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void setTurretAngle(double angle) {
-        turretMotor.setControl(new MotionMagicVoltage(Units.radiansToRotations(angle)));
+        Logger.recordOutput("Goal turret degrees", Math.toDegrees(angle));
+        turretMotor.setControl(new MotionMagicVoltage(Units.degreesToRotations(angle)));
+        Logger.recordOutput("goal motor turret degrees Er",
+                turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
+
     }
 
     @Override
