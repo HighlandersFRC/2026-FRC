@@ -2,6 +2,8 @@ package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -17,6 +19,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.fasterxml.jackson.databind.JsonSerializable.Base;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +28,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive;
@@ -208,8 +213,16 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public double getRelativeTurretAngleRadians() {
-        double r1 = encoderOne.getAbsolutePosition().getValueAsDouble();
-        double r2 = encoderTwo.getAbsolutePosition().getValueAsDouble();
+        StatusSignal<Angle> pos1 = encoderOne.getAbsolutePosition();
+        StatusSignal<AngularVelocity> vel1 = encoderTwo.getVelocity();
+        pos1.refresh();
+        vel1.refresh();
+        double r1 = BaseStatusSignal.getLatencyCompensatedValueAsDouble(pos1, vel1);
+        StatusSignal<Angle> pos2 = encoderOne.getAbsolutePosition();
+        StatusSignal<AngularVelocity> vel2 = encoderTwo.getVelocity();
+        pos2.refresh();
+        vel2.refresh();
+        double r2 = BaseStatusSignal.getLatencyCompensatedValueAsDouble(pos2, vel2);
         Logger.recordOutput("encoderOneLatencyPosition", r1 * 4096);
         Logger.recordOutput("encoderTwoLatencyPosition", r1 * 4096);
         Logger.recordOutput("encoderOnePosition", r1 * 4096);
