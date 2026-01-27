@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -141,13 +142,13 @@ class ShooterIOComp implements ShooterIO {
         // CANcoder Configuration
         CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
         encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoderOneConfig.MagnetSensor.MagnetOffset = -0.271240234375; // TODO: Try calculating offset from previous zero
-                                                                      // data
+        encoderOneConfig.MagnetSensor.MagnetOffset = -0.26025390625; // TODO: Try calculating offset from previous zero
+                                                                     // data
         encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderOne.getConfigurator().apply(encoderOneConfig);
         CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
         encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        encoderTwoConfig.MagnetSensor.MagnetOffset = -0.516357421875;
+        encoderTwoConfig.MagnetSensor.MagnetOffset = -0.77734375;
         encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -164,8 +165,7 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public Rotation2d getTurretAngle() {
-        // return new Rotation2d(getRelativeTurretAngleRadians());
-        return new Rotation2d(Math.PI / 2);
+        return new Rotation2d(getRelativeTurretAngleRadians());
     }
 
     @Override
@@ -192,7 +192,7 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void setTurretAngle(double angle) {
-        turretMotor.setControl(new MotionMagicTorqueCurrentFOC(Units.radiansToRotations(angle)));
+        turretMotor.setControl(new MotionMagicVoltage(Units.radiansToRotations(angle)));
     }
 
     @Override
@@ -206,6 +206,8 @@ class ShooterIOComp implements ShooterIO {
     public double getRelativeTurretAngleRadians() {
         double r1 = encoderOne.getAbsolutePosition().getValueAsDouble();
         double r2 = encoderTwo.getAbsolutePosition().getValueAsDouble();
+        Logger.recordOutput("encoderOneLatencyPosition", r1 * 4096);
+        Logger.recordOutput("encoderTwoLatencyPosition", r1 * 4096);
         Logger.recordOutput("encoderOnePosition", r1 * 4096);
         Logger.recordOutput("encoderTwoPosition", r2 * 4096);
         double difference = r1 - r2;
@@ -219,7 +221,7 @@ class ShooterIOComp implements ShooterIO {
         double gear1Rotations = -difference / SLOPE;
         double turretRelativeRotations = gear1Rotations * Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT
                 / Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT;
-        return Units.rotationsToRadians(turretRelativeRotations);
+        return -Units.rotationsToRadians(turretRelativeRotations);
     }
 
     @Override

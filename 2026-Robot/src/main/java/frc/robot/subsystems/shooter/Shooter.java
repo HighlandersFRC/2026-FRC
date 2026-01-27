@@ -83,9 +83,9 @@ public class Shooter extends SubsystemBase {
     // System.out.println("Manual Shooting: Hood Angle: " +
     // manualHoodAngle.getDegrees() + " Turret Angle: "
     // + manualTurretAngle.getDegrees() + " Flywheel RPM: " + manualFlywheelRPM);
-    moveHoodToAngle(manualHoodAngle);
-    // setTurretAngle(manualTurretAngle);
-    setFlywheelRPM(manualFlywheelRPM);
+    // moveHoodToAngle(manualHoodAngle);
+    setTurretAngle(manualTurretAngle);
+    // setFlywheelRPM(manualFlywheelRPM);
   }
 
   public boolean readyToShoot() {
@@ -94,9 +94,9 @@ public class Shooter extends SubsystemBase {
             .minus(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint))
             .getRadians());
     // double turretAngleError = Math.abs(
-    //     getRobotRelativeTurretAngle()
-    //         .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
-    //         .getRadians());
+    // getRobotRelativeTurretAngle()
+    // .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
+    // .getRadians());
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
@@ -126,7 +126,7 @@ public class Shooter extends SubsystemBase {
   }
 
   // public void setHoodAngle(Rotation2d angle) {
-  //   io.setHoodAngle(angle);
+  // io.setHoodAngle(angle);
   // }
 
   public void setTurretAngle(Rotation2d angle) {
