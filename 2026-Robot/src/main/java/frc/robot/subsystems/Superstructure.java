@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
+import frc.robot.OI;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.feeder.Feeder;
@@ -142,7 +143,7 @@ public class Superstructure extends SubsystemBase {
         }
         break;
       case MANUAL_SHOOT:
-        if (shooter.readyToShoot()) {
+        if (OI.driverA.getAsBoolean()) {
           wantedSuperState = SuperState.MANUAL_SHOOTING;
           currentSuperState = SuperState.MANUAL_SHOOTING;
         } else {
