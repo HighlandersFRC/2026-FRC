@@ -71,8 +71,7 @@ class ShooterIOComp implements ShooterIO {
 
     private final DynamicMotionMagicVoltage hoodMotionProfileRequest = new DynamicMotionMagicVoltage(0,
             hoodCruiseVelocity.get(),
-            hoodAcceleration.get(),
-            0.0);
+            hoodAcceleration.get());
 
     private TunableNumber flywheelP = new TunableNumber("Flywheel Position kP", Constants.PIDConstants.Flywheel.kP0);
     private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI", Constants.PIDConstants.Flywheel.kI0);
