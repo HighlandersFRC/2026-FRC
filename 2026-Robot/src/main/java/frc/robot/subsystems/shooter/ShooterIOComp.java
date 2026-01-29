@@ -7,10 +7,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,20 +15,11 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.fasterxml.jackson.databind.JsonSerializable.Base;
-
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-import frc.robot.subsystems.drive.Drive;
 import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
@@ -49,6 +36,7 @@ class ShooterIOComp implements ShooterIO {
             Constants.CANInfo.CANBUS_NAME);
     private final CANcoder encoderTwo = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID,
             Constants.CANInfo.CANBUS_NAME);
+    private final CANcoder hoodEncoder = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID);
     private final double SLOPE = ((double) (Constants.Physical.Shooter.TURRET_GEAR_1_TOOTH_COUNT
             - Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT))
             / (double) Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT;
@@ -95,11 +83,12 @@ class ShooterIOComp implements ShooterIO {
                 .radiansToRotations(Constants.Physical.Shooter.HOOD_ACCELERATION_RAD_S);
         hoodConfig.MotionMagic.MotionMagicCruiseVelocity = Units
                 .radiansToRotations(Constants.Physical.Shooter.HOOD_MAX_SPEED_RAD_S);
-        hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_GEAR_RATIO;
-        hoodConfig.Feedback.RotorToSensorRatio = 1.0;
+        hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
+        hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
         hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
-        hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+        hoodConfig.Feedback.FeedbackRemoteSensorID = Constants.CANInfo.HOOD_CANCODER_ID;
         hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
                 .radiansToRotations(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS
@@ -291,8 +280,8 @@ class ShooterIOComp implements ShooterIO {
             hoodConfig.Slot0.kG = hoodG.get();
             hoodConfig.MotionMagic.MotionMagicAcceleration = hoodAcceleration.get();
             hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodCruiseVelocity.get();
-            hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_GEAR_RATIO;
-            hoodConfig.Feedback.RotorToSensorRatio = 1.0;
+            hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
+            hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
             hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
             hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
             hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;

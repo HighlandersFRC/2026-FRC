@@ -329,7 +329,7 @@ public final class Constants {
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.1;
                         public static final double kS0 = 0.0;
-                        public static final double kV0 = 0.13;
+                        public static final double kV0 = 0.22;
                 }
         }
 
@@ -500,8 +500,10 @@ public final class Constants {
 
                 public static final class Shooter {
                         public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 12.0;
+                        public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 2.41;
                         public static final double HOOD_GEAR_RATIO = 200.0;
-                        // public static final double HOOD_GEAR_RATIO = 845.0 / 7.0; // old shooter
+                        public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
+                                        / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
                         public static final double TURRET_GEAR_RATIO = 37.723;
                         // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
                         // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
@@ -550,6 +552,7 @@ public final class Constants {
                 public static final int FLYWHEEL_SLAVE_ID = 10;
                 public static final int HOOD_MOTOR_ID = 11;
                 public static final int TURRET_MOTOR_ID = 12;
+                public static final int HOOD_CANCODER_ID = 7;
                 public static final int TURRET_CANCODER_ONE_ID = 5; // on driving pulley
                 public static final int TURRET_CANCODER_TWO_ID = 6;
 

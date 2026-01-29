@@ -228,13 +228,13 @@ public class Robot extends LoggedRobot {
       xPressed = true;
     }
 
-    if (m_robotContainer.manualMode) {
-      m_robotContainer.drive.robotCentric = true;
-      Elastic.selectTab("Camera View");
-    } else {
-      m_robotContainer.drive.robotCentric = false;
-      Elastic.selectTab("Teleoperated");
-    }
+    // if (m_robotContainer.manualMode) {
+    // m_robotContainer.drive.robotCentric = true;
+    // Elastic.selectTab("Camera View");
+    // } else {
+    // m_robotContainer.drive.robotCentric = false;
+    // Elastic.selectTab("Teleoperated");
+    // }
   }
 
   @Override
