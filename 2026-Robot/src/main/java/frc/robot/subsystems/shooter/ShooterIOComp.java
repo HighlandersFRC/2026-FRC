@@ -104,6 +104,7 @@ class ShooterIOComp implements ShooterIO {
         hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
                 .radiansToRotations(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS
                         - Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS);
+        hoodConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         hoodMotor.getConfigurator().apply(hoodConfig);
         hoodMotor.setNeutralMode(NeutralModeValue.Brake);
         hoodMotor.setPosition(0.0);
@@ -156,7 +157,7 @@ class ShooterIOComp implements ShooterIO {
         encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
-        turretMotor.setPosition(getRelativeTurretAngleRadians());
+        turretMotor.setPosition(getRelativeTurretAngleRadians() / (Math.PI * 2));
     }
 
     @Override
@@ -179,6 +180,7 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void moveHoodToAngle(Rotation2d angle) {
+        Logger.recordOutput("Hood target angle", angle.getDegrees());
         if (angle.getDegrees() > 85.0) {
             angle = Rotation2d.fromDegrees(85.0);
         }
@@ -196,7 +198,12 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void setTurretAngle(double angle) {
-        turretMotor.setControl(new MotionMagicVoltage(Units.radiansToRotations(angle)));
+        Logger.recordOutput("Goal turret degrees", Math.toDegrees(angle));
+        // turretMotor.setControl(new
+        // MotionMagicVoltage(Units.degreesToRotations(angle)));
+        Logger.recordOutput("goal motor turret degrees Er",
+                turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
+
     }
 
     @Override

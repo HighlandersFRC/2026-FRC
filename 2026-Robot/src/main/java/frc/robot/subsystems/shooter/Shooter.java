@@ -83,9 +83,9 @@ public class Shooter extends SubsystemBase {
     // System.out.println("Manual Shooting: Hood Angle: " +
     // manualHoodAngle.getDegrees() + " Turret Angle: "
     // + manualTurretAngle.getDegrees() + " Flywheel RPM: " + manualFlywheelRPM);
-    // moveHoodToAngle(manualHoodAngle);
+    moveHoodToAngle(manualHoodAngle);
     setTurretAngle(manualTurretAngle);
-    // setFlywheelRPM(manualFlywheelRPM);
+    setFlywheelRPM(manualFlywheelRPM);
   }
 
   public boolean readyToShoot() {
@@ -130,6 +130,7 @@ public class Shooter extends SubsystemBase {
   // }
 
   public void setTurretAngle(Rotation2d angle) {
+    System.out.println("OG: " + angle.getDegrees() + " Adj: " + getRelativeAngleFromRotation2d(angle));
     io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
   }
 

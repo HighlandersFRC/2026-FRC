@@ -499,9 +499,14 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 1.0 / 1.0;
-                        public static final double HOOD_GEAR_RATIO = 845.0 / 7.0;
-                        public static final double TURRET_GEAR_RATIO = 455.0 / 9.0;
+                        public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 12.0;
+                        public static final double HOOD_GEAR_RATIO = 200.0;
+                        // public static final double HOOD_GEAR_RATIO = 845.0 / 7.0; // old shooter
+                        public static final double TURRET_GEAR_RATIO = 37.723;
+                        // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
+                        // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
+                        // public static final double TURRET_GEAR_RATIO = 43.112;
+                        // public static final double TURRET_GEAR_RATIO = 50.55;
                 }
 
                 public static final class Intake {
