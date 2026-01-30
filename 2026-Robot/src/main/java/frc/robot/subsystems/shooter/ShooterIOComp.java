@@ -45,8 +45,8 @@ class ShooterIOComp implements ShooterIO {
     private TunableNumber turretI = new TunableNumber("Turret Position kI", Constants.PIDConstants.Turret.kI0);
     private TunableNumber turretD = new TunableNumber("Turret Position kD", Constants.PIDConstants.Turret.kD0);
     private TunableNumber turretS = new TunableNumber("Turret Position kS", Constants.PIDConstants.Turret.kS0);
-    private TunableNumber turretVelocity = new TunableNumber("Turret Position Velocity", 2);
-    private TunableNumber turretAcceleration = new TunableNumber("Turret Position Acceleration", 2);
+    private TunableNumber turretVelocity = new TunableNumber("Turret Position Velocity", 3.0);
+    private TunableNumber turretAcceleration = new TunableNumber("Turret Position Acceleration", 10.0);
 
     private TunableNumber hoodP = new TunableNumber("Hood Position kP", Constants.PIDConstants.Hood.kP0);
     private TunableNumber hoodI = new TunableNumber("Hood Position kI", Constants.PIDConstants.Hood.kI0);
@@ -188,8 +188,8 @@ class ShooterIOComp implements ShooterIO {
     @Override
     public void setTurretAngle(double angle) {
         Logger.recordOutput("Goal turret degrees", Math.toDegrees(angle));
-        // turretMotor.setControl(new
-        // MotionMagicVoltage(Units.degreesToRotations(angle)));
+        turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity.get(),
+                turretAcceleration.get()));
         Logger.recordOutput("goal motor turret degrees Er",
                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
 

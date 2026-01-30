@@ -107,7 +107,7 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(180);
+                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(200);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -282,13 +282,12 @@ public final class Constants {
 
         public static double shooterMPSToRPM(double mps) {
 
-                return -369.004 * (1.17 + shooterOffset.get() - mps) / Constants.shooterMPStoRPM.get();
+                return 151.0 * mps - 183.0;
                 // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
         }
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
-                return Rotation2d.fromDegrees(
-                                (-1.26743 * (13.8 - launchAngle.getDegrees())))
+                return Rotation2d.fromDegrees(-8.287)
                                 .plus(launchAngle);
                 // return Rotation2d.fromDegrees(launchAngle.getDegrees() +
                 // launchAngleOffset.get());
@@ -298,10 +297,10 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         // Position PID
-                        public static final double kP0 = 100.0;
+                        public static final double kP0 = 20.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
-                        public static final double kS0 = 5.0;
+                        public static final double kS0 = 0.0;
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;
                         public static final double kI1 = 0.0;
@@ -565,6 +564,7 @@ public final class Constants {
                 public static final int LINEARIZER_MOTOR_ID = 16;
                 public static final int LINEARIZER_CANRANGE_ID = 0;
 
+                // Climber
                 public static final int CLIMBER_MOTOR_ID = 20;
         }
 
