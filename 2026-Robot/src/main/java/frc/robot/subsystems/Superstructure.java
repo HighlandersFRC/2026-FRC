@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.Climber.ClimberState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.feeder.Feeder;
@@ -36,6 +38,7 @@ public class Superstructure extends SubsystemBase {
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
+  private final Climber climber;
   double outakeIdleInitTime = 0;
   boolean outakeIdleInit = false;
   boolean firstTimeDefault = true;
@@ -56,6 +59,8 @@ public class Superstructure extends SubsystemBase {
     ZERO,
     MANUAL_SHOOT,
     MANUAL_SHOOTING,
+    CLIMBING,
+    EXTEND_CLIMBER
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -64,12 +69,13 @@ public class Superstructure extends SubsystemBase {
   public boolean algaeMode = false;
 
   public Superstructure(Drive drive,
-      Lights lights, Shooter shooter, Intake intake, Feeder feeder) {
+      Lights lights, Shooter shooter, Intake intake, Feeder feeder, Climber climber) {
     this.drive = drive;
     this.lights = lights;
     this.shooter = shooter;
     this.intake = intake;
     this.feeder = feeder;
+    this.climber = climber;
   }
 
   public void setWantedState(SuperState wantedState) {
@@ -110,6 +116,12 @@ public class Superstructure extends SubsystemBase {
         break;
       case ZERO:
         handleZeroState();
+        break;
+      case CLIMBING:
+        handleClimbingState();
+        break;
+      case EXTEND_CLIMBER:
+        handleExtendClimberState();
         break;
       default:
         handleIdleState();
@@ -161,6 +173,12 @@ public class Superstructure extends SubsystemBase {
         break;
       case ZERO:
         currentSuperState = SuperState.ZERO;
+        break;
+      case CLIMBING:
+        currentSuperState = SuperState.CLIMBING;
+        break;
+      case EXTEND_CLIMBER:
+        currentSuperState = SuperState.EXTEND_CLIMBER;
         break;
       default:
         currentSuperState = SuperState.IDLE;
@@ -260,6 +278,7 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.DEFAULT); // Run hopper and linearizer
     intake.setWantedState(IntakeState.UP);
     shooter.setWantedState(ShooterState.DEFAULT);
+    climber.setWantedState(ClimberState.IDLE);
   }
 
   public void handleManualShootState() {
@@ -300,6 +319,14 @@ public class Superstructure extends SubsystemBase {
     intake.setWantedState(IntakeState.IDLE);
     feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
     // shooter.setWantedState(ShooterState.ZERO); TODO: Implement zeroing
+  }
+
+  private void handleClimbingState() {
+    climber.setWantedState(ClimberState.CLIMBING);
+  }
+
+  private void handleExtendClimberState() {
+    climber.setWantedState(ClimberState.EXTEND);
   }
 
   public void PARTY() {
