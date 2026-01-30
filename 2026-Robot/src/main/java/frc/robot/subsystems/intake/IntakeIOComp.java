@@ -24,8 +24,7 @@ class IntakeIOComp implements IntakeIO {
 
         private final DynamicMotionMagicVoltage intakeMotionProfileRequest = new DynamicMotionMagicVoltage(0,
                         intakeCruiseVelocity,
-                        intakeAcceleration,
-                        intakeJerk);
+                        intakeAcceleration);
 
         private final double intakeProfileScalarFactor = 1;
 

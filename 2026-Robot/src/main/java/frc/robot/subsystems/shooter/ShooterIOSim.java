@@ -124,9 +124,14 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
+    public void setFlywheelPercent(double percent) {
+
+    }
+
+    @Override
     public void updateInputs() {
         double dt = Globals.loopPeriodSecs;
-        int numSteps = (int) Math.floor(dt / Constants.closedLoopSimResolution);
+        int numSteps = (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution);
         turretSlot0.setSetPoint(turretPositionSetpointRad);
         for (int i = 0; i < numSteps; i++) {
             double pidOutput = turretSlot0.updatePID(turretSimState.get(0));

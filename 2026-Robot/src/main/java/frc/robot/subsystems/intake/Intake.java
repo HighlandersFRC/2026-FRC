@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -38,6 +37,7 @@ public class Intake extends SubsystemBase {
   public enum IntakeState {
     INTAKING,
     UP,
+    IDLE
   }
 
   public LoggedMechanismLigament2d getLigament() {
@@ -58,7 +58,7 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         return IntakeState.INTAKING;
       default:
-        return IntakeState.UP;
+        return IntakeState.IDLE;
     }
   }
 
@@ -74,7 +74,7 @@ public class Intake extends SubsystemBase {
         break;
       case INTAKING:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
-        setRollerPercent(0.7);
+        setRollerPercent(0.3);
         break;
       default:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);

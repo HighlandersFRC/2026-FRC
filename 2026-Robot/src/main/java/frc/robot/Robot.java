@@ -17,7 +17,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import edu.wpi.first.math.util.Units;
 
 import edu.wpi.first.net.PortForwarder;
-import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -141,7 +140,6 @@ public class Robot extends LoggedRobot {
     m_robotContainer.superstructure.algaeMode = m_robotContainer.algaeMode;
     m_robotContainer.lights.updateAlgaeMode(m_robotContainer.algaeMode);
     m_robotContainer.lights.updateManualMode(m_robotContainer.manualMode);
-    m_robotContainer.drive.algaeMode = m_robotContainer.algaeMode;
     Logger.recordOutput("Algae Mode", m_robotContainer.algaeMode);
     Logger.recordOutput("Manual Mode", m_robotContainer.manualMode);
     Logger.recordOutput("IMU", m_robotContainer.drive.getGyroYaw());
@@ -230,13 +228,13 @@ public class Robot extends LoggedRobot {
       xPressed = true;
     }
 
-    if (m_robotContainer.manualMode) {
-      m_robotContainer.drive.robotCentric = true;
-      Elastic.selectTab("Camera View");
-    } else {
-      m_robotContainer.drive.robotCentric = false;
-      Elastic.selectTab("Teleoperated");
-    }
+    // if (m_robotContainer.manualMode) {
+    // m_robotContainer.drive.robotCentric = true;
+    // Elastic.selectTab("Camera View");
+    // } else {
+    // m_robotContainer.drive.robotCentric = false;
+    // Elastic.selectTab("Teleoperated");
+    // }
   }
 
   @Override

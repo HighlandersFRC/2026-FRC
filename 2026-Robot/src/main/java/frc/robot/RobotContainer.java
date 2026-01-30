@@ -17,6 +17,7 @@ import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.commands.SetRobotState;
+import frc.robot.commands.SetRobotStateComplicated;
 import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.ZeroAngleMidMatch;
@@ -120,7 +121,8 @@ public class RobotContainer {
                 OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
 
-                OI.driverX.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_SHOOT));
+                OI.driverMenuButton.whileTrue(new SetRobotState(superstructure, SuperState.DEFAULT));
+                OI.driverX.whileTrue(new SetRobotStateOnce(superstructure, SuperState.MANUAL_SHOOT));
                 // Operator
 
         }

@@ -7,14 +7,20 @@ package frc.robot;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.tools.logging.TunableNumber;
+import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
@@ -67,8 +73,6 @@ public final class Constants {
                 }
         }
 
-        public static final double closedLoopSimResolution = 0.01; // seconds
-
         public static final double G = 9.80665;
 
         // Physical constants (e.g. field and robot dimensions)
@@ -79,18 +83,15 @@ public final class Constants {
                 public static final double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
                 public static final double WHEEL_ROTATION_PER_METER = 1.0 / WHEEL_CIRCUMFERENCE;
                 public static final double TOP_SPEED = feetToMeters(30.0);
-                public static final double SIM_TOP_SPEED = 6.0; // meters per second
                 public static final double MAX_ACCELERATION = feetToMeters(30.0); // TODO: actually tune the top speed
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
-                public static final double SIM_MAX_ACCELERATION = 4.0; // meters per second
                 public static final double ROBOT_LENGTH = inchesToMeters(24.5);
                 public static final double ROBOT_WIDTH = inchesToMeters(29.5);
                 public static final double MODULE_OFFSET = inchesToMeters(2.625); // Wheel to frame distance TODO: is
                                                                                   // this different for mk5s?
                 public static final double ROBOT_RADIUS = Math.hypot((ROBOT_LENGTH / 2.0) - MODULE_OFFSET,
                                 (ROBOT_WIDTH / 2.0) - MODULE_OFFSET);
-                public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION / ROBOT_RADIUS;
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
@@ -106,7 +107,7 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(540);
+                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(180);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -118,18 +119,18 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(20.0), inchesToMeters(20.0), SHOOTER_HEIGHT);
+                                        inchesToMeters(-3.749), inchesToMeters(6.502), inchesToMeters(17.8125));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
-                        public static final int TURRET_PULLEY_1_TOOTH_COUNT = 15;
-                        public static final int TURRET_PULLEY_0_TOOTH_COUNT = 130;
-                        public static final int TURRET_GEAR_2_TOOTH_COUNT = 39;
-                        public static final int TURRET_GEAR_1_TOOTH_COUNT = 40;
+                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 130;
+                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 39;
+                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
-                                return 3 + 0.2 * distanceFromHub;
+                                return 3 + 0.0 * distanceFromHub;
                         }
                 }
 
@@ -143,9 +144,67 @@ public final class Constants {
                         public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
                                         LINEARIZER_MAX_SPEED_MPS;
                         public static final double LINEARIZER_SENSOR_TRIGGER_DISTANCE_M = inchesToMeters(3);
-                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(2);
-                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(2);
+                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(3);
+                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(1.25);
                 }
+        }
+
+        public static final class Simulation {
+                public static final double SIM_TOP_SPEED = 6.741; // meters per second
+                public static final double SIM_STATIC_VELOCITY_THRESHOLD = 2.0; // meters per second
+                public static final double SIM_BRAKE_MODE_THRESHOLD = 0.05;
+                public static final double SIM_MAX_ACCELERATION = 15.0; // meters per second
+                public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
+                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4167;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 5.0 * SIM_FRICTION_COEFFICIENT;
+                public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION
+                                / Constants.Physical.ROBOT_RADIUS;
+
+                public static ChassisSpeeds getExpectedDriveSpeeds(double simTime, ChassisSpeeds current,
+                                ChassisSpeeds wanted) {
+                        Vector velocityVector = chassisSpeedsToVector(current);
+                        Vector wantedVelocityVector = chassisSpeedsToVector(wanted);
+                        double angularVelocity = current.omegaRadiansPerSecond;
+                        double wantedAngularVelocity = wanted.omegaRadiansPerSecond;
+                        int numSteps = (int) Math.floor(simTime / closedLoopSimResolution);
+                        double dt = simTime / numSteps;
+                        for (int i = 0; i < numSteps; i++) {
+                                Vector acceleration = wantedVelocityVector.subtract(velocityVector);
+                                if (acceleration.magnitude() > SIM_MAX_ACCELERATION) {
+                                        acceleration = acceleration.scaled(SIM_MAX_ACCELERATION
+                                                        / acceleration.magnitude());
+                                }
+                                Vector friction;
+                                if (wantedVelocityVector.magnitude() < SIM_BRAKE_MODE_THRESHOLD) {
+                                        friction = velocityVector.unit()
+                                                        .scaled(SIM_STATIC_VELOCITY_THRESHOLD)
+                                                        .sameDirectionSquare()
+                                                        .scaled(-SIM_BRAKE_FRICTION_COEFFICIENT);
+                                }
+                                // else if (velocityVector
+                                // .magnitude() < SIM_STATIC_VELOCITY_THRESHOLD) {
+                                // friction = velocityVector.unit()
+                                // .scaled(SIM_STATIC_VELOCITY_THRESHOLD)
+                                // .sameDirectionSquare()
+                                // .scaled(-SIM_FRICTION_COEFFICIENT);
+                                // }
+                                else {
+                                        friction = velocityVector.sameDirectionSquare()
+                                                        .scaled(-SIM_FRICTION_COEFFICIENT);
+                                }
+                                velocityVector = velocityVector.add(acceleration.scaled(dt)).add(friction.scaled(dt));
+                                if (velocityVector.magnitude() > SIM_TOP_SPEED) {
+                                        velocityVector = velocityVector.scaled(
+                                                        SIM_TOP_SPEED / velocityVector.magnitude());
+                                }
+                                double angularAcceleration = Math.signum(wantedAngularVelocity - angularVelocity)
+                                                * SIM_MAX_ANGULAR_ACCELERATION;
+                                angularVelocity += angularAcceleration * dt;
+                        }
+                        return new ChassisSpeeds(velocityVector.getI(), velocityVector.getJ(), angularVelocity);
+                }
+
+                public static final double closedLoopSimResolution = RobotBase.isReal() ? 0.1 : 0.01; // seconds
         }
 
         public static final class Field {
@@ -162,13 +221,22 @@ public final class Constants {
                 public static class Hood {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
-                        public static final double HOOD_PRECISION = degreesToRadians(1);
+                        public static final double HOOD_PRECISION = degreesToRadians(1.0);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
                                 double dr = Math.hypot(trajectory.getX(), trajectory.getY());
                                 double angleRadians = Math.atan(dz / dr);
-                                return new Rotation2d(angleRadians);
+                                return launchAngleToHoodAngle(new Rotation2d(angleRadians),
+                                                shooterMPSToRPM(trajectory.getNorm()));
+                        }
+
+                        public static final Rotation2d hoodAngleToMotorAngle(Rotation2d hoodAngle) {
+                                return Rotation2d.fromRadians(HOOD_MAX_ANGLE_RADIANS).minus(hoodAngle);
+                        }
+
+                        public static final Rotation2d motorAngleToHoodAngle(Rotation2d motorAngle) {
+                                return Rotation2d.fromRadians(HOOD_MAX_ANGLE_RADIANS).minus(motorAngle);
                         }
                 }
 
@@ -185,15 +253,12 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 100.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 150.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
-                                double wheelRadiusMeters = Physical.Shooter.SHOOTER_WHEEL_RADIUS;
-                                double wheelCircumferenceMeters = 2 * Math.PI * wheelRadiusMeters;
-                                double wheelRotationsPerSecond = v / wheelCircumferenceMeters;
-                                double wheelRPM = wheelRotationsPerSecond * 60;
-                                return wheelRPM;
+                                double rpm = shooterMPSToRPM(v);
+                                return rpm;
                         }
                 }
 
@@ -212,6 +277,23 @@ public final class Constants {
                 }
         }
 
+        public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.150000);
+        public static TunableNumber shooterOffset = new TunableNumber("shooterAngleOffset", 2.7190000000000);
+
+        public static double shooterMPSToRPM(double mps) {
+
+                return -369.004 * (1.17 + shooterOffset.get() - mps) / Constants.shooterMPStoRPM.get();
+                // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
+        }
+
+        public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
+                return Rotation2d.fromDegrees(
+                                (-1.26743 * (13.8 - launchAngle.getDegrees())))
+                                .plus(launchAngle);
+                // return Rotation2d.fromDegrees(launchAngle.getDegrees() +
+                // launchAngleOffset.get());
+        }
+
         // PID constants
         public static final class PIDConstants {
                 public static final class Turret {
@@ -228,10 +310,11 @@ public final class Constants {
                 }
 
                 public static final class Hood {
-                        public static final double kP0 = 8.0;
+                        public static final double kP0 = 600.0;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.0005;
+                        public static final double kD0 = 0.1;
+                        public static final double kS0 = 0.0;
+                        public static final double kG0 = 0.4;
                 }
 
                 public static final class Intake {
@@ -242,22 +325,29 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 10.0;
+                        public static final double kP0 = 0.5;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.1;
-                        public static final double kS0 = 3.0;
+                        public static final double kS0 = 0.0;
+                        public static final double kV0 = 0.22;
                 }
         }
 
         // Vision constants (e.g. camera offsets)
         public static final class Vision {
 
+                public static final String LIMELIGHT_NAME = "limelight-goon";
+
                 // Poses of cameras relative to robot, {x, y, z, rx, ry, rz}, in meters and
                 // radians
-                public static final double[] FRONT_CAMERA_POSE = { Constants.inchesToMeters(1.75),
-                                Constants.inchesToMeters(11.625),
-                                Constants.inchesToMeters(33.5), 0, -33.5, 0 };
 
+                public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
+                                inchesToMeters(-5.5), inchesToMeters(0.0), inchesToMeters(11.388));
+
+                public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
+                                Math.toRadians(-21.2),
+                                Math.toRadians(0.8),
+                                Math.toRadians(0.0));
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;
 
@@ -289,6 +379,44 @@ public final class Constants {
                                 return 0.6;
                         } else {
                                 return 0.75;
+                        }
+                }
+
+                public static void updateLimelightPoseFromTurret(
+                                Rotation2d turretYaw,
+                                Translation3d turretOffsetFromRobot,
+                                Translation3d cameraOffsetFromTurret,
+                                Rotation3d cameraRotationRelativeToTurret,
+                                String limelightName) {
+
+                        Rotation3d turretRotation = new Rotation3d(0.0, 0.0, turretYaw.getRadians());
+                        Logger.recordOutput("turret rotation", turretRotation);
+                        Logger.recordOutput("turret off from robot", turretOffsetFromRobot);
+                        Logger.recordOutput("cam off from turret", cameraOffsetFromTurret);
+                        Translation3d cameraRelativeToRobot = turretOffsetFromRobot
+                                        .plus(cameraOffsetFromTurret.rotateBy(turretRotation));
+
+                        Logger.recordOutput("cam rel to robot", cameraRelativeToRobot);
+                        Rotation3d cameraRotationRelativeToRobot = turretRotation.plus(cameraRotationRelativeToTurret);
+                        Logger.recordOutput("cam rot rel to robot", cameraRotationRelativeToRobot);
+                        Logger.recordOutput("cam rot roll", Math.toDegrees(cameraRotationRelativeToRobot.getX()));
+                        Logger.recordOutput("cam rot pitch", Math.toDegrees(cameraRotationRelativeToRobot.getY()));
+                        Logger.recordOutput("cam rot yaw", Math.toDegrees(cameraRotationRelativeToRobot.getZ()));
+                        Pose3d limelightPose = new Pose3d(cameraRelativeToRobot, cameraRotationRelativeToRobot);
+                        Logger.recordOutput("limelight pose", limelightPose);
+                        Logger.recordOutput("limelight name", limelightName);
+
+                        try {
+                                LimelightHelpers.setCameraPose_RobotSpace(
+                                                limelightName,
+                                                limelightPose.getX(),
+                                                limelightPose.getY(),
+                                                limelightPose.getZ(),
+                                                Math.toDegrees(limelightPose.getRotation().getX()),
+                                                Math.toDegrees(limelightPose.getRotation().getY()),
+                                                Math.toDegrees(limelightPose.getRotation().getZ()));
+                        } catch (Exception e) {
+                                System.out.println("Could not set limelight pose: " + e.getMessage());
                         }
                 }
 
@@ -371,18 +499,26 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 1.0 / 1.0;
-                        public static final double HOOD_GEAR_RATIO = 1014.0 / 7.0;
-                        public static final double TURRET_GEAR_RATIO = 455.0 / 9.0;
+                        public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 12.0;
+                        public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 2.41;
+                        public static final double HOOD_GEAR_RATIO = 200.0;
+                        public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
+                                        / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
+                        public static final double TURRET_GEAR_RATIO = 37.723;
+                        // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
+                        // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
+                        // public static final double TURRET_GEAR_RATIO = 43.112;
+                        // public static final double TURRET_GEAR_RATIO = 50.55;
                 }
 
                 public static final class Intake {
                         public static final double INTAKE_PIVOT_GEAR_RATIO = 1.0;
+                        public static final double INTAKE_ROLLER_GEAR_RATIO = 1.0;
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_GEAR_RATIO = 1.0 / 1.0;
-                        public static final double LINEARIZER_GEAR_RATIO = 1.0 / 1.0;
+                        public static final double HOPPER_GEAR_RATIO = 3.0 / 1.0;
+                        public static final double LINEARIZER_GEAR_RATIO = 3.0 / 1.0;
                 }
         }
 
@@ -416,6 +552,7 @@ public final class Constants {
                 public static final int FLYWHEEL_SLAVE_ID = 10;
                 public static final int HOOD_MOTOR_ID = 11;
                 public static final int TURRET_MOTOR_ID = 12;
+                public static final int HOOD_CANCODER_ID = 7;
                 public static final int TURRET_CANCODER_ONE_ID = 5; // on driving pulley
                 public static final int TURRET_CANCODER_TWO_ID = 6;
 
@@ -469,6 +606,10 @@ public final class Constants {
 
         public static double metersToInches(double meters) {
                 return meters * 39.37;
+        }
+
+        public static Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
+                return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
         }
 
         /**
