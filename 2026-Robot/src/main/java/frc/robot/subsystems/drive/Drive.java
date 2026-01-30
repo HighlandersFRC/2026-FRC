@@ -1119,11 +1119,11 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        if (robotCentric) {
-          robotCentricDrive(0);
-        } else {
-          teleopDrive();
-        }
+        // if (robotCentric) {
+        // robotCentricDrive(0);
+        // } else {
+        teleopDrive();
+        // }
         break;
       case IDLE:
         break;
@@ -1137,6 +1137,7 @@ public class Drive extends SubsystemBase {
       default:
         break;
     }
+
   }
 
   /**
