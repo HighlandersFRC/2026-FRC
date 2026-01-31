@@ -20,7 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.Constants;
-import frc.robot.tools.logging.TunableNumber;
+// import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
     private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID,
@@ -41,34 +41,60 @@ class ShooterIOComp implements ShooterIO {
             - Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT))
             / (double) Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT;
 
-    private TunableNumber turretP = new TunableNumber("Turret Position kP", Constants.PIDConstants.Turret.kP0);
-    private TunableNumber turretI = new TunableNumber("Turret Position kI", Constants.PIDConstants.Turret.kI0);
-    private TunableNumber turretD = new TunableNumber("Turret Position kD", Constants.PIDConstants.Turret.kD0);
-    private TunableNumber turretS = new TunableNumber("Turret Position kS", Constants.PIDConstants.Turret.kS0);
-    private TunableNumber turretV = new TunableNumber("Turret Position kV", Constants.PIDConstants.Turret.kV0);
-    private TunableNumber turretVelocity = new TunableNumber("Turret Position Velocity", 3.0);
-    private TunableNumber turretAcceleration = new TunableNumber("Turret Position Acceleration", 10.0);
+    // private TunableNumber turretP = new TunableNumber("Turret Position kP",
+    // Constants.PIDConstants.Turret.kP0);
+    // private TunableNumber turretI = new TunableNumber("Turret Position kI",
+    // Constants.PIDConstants.Turret.kI0);
+    // private TunableNumber turretD = new TunableNumber("Turret Position kD",
+    // Constants.PIDConstants.Turret.kD0);
+    // private TunableNumber turretS = new TunableNumber("Turret Position kS",
+    // Constants.PIDConstants.Turret.kS0);
+    // private TunableNumber turretV = new TunableNumber("Turret Position kV",
+    // Constants.PIDConstants.Turret.kV0);
+    // private TunableNumber turretVelocity = new TunableNumber("Turret Position
+    // Velocity", 3.0);
+    // private TunableNumber turretAcceleration = new TunableNumber("Turret Position
+    // Acceleration", 10.0);
 
-    private TunableNumber hoodP = new TunableNumber("Hood Position kP", Constants.PIDConstants.Hood.kP0);
-    private TunableNumber hoodI = new TunableNumber("Hood Position kI", Constants.PIDConstants.Hood.kI0);
-    private TunableNumber hoodD = new TunableNumber("Hood Position kD", Constants.PIDConstants.Hood.kD0);
-    private TunableNumber hoodS = new TunableNumber("Hood Position kS", Constants.PIDConstants.Hood.kS0);
-    private TunableNumber hoodG = new TunableNumber("Hood Position kG", Constants.PIDConstants.Hood.kG0);
-    private TunableNumber hoodCruiseVelocity = new TunableNumber("Hood Position Velocity", 2.0);
-    private TunableNumber hoodAcceleration = new TunableNumber("Hood Position Acceleration", 2.0);
+    private double turretVelocity = 3.0;
+    private double turretAcceleration = 10.0;
+    // private TunableNumber hoodP = new TunableNumber("Hood Position kP",
+    // Constants.PIDConstants.Hood.kP0);
+    // private TunableNumber hoodI = new TunableNumber("Hood Position kI",
+    // Constants.PIDConstants.Hood.kI0);
+    // private TunableNumber hoodD = new TunableNumber("Hood Position kD",
+    // Constants.PIDConstants.Hood.kD0);
+    // private TunableNumber hoodS = new TunableNumber("Hood Position kS",
+    // Constants.PIDConstants.Hood.kS0);
+    // private TunableNumber hoodG = new TunableNumber("Hood Position kG",
+    // Constants.PIDConstants.Hood.kG0);
+    // private TunableNumber hoodCruiseVelocity = new TunableNumber("Hood Position
+    // Velocity", 2.0);
+    // private TunableNumber hoodAcceleration = new TunableNumber("Hood Position
+    // Acceleration", 2.0);
+
+    private double hoodCruiseVelocity = 2.0;
+    private double hoodAcceleration = 2.0;
     private final double hoodProfileScalarFactor = 1.0;
 
     private final DynamicMotionMagicVoltage hoodMotionProfileRequest = new DynamicMotionMagicVoltage(0,
-            hoodCruiseVelocity.get(),
-            hoodAcceleration.get());
+            hoodCruiseVelocity,
+            hoodAcceleration);
 
-    private TunableNumber flywheelP = new TunableNumber("Flywheel Position kP", Constants.PIDConstants.Flywheel.kP0);
-    private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI", Constants.PIDConstants.Flywheel.kI0);
-    private TunableNumber flywheelD = new TunableNumber("Flywheel Position kD", Constants.PIDConstants.Flywheel.kD0);
-    private TunableNumber flywheelS = new TunableNumber("Flywheel Position kS", Constants.PIDConstants.Flywheel.kS0);
-    private TunableNumber flywheelV = new TunableNumber("Flywheel Position kV", Constants.PIDConstants.Flywheel.kV0);
-    private TunableNumber flywheelVelocity = new TunableNumber("Flywheel Position Velocity", 2.0);
-    private TunableNumber flywheelAcceleration = new TunableNumber("Flywheel Position Acceleration", 2.0);
+    // private TunableNumber flywheelP = new TunableNumber("Flywheel Position kP",
+    // Constants.PIDConstants.Flywheel.kP0);
+    // private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI",
+    // Constants.PIDConstants.Flywheel.kI0);
+    // private TunableNumber flywheelD = new TunableNumber("Flywheel Position kD",
+    // Constants.PIDConstants.Flywheel.kD0);
+    // private TunableNumber flywheelS = new TunableNumber("Flywheel Position kS",
+    // Constants.PIDConstants.Flywheel.kS0);
+    // private TunableNumber flywheelV = new TunableNumber("Flywheel Position kV",
+    // Constants.PIDConstants.Flywheel.kV0);
+    // private TunableNumber flywheelVelocity = new TunableNumber("Flywheel Position
+    // Velocity", 2.0);
+    // private TunableNumber flywheelAcceleration = new TunableNumber("Flywheel
+    // Position Acceleration", 2.0);
 
     public ShooterIOComp() {
         // Hood Motor Configuration //TODO: Gotta tune all of the configs
@@ -182,16 +208,16 @@ class ShooterIOComp implements ShooterIO {
         hoodMotor.setControl(this.hoodMotionProfileRequest
                 .withPosition(
                         wantedAngle)
-                .withVelocity(this.hoodCruiseVelocity.get() * hoodProfileScalarFactor)
-                .withAcceleration(this.hoodAcceleration.get() * hoodProfileScalarFactor)
+                .withVelocity(hoodCruiseVelocity * hoodProfileScalarFactor)
+                .withAcceleration(hoodAcceleration * hoodProfileScalarFactor)
                 .withSlot(0));
     }
 
     @Override
     public void setTurretAngle(double angle) {
         Logger.recordOutput("Goal turret degrees", Math.toDegrees(angle));
-        turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity.get(),
-                turretAcceleration.get()));
+        turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
+                turretAcceleration));
         Logger.recordOutput("goal motor turret degrees Er",
                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
 
@@ -253,61 +279,71 @@ class ShooterIOComp implements ShooterIO {
         Logger.recordOutput("Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
         Logger.recordOutput("Motor Turret Angle",
                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
-        if (turretP.changed() || turretI.changed() || turretD.changed() || turretS.changed() || turretVelocity.changed()
-                || turretAcceleration.changed() || turretV.changed()) {
-            System.out.println("Updating Turret PID Constants");
-            TalonFXConfiguration turretConfig = new TalonFXConfiguration();
-            turretConfig.Slot0.kP = turretP.get();
-            turretConfig.Slot0.kI = turretI.get();
-            turretConfig.Slot0.kD = turretD.get();
-            turretConfig.Slot0.kS = turretS.get();
-            turretConfig.Slot0.kV = turretV.get();
-            turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
-            turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
-            turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
-            turretConfig.Feedback.RotorToSensorRatio = 1.0;
-            turretConfig.CurrentLimits.StatorCurrentLimit = 67;
-            turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
-            turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-            turretMotor.getConfigurator().apply(turretConfig);
-        }
-        if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed() || hoodG.changed()
-                || hoodCruiseVelocity.changed()
-                || hoodAcceleration.changed()) {
-            System.out.println("Updating Hood PID Constants");
-            TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
-            hoodConfig.Slot0.kP = hoodP.get();
-            hoodConfig.Slot0.kI = hoodI.get();
-            hoodConfig.Slot0.kD = hoodD.get();
-            hoodConfig.Slot0.kS = hoodS.get();
-            hoodConfig.Slot0.kG = hoodG.get();
-            hoodConfig.MotionMagic.MotionMagicAcceleration = hoodAcceleration.get();
-            hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodCruiseVelocity.get();
-            hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
-            hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
-            hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
-            hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
-            hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-            hoodMotor.getConfigurator().apply(hoodConfig);
-        }
-        if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() || flywheelS.changed() || flywheelV
-                .changed()) {
-            System.out.println("Updating Flywheel PID Constants");
-            TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
-            flywheelConfig.Slot0.kP = flywheelP.get();
-            flywheelConfig.Slot0.kI = flywheelI.get();
-            flywheelConfig.Slot0.kD = flywheelD.get();
-            flywheelConfig.Slot0.kS = flywheelS.get();
-            flywheelConfig.Slot0.kV = flywheelV.get();
-            flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
-            flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
-            flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
-            flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
-            flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-            flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-            flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
-            flywheelMaster.getConfigurator().apply(flywheelConfig);
-            flywheelFollower.getConfigurator().apply(flywheelConfig);
-        }
+        // if (turretP.changed() || turretI.changed() || turretD.changed() ||
+        // turretS.changed() || turretVelocity.changed()
+        // || turretAcceleration.changed() || turretV.changed()) {
+        // System.out.println("Updating Turret PID Constants");
+        // TalonFXConfiguration turretConfig = new TalonFXConfiguration();
+        // turretConfig.Slot0.kP = turretP.get();
+        // turretConfig.Slot0.kI = turretI.get();
+        // turretConfig.Slot0.kD = turretD.get();
+        // turretConfig.Slot0.kS = turretS.get();
+        // turretConfig.Slot0.kV = turretV.get();
+        // turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
+        // turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
+        // turretConfig.Feedback.SensorToMechanismRatio =
+        // Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
+        // turretConfig.Feedback.RotorToSensorRatio = 1.0;
+        // turretConfig.CurrentLimits.StatorCurrentLimit = 67;
+        // turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
+        // turretConfig.Feedback.FeedbackSensorSource =
+        // FeedbackSensorSourceValue.RotorSensor;
+        // turretMotor.getConfigurator().apply(turretConfig);
+        // }
+        // if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed()
+        // || hoodG.changed()
+        // || hoodCruiseVelocity.changed()
+        // || hoodAcceleration.changed()) {
+        // System.out.println("Updating Hood PID Constants");
+        // TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
+        // hoodConfig.Slot0.kP = hoodP.get();
+        // hoodConfig.Slot0.kI = hoodI.get();
+        // hoodConfig.Slot0.kD = hoodD.get();
+        // hoodConfig.Slot0.kS = hoodS.get();
+        // hoodConfig.Slot0.kG = hoodG.get();
+        // hoodConfig.MotionMagic.MotionMagicAcceleration = hoodAcceleration.get();
+        // hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodCruiseVelocity.get();
+        // hoodConfig.Feedback.SensorToMechanismRatio =
+        // Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
+        // hoodConfig.Feedback.RotorToSensorRatio =
+        // Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
+        // hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
+        // hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
+        // hoodConfig.Feedback.FeedbackSensorSource =
+        // FeedbackSensorSourceValue.RotorSensor;
+        // hoodMotor.getConfigurator().apply(hoodConfig);
+        // }
+        // if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() ||
+        // flywheelS.changed() || flywheelV
+        // .changed()) {
+        // System.out.println("Updating Flywheel PID Constants");
+        // TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
+        // flywheelConfig.Slot0.kP = flywheelP.get();
+        // flywheelConfig.Slot0.kI = flywheelI.get();
+        // flywheelConfig.Slot0.kD = flywheelD.get();
+        // flywheelConfig.Slot0.kS = flywheelS.get();
+        // flywheelConfig.Slot0.kV = flywheelV.get();
+        // flywheelConfig.Feedback.SensorToMechanismRatio =
+        // Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
+        // flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
+        // flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
+        // flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        // flywheelConfig.Feedback.FeedbackSensorSource =
+        // FeedbackSensorSourceValue.RotorSensor;
+        // flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
+        // flywheelMaster.getConfigurator().apply(flywheelConfig);
+        // flywheelFollower.getConfigurator().apply(flywheelConfig);
+        // }
     }
 }
