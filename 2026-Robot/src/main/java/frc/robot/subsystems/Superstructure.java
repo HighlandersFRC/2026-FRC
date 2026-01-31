@@ -61,8 +61,6 @@ public class Superstructure extends SubsystemBase {
   private SuperState wantedSuperState = SuperState.IDLE;
   private SuperState currentSuperState = SuperState.IDLE;
 
-  public boolean algaeMode = false;
-
   public Superstructure(Drive drive,
       Lights lights, Shooter shooter, Intake intake, Feeder feeder) {
     this.drive = drive;

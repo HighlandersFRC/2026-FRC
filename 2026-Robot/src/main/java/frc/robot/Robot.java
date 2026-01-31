@@ -32,10 +32,6 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
-  boolean bPressed = false;
-  boolean yPressed = false;
-  boolean xPressed = false;
-  boolean autoChooserCenterSwitch = false;
 
   File[] autoFiles;
   Command[] autos;
@@ -132,11 +128,6 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().run();
     Logger.recordOutput("MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
-    m_robotContainer.superstructure.algaeMode = m_robotContainer.algaeMode;
-    m_robotContainer.lights.updateAlgaeMode(m_robotContainer.algaeMode);
-    m_robotContainer.lights.updateManualMode(m_robotContainer.manualMode);
-    Logger.recordOutput("Algae Mode", m_robotContainer.algaeMode);
-    Logger.recordOutput("Manual Mode", m_robotContainer.manualMode);
     Logger.recordOutput("IMU", m_robotContainer.drive.getGyroYaw());
     int index = Constants.Autonomous.getSelectedPathIndex();
     if (index == -1 || index > Constants.Autonomous.paths.length) {
@@ -214,14 +205,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (OI.driverX.getAsBoolean()) {
-      if (xPressed) {
-        m_robotContainer.manualMode = !m_robotContainer.manualMode;
-        xPressed = false;
-      }
-    } else {
-      xPressed = true;
-    }
 
     // if (m_robotContainer.manualMode) {
     // m_robotContainer.drive.robotCentric = true;
