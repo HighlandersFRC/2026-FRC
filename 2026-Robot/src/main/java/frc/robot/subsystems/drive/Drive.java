@@ -161,6 +161,7 @@ public class Drive extends SubsystemBase {
     DEFAULT,
     IDLE,
     STOP,
+    DRIVE_TO_CLIMB
   }
 
   private DriveState wantedState = DriveState.IDLE;
@@ -1080,6 +1081,8 @@ public class Drive extends SubsystemBase {
         return DriveState.IDLE;
       case STOP:
         return DriveState.STOP;
+      case DRIVE_TO_CLIMB:
+        return DriveState.DRIVE_TO_CLIMB;
       default:
         return DriveState.IDLE;
     }
@@ -1133,6 +1136,9 @@ public class Drive extends SubsystemBase {
         velocityVector.setJ(0);
         double desiredThetaChange = 0.0;
         autoDrive(velocityVector, desiredThetaChange);
+        break;
+      case DRIVE_TO_CLIMB:
+        driveToPoint(Constants.Physical.climbPose);
         break;
       default:
         break;

@@ -59,8 +59,11 @@ public class Superstructure extends SubsystemBase {
     ZERO,
     MANUAL_SHOOT,
     MANUAL_SHOOTING,
-    CLIMBING,
-    EXTEND_CLIMBER
+    MANUAL_CLIMBING,
+    MANUAL_EXTEND_CLIMBER,
+    AUTON_PREP_SHOT,
+    AUTON_SHOOT,
+    AUTO_CLIMB
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -117,11 +120,20 @@ public class Superstructure extends SubsystemBase {
       case ZERO:
         handleZeroState();
         break;
-      case CLIMBING:
+      case MANUAL_CLIMBING:
         handleClimbingState();
         break;
-      case EXTEND_CLIMBER:
+      case MANUAL_EXTEND_CLIMBER:
         handleExtendClimberState();
+        break;
+      case AUTON_PREP_SHOT:
+        handleAutonPrepShot();
+        break;
+      case AUTON_SHOOT:
+        handleAutonShot();
+        break;
+      case AUTO_CLIMB:
+        handleAutoClimb();
         break;
       default:
         handleIdleState();
@@ -174,12 +186,20 @@ public class Superstructure extends SubsystemBase {
       case ZERO:
         currentSuperState = SuperState.ZERO;
         break;
-      case CLIMBING:
-        currentSuperState = SuperState.CLIMBING;
+      case MANUAL_CLIMBING:
+        currentSuperState = SuperState.MANUAL_CLIMBING;
         break;
-      case EXTEND_CLIMBER:
-        currentSuperState = SuperState.EXTEND_CLIMBER;
+      case MANUAL_EXTEND_CLIMBER:
+        currentSuperState = SuperState.MANUAL_EXTEND_CLIMBER;
         break;
+      case AUTON_PREP_SHOT:
+        currentSuperState = SuperState.AUTON_PREP_SHOT;
+        break;
+      case AUTO_CLIMB:
+        currentSuperState = SuperState.AUTO_CLIMB;
+        break;
+      case AUTON_SHOOT:
+        currentSuperState = SuperState.AUTON_SHOOT;
       default:
         currentSuperState = SuperState.IDLE;
         break;
@@ -327,6 +347,24 @@ public class Superstructure extends SubsystemBase {
 
   private void handleExtendClimberState() {
     climber.setWantedState(ClimberState.EXTEND);
+  }
+
+  private void handleAutonPrepShot() {
+    shooter.setWantedState(ShooterState.SHOOT);
+    feeder.setWantedState(FeederState.FEED);
+  }
+
+  private void handleAutonShot() {
+    shooter.setWantedState(ShooterState.SHOOT);
+    feeder.setWantedState(FeederState.SHOOT);
+  }
+
+  private void handleAutoClimb() {
+    drive.setWantedState(DriveState.DRIVE_TO_CLIMB);
+    climber.setWantedState(ClimberState.EXTEND);
+    if (drive.hitSetPoint(Constants.Physical.climbPose)) {
+      climber.setWantedState(ClimberState.CLIMBING);
+    }
   }
 
   public void PARTY() {
