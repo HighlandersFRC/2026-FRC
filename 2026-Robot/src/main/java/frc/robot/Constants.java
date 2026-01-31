@@ -343,11 +343,11 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-5.5), inchesToMeters(0.0), inchesToMeters(11.388));
+                                inchesToMeters(-5.434), inchesToMeters(0.0), inchesToMeters(11.402599));
 
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
-                                Math.toRadians(-21.2),
-                                Math.toRadians(0.8),
+                                Math.toRadians(-25.5),
+                                Math.toRadians(0.0),
                                 Math.toRadians(0.0));
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;

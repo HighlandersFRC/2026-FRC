@@ -62,7 +62,7 @@ class IntakeIOComp implements IntakeIO {
                 rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
                 rollerConfig.CurrentLimits.StatorCurrentLimit = 40;
                 rollerConfig.CurrentLimits.SupplyCurrentLimit = 40;
-                rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                rollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotor.getConfigurator().apply(intakeConfig);
                 rollerMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -87,7 +87,7 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setRollerPercent(double percent) {
-                rollerMotor.set(percent);
+                rollerMotor.set(-percent);
         }
 
         @Override
@@ -97,6 +97,6 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setRollerTorque(double amps) {
-                rollerMotor.setControl(new TorqueCurrentFOC(amps));
+                rollerMotor.setControl(new TorqueCurrentFOC(-amps));
         }
 }

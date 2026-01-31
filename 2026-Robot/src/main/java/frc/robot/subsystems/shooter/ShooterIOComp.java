@@ -164,17 +164,17 @@ class ShooterIOComp implements ShooterIO {
         // CANcoder Configuration
         CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
         encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        encoderOneConfig.MagnetSensor.MagnetOffset = -0.26025390625; // TODO: Try calculating offset from previous zero
+        encoderOneConfig.MagnetSensor.MagnetOffset = -0.09423828125; // TODO: Try calculating offset from previous zero
                                                                      // data
         encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderOne.getConfigurator().apply(encoderOneConfig);
         CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
         encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        encoderTwoConfig.MagnetSensor.MagnetOffset = -0.77734375;
+        encoderTwoConfig.MagnetSensor.MagnetOffset = -0.6826171875;
         encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
-        turretMotor.setPosition(getRelativeTurretAngleRadians() / (Math.PI * 2));
+        turretMotor.setPosition(0);
     }
 
     @Override
@@ -232,16 +232,8 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public double getRelativeTurretAngleRadians() {
-        StatusSignal<Angle> pos1 = encoderOne.getAbsolutePosition();
-        StatusSignal<AngularVelocity> vel1 = encoderTwo.getVelocity();
-        pos1.refresh();
-        vel1.refresh();
-        double r1 = BaseStatusSignal.getLatencyCompensatedValueAsDouble(pos1, vel1);
-        StatusSignal<Angle> pos2 = encoderOne.getAbsolutePosition();
-        StatusSignal<AngularVelocity> vel2 = encoderTwo.getVelocity();
-        pos2.refresh();
-        vel2.refresh();
-        double r2 = BaseStatusSignal.getLatencyCompensatedValueAsDouble(pos2, vel2);
+        double r1 = encoderOne.getAbsolutePosition().getValueAsDouble();
+        double r2 = encoderTwo.getAbsolutePosition().getValueAsDouble();
         Logger.recordOutput("Shooter/encoderOneLatencyPosition", r1 * 4096);
         Logger.recordOutput("Shooter/encoderTwoLatencyPosition", r1 * 4096);
         Logger.recordOutput("Shooter/encoderOnePosition", r1 * 4096);
@@ -257,7 +249,7 @@ class ShooterIOComp implements ShooterIO {
         double gear1Rotations = -difference / SLOPE;
         double turretRelativeRotations = gear1Rotations * Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT
                 / Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT;
-        return -Units.rotationsToRadians(turretRelativeRotations);
+        return Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
     }
 
     @Override
