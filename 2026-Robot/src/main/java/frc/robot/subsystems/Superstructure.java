@@ -200,6 +200,7 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTON_SHOOT:
         currentSuperState = SuperState.AUTON_SHOOT;
+        break;
       default:
         currentSuperState = SuperState.IDLE;
         break;
@@ -350,11 +351,13 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void handleAutonPrepShot() {
+    drive.setWantedState(DriveState.IDLE);
     shooter.setWantedState(ShooterState.SHOOT);
     feeder.setWantedState(FeederState.FEED);
   }
 
   private void handleAutonShot() {
+    drive.setWantedState(DriveState.IDLE);
     shooter.setWantedState(ShooterState.SHOOT);
     feeder.setWantedState(FeederState.SHOOT);
   }
