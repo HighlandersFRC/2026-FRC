@@ -123,13 +123,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    Logger.recordOutput("Robot/FieldSide", Globals.fieldSide);
+    Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
     Logger.recordOutput("Physical/Blue Hub", Constants.Field.HUB_POSE_BLUE);
     Globals.fieldSide = OI.fieldSide.getSelected();
 
     CommandScheduler.getInstance().run();
-    Logger.recordOutput("MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
-    Logger.recordOutput("IMU", m_robotContainer.drive.getGyroYaw());
+    Logger.recordOutput("Robot/MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
+    Logger.recordOutput("Robot/IMU", m_robotContainer.drive.getGyroYaw());
     int index = Constants.Autonomous.getSelectedPathIndex();
     if (index == -1 || index > Constants.Autonomous.paths.length) {
       Logger.recordOutput("Auto/Selected Auto", "Do Nothing");
