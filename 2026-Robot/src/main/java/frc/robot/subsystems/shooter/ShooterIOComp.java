@@ -72,7 +72,7 @@ class ShooterIOComp implements ShooterIO {
 
     public ShooterIOComp() {
         // Hood Motor Configuration //TODO: Gotta tune all of the configs
-        System.out.println("slope: " + SLOPE);
+        // System.out.println("slope: " + SLOPE);
         TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
         hoodConfig.Slot0.kP = Constants.PIDConstants.Hood.kP0;
         hoodConfig.Slot0.kI = Constants.PIDConstants.Hood.kI0;
@@ -255,7 +255,7 @@ class ShooterIOComp implements ShooterIO {
                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
         if (turretP.changed() || turretI.changed() || turretD.changed() || turretS.changed() || turretVelocity.changed()
                 || turretAcceleration.changed() || turretV.changed()) {
-            System.out.println("Updating Turret PID Constants");
+            // System.out.println("Updating Turret PID Constants");
             TalonFXConfiguration turretConfig = new TalonFXConfiguration();
             turretConfig.Slot0.kP = turretP.get();
             turretConfig.Slot0.kI = turretI.get();
@@ -274,7 +274,7 @@ class ShooterIOComp implements ShooterIO {
         if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed() || hoodG.changed()
                 || hoodCruiseVelocity.changed()
                 || hoodAcceleration.changed()) {
-            System.out.println("Updating Hood PID Constants");
+            // System.out.println("Updating Hood PID Constants");
             TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
             hoodConfig.Slot0.kP = hoodP.get();
             hoodConfig.Slot0.kI = hoodI.get();
@@ -292,7 +292,7 @@ class ShooterIOComp implements ShooterIO {
         }
         if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() || flywheelS.changed() || flywheelV
                 .changed()) {
-            System.out.println("Updating Flywheel PID Constants");
+            // System.out.println("Updating Flywheel PID Constants");
             TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
             flywheelConfig.Slot0.kP = flywheelP.get();
             flywheelConfig.Slot0.kI = flywheelI.get();
