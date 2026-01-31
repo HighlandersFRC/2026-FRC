@@ -308,17 +308,19 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     PARTY();
     currentSuperState = handleStateTransitions();
-    for (int i = 0; i < trajectoryVelocity.size(); i++) {
-      trajectoryVelocity.set(i, new Translation3d(trajectoryVelocity.get(i).getX(),
-          trajectoryVelocity.get(i).getY(),
-          trajectoryVelocity.get(i).getZ() - Constants.G * Globals.loopPeriodSecs));
-      trajectoryPoint.set(i, trajectoryPoint.get(i).plus(trajectoryVelocity.get(i).times(Globals.loopPeriodSecs)));
-      if (trajectoryPoint.get(i).getZ() < 0) {
-        trajectoryPoint.remove(i);
-        trajectoryVelocity.remove(i);
-        i--;
-      } else {
-        Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
+    if (RobotBase.isSimulation()) {
+      for (int i = 0; i < trajectoryVelocity.size(); i++) {
+        trajectoryVelocity.set(i, new Translation3d(trajectoryVelocity.get(i).getX(),
+            trajectoryVelocity.get(i).getY(),
+            trajectoryVelocity.get(i).getZ() - Constants.G * Globals.loopPeriodSecs));
+        trajectoryPoint.set(i, trajectoryPoint.get(i).plus(trajectoryVelocity.get(i).times(Globals.loopPeriodSecs)));
+        if (trajectoryPoint.get(i).getZ() < 0) {
+          trajectoryPoint.remove(i);
+          trajectoryVelocity.remove(i);
+          i--;
+        } else {
+          Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
+        }
       }
     }
     if (currentSuperState != tempLastState) {
