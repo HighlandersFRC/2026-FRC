@@ -45,6 +45,7 @@ class ShooterIOComp implements ShooterIO {
     private TunableNumber turretI = new TunableNumber("Turret Position kI", Constants.PIDConstants.Turret.kI0);
     private TunableNumber turretD = new TunableNumber("Turret Position kD", Constants.PIDConstants.Turret.kD0);
     private TunableNumber turretS = new TunableNumber("Turret Position kS", Constants.PIDConstants.Turret.kS0);
+    private TunableNumber turretV = new TunableNumber("Turret Position kV", Constants.PIDConstants.Turret.kV0);
     private TunableNumber turretVelocity = new TunableNumber("Turret Position Velocity", 3.0);
     private TunableNumber turretAcceleration = new TunableNumber("Turret Position Acceleration", 10.0);
 
@@ -123,6 +124,7 @@ class ShooterIOComp implements ShooterIO {
         turretConfig.Slot0.kI = Constants.PIDConstants.Turret.kI0;
         turretConfig.Slot0.kD = Constants.PIDConstants.Turret.kD0;
         turretConfig.Slot0.kS = Constants.PIDConstants.Turret.kS0;
+        turretConfig.Slot0.kV = Constants.PIDConstants.Turret.kV0;
         turretConfig.MotionMagic.MotionMagicAcceleration = 2.0;
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
         turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
@@ -252,13 +254,14 @@ class ShooterIOComp implements ShooterIO {
         Logger.recordOutput("Motor Turret Angle",
                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
         if (turretP.changed() || turretI.changed() || turretD.changed() || turretS.changed() || turretVelocity.changed()
-                || turretAcceleration.changed()) {
+                || turretAcceleration.changed() || turretV.changed()) {
             System.out.println("Updating Turret PID Constants");
             TalonFXConfiguration turretConfig = new TalonFXConfiguration();
             turretConfig.Slot0.kP = turretP.get();
             turretConfig.Slot0.kI = turretI.get();
             turretConfig.Slot0.kD = turretD.get();
             turretConfig.Slot0.kS = turretS.get();
+            turretConfig.Slot0.kV = turretV.get();
             turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
             turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
             turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
