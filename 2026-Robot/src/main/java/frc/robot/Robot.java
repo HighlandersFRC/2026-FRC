@@ -20,8 +20,6 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.PolarAutoFollower;
@@ -43,7 +41,6 @@ public class Robot extends LoggedRobot {
   Command[] autos;
   JSONObject[] autoJSONs;
   JSONArray[] autoPoints;
-  SendableChooser<String> fieldSideChooser = new SendableChooser<String>();
 
   JSONObject autoPath;
   PolarAutoFollower autoCommand;
@@ -90,8 +87,6 @@ public class Robot extends LoggedRobot {
     java.util.logging.Logger.getGlobal().info("Robot Init");
 
     Globals.fieldSide = "blue";
-    SmartDashboard.putNumber("Shooter Angle Degrees (tuning)", 0);
-    SmartDashboard.putNumber("Shooter RPM (input)", 0);
     m_robotContainer = new RobotContainer();
 
     m_robotContainer.peripherals.init();
