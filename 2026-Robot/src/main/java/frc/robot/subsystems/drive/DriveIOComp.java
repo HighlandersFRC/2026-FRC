@@ -353,9 +353,9 @@ public class DriveIOComp extends DriveIO {
         protected ChassisSpeeds getChassisSpeeds() {
                 ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
                                 filterOmega.lastValue());
-                Logger.recordOutput("RobotVelocities/X", avg.vxMetersPerSecond);
-                Logger.recordOutput("RobotVelocities/Y", avg.vyMetersPerSecond);
-                Logger.recordOutput("RobotVelocities/Omega", avg.omegaRadiansPerSecond);
+                Logger.recordOutput("Drive/RobotVelocities/X", avg.vxMetersPerSecond);
+                Logger.recordOutput("Drive/RobotVelocities/Y", avg.vyMetersPerSecond);
+                Logger.recordOutput("Drive/RobotVelocities/Omega", avg.omegaRadiansPerSecond);
                 return avg;
         }
 

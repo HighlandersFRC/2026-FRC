@@ -182,18 +182,18 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs();
-    Logger.recordOutput("Hood SP",
+    Logger.recordOutput("Shooter/Hood SP",
         Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
-    Logger.recordOutput("Turret SP",
+    Logger.recordOutput("Shooter/Turret SP",
         Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
-    Logger.recordOutput("Flywheel RPM SP", Constants.SetPoints.Flywheel
+    Logger.recordOutput("Shooter/Flywheel RPM SP", Constants.SetPoints.Flywheel
         .getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
-    Logger.recordOutput("Hood Angle", getHoodAngle().getDegrees());
-    Logger.recordOutput("Turret Angle", getRobotRelativeTurretAngle().getDegrees());
-    Logger.recordOutput("Flywheel RPM", getFlywheelRPM());
-    Logger.recordOutput("Ready to Shoot", readyToShoot());
+    Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
+    Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
+    Logger.recordOutput("Shooter/Flywheel RPM", getFlywheelRPM());
+    Logger.recordOutput("Shooter/Ready to Shoot", readyToShoot());
 
-    Logger.recordOutput("Shooter State", systemState);
+    Logger.recordOutput("Shooter/Shooter State", systemState);
 
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {

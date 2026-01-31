@@ -215,7 +215,8 @@ public class Lights extends SubsystemBase {
       systemState = newState;
     }
 
-    Logger.recordOutput("Lights State", systemState);
+    Logger.recordOutput("Lights/Lights State", systemState);
+    Logger.recordOutput("States/Lights State", systemState);
     if (partyMode) {
       weLikeToParty();
     } else {

@@ -157,13 +157,16 @@ public class Peripherals {
     // cameraScreenshotTime = Timer.getFPGATimestamp();
     // }
 
-    // Logger.recordOutput("Pidgeon Yaw?", pigeon.getYaw().getValueAsDouble());
-    // Logger.recordOutput("Pidgeon Pitch?", pigeon.getPitch().getValueAsDouble());
-    // Logger.recordOutput("Pidgeon Roll?", pigeon.getRoll().getValueAsDouble());
+    // Logger.recordOutput("Camera/Pidgeon Yaw?",
+    // pigeon.getYaw().getValueAsDouble());
+    // Logger.recordOutput("Camera/Pidgeon Pitch?",
+    // pigeon.getPitch().getValueAsDouble());
+    // Logger.recordOutput("Camera/Pidgeon Roll?",
+    // pigeon.getRoll().getValueAsDouble());
     // TODO: uncomment if you want to see if the cameras have a track
-    // Logger.recordOutput("Front Cam Track", frontReefCamTrack);
-    // Logger.recordOutput("Back Cam Track", backReefCamTrack);
-    // Logger.recordOutput("Right Cam Track", frontBargeCamTrack);
-    // Logger.recordOutput("Left Cam Track", backBargeCamTrack);
+    // Logger.recordOutput("Camera/Front Cam Track", frontReefCamTrack);
+    // Logger.recordOutput("Camera/Back Cam Track", backReefCamTrack);
+    // Logger.recordOutput("Camera/Right Cam Track", frontBargeCamTrack);
+    // Logger.recordOutput("Camera/Left Cam Track", backBargeCamTrack);
   }
 }

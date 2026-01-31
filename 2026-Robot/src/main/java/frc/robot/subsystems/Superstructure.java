@@ -197,9 +197,10 @@ public class Superstructure extends SubsystemBase {
         initialVelocity.getZ());
     Translation3d trajectory = onTheMove;
     Translation3d loggedTrajectory = trajectory.plus(initial);
-    Logger.recordOutput("Trajectory", loggedTrajectory);
-    Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
-        .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
+    Logger.recordOutput("Shooter/Trajectory", loggedTrajectory);
+    Logger.recordOutput("Shooter/Turret Position",
+        new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
+            .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
     gyro = gyro.unaryMinus();
     trajectory = new Translation3d( // For Turret, make the0 trajectory robotcentric
         trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
@@ -211,7 +212,7 @@ public class Superstructure extends SubsystemBase {
         realVector.getX() * gyro.getCos() - realVector.getY() * gyro.getSin(),
         realVector.getX() * gyro.getSin() + realVector.getY() * gyro.getCos(),
         realVector.getZ());
-    Logger.recordOutput("Shooter Trajectory",
+    Logger.recordOutput("Shooter/Shooter Trajectory",
         realTrajectory);
     return trajectory;
   }
@@ -320,17 +321,17 @@ public class Superstructure extends SubsystemBase {
         trajectoryVelocity.remove(i);
         i--;
       } else {
-        Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
+        Logger.recordOutput("Shooter/Fuel/" + i, trajectoryPoint.get(i));
       }
     }
     if (currentSuperState != tempLastState) {
       lastState = tempLastState;
       tempLastState = currentSuperState;
     }
-    Logger.recordOutput("Super State", currentSuperState);
-    Logger.recordOutput("Manual Shoot RPM", manualShootRPM.get());
-    Logger.recordOutput("Manual Shoot Hood Angle", manualShootHoodAngle.get());
-    Logger.recordOutput("Manual Shoot Turret Angle", manualShootTurretAngle.get());
+    Logger.recordOutput("States/Super State", currentSuperState);
+    Logger.recordOutput("Shooter/Manual Shoot RPM", manualShootRPM.get());
+    Logger.recordOutput("Shooter/Manual Shoot Hood Angle", manualShootHoodAngle.get());
+    Logger.recordOutput("Shooter/Manual Shoot Turret Angle", manualShootTurretAngle.get());
     applyStates();
 
   }

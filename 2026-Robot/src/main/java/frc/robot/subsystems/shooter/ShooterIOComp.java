@@ -197,7 +197,7 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void moveHoodToAngle(Rotation2d angle) {
-        Logger.recordOutput("Hood target angle", angle.getDegrees());
+        Logger.recordOutput("Shooter/Hood target angle", angle.getDegrees());
         if (angle.getDegrees() > 85.0) {
             angle = Rotation2d.fromDegrees(85.0);
         }
@@ -215,10 +215,10 @@ class ShooterIOComp implements ShooterIO {
 
     @Override
     public void setTurretAngle(double angle) {
-        Logger.recordOutput("Goal turret degrees", Math.toDegrees(angle));
+        Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
         turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
                 turretAcceleration));
-        Logger.recordOutput("goal motor turret degrees Er",
+        Logger.recordOutput("Shooter/goal motor turret degrees Er",
                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
 
     }
@@ -242,10 +242,10 @@ class ShooterIOComp implements ShooterIO {
         pos2.refresh();
         vel2.refresh();
         double r2 = BaseStatusSignal.getLatencyCompensatedValueAsDouble(pos2, vel2);
-        Logger.recordOutput("encoderOneLatencyPosition", r1 * 4096);
-        Logger.recordOutput("encoderTwoLatencyPosition", r1 * 4096);
-        Logger.recordOutput("encoderOnePosition", r1 * 4096);
-        Logger.recordOutput("encoderTwoPosition", r2 * 4096);
+        Logger.recordOutput("Shooter/encoderOneLatencyPosition", r1 * 4096);
+        Logger.recordOutput("Shooter/encoderTwoLatencyPosition", r1 * 4096);
+        Logger.recordOutput("Shooter/encoderOnePosition", r1 * 4096);
+        Logger.recordOutput("Shooter/encoderTwoPosition", r2 * 4096);
         double difference = r1 - r2;
         if (difference > 0.5) {
             difference -= 1.0;
@@ -253,7 +253,7 @@ class ShooterIOComp implements ShooterIO {
         if (difference < -0.5) {
             difference += 1.0;
         }
-        Logger.recordOutput("encoder difference", difference);
+        Logger.recordOutput("Shooter/encoder difference", difference);
         double gear1Rotations = -difference / SLOPE;
         double turretRelativeRotations = gear1Rotations * Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT
                 / Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT;
@@ -276,8 +276,8 @@ class ShooterIOComp implements ShooterIO {
         Constants.Vision.updateLimelightPoseFromTurret(getTurretAngle(), Constants.Physical.Shooter.SHOOTER_POSITION,
                 Constants.Vision.LIMELIGHT_TO_TURRET_OFFSET, Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET,
                 Constants.Vision.LIMELIGHT_NAME);
-        Logger.recordOutput("Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
-        Logger.recordOutput("Motor Turret Angle",
+        Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
+        Logger.recordOutput("Shooter/Motor Turret Angle",
                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
         // if (turretP.changed() || turretI.changed() || turretD.changed() ||
         // turretS.changed() || turretVelocity.changed()

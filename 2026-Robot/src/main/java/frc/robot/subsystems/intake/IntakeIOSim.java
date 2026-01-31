@@ -59,8 +59,8 @@ class IntakeIOSim implements IntakeIO {
                         gearbox.getCurrent(simState.get(0), wantedSpeed / gearbox.KvRadPerSecPerVolt), wantedSpeed);
                 update(dt / numSteps);
             }
-            Logger.recordOutput("intake sim error", Units.radiansToDegrees(positionSetpointRad - simState.get(0)));
-            Logger.recordOutput("intake sim current", inputTorqueCurrent);
+            Logger.recordOutput("Sim/intake sim error", Units.radiansToDegrees(positionSetpointRad - simState.get(0)));
+            Logger.recordOutput("Sim/intake sim current", inputTorqueCurrent);
         }
     }
 

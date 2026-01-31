@@ -66,7 +66,8 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(systemState);
     systemState = handleStateTransition();
-    Logger.recordOutput("Intake State", systemState);
+    Logger.recordOutput("Intake/Intake State", systemState);
+    Logger.recordOutput("States/Intake State", systemState);
     switch (systemState) {
       case UP:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
