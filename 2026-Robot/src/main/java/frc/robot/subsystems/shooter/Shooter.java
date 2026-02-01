@@ -88,20 +88,22 @@ public class Shooter extends SubsystemBase {
     setFlywheelRPM(manualFlywheelRPM);
   }
 
-  public boolean readyToShoot() {
+  public boolean readyToShoot(double horizontalDistanceToTargetMeters) {
     double hoodAngleError = Math
         .abs(getHoodAngle()
             .minus(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint))
             .getRadians());
-    // double turretAngleError = Math.abs(
-    // getRobotRelativeTurretAngle()
-    // .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
-    // .getRadians());
+    double turretAngleError = Math.abs(
+        getRobotRelativeTurretAngle()
+            .minus(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint))
+            .getRadians());
+    double turretPrecisionRequired = Math.atan(Constants.Field.HUB_RADIUS / horizontalDistanceToTargetMeters);
+    Logger.recordOutput("Shooter/Turret Precision Required", turretPrecisionRequired);
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
     return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
-        // && turretAngleError < Constants.SetPoints.Turret.TURRET_PRECISION
+        && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
   }
 
@@ -191,7 +193,6 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Shooter/Flywheel RPM", getFlywheelRPM());
-    Logger.recordOutput("Shooter/Ready to Shoot", readyToShoot());
 
     Logger.recordOutput("Shooter/Shooter State", systemState);
 

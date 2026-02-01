@@ -133,7 +133,10 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        if (shooter.readyToShoot()) {
+        double distance = drive.getMt2Pose2d().getTranslation()
+            .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
+                : Constants.Field.HUB_POSE_RED.toTranslation2d());
+        if (shooter.readyToShoot(distance)) {
           wantedSuperState = SuperState.SHOOTING;
           currentSuperState = SuperState.SHOOTING;
         } else {
@@ -332,6 +335,10 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Shooter/Manual Shoot RPM", manualShootRPM.get());
     Logger.recordOutput("Shooter/Manual Shoot Hood Angle", manualShootHoodAngle.get());
     Logger.recordOutput("Shooter/Manual Shoot Turret Angle", manualShootTurretAngle.get());
+    double distance = drive.getMt2Pose2d().getTranslation()
+        .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
+            : Constants.Field.HUB_POSE_RED.toTranslation2d());
+    Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot(distance));
     applyStates();
 
   }

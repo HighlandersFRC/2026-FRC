@@ -130,7 +130,7 @@ public final class Constants {
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
-                                return 3 + 0.0 * distanceFromHub;
+                                return 4 + 0.0 * distanceFromHub;
                         }
                 }
 
@@ -214,6 +214,7 @@ public final class Constants {
                 public static final double HUB_Z = 1.83;
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
+                public static final double HUB_RADIUS = inchesToMeters(21.0);
         }
 
         // Subsystem setpoint constants
@@ -282,7 +283,7 @@ public final class Constants {
 
         public static double shooterMPSToRPM(double mps) {
 
-                return (151.0 * mps - 183.0) * 0.85;
+                return (151.0 * mps - 183.0) * 0.70;
                 // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
         }
 
@@ -301,7 +302,7 @@ public final class Constants {
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 5.0;
                         public static final double kS0 = 2.0;
-                        public static final double kV0 = 2.0;
+                        public static final double kV0 = 1.0;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;
