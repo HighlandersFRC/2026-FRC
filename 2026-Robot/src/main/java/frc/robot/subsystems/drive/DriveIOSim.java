@@ -84,7 +84,7 @@ public class DriveIOSim extends DriveIO {
                 getChassisSpeeds(),
                 new ChassisSpeeds(wantedVelocityVector.getI(), wantedVelocityVector.getJ(), wantedAngularVelocity));
         velocityVector = new Vector(expectedSpeeds.vxMetersPerSecond, expectedSpeeds.vyMetersPerSecond);
-        Logger.recordOutput("Robot Actual Simmed Velocity", velocityVector.magnitude());
+        Logger.recordOutput("Sim/Robot Actual Simmed Velocity", velocityVector.magnitude());
         angularVelocity = expectedSpeeds.omegaRadiansPerSecond;
         positionVector = positionVector.add(velocityVector.scaled(Globals.loopPeriodSecs));
         angle += angularVelocity * Globals.loopPeriodSecs;

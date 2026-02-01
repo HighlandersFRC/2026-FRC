@@ -109,7 +109,7 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(180);
+                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(200);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -132,7 +132,7 @@ public final class Constants {
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
-                                return 3 + 0.0 * distanceFromHub;
+                                return 4 + 0.0 * distanceFromHub;
                         }
                 }
 
@@ -216,6 +216,7 @@ public final class Constants {
                 public static final double HUB_Z = 1.83;
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
+                public static final double HUB_RADIUS = inchesToMeters(21.0);
         }
 
         // Subsystem setpoint constants
@@ -223,7 +224,7 @@ public final class Constants {
                 public static class Hood {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
-                        public static final double HOOD_PRECISION = degreesToRadians(1.0);
+                        public static final double HOOD_PRECISION = degreesToRadians(0.5);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -245,7 +246,7 @@ public final class Constants {
                 public static class Turret {
                         public static final double TURRET_MIN_ANGLE_RADIANS = -Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
                         public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-                        public static final double TURRET_PRECISION = degreesToRadians(5);
+                        public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
                                         Translation3d _trajectorySetpoint) {
@@ -255,7 +256,7 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 150.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 75.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
@@ -284,13 +285,12 @@ public final class Constants {
 
         public static double shooterMPSToRPM(double mps) {
 
-                return -369.004 * (1.17 + shooterOffset.get() - mps) / Constants.shooterMPStoRPM.get();
+                return (151.0 * mps - 183.0) * 0.70;
                 // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
         }
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
-                return Rotation2d.fromDegrees(
-                                (-1.26743 * (13.8 - launchAngle.getDegrees())))
+                return Rotation2d.fromDegrees(-8.287)
                                 .plus(launchAngle);
                 // return Rotation2d.fromDegrees(launchAngle.getDegrees() +
                 // launchAngleOffset.get());
@@ -300,10 +300,12 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         // Position PID
-                        public static final double kP0 = 100.0;
+                        public static final double kP0 = 50.0;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
-                        public static final double kS0 = 5.0;
+                        public static final double kD0 = 5.0;
+                        public static final double kS0 = 2.0;
+                        public static final double kV0 = 1.0;
+
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;
                         public static final double kI1 = 0.0;
@@ -344,11 +346,11 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-5.5), inchesToMeters(0.0), inchesToMeters(11.388));
+                                inchesToMeters(-5.434), inchesToMeters(0.0), inchesToMeters(11.402599));
 
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
-                                Math.toRadians(-21.2),
-                                Math.toRadians(0.8),
+                                Math.toRadians(-25.5),
+                                Math.toRadians(0.0),
                                 Math.toRadians(0.0));
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;
@@ -392,21 +394,24 @@ public final class Constants {
                                 String limelightName) {
 
                         Rotation3d turretRotation = new Rotation3d(0.0, 0.0, turretYaw.getRadians());
-                        Logger.recordOutput("turret rotation", turretRotation);
-                        Logger.recordOutput("turret off from robot", turretOffsetFromRobot);
-                        Logger.recordOutput("cam off from turret", cameraOffsetFromTurret);
+                        Logger.recordOutput("Constants/turret rotation", turretRotation);
+                        Logger.recordOutput("Constants/turret off from robot", turretOffsetFromRobot);
+                        Logger.recordOutput("Constants/cam off from turret", cameraOffsetFromTurret);
                         Translation3d cameraRelativeToRobot = turretOffsetFromRobot
                                         .plus(cameraOffsetFromTurret.rotateBy(turretRotation));
 
-                        Logger.recordOutput("cam rel to robot", cameraRelativeToRobot);
+                        Logger.recordOutput("Constants/cam rel to robot", cameraRelativeToRobot);
                         Rotation3d cameraRotationRelativeToRobot = turretRotation.plus(cameraRotationRelativeToTurret);
-                        Logger.recordOutput("cam rot rel to robot", cameraRotationRelativeToRobot);
-                        Logger.recordOutput("cam rot roll", Math.toDegrees(cameraRotationRelativeToRobot.getX()));
-                        Logger.recordOutput("cam rot pitch", Math.toDegrees(cameraRotationRelativeToRobot.getY()));
-                        Logger.recordOutput("cam rot yaw", Math.toDegrees(cameraRotationRelativeToRobot.getZ()));
+                        Logger.recordOutput("Constants/cam rot rel to robot", cameraRotationRelativeToRobot);
+                        Logger.recordOutput("Constants/cam rot roll",
+                                        Math.toDegrees(cameraRotationRelativeToRobot.getX()));
+                        Logger.recordOutput("Constants/cam rot pitch",
+                                        Math.toDegrees(cameraRotationRelativeToRobot.getY()));
+                        Logger.recordOutput("Constants/cam rot yaw",
+                                        Math.toDegrees(cameraRotationRelativeToRobot.getZ()));
                         Pose3d limelightPose = new Pose3d(cameraRelativeToRobot, cameraRotationRelativeToRobot);
-                        Logger.recordOutput("limelight pose", limelightPose);
-                        Logger.recordOutput("limelight name", limelightName);
+                        Logger.recordOutput("Constants/limelight pose", limelightPose);
+                        Logger.recordOutput("Constants/limelight name", limelightName);
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
@@ -567,6 +572,7 @@ public final class Constants {
                 public static final int LINEARIZER_MOTOR_ID = 16;
                 public static final int LINEARIZER_CANRANGE_ID = 0;
 
+                // Climber
                 public static final int CLIMBER_MOTOR_ID = 20;
         }
 

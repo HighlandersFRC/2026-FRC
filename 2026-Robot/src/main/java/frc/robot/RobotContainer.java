@@ -52,11 +52,6 @@ public class RobotContainer {
         final Climber climber = new Climber();
         Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder, climber);
 
-        public boolean algaeMode = false;
-        boolean manualMode = false;
-        boolean yPressed = false;
-        RobotContainer m_container = this;
-
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));

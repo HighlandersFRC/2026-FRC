@@ -708,7 +708,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToPoint(Pose2d targetPoint) {
-    Logger.recordOutput("Goal X, Y, Theta", targetPoint);
+    Logger.recordOutput("Drive/Goal X, Y, Theta", targetPoint);
     double x = targetPoint.getX();
     double y = targetPoint.getY();
     double theta = targetPoint.getRotation().getRadians();
@@ -831,8 +831,8 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveOnLine(Vector lineVector, Translation2d pointOnLine, double angrad) {
-    Logger.recordOutput("Point On Line", new Pose2d(pointOnLine, new Rotation2d()));
-    Logger.recordOutput("LineVector",
+    Logger.recordOutput("Drive/Point On Line", new Pose2d(pointOnLine, new Rotation2d()));
+    Logger.recordOutput("Drive/LineVector",
         new Pose2d(pointOnLine.plus(new Translation2d(lineVector.getI(), lineVector.getJ())), new Rotation2d()));
     double oiLY = OI.getDriverLeftY();
     double oiLX = OI.getDriverLeftX();
@@ -850,12 +850,8 @@ public class Drive extends SubsystemBase {
       controllerVector.setJ(xSpeed);
     }
     Vector projectedJoystick = lineVector.projectOther(controllerVector);
-    Logger.recordOutput("controllerProjection",
-        new Pose2d(new Translation2d(projectedJoystick.getI() + getMt2Pose2dX(),
-            projectedJoystick.getJ() + getMt2Pose2dY()), new Rotation2d(angrad)));
     Translation2d currentPoint = new Translation2d(getMt2Pose2dX(), getMt2Pose2dY());
     Translation2d closestPointOnLine = lineVector.getClosestPointOnLine(pointOnLine, currentPoint);
-    Logger.recordOutput("closestPointOnLine", new Pose2d(closestPointOnLine, new Rotation2d(angrad)));
     xxPID.setSetPoint(closestPointOnLine.getX());
     yyPID.setSetPoint(closestPointOnLine.getY());
     angrad = Constants.standardizeAngleToOther(angrad, getMt2Pose2dAngle());
@@ -863,19 +859,13 @@ public class Drive extends SubsystemBase {
     double toPointXVel = xxPID.updatePID(getMt2Pose2dX());
     double toPointYVel = -yyPID.updatePID(getMt2Pose2dY());
     double thetaVel = -thetaaPID.updatePID(getMt2Pose2dAngle());
-    Logger.recordOutput("feederAngle", Math.toDegrees(angrad));
-    Logger.recordOutput("thetaVel", thetaVel);
-    Logger.recordOutput("toPointYVel", toPointYVel);
-    Logger.recordOutput("toPointXVel", toPointXVel);
     Vector toPointVector = new Vector(toPointXVel, toPointYVel);
     Vector driveVector = toPointVector.add(projectedJoystick);
-    Logger.recordOutput("driveVector", new Pose2d(new Translation2d(driveVector.getI() + getMt2Pose2dX(),
-        driveVector.getJ() + getMt2Pose2dY()), new Rotation2d(angrad)));
     autoDrive(driveVector, thetaVel);
   }
 
   public void driveToTheta(double theta) {
-    Logger.recordOutput("Drive Angle Setpoint", theta);
+    Logger.recordOutput("Drive/Drive Angle Setpoint", theta);
     theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2d().getRotation().getDegrees());
 
     turningPID.setSetPoint(theta);
@@ -1047,29 +1037,31 @@ public class Drive extends SubsystemBase {
         : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
             + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
-    Logger.recordOutput("x-vel", xVelNoFF);
-    Logger.recordOutput("y-vel", yVelNoFF);
-    Logger.recordOutput("theta-vel", thetaVelNoFF);
-    Logger.recordOutput("wanted-theta-vel",
-        targetPoint.getDouble("angular_velocity"));
-    Logger.recordOutput("FF-theta-vel", feedForwardTheta);
-    Logger.recordOutput("FF-x-vel", feedForwardX);
-    Logger.recordOutput("FF-y-vel", feedForwardY);
-    Logger.recordOutput("current point idx", currentIndex);
-    Logger.recordOutput("point idx", velocityArray[3].intValue());
-    Logger.recordOutput("look-ahead", lookaheadRadius);
-    Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new Rotation2d(targetTheta)));
-    Logger.recordOutput("Velocity Array",
-        new double[] { finalX, -finalY, finalTheta });
-    Logger.recordOutput("dx", targetX - currentX);
-    Logger.recordOutput("dy", targetY - currentY);
-    Logger.recordOutput("dtheta", targetTheta - currentTheta);
+    // Logger.recordOutput("x-vel", xVelNoFF);
+    // Logger.recordOutput("y-vel", yVelNoFF);
+    // Logger.recordOutput("theta-vel", thetaVelNoFF);
+    // Logger.recordOutput("wanted-theta-vel",
+    // targetPoint.getDouble("angular_velocity"));
+    // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
+    // Logger.recordOutput("FF-x-vel", feedForwardX);
+    // Logger.recordOutput("FF-y-vel", feedForwardY);
+    // Logger.recordOutput("current point idx", currentIndex);
+    // Logger.recordOutput("point idx", velocityArray[3].intValue());
+    // Logger.recordOutput("look-ahead", lookaheadRadius);
+    // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
+    // Rotation2d(targetTheta)));
+    // Logger.recordOutput("Velocity Array",
+    // new double[] { finalX, -finalY, finalTheta });
+    // Logger.recordOutput("dx", targetX - currentX);
+    // Logger.recordOutput("dy", targetY - currentY);
+    // Logger.recordOutput("dtheta", targetTheta - currentTheta);
     return velocityArray;
   }
 
   public boolean insideRadius(double deltaX, double deltaY, double deltaTheta, double radius) {
-    Logger.recordOutput("Error inside radius",
-        Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)));
+    // Logger.recordOutput("Error inside radius",
+    // Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta,
+    // 2)));
     return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)) < radius;
   }
 
@@ -1100,22 +1092,23 @@ public class Drive extends SubsystemBase {
     field.setRobotPose(getMt2Pose2d());
     io.update(systemState);
 
-    if (robotCentric) {
-      Logger.recordOutput("Driving Mode", "Robot Centric");
-    } else {
-      Logger.recordOutput("Driving Mode", "Field Centric");
-    }
+    // if (robotCentric) {
+    // Logger.recordOutput("Drive/Driving Mode", "Robot Centric");
+    // } else {
+    // Logger.recordOutput("Drive/Driving Mode", "Field Centric");
+    // }
 
     // process inputs
     DriveState newState = handleStateTransition();
     if (newState != systemState) {
       systemState = newState;
     }
-    Logger.recordOutput("Drive State", systemState);
-    Logger.recordOutput("MT2 Odometry", getMt2Pose2d());
-    Logger.recordOutput("Expected Speed",
-        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    Logger.recordOutput("Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    Logger.recordOutput("States/Drive State", systemState);
+    Logger.recordOutput("Drive/Drive State", systemState);
+    Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
+    // Logger.recordOutput("Drive/Expected Speed",
+    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;

@@ -69,8 +69,6 @@ public class Superstructure extends SubsystemBase {
   private SuperState wantedSuperState = SuperState.IDLE;
   private SuperState currentSuperState = SuperState.IDLE;
 
-  public boolean algaeMode = false;
-
   public Superstructure(Drive drive,
       Lights lights, Shooter shooter, Intake intake, Feeder feeder, Climber climber) {
     this.drive = drive;
@@ -159,7 +157,10 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        if (shooter.readyToShoot()) {
+        double distance = drive.getMt2Pose2d().getTranslation()
+            .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
+                : Constants.Field.HUB_POSE_RED.toTranslation2d());
+        if (shooter.readyToShoot(distance)) {
           wantedSuperState = SuperState.SHOOTING;
           currentSuperState = SuperState.SHOOTING;
         } else {
@@ -236,9 +237,10 @@ public class Superstructure extends SubsystemBase {
         initialVelocity.getZ());
     Translation3d trajectory = onTheMove;
     Translation3d loggedTrajectory = trajectory.plus(initial);
-    Logger.recordOutput("Trajectory", loggedTrajectory);
-    Logger.recordOutput("Turret Position", new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
-        .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
+    Logger.recordOutput("Shooter/Trajectory", loggedTrajectory);
+    Logger.recordOutput("Shooter/Turret Position",
+        new Pose3d(initial, new Rotation3d(drive.getMt2Pose2d().getRotation())
+            .plus(new Rotation3d(shooter.getRobotRelativeTurretAngle()))));
     gyro = gyro.unaryMinus();
     trajectory = new Translation3d( // For Turret, make the0 trajectory robotcentric
         trajectory.getX() * gyro.getCos() - trajectory.getY() * gyro.getSin(),
@@ -250,7 +252,7 @@ public class Superstructure extends SubsystemBase {
         realVector.getX() * gyro.getCos() - realVector.getY() * gyro.getSin(),
         realVector.getX() * gyro.getSin() + realVector.getY() * gyro.getCos(),
         realVector.getZ());
-    Logger.recordOutput("Shooter Trajectory",
+    Logger.recordOutput("Shooter/Shooter Trajectory",
         realTrajectory);
     return trajectory;
   }
@@ -378,27 +380,33 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     PARTY();
     currentSuperState = handleStateTransitions();
-    for (int i = 0; i < trajectoryVelocity.size(); i++) {
-      trajectoryVelocity.set(i, new Translation3d(trajectoryVelocity.get(i).getX(),
-          trajectoryVelocity.get(i).getY(),
-          trajectoryVelocity.get(i).getZ() - Constants.G * Globals.loopPeriodSecs));
-      trajectoryPoint.set(i, trajectoryPoint.get(i).plus(trajectoryVelocity.get(i).times(Globals.loopPeriodSecs)));
-      if (trajectoryPoint.get(i).getZ() < 0) {
-        trajectoryPoint.remove(i);
-        trajectoryVelocity.remove(i);
-        i--;
-      } else {
-        Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
+    if (RobotBase.isSimulation()) {
+      for (int i = 0; i < trajectoryVelocity.size(); i++) {
+        trajectoryVelocity.set(i, new Translation3d(trajectoryVelocity.get(i).getX(),
+            trajectoryVelocity.get(i).getY(),
+            trajectoryVelocity.get(i).getZ() - Constants.G * Globals.loopPeriodSecs));
+        trajectoryPoint.set(i, trajectoryPoint.get(i).plus(trajectoryVelocity.get(i).times(Globals.loopPeriodSecs)));
+        if (trajectoryPoint.get(i).getZ() < 0) {
+          trajectoryPoint.remove(i);
+          trajectoryVelocity.remove(i);
+          i--;
+        } else {
+          Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
+        }
       }
     }
     if (currentSuperState != tempLastState) {
       lastState = tempLastState;
       tempLastState = currentSuperState;
     }
-    Logger.recordOutput("Super State", currentSuperState);
-    Logger.recordOutput("Manual Shoot RPM", manualShootRPM.get());
-    Logger.recordOutput("Manual Shoot Hood Angle", manualShootHoodAngle.get());
-    Logger.recordOutput("Manual Shoot Turret Angle", manualShootTurretAngle.get());
+    Logger.recordOutput("States/Super State", currentSuperState);
+    Logger.recordOutput("Shooter/Manual Shoot RPM", manualShootRPM.get());
+    Logger.recordOutput("Shooter/Manual Shoot Hood Angle", manualShootHoodAngle.get());
+    Logger.recordOutput("Shooter/Manual Shoot Turret Angle", manualShootTurretAngle.get());
+    double distance = drive.getMt2Pose2d().getTranslation()
+        .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
+            : Constants.Field.HUB_POSE_RED.toTranslation2d());
+    Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot(distance));
     applyStates();
 
   }

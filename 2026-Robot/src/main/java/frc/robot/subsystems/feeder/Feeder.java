@@ -119,6 +119,7 @@ public class Feeder extends SubsystemBase {
         setLinearizerPercent(0.0);
         break;
     }
-    Logger.recordOutput("Feeder State", systemState);
+    Logger.recordOutput("Feeder/Feeder State", systemState);
+    Logger.recordOutput("States/Feeder State", systemState);
   }
 }

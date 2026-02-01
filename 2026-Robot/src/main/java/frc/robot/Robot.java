@@ -19,9 +19,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.PolarAutoFollower;
@@ -34,16 +33,11 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
-  boolean bPressed = false;
-  boolean yPressed = false;
-  boolean xPressed = false;
-  boolean autoChooserCenterSwitch = false;
 
   File[] autoFiles;
   Command[] autos;
   JSONObject[] autoJSONs;
   JSONArray[] autoPoints;
-  SendableChooser<String> fieldSideChooser = new SendableChooser<String>();
 
   JSONObject autoPath;
   PolarAutoFollower autoCommand;
@@ -90,8 +84,6 @@ public class Robot extends LoggedRobot {
     java.util.logging.Logger.getGlobal().info("Robot Init");
 
     Globals.fieldSide = "blue";
-    SmartDashboard.putNumber("Shooter Angle Degrees (tuning)", 0);
-    SmartDashboard.putNumber("Shooter RPM (input)", 0);
     m_robotContainer = new RobotContainer();
 
     m_robotContainer.peripherals.init();
@@ -131,35 +123,31 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    Logger.recordOutput("FieldSide", Globals.fieldSide);
-    Logger.recordOutput("Blue Hub", Constants.Field.HUB_POSE_BLUE);
+    Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
+    Logger.recordOutput("Physical/Blue Hub", Constants.Field.HUB_POSE_BLUE);
     Globals.fieldSide = OI.fieldSide.getSelected();
 
     CommandScheduler.getInstance().run();
-    Logger.recordOutput("MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
-    m_robotContainer.superstructure.algaeMode = m_robotContainer.algaeMode;
-    m_robotContainer.lights.updateAlgaeMode(m_robotContainer.algaeMode);
-    m_robotContainer.lights.updateManualMode(m_robotContainer.manualMode);
-    Logger.recordOutput("Algae Mode", m_robotContainer.algaeMode);
-    Logger.recordOutput("Manual Mode", m_robotContainer.manualMode);
-    Logger.recordOutput("IMU", m_robotContainer.drive.getGyroYaw());
+    Logger.recordOutput("Robot/MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
+    Logger.recordOutput("Robot/IMU", m_robotContainer.drive.getGyroYaw());
     int index = Constants.Autonomous.getSelectedPathIndex();
     if (index == -1 || index > Constants.Autonomous.paths.length) {
-      Logger.recordOutput("Selected Auto", "Do Nothing");
+      Logger.recordOutput("Auto/Selected Auto", "Do Nothing");
     } else {
-      Logger.recordOutput("Selected Auto", Constants.Autonomous.paths[index]);
+      Logger.recordOutput("Auto/Selected Auto", Constants.Autonomous.paths[index]);
+    }
+    if (RobotBase.isSimulation()) {
+      LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
+      LoggedMechanism2d bot = new LoggedMechanism2d(2.0, 2.6);
+      bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
+      Logger.recordOutput("Sim/Arm Sim", bot);
     }
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-    LoggedMechanismLigament2d intakeLigament2d = m_robotContainer.intake.getLigament();
-    LoggedMechanism2d bot = new LoggedMechanism2d(2.0, 2.6);
-    bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
-    Logger.recordOutput("Arm Sim", bot);
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();
-    Logger.recordOutput("SuperState", m_robotContainer.superstructure.getCurrentSuperState().toString());
   }
 
   @Override
@@ -219,14 +207,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (OI.driverX.getAsBoolean()) {
-      if (xPressed) {
-        m_robotContainer.manualMode = !m_robotContainer.manualMode;
-        xPressed = false;
-      }
-    } else {
-      xPressed = true;
-    }
 
     // if (m_robotContainer.manualMode) {
     // m_robotContainer.drive.robotCentric = true;
