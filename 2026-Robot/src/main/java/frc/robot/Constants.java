@@ -221,7 +221,7 @@ public final class Constants {
                 public static class Hood {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
-                        public static final double HOOD_PRECISION = degreesToRadians(1.0);
+                        public static final double HOOD_PRECISION = degreesToRadians(0.5);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -243,7 +243,7 @@ public final class Constants {
                 public static class Turret {
                         public static final double TURRET_MIN_ANGLE_RADIANS = -Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
                         public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-                        public static final double TURRET_PRECISION = degreesToRadians(5);
+                        public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
                                         Translation3d _trajectorySetpoint) {
@@ -253,7 +253,7 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 150.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 75.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
@@ -282,7 +282,7 @@ public final class Constants {
 
         public static double shooterMPSToRPM(double mps) {
 
-                return 151.0 * mps - 183.0;
+                return (151.0 * mps - 183.0) * 0.85;
                 // return 3621.1-11.9904*Math.sqrt(76609-8340*mps);
         }
 
