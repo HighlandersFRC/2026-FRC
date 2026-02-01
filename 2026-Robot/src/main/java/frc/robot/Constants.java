@@ -95,6 +95,8 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
+                public static Pose2d climbPose = new Pose2d();
+
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
                         public static final int NUM_ROLLER_MOTORS = 1;

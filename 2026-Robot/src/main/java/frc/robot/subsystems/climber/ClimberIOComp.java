@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -22,6 +23,7 @@ class ClimberIOComp implements ClimberIO {
         climberConfig.CurrentLimits.StatorCurrentLimit = 80;
 
         climberMotor.getConfigurator().apply(climberConfig);
+        climberMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
     @Override

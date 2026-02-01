@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.Climber.ClimberState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.subsystems.feeder.Feeder;
@@ -36,6 +38,7 @@ public class Superstructure extends SubsystemBase {
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
+  private final Climber climber;
   double outakeIdleInitTime = 0;
   boolean outakeIdleInit = false;
   boolean firstTimeDefault = true;
@@ -56,18 +59,24 @@ public class Superstructure extends SubsystemBase {
     ZERO,
     MANUAL_SHOOT,
     MANUAL_SHOOTING,
+    MANUAL_CLIMBING,
+    MANUAL_EXTEND_CLIMBER,
+    AUTON_PREP_SHOT,
+    AUTON_SHOOT,
+    AUTO_CLIMB
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
   private SuperState currentSuperState = SuperState.IDLE;
 
   public Superstructure(Drive drive,
-      Lights lights, Shooter shooter, Intake intake, Feeder feeder) {
+      Lights lights, Shooter shooter, Intake intake, Feeder feeder, Climber climber) {
     this.drive = drive;
     this.lights = lights;
     this.shooter = shooter;
     this.intake = intake;
     this.feeder = feeder;
+    this.climber = climber;
   }
 
   public void setWantedState(SuperState wantedState) {
@@ -108,6 +117,21 @@ public class Superstructure extends SubsystemBase {
         break;
       case ZERO:
         handleZeroState();
+        break;
+      case MANUAL_CLIMBING:
+        handleClimbingState();
+        break;
+      case MANUAL_EXTEND_CLIMBER:
+        handleExtendClimberState();
+        break;
+      case AUTON_PREP_SHOT:
+        handleAutonPrepShot();
+        break;
+      case AUTON_SHOOT:
+        handleAutonShot();
+        break;
+      case AUTO_CLIMB:
+        handleAutoClimb();
         break;
       default:
         handleIdleState();
@@ -162,6 +186,21 @@ public class Superstructure extends SubsystemBase {
         break;
       case ZERO:
         currentSuperState = SuperState.ZERO;
+        break;
+      case MANUAL_CLIMBING:
+        currentSuperState = SuperState.MANUAL_CLIMBING;
+        break;
+      case MANUAL_EXTEND_CLIMBER:
+        currentSuperState = SuperState.MANUAL_EXTEND_CLIMBER;
+        break;
+      case AUTON_PREP_SHOT:
+        currentSuperState = SuperState.AUTON_PREP_SHOT;
+        break;
+      case AUTO_CLIMB:
+        currentSuperState = SuperState.AUTO_CLIMB;
+        break;
+      case AUTON_SHOOT:
+        currentSuperState = SuperState.AUTON_SHOOT;
         break;
       default:
         currentSuperState = SuperState.IDLE;
@@ -262,6 +301,7 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.DEFAULT); // Run hopper and linearizer
     intake.setWantedState(IntakeState.UP);
     shooter.setWantedState(ShooterState.DEFAULT);
+    climber.setWantedState(ClimberState.IDLE);
   }
 
   public void handleManualShootState() {
@@ -302,6 +342,34 @@ public class Superstructure extends SubsystemBase {
     intake.setWantedState(IntakeState.IDLE);
     feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
     // shooter.setWantedState(ShooterState.ZERO); TODO: Implement zeroing
+  }
+
+  private void handleClimbingState() {
+    climber.setWantedState(ClimberState.CLIMBING);
+  }
+
+  private void handleExtendClimberState() {
+    climber.setWantedState(ClimberState.EXTEND);
+  }
+
+  private void handleAutonPrepShot() {
+    drive.setWantedState(DriveState.IDLE);
+    shooter.setWantedState(ShooterState.SHOOT);
+    feeder.setWantedState(FeederState.FEED);
+  }
+
+  private void handleAutonShot() {
+    drive.setWantedState(DriveState.IDLE);
+    shooter.setWantedState(ShooterState.SHOOT);
+    feeder.setWantedState(FeederState.SHOOT);
+  }
+
+  private void handleAutoClimb() {
+    drive.setWantedState(DriveState.DRIVE_TO_CLIMB);
+    climber.setWantedState(ClimberState.EXTEND);
+    if (drive.hitSetPoint(Constants.Physical.climbPose)) {
+      climber.setWantedState(ClimberState.CLIMBING);
+    }
   }
 
   public void PARTY() {

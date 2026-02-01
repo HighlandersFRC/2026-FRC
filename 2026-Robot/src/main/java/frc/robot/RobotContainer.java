@@ -23,6 +23,7 @@ import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.ZeroAngleMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
 import frc.robot.subsystems.feeder.Feeder;
@@ -48,7 +49,8 @@ public class RobotContainer {
         final Shooter shooter = new Shooter();
         final Feeder feeder = new Feeder();
         final Intake intake = new Intake();
-        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder);
+        final Climber climber = new Climber();
+        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder, climber);
 
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
@@ -118,6 +120,8 @@ public class RobotContainer {
 
                 OI.driverMenuButton.whileTrue(new SetRobotState(superstructure, SuperState.DEFAULT));
                 OI.driverX.whileTrue(new SetRobotStateOnce(superstructure, SuperState.MANUAL_SHOOT));
+                OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
+                OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));
                 // Operator
 
         }

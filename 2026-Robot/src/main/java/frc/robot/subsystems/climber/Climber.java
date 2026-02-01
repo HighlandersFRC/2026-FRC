@@ -16,7 +16,8 @@ public class Climber extends SubsystemBase {
 
   public enum ClimberState {
     IDLE,
-    CLIMBING
+    CLIMBING,
+    EXTEND
   }
 
   public final ClimberIO io;
@@ -36,6 +37,8 @@ public class Climber extends SubsystemBase {
     switch (wantedState) {
       case CLIMBING:
         return ClimberState.CLIMBING;
+      case EXTEND:
+        return ClimberState.EXTEND;
       default:
         return ClimberState.IDLE;
     }
@@ -47,7 +50,10 @@ public class Climber extends SubsystemBase {
 
     switch (systemState) {
       case CLIMBING:
-        io.setPower(40, 0.4);
+        io.setPower(70, 0.5);
+        break;
+      case EXTEND:
+        io.setPower(-70, 0.3);
         break;
       case IDLE:
         io.stop();
