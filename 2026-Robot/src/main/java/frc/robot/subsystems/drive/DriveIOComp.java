@@ -111,6 +111,8 @@ public class DriveIOComp extends DriveIO {
 
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
+        Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
+
         public DriveIOComp(Peripherals peripherals) {
 
                 frontRight.init();
@@ -233,9 +235,12 @@ public class DriveIOComp extends DriveIO {
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
                                 if (true) {
+                                        standardDeviation.set(0, 0, 1.5);
+                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightFrontResult.getTimestampSeconds());
+                                                        rightFrontResult.getTimestampSeconds(), standardDeviation);
                                 }
                         }
                         var leftFrontResult = peripherals.getLeftFrontCamResult();
