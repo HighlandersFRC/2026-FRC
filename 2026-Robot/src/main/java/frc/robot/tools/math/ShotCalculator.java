@@ -1,0 +1,68 @@
+package frc.robot.tools.math;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.Constants;
+
+public class ShotCalculator {
+    public class ShotSolution {
+        public final Rotation2d hoodAngleDegrees;
+        public final double flywheelRPM;
+        public final Rotation2d turretAngleDegrees;
+
+        public ShotSolution(Rotation2d hoodAngleDegrees, double flywheelRPM, Rotation2d turretAngleDegrees) {
+            this.hoodAngleDegrees = hoodAngleDegrees;
+            this.flywheelRPM = flywheelRPM;
+            this.turretAngleDegrees = turretAngleDegrees;
+        }
+    }
+
+    // Input: distance to target in meters, Output: hood angle (Rotation2d degrees)
+    private final static InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap = new InterpolatingTreeMap<>(
+            InverseInterpolator.forDouble(), Rotation2d::interpolate);
+    // Input: distance to target in meters, Output: flywheel RPM
+    private final static InterpolatingDoubleTreeMap flywheelMap = new InterpolatingDoubleTreeMap();
+    // Input: distance to target in meters, Output: time of flight in seconds
+    private final static InterpolatingDoubleTreeMap timeOfFlightMap = new InterpolatingDoubleTreeMap();
+
+    static {
+        for (double[] shotData : Constants.SetPoints.Shooter.SHOT_MAP) {
+            double distanceMeters = shotData[0];
+            double hoodAngleDegrees = shotData[1];
+            double flywheelRPM = shotData[2];
+            double timeOfFlightSeconds = shotData[3];
+
+            // Populate the interpolating maps
+            hoodAngleMap.put(distanceMeters, Rotation2d.fromDegrees(hoodAngleDegrees));
+            flywheelMap.put(distanceMeters, flywheelRPM);
+            timeOfFlightMap.put(distanceMeters, timeOfFlightSeconds);
+        }
+    }
+
+    public ShotSolution calculateShot(Translation2d robotPosition, Translation2d targetPosition,
+            Rotation2d robotOrientation, ChassisSpeeds robotVelocity) {
+        double distanceToTarget = robotPosition.getDistance(targetPosition);
+        double timeOfFlight = timeOfFlightMap.get(distanceToTarget);
+        for (int i = 0; i < 20; i++) { // Numerically solve differential equation TODO: find # of iterations that
+                                       // converges best
+            Translation2d predictedTarget = targetPosition.plus(new Translation2d(
+                    robotVelocity.vxMetersPerSecond,
+                    robotVelocity.vyMetersPerSecond).times(timeOfFlight));
+            distanceToTarget = robotPosition.getDistance(predictedTarget);
+            timeOfFlight = timeOfFlightMap.get(distanceToTarget);
+        }
+        Translation2d predictedTarget = targetPosition.plus(new Translation2d(
+                robotVelocity.vxMetersPerSecond,
+                robotVelocity.vyMetersPerSecond).times(timeOfFlight));
+        distanceToTarget = robotPosition.getDistance(predictedTarget);
+        Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
+        double flywheelRPM = flywheelMap.get(distanceToTarget);
+        Rotation2d turretAngle = targetPosition.minus(robotPosition).getAngle().minus(robotOrientation);
+        return new ShotSolution(
+                hoodAngle, flywheelRPM, turretAngle);
+    }
+}

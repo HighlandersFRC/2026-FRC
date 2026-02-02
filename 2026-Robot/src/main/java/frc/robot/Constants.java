@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -225,6 +226,7 @@ public final class Constants {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
                         public static final double HOOD_PRECISION = degreesToRadians(0.5);
+                        public static final InterpolatingTreeMap<Double, Rotation2d> DISTANCE_TO_ANGLE_MAP = null;
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -263,6 +265,13 @@ public final class Constants {
                                 double rpm = shooterMPSToRPM(v);
                                 return rpm;
                         }
+                }
+
+                public static class Shooter {
+                        // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
+                        public static final double[][] SHOT_MAP = new double[][] {
+
+                        };
                 }
 
                 public static final class Intake {
