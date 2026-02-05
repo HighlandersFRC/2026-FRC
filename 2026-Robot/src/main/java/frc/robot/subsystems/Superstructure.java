@@ -287,6 +287,7 @@ public class Superstructure extends SubsystemBase {
     // Feeder
     feeder.setWantedState(FeederState.FEED);
     intake.setWantedState(IntakeState.INTAKING);
+    drive.setWantedState(DriveState.SNAKE);
   }
 
   private void handleShootingState() {
@@ -321,6 +322,7 @@ public class Superstructure extends SubsystemBase {
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
     intake.setWantedState(IntakeState.INTAKING);
+    drive.setWantedState(DriveState.SNAKE);
   }
 
   public void handleDefaultState() {

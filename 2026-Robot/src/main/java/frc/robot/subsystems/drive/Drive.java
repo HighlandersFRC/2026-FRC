@@ -880,16 +880,46 @@ public class Drive extends SubsystemBase {
   }
 
   public void snakeDrive() {
-    double x = OI.getDriverLeftX();
-    double y = OI.getDriverLeftY();
-    double theta = Math.atan2(y, x);
-    Logger.recordOutput("Drive/Snake/Theta Degrees", Math.toDegrees(theta));
-    Logger.recordOutput("Drive/Snake/X", x);
-    Logger.recordOutput("Drive/Snake/Y", y);
+    double oiRX = OI.getDriverRightX();
+    double oiLX = OI.getDriverLeftX();
+    double oiRY = OI.getDriverRightY();
+    double oiLY = OI.getDriverLeftY();
+    if (OI.operatorLT.getAsBoolean() && OI.operatorRT.getAsBoolean()) {
+      oiRX = OI.getOperatorRightX();
+      oiLX = OI.getOperatorLeftX();
+      oiRY = OI.getOperatorRightY();
+      oiLY = OI.getOperatorLeftY();
+    }
+    double turnLimit = 0.17;
+
+    if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
+      // activate slowy spin
+      turnLimit = 0.1;
+      oiRX = oiRX * 0.8;
+      oiLX = oiLX * 0.8;
+      oiRY = oiRY * 0.8;
+      oiLY = oiLY * 0.8;
+    }
+    double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
+    double originalY = -(Math.copySign(oiLX * oiLX, oiLX));
+    double turn = turnLimit
+        * (oiRX * (Constants.Physical.TOP_SPEED) / (Constants.Physical.ROBOT_RADIUS));
+
+    if (Math.abs(turn) < 0.05) {
+      turn = 0.0;
+    }
+    double xPower = getAdjustedX(originalX, originalY);
+    double yPower = getAdjustedY(originalX, originalY);
+
+    double xSpeed = xPower * Constants.Physical.TOP_SPEED;
+    double ySpeed = yPower * Constants.Physical.TOP_SPEED;
+
+    Vector controllerVector = new Vector(xSpeed, ySpeed);
+    double theta = controllerVector.getRotation().getDegrees();
     if (getFieldSide().equals("red")) {
-      // driveToTheta(theta);
+      driveToTheta(-theta + 180);
     } else {
-      // driveToTheta(-theta);
+      driveToTheta(-theta);
     }
   }
 
