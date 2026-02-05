@@ -1153,8 +1153,8 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
-    // Logger.recordOutput("Drive/Expected Speed",
-    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    Logger.recordOutput("Drive/Expected Speed",
+        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
     Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
