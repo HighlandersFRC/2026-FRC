@@ -270,7 +270,21 @@ public final class Constants {
                 public static class Shooter {
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
-
+                                        { 1.21, 85, 1200, 0.4 },
+                                        { 1.35, 85, 1300, 1.02 },
+                                        { 1.64, 85, 1350, 1.20 },
+                                        { 1.93, 82.5, 1350, 1.11 },
+                                        { 2.24, 82.5, 1400, 1.17 },
+                                        { 2.54, 80, 1400, 1.17 },
+                                        { 2.9, 77.5, 1400, 1.14 },
+                                        { 3.26, 75, 1450, 1.15 },
+                                        { 3.56, 75, 1500, 1.19 },
+                                        { 3.96, 72.5, 1500, 1.19 },
+                                        { 4.32, 70, 1550, 1.21 },
+                                        { 4.75, 70, 1738, 1.35 },
+                                        { 5.29, 67.41, 1800, 1.27 },
+                                        { 5.64, 65, 1800, 1.28 },
+                                        { 6.67, 65, 2100, 1.5 },
                         };
                 }
 
@@ -299,7 +313,7 @@ public final class Constants {
         }
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
-                return Rotation2d.fromDegrees(-8.287)
+                return Rotation2d.fromDegrees(0)
                                 .plus(launchAngle);
                 // return Rotation2d.fromDegrees(launchAngle.getDegrees() +
                 // launchAngleOffset.get());

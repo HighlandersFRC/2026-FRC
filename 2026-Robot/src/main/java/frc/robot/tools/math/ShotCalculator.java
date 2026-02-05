@@ -1,5 +1,6 @@
 package frc.robot.tools.math;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -9,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants;
 
 public class ShotCalculator {
-    public class ShotSolution {
+    public static class ShotSolution {
         public final Rotation2d hoodAngleDegrees;
         public final double flywheelRPM;
         public final Rotation2d turretAngleDegrees;
@@ -43,25 +44,32 @@ public class ShotCalculator {
         }
     }
 
-    public ShotSolution calculateShot(Translation2d robotPosition, Translation2d targetPosition,
-            Rotation2d robotOrientation, ChassisSpeeds robotVelocity) {
-        double distanceToTarget = robotPosition.getDistance(targetPosition);
+    public static ShotSolution calculateShot(Pose2d robotPosition, Translation2d targetPosition,
+            ChassisSpeeds robotVelocity) {
+        double distanceToTarget = robotPosition.getTranslation().getDistance(targetPosition);
         double timeOfFlight = timeOfFlightMap.get(distanceToTarget);
+        double vx = -robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
+        double vy = robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
+        Translation2d tangentialVelocity = new Translation2d(vx, vy).rotateBy(robotPosition.getRotation());
+        Translation2d turretVelocity = new Translation2d(
+                robotVelocity.vxMetersPerSecond + tangentialVelocity.getX(),
+                robotVelocity.vyMetersPerSecond + tangentialVelocity.getY());
         for (int i = 0; i < 20; i++) { // Numerically solve differential equation TODO: find # of iterations that
                                        // converges best
             Translation2d predictedTarget = targetPosition.plus(new Translation2d(
-                    robotVelocity.vxMetersPerSecond,
-                    robotVelocity.vyMetersPerSecond).times(timeOfFlight));
-            distanceToTarget = robotPosition.getDistance(predictedTarget);
+                    turretVelocity.getX(),
+                    turretVelocity.getY()).times(-timeOfFlight));
+            distanceToTarget = robotPosition.getTranslation().getDistance(predictedTarget);
             timeOfFlight = timeOfFlightMap.get(distanceToTarget);
         }
         Translation2d predictedTarget = targetPosition.plus(new Translation2d(
-                robotVelocity.vxMetersPerSecond,
-                robotVelocity.vyMetersPerSecond).times(timeOfFlight));
-        distanceToTarget = robotPosition.getDistance(predictedTarget);
+                turretVelocity.getX(),
+                turretVelocity.getY()).times(timeOfFlight));
+        distanceToTarget = robotPosition.getTranslation().getDistance(predictedTarget);
         Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
         double flywheelRPM = flywheelMap.get(distanceToTarget);
-        Rotation2d turretAngle = targetPosition.minus(robotPosition).getAngle().minus(robotOrientation);
+        Rotation2d turretAngle = targetPosition.minus(robotPosition.getTranslation()).getAngle()
+                .minus(robotPosition.getRotation());
         return new ShotSolution(
                 hoodAngle, flywheelRPM, turretAngle);
     }
