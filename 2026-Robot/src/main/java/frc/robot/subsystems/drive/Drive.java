@@ -1171,7 +1171,11 @@ public class Drive extends SubsystemBase {
       case IDLE:
         break;
       case SNAKE:
-        snakeDrive();
+        if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) + Math.pow(OI.getDriverLeftY(), 2)) < 0.1) {
+          teleopDrive();
+        } else {
+          snakeDrive();
+        }
         break;
       case STOP:
         Vector velocityVector = new Vector();
