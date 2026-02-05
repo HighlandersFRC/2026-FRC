@@ -161,7 +161,8 @@ public class Drive extends SubsystemBase {
     DEFAULT,
     IDLE,
     STOP,
-    DRIVE_TO_CLIMB
+    DRIVE_TO_CLIMB,
+    SNAKE,
   }
 
   private DriveState wantedState = DriveState.IDLE;
@@ -878,6 +879,20 @@ public class Drive extends SubsystemBase {
     driveAutoAligned(result);
   }
 
+  public void snakeDrive() {
+    double x = OI.getDriverLeftX();
+    double y = OI.getDriverLeftY();
+    double theta = Math.atan2(y, x);
+    Logger.recordOutput("Drive/Snake/Theta Degrees", Math.toDegrees(theta));
+    Logger.recordOutput("Drive/Snake/X", x);
+    Logger.recordOutput("Drive/Snake/Y", y);
+    if (getFieldSide().equals("red")) {
+      // driveToTheta(theta);
+    } else {
+      // driveToTheta(-theta);
+    }
+  }
+
   /**
    * Runs autonomous driving by providing velocity vector and turning rate.
    * 
@@ -1075,6 +1090,8 @@ public class Drive extends SubsystemBase {
         return DriveState.STOP;
       case DRIVE_TO_CLIMB:
         return DriveState.DRIVE_TO_CLIMB;
+      case SNAKE:
+        return DriveState.SNAKE;
       default:
         return DriveState.IDLE;
     }
@@ -1122,6 +1139,9 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case IDLE:
+        break;
+      case SNAKE:
+        snakeDrive();
         break;
       case STOP:
         Vector velocityVector = new Vector();
