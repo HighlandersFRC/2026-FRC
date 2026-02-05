@@ -1,5 +1,7 @@
 package frc.robot.tools.math;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -64,11 +66,13 @@ public class ShotCalculator {
         }
         Translation2d predictedTarget = targetPosition.plus(new Translation2d(
                 turretVelocity.getX(),
-                turretVelocity.getY()).times(timeOfFlight));
+                turretVelocity.getY()).times(-timeOfFlight));
+        Logger.recordOutput("ShotCalculator/TimeOfFlight", timeOfFlight);
+        Logger.recordOutput("ShotCalculator/TargetPose", new Pose2d(predictedTarget, new Rotation2d()));
         distanceToTarget = robotPosition.getTranslation().getDistance(predictedTarget);
         Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
         double flywheelRPM = flywheelMap.get(distanceToTarget);
-        Rotation2d turretAngle = targetPosition.minus(robotPosition.getTranslation()).getAngle()
+        Rotation2d turretAngle = predictedTarget.minus(robotPosition.getTranslation()).getAngle()
                 .minus(robotPosition.getRotation());
         return new ShotSolution(
                 hoodAngle, flywheelRPM, turretAngle);

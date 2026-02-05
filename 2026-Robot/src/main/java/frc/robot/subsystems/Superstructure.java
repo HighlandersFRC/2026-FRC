@@ -155,12 +155,13 @@ public class Superstructure extends SubsystemBase {
    * @see SuperState
    */
   private SuperState handleStateTransitions() {
+    double distance;
     switch (wantedSuperState) {
       case DEFAULT:
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        double distance = drive.getMt2Pose2d().getTranslation()
+        distance = drive.getMt2Pose2d().getTranslation()
             .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
                 : Constants.Field.HUB_POSE_RED.toTranslation2d());
         if (shooter.readyToShoot(distance)) {
@@ -185,7 +186,15 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.INTAKING;
         break;
       case SHOOTING:
-        currentSuperState = SuperState.SHOOTING;
+        distance = drive.getMt2Pose2d().getTranslation()
+            .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
+                : Constants.Field.HUB_POSE_RED.toTranslation2d());
+        if (shooter.readyToShoot(distance)) {
+          wantedSuperState = SuperState.SHOOTING;
+          currentSuperState = SuperState.SHOOTING;
+        } else {
+          currentSuperState = SuperState.SHOOT;
+        }
         break;
       case ZERO:
         currentSuperState = SuperState.ZERO;
@@ -277,6 +286,7 @@ public class Superstructure extends SubsystemBase {
 
     // Feeder
     feeder.setWantedState(FeederState.FEED);
+    intake.setWantedState(IntakeState.INTAKING);
   }
 
   private void handleShootingState() {
@@ -310,6 +320,7 @@ public class Superstructure extends SubsystemBase {
       trajectoryVelocity
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
+    intake.setWantedState(IntakeState.INTAKING);
   }
 
   public void handleDefaultState() {
