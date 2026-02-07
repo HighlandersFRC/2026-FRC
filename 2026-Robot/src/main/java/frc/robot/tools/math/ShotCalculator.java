@@ -13,18 +13,18 @@ import frc.robot.Constants;
 
 public class ShotCalculator {
     public static class ShotSolution {
-        public final Rotation2d hoodAngleDegrees;
+        public final Rotation2d hoodAngle;
         public final double flywheelRPM;
-        public final Rotation2d turretAngleDegrees;
+        public final Rotation2d turretAngle;
 
-        public ShotSolution(Rotation2d hoodAngleDegrees, double flywheelRPM, Rotation2d turretAngleDegrees) {
-            this.hoodAngleDegrees = hoodAngleDegrees;
+        public ShotSolution(Rotation2d hoodAngle, double flywheelRPM, Rotation2d turretAngle) {
+            this.hoodAngle = hoodAngle;
             this.flywheelRPM = flywheelRPM;
-            this.turretAngleDegrees = turretAngleDegrees;
+            this.turretAngle = turretAngle;
         }
     }
 
-    // Input: distance to target in meters, Output: hood angle (Rotation2d degrees)
+    // Input: distance to target in meters, Output: hood angle (Rotation2d)
     private final static InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap = new InterpolatingTreeMap<>(
             InverseInterpolator.forDouble(), Rotation2d::interpolate);
     // Input: distance to target in meters, Output: flywheel RPM
