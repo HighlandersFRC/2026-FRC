@@ -162,7 +162,7 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        distance = drive.getMt2Pose2d().getTranslation()
+        distance = getTurretFieldPosition().toTranslation2d()
             .getDistance(Constants.Field.getHubPose().toTranslation2d());
         if (shooter.readyToShoot(distance)) {
           currentSuperState = SuperState.SHOOTING;
