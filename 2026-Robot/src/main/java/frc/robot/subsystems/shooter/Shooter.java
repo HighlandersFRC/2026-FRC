@@ -188,7 +188,10 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Shooter/Flywheel RPM", getFlywheelRPM());
-
+    Logger.recordOutput("Shooter/Velocity Magnitude",
+        Math.sqrt(Math.pow(_trajectorySetpoint.getX(), 2)
+            + Math.pow(_trajectorySetpoint.getY(), 2)
+            + Math.pow(_trajectorySetpoint.getZ(), 2)));
     Logger.recordOutput("Shooter/Shooter State", systemState);
 
     ShooterState newState = handleStateTransition();
