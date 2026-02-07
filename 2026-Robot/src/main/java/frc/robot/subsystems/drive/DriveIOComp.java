@@ -257,7 +257,7 @@ public class DriveIOComp extends DriveIO {
                         }
 
                         try {
-                                LimelightHelpers.SetRobotOrientation("limelight-goon",
+                                LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
                                                 gyro.getYawDegrees(), 0, 0, 0, 0, 0);
                                 LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
                                                 .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
