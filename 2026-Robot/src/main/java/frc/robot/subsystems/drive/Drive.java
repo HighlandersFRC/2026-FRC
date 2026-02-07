@@ -1074,13 +1074,16 @@ public class Drive extends SubsystemBase {
         targetIndex,
     };
     // double linearVelMag = Math.hypot(
-    //     targetPoint.getDouble("x_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
-    //     targetPoint.getDouble("y_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
+    // targetPoint.getDouble("x_velocity") /
+    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
+    // targetPoint.getDouble("y_velocity") /
+    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
     // double targetVelMag = Math.hypot(linearVelMag,
-    //     targetPoint.getDouble("angular_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
+    // targetPoint.getDouble("angular_velocity") /
+    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
     // double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
-    //     : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
-    //         + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
+    // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
+    // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);
@@ -1121,7 +1124,7 @@ public class Drive extends SubsystemBase {
       case DRIVE_TO_CLIMB:
         return DriveState.DRIVE_TO_CLIMB;
       case SNAKE:
-        return DriveState.SNAKE;
+        return DriveState.DEFAULT; // disable this for now
       default:
         return DriveState.IDLE;
     }
