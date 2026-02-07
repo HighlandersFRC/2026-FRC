@@ -97,8 +97,9 @@ public class Shooter extends SubsystemBase {
         getRobotRelativeTurretAngle()
             .minus(manualTurretAngle)
             .getRadians());
-    double turretPrecisionRequired = Math.atan(Constants.Field.HUB_RADIUS / horizontalDistanceToTargetMeters);
-    Logger.recordOutput("Shooter/Turret Precision Required", turretPrecisionRequired);
+    double turretPrecisionRequired = Math
+        .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
+    Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - manualFlywheelRPM);
@@ -184,12 +185,6 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs();
-    Logger.recordOutput("Shooter/Hood SP",
-        Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
-    Logger.recordOutput("Shooter/Turret SP",
-        Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint).getDegrees());
-    Logger.recordOutput("Shooter/Flywheel RPM SP", Constants.SetPoints.Flywheel
-        .getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
     Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Shooter/Flywheel RPM", getFlywheelRPM());

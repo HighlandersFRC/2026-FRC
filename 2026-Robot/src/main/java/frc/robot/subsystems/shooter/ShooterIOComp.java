@@ -165,14 +165,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.496826171875; // TODO: Try calculating offset from
-                                                                              // previous zero
-                                                                              // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.61279296875; // TODO: Try calculating offset from
+                                                                             // previous zero
+                                                                             // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.0859375;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.19580078125;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -321,6 +321,8 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
+                Logger.recordOutput("Shooter/Turret Error Degrees",
+                                turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
                 // if (turretP.changed() || turretI.changed() || turretD.changed() ||
                 // turretS.changed() || turretVelocity.changed()
                 // || turretAcceleration.changed() || turretV.changed()) {
