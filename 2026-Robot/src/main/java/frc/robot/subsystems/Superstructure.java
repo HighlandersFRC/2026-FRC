@@ -182,7 +182,7 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.INTAKING;
         break;
       case SHOOTING:
-        currentSuperState = SuperState.SHOOT;
+        currentSuperState = SuperState.SHOOTING;
         break;
       case ZERO:
         currentSuperState = SuperState.ZERO;
