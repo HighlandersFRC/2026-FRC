@@ -29,6 +29,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -228,15 +229,17 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Odometry.update(getYaw(), swerveModulePositions);
 
+                standardDeviation.set(0, 0, 1.5);
+                standardDeviation.set(1, 0, 1.5);
+                standardDeviation.set(2, 0, 2.5);
+
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         var rightFrontResult = peripherals.getRightFrontCamResult();
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
                                 if (true) {
-                                        standardDeviation.set(0, 0, 1.5);
-                                        standardDeviation.set(1, 0, 1.5);
-                                        standardDeviation.set(2, 0, 2.5);
+
                                         Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
                                                         rightFrontResult.getTimestampSeconds(), standardDeviation);
@@ -249,9 +252,33 @@ public class DriveIOComp extends DriveIO {
                                 if (true) {
                                         Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        leftFrontResult.getTimestampSeconds());
+                                                        leftFrontResult.getTimestampSeconds(), standardDeviation);
                                 }
                         }
+
+                        try {
+                                LimelightHelpers.SetRobotOrientation("limelight-goon",
+                                                gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                                .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
+
+                                boolean doRejectUpdate = false;
+                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                                // doRejectUpdate = true;
+                                // }
+                                if (mt2.tagCount == 0) {
+                                        doRejectUpdate = true;
+                                }
+                                if (!doRejectUpdate) {
+                                        // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                                        // mt2Odometry.addVisionMeasurement(
+                                        // mt2.pose,
+                                        // mt2.timestampSeconds, standardDeviation);
+                                }
+                        } catch (Exception e) {
+                                System.out.println(e);
+                        }
+
                 }
 
                 // Module states

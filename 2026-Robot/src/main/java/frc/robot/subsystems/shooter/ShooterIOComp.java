@@ -13,7 +13,10 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 // import frc.robot.tools.logging.TunableNumber;
@@ -296,10 +299,10 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void updateInputs() {
-                Constants.Vision.updateLimelightPoseFromTurret(getTurretAngle(),
-                                Constants.Physical.Shooter.SHOOTER_POSITION,
-                                Constants.Vision.LIMELIGHT_TO_TURRET_OFFSET,
-                                Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET,
+                Constants.Vision.updateLimelightPoseFromTurret(
+                                new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION, Rotation3d.kZero),
+                                getTurretAngle(),
+                                Constants.Vision.turretToLimelight,
                                 Constants.Vision.LIMELIGHT_NAME);
                 Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",

@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -378,12 +379,15 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-5.434), inchesToMeters(0.0), inchesToMeters(11.402599));
+                                inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
 
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
-                                Math.toRadians(-25.5),
                                 Math.toRadians(0.0),
+                                Math.toRadians(-24.7),
                                 Math.toRadians(0.0));
+
+                public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
+                                LIMELIGHT_ROTATION_RELATIVE_TO_TURRET);
                 // Standard deviation adjustments
                 public static final double STANDARD_DEVIATION_SCALAR = 1;
 
@@ -418,42 +422,29 @@ public final class Constants {
                         }
                 }
 
-                public static void updateLimelightPoseFromTurret(
-                                Rotation2d turretYaw,
-                                Translation3d turretOffsetFromRobot,
-                                Translation3d cameraOffsetFromTurret,
-                                Rotation3d cameraRotationRelativeToTurret,
+                public static void updateLimelightPoseFromTurret(Pose3d robotToTurret, Rotation2d turretAngle,
+                                Transform3d turretToCam,
                                 String limelightName) {
 
-                        Rotation3d turretRotation = new Rotation3d(0.0, 0.0, turretYaw.getRadians());
-                        Logger.recordOutput("Constants/turret rotation", turretRotation);
-                        Logger.recordOutput("Constants/turret off from robot", turretOffsetFromRobot);
-                        Logger.recordOutput("Constants/cam off from turret", cameraOffsetFromTurret);
-                        Translation3d cameraRelativeToRobot = turretOffsetFromRobot
-                                        .plus(cameraOffsetFromTurret.rotateBy(turretRotation));
+                        Pose3d robotToCam = robotToTurret.transformBy(new Transform3d(
+                                        Translation3d.kZero, new Rotation3d(turretAngle))).transformBy(turretToCam);
 
-                        Logger.recordOutput("Constants/cam rel to robot", cameraRelativeToRobot);
-                        Rotation3d cameraRotationRelativeToRobot = turretRotation.plus(cameraRotationRelativeToTurret);
-                        Logger.recordOutput("Constants/cam rot rel to robot", cameraRotationRelativeToRobot);
-                        Logger.recordOutput("Constants/cam rot roll",
-                                        Math.toDegrees(cameraRotationRelativeToRobot.getX()));
-                        Logger.recordOutput("Constants/cam rot pitch",
-                                        Math.toDegrees(cameraRotationRelativeToRobot.getY()));
-                        Logger.recordOutput("Constants/cam rot yaw",
-                                        Math.toDegrees(cameraRotationRelativeToRobot.getZ()));
-                        Pose3d limelightPose = new Pose3d(cameraRelativeToRobot, cameraRotationRelativeToRobot);
-                        Logger.recordOutput("Constants/limelight pose", limelightPose);
-                        Logger.recordOutput("Constants/limelight name", limelightName);
+                        Logger.recordOutput("robot to cam x", Units.metersToInches(robotToCam.getX()));
+                        Logger.recordOutput("robot to cam y", Units.metersToInches(robotToCam.getY()));
+                        Logger.recordOutput("robot to cam z", Units.metersToInches(robotToCam.getZ()));
+                        Logger.recordOutput("robot to cam rx", Math.toDegrees(robotToCam.getRotation().getX()));
+                        Logger.recordOutput("robot to cam ry", Math.toDegrees(robotToCam.getRotation().getY()));
+                        Logger.recordOutput("robot to cam rz", Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
                                                 limelightName,
-                                                limelightPose.getX(),
-                                                limelightPose.getY(),
-                                                limelightPose.getZ(),
-                                                Math.toDegrees(limelightPose.getRotation().getX()),
-                                                Math.toDegrees(limelightPose.getRotation().getY()),
-                                                Math.toDegrees(limelightPose.getRotation().getZ()));
+                                                robotToCam.getX(),
+                                                robotToCam.getY(),
+                                                robotToCam.getZ(),
+                                                Math.toDegrees(robotToCam.getRotation().getX()),
+                                                Math.toDegrees(robotToCam.getRotation().getY()),
+                                                Math.toDegrees(robotToCam.getRotation().getZ()));
                         } catch (Exception e) {
                                 System.out.println("Could not set limelight pose: " + e.getMessage());
                         }
