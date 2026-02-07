@@ -223,8 +223,8 @@ public class Superstructure extends SubsystemBase {
     ShotSolution solution = ShotCalculator.calculateShot(drive.getMt2Pose2d(), target.toTranslation2d(),
         drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
-        solution.turretAngleDegrees,
-        solution.hoodAngleDegrees,
+        solution.turretAngle,
+        solution.hoodAngle,
         solution.flywheelRPM);
 
     // Feeder
@@ -239,8 +239,8 @@ public class Superstructure extends SubsystemBase {
     ShotSolution solution = ShotCalculator.calculateShot(drive.getMt2Pose2d(), target.toTranslation2d(),
         drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
-        solution.turretAngleDegrees,
-        solution.hoodAngleDegrees,
+        solution.turretAngle,
+        solution.hoodAngle,
         solution.flywheelRPM);
     // Feeder
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
