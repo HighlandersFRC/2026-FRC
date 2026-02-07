@@ -161,7 +161,8 @@ public class Drive extends SubsystemBase {
     DEFAULT,
     IDLE,
     STOP,
-    DRIVE_TO_CLIMB
+    DRIVE_TO_CLIMB,
+    SNAKE,
   }
 
   private DriveState wantedState = DriveState.IDLE;
@@ -878,6 +879,42 @@ public class Drive extends SubsystemBase {
     driveAutoAligned(result);
   }
 
+  public void snakeDrive() {
+    double oiRX = OI.getDriverRightX();
+    double oiLX = OI.getDriverLeftX();
+    double oiRY = OI.getDriverRightY();
+    double oiLY = OI.getDriverLeftY();
+    if (OI.operatorLT.getAsBoolean() && OI.operatorRT.getAsBoolean()) {
+      oiRX = OI.getOperatorRightX();
+      oiLX = OI.getOperatorLeftX();
+      oiRY = OI.getOperatorRightY();
+      oiLY = OI.getOperatorLeftY();
+    }
+
+    if (OI.driverController.getRightTriggerAxis() > 0.2) {
+      // activate slowy spin
+      oiRX = oiRX * 0.8;
+      oiLX = oiLX * 0.8;
+      oiRY = oiRY * 0.8;
+      oiLY = oiLY * 0.8;
+    }
+    double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
+    double originalY = -(Math.copySign(oiLX * oiLX, oiLX));
+    double xPower = getAdjustedX(originalX, originalY);
+    double yPower = getAdjustedY(originalX, originalY);
+
+    double xSpeed = xPower * Constants.Physical.TOP_SPEED;
+    double ySpeed = yPower * Constants.Physical.TOP_SPEED;
+
+    Vector controllerVector = new Vector(xSpeed, ySpeed);
+    double theta = controllerVector.getRotation().getDegrees();
+    if (getFieldSide().equals("red")) {
+      driveToTheta(-theta + 180);
+    } else {
+      driveToTheta(-theta);
+    }
+  }
+
   /**
    * Runs autonomous driving by providing velocity vector and turning rate.
    * 
@@ -1028,14 +1065,17 @@ public class Drive extends SubsystemBase {
         finalTheta,
         targetIndex,
     };
-    double linearVelMag = Math.hypot(
-        targetPoint.getDouble("x_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
-        targetPoint.getDouble("y_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
-    double targetVelMag = Math.hypot(linearVelMag,
-        targetPoint.getDouble("angular_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
-    double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
-        : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
-            + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
+    // double linearVelMag = Math.hypot(
+    // targetPoint.getDouble("x_velocity") /
+    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
+    // targetPoint.getDouble("y_velocity") /
+    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
+    // double targetVelMag = Math.hypot(linearVelMag,
+    // targetPoint.getDouble("angular_velocity") /
+    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
+    // double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
+    // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
+    // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);
@@ -1075,6 +1115,8 @@ public class Drive extends SubsystemBase {
         return DriveState.STOP;
       case DRIVE_TO_CLIMB:
         return DriveState.DRIVE_TO_CLIMB;
+      case SNAKE:
+        return DriveState.DEFAULT; // disable this for now
       default:
         return DriveState.IDLE;
     }
@@ -1106,8 +1148,8 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
-    // Logger.recordOutput("Drive/Expected Speed",
-    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    Logger.recordOutput("Drive/Expected Speed",
+        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
     Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
@@ -1122,6 +1164,14 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case IDLE:
+        break;
+      case SNAKE:
+        // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
+        // Math.pow(OI.getDriverLeftY(), 2)) < 0.1) {
+        snakeDrive();
+        // } else {
+        // snakeDrive();
+        // }
         break;
       case STOP:
         Vector velocityVector = new Vector();

@@ -126,7 +126,7 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
-                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 16;
                         public static final double TURRET_PULLEY_0_TOOTH_COUNT = 130;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 39;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
@@ -152,13 +152,13 @@ public final class Constants {
         }
 
         public static final class Simulation {
-                public static final double SIM_TOP_SPEED = 6.741; // meters per second
+                public static final double SIM_TOP_SPEED = 9.72; // meters per second
                 public static final double SIM_STATIC_VELOCITY_THRESHOLD = 2.0; // meters per second
                 public static final double SIM_BRAKE_MODE_THRESHOLD = 0.05;
-                public static final double SIM_MAX_ACCELERATION = 15.0; // meters per second
+                public static final double SIM_MAX_ACCELERATION = 12.0; // meters per second
                 public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
-                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4167;
-                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 5.0 * SIM_FRICTION_COEFFICIENT;
+                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.2056;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 2.0 * SIM_FRICTION_COEFFICIENT;
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION
                                 / Constants.Physical.ROBOT_RADIUS;
 
@@ -166,6 +166,7 @@ public final class Constants {
                                 ChassisSpeeds wanted) {
                         Vector velocityVector = chassisSpeedsToVector(current);
                         Vector wantedVelocityVector = chassisSpeedsToVector(wanted);
+                        wantedVelocityVector.setJ(wantedVelocityVector.getJ() * -1); // Invert Y axis for simulation
                         double angularVelocity = current.omegaRadiansPerSecond;
                         double wantedAngularVelocity = wanted.omegaRadiansPerSecond;
                         int numSteps = (int) Math.floor(simTime / closedLoopSimResolution);
@@ -216,7 +217,17 @@ public final class Constants {
                 public static final double HUB_Z = 1.83;
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
+
+                public static Translation3d getHubPose() {
+                        if (Globals.fieldSide.equals("blue")) {
+                                return HUB_POSE_BLUE;
+                        } else {
+                                return HUB_POSE_RED;
+                        }
+                }
+
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
+                public static final double BALL_WIDTH = 0.15;
         }
 
         // Subsystem setpoint constants
@@ -265,6 +276,27 @@ public final class Constants {
                         }
                 }
 
+                public static class Shooter {
+                        // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
+                        public static final double[][] SHOT_MAP = new double[][] {
+                                        { 1.21, 85, 1200, 0.4 },
+                                        { 1.35, 85, 1300, 1.02 },
+                                        { 1.64, 85, 1350, 1.20 },
+                                        { 1.93, 82.5, 1350, 1.11 },
+                                        { 2.24, 82.5, 1400, 1.17 },
+                                        { 2.54, 80, 1400, 1.17 },
+                                        { 2.9, 77.5, 1400, 1.14 },
+                                        { 3.26, 75, 1450, 1.15 },
+                                        { 3.56, 75, 1500, 1.19 },
+                                        { 3.96, 72.5, 1500, 1.19 },
+                                        { 4.32, 70, 1550, 1.21 },
+                                        { 4.75, 70, 1738, 1.35 },
+                                        { 5.29, 67.41, 1800, 1.27 },
+                                        { 5.64, 65, 1800, 1.28 },
+                                        { 6.67, 65, 2100, 1.5 },
+                        };
+                }
+
                 public static final class Intake {
                         public static final double INTAKE_DOWN_POSITION = Constants.degreesToRotations(90.0);
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
@@ -290,7 +322,7 @@ public final class Constants {
         }
 
         public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle, double rpm) {
-                return Rotation2d.fromDegrees(-8.287)
+                return Rotation2d.fromDegrees(0)
                                 .plus(launchAngle);
                 // return Rotation2d.fromDegrees(launchAngle.getDegrees() +
                 // launchAngleOffset.get());
