@@ -192,11 +192,11 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void moveHoodToAngle(Rotation2d angle) {
                 Logger.recordOutput("Shooter/Hood target angle", angle.getDegrees());
-                if (angle.getDegrees() > 85.0) {
-                        angle = Rotation2d.fromDegrees(85.0);
+                if (angle.getRadians() > Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS) {
+                        angle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
                 }
-                if (angle.getDegrees() < 55.0) {
-                        angle = Rotation2d.fromDegrees(55.0);
+                if (angle.getRadians() < Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS) {
+                        angle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS);
                 }
                 double wantedAngle = Constants.SetPoints.Hood.hoodAngleToMotorAngle(angle).getRotations();
                 hoodMotor.setControl(this.hoodMotionProfileRequest
@@ -213,7 +213,7 @@ class ShooterIOComp implements ShooterIO {
                 turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
                                 turretAcceleration));
                 Logger.recordOutput("Shooter/goal motor turret degrees Er",
-                                turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
+                                Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
 
         }
 
@@ -228,14 +228,6 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public double getRelativeTurretAngleRadians() {
-                // return
-                // Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
-                Logger.recordOutput("Shooter/turret motor angle",
-                                Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
-
-                Logger.recordOutput("Shooter/enc1 relpos", encoderOne.getPosition().getValueAsDouble());
-                Logger.recordOutput("Shooter/enc2 relpos", encoderTwo.getPosition().getValueAsDouble());
-
                 double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
                 double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
 
@@ -278,11 +270,11 @@ class ShooterIOComp implements ShooterIO {
                 return Units.rotationsToRadians(-bestTheta);
         }
 
-        double wrap(double x) {
+        private double wrap(double x) {
                 return x - Math.floor(x);
         }
 
-        double wrapDiff(double a, double b) {
+        private double wrapDiff(double a, double b) {
                 double d = a - b;
                 if (d > 0.5)
                         d -= 1.0;

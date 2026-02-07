@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.ArrayList;
 
 import org.littletonrobotics.junction.Logger;
@@ -161,7 +163,6 @@ public class Superstructure extends SubsystemBase {
         distance = drive.getMt2Pose2d().getTranslation()
             .getDistance(Constants.Field.getHubPose().toTranslation2d());
         if (shooter.readyToShoot(distance)) {
-          wantedSuperState = SuperState.SHOOTING;
           currentSuperState = SuperState.SHOOTING;
         } else {
           currentSuperState = SuperState.SHOOT;
@@ -169,7 +170,6 @@ public class Superstructure extends SubsystemBase {
         break;
       case MANUAL_SHOOT:
         if (OI.driverA.getAsBoolean()) {
-          wantedSuperState = SuperState.MANUAL_SHOOTING;
           currentSuperState = SuperState.MANUAL_SHOOTING;
         } else {
           currentSuperState = SuperState.MANUAL_SHOOT;
@@ -182,14 +182,7 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.INTAKING;
         break;
       case SHOOTING:
-        distance = drive.getMt2Pose2d().getTranslation()
-            .getDistance(Constants.Field.getHubPose().toTranslation2d());
-        if (shooter.readyToShoot(distance)) {
-          wantedSuperState = SuperState.SHOOTING;
-          currentSuperState = SuperState.SHOOTING;
-        } else {
-          currentSuperState = SuperState.SHOOT;
-        }
+        currentSuperState = SuperState.SHOOT;
         break;
       case ZERO:
         currentSuperState = SuperState.ZERO;
@@ -282,7 +275,7 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
-        hub.minus(initial.toTranslation2d()).getAngle().minus(drive.getMt2Pose2d().getRotation()),
+        Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
     feeder.setWantedState(FeederState.HOP); // Run Hopper Only
@@ -299,7 +292,7 @@ public class Superstructure extends SubsystemBase {
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
-        hub.minus(initial.toTranslation2d()).getAngle().minus(drive.getMt2Pose2d().getRotation()),
+        Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
