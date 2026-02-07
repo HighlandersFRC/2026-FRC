@@ -82,6 +82,10 @@ public class Feeder extends SubsystemBase {
         metersPerSecond);
   }
 
+  public void setHopperTorque(double amps, double maxpercent) {
+    io.setHopperTorque(amps, maxpercent);
+  }
+
   public double getHopperSpeed() {
     return io.getHopperSpeed();
   }
@@ -97,21 +101,25 @@ public class Feeder extends SubsystemBase {
     systemState = handleStateTransition();
     switch (systemState) {
       case HOP:
-        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
+        // setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
+        setHopperTorque(40, 0.5);
         setLinearizerPercent(0.0);
         break;
       case FEED:
-        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        // setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
+        // setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setHopperTorque(40, 0.5);
         setLinearizerTorque(-67, 0.50);
         break;
       case SHOOT:
-        setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
-        setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        // setHopperPercent(Constants.SetPoints.Feeder.HOPPER_PERCENT);
+        // setLinearizerPercent(-Constants.SetPoints.Feeder.LINEARIZER_PERCENT);
+        setHopperTorque(40, 0.5);
         setLinearizerTorque(-67, 0.50);
         break;
       case DEFAULT:
-        setHopperPercent(0.1);
+        // setHopperPercent(0.1);
+        setHopperTorque(10, 0.2);
         setLinearizerPercent(0.0);
         break;
       default:
