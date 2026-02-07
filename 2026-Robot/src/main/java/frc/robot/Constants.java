@@ -218,6 +218,15 @@ public final class Constants {
                 public static final double HUB_Z = 1.83;
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
+
+                public static Translation3d getHubPose() {
+                        if (Globals.fieldSide.equals("blue")) {
+                                return HUB_POSE_BLUE;
+                        } else {
+                                return HUB_POSE_RED;
+                        }
+                }
+
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
                 public static final double BALL_WIDTH = 0.15;
         }

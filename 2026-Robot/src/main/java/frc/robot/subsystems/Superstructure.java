@@ -159,8 +159,7 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOT:
         distance = drive.getMt2Pose2d().getTranslation()
-            .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
-                : Constants.Field.HUB_POSE_RED.toTranslation2d());
+            .getDistance(Constants.Field.getHubPose().toTranslation2d());
         if (shooter.readyToShoot(distance)) {
           wantedSuperState = SuperState.SHOOTING;
           currentSuperState = SuperState.SHOOTING;
@@ -184,8 +183,7 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOTING:
         distance = drive.getMt2Pose2d().getTranslation()
-            .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
-                : Constants.Field.HUB_POSE_RED.toTranslation2d());
+            .getDistance(Constants.Field.getHubPose().toTranslation2d());
         if (shooter.readyToShoot(distance)) {
           wantedSuperState = SuperState.SHOOTING;
           currentSuperState = SuperState.SHOOTING;
@@ -221,12 +219,7 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootState() {
     // Shooter
-    Translation3d target;
-    if (Globals.fieldSide.equals("blue")) {
-      target = Constants.Field.HUB_POSE_BLUE;
-    } else {
-      target = Constants.Field.HUB_POSE_RED;
-    }
+    Translation3d target = Constants.Field.getHubPose();
     ShotSolution solution = ShotCalculator.calculateShot(drive.getMt2Pose2d(), target.toTranslation2d(),
         drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
@@ -242,12 +235,7 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootingState() {
     // Shooter
-    Translation3d target;
-    if (Globals.fieldSide.equals("blue")) {
-      target = Constants.Field.HUB_POSE_BLUE;
-    } else {
-      target = Constants.Field.HUB_POSE_RED;
-    }
+    Translation3d target = Constants.Field.getHubPose();
     ShotSolution solution = ShotCalculator.calculateShot(drive.getMt2Pose2d(), target.toTranslation2d(),
         drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
@@ -286,12 +274,7 @@ public class Superstructure extends SubsystemBase {
 
   public void handleManualShootState() {
 
-    Translation3d target;
-    if (Globals.fieldSide.equals("blue")) {
-      target = Constants.Field.HUB_POSE_BLUE;
-    } else {
-      target = Constants.Field.HUB_POSE_RED;
-    }
+    Translation3d target = Constants.Field.getHubPose();
     Translation2d hub = target.toTranslation2d();
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
@@ -308,12 +291,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void handleManualShootingState() {
-    Translation3d target;
-    if (Globals.fieldSide.equals("blue")) {
-      target = Constants.Field.HUB_POSE_BLUE;
-    } else {
-      target = Constants.Field.HUB_POSE_RED;
-    }
+    Translation3d target = Constants.Field.getHubPose();
     Translation2d hub = target.toTranslation2d();
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
@@ -411,8 +389,7 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Shooter/Manual Shoot Hood Angle", manualShootHoodAngle.get());
     Logger.recordOutput("Shooter/Manual Shoot Turret Angle", manualShootTurretAngle.get());
     double distance = drive.getMt2Pose2d().getTranslation()
-        .getDistance(Globals.fieldSide.equals("blue") ? Constants.Field.HUB_POSE_BLUE.toTranslation2d()
-            : Constants.Field.HUB_POSE_RED.toTranslation2d());
+        .getDistance(Constants.Field.getHubPose().toTranslation2d());
     Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot(distance));
     applyStates();
 
