@@ -891,7 +891,7 @@ public class Drive extends SubsystemBase {
       oiLY = OI.getOperatorLeftY();
     }
 
-    if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
+    if (OI.driverController.getRightTriggerAxis() > 0.2) {
       // activate slowy spin
       oiRX = oiRX * 0.8;
       oiLX = oiLX * 0.8;
