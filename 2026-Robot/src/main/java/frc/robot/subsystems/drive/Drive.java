@@ -1176,7 +1176,7 @@ public class Drive extends SubsystemBase {
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
         // Math.pow(OI.getDriverLeftY(), 2)) < 0.1) {
-        teleopDrive();
+        snakeDrive();
         // } else {
         // snakeDrive();
         // }
