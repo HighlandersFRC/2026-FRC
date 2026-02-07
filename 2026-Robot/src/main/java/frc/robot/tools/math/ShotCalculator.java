@@ -52,7 +52,8 @@ public class ShotCalculator {
         double timeOfFlight = timeOfFlightMap.get(distanceToTarget);
         double vx = -robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
         double vy = robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
-        Translation2d tangentialVelocity = new Translation2d(vx, vy).rotateBy(robotPosition.getRotation());
+        Translation2d tangentialVelocity = new Translation2d(vx, vy);
+        Logger.recordOutput("ShotCalculator/TangentialVelocity", tangentialVelocity);
         Translation2d turretVelocity = new Translation2d(
                 robotVelocity.vxMetersPerSecond + tangentialVelocity.getX(),
                 robotVelocity.vyMetersPerSecond + tangentialVelocity.getY());
