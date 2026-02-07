@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -227,7 +228,11 @@ public class Superstructure extends SubsystemBase {
     // Feeder
     feeder.setWantedState(FeederState.FEED);
     intake.setWantedState(IntakeState.INTAKING);
-    drive.setWantedState(DriveState.SNAKE);
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.SNAKE);
+    }
   }
 
   private void handleShootingState() {
@@ -255,7 +260,11 @@ public class Superstructure extends SubsystemBase {
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
     intake.setWantedState(IntakeState.INTAKING);
-    drive.setWantedState(DriveState.SNAKE);
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.SNAKE);
+    }
   }
 
   public void handleDefaultState() {

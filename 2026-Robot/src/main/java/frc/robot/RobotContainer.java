@@ -56,6 +56,7 @@ public class RobotContainer {
                 {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
+                        put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
                 }
         };
 

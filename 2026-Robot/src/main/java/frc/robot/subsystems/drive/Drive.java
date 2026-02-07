@@ -160,6 +160,7 @@ public class Drive extends SubsystemBase {
   public enum DriveState {
     DEFAULT,
     IDLE,
+    IDLE_SLOW,
     STOP,
     DRIVE_TO_CLIMB,
     SNAKE,
@@ -923,6 +924,12 @@ public class Drive extends SubsystemBase {
    *                          per second.
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
+    if (wantedState == DriveState.IDLE_SLOW) {
+      ChassisSpeeds currentSpeeds = io.getChassisSpeeds();
+      vector.setI((currentSpeeds.vxMetersPerSecond * 0.33 + vector.getI() * 0.67));
+      vector.setJ((currentSpeeds.vyMetersPerSecond * 0.33 + vector.getJ() * 0.67));
+      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond * 0.33 + turnRadiansPerSec * 0.67);
+    }
     io.drive(vector, turnRadiansPerSec);
   }
 
@@ -1111,6 +1118,8 @@ public class Drive extends SubsystemBase {
         return DriveState.DEFAULT;
       case IDLE:
         return DriveState.IDLE;
+      case IDLE_SLOW:
+        return DriveState.IDLE_SLOW;
       case STOP:
         return DriveState.STOP;
       case DRIVE_TO_CLIMB:
@@ -1164,6 +1173,8 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case IDLE:
+        break;
+      case IDLE_SLOW:
         break;
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
