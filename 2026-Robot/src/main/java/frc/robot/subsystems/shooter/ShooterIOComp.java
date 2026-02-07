@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -92,6 +94,8 @@ class ShooterIOComp implements ShooterIO {
         // Position Acceleration", 2.0);
 
         public ShooterIOComp() {
+                initializingTurret = true;
+                initLoops = 0;
                 // Hood Motor Configuration //TODO: Gotta tune all of the configs
                 // System.out.println("slope: " + SLOPE);
                 TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
@@ -297,8 +301,48 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollower.set(-percent);
         }
 
+        private boolean initializingTurret;
+        private int initLoops;
+        private ArrayList<Double> firstTurretAngles = new ArrayList<>();
+        private int numberSkips;
+
         @Override
         public void updateInputs() {
+
+                if (initializingTurret) {
+                        initLoops++;
+                        firstTurretAngles.add(getRelativeTurretAngleRadians());
+                        if (firstTurretAngles.size() > 1) {
+                                double tempError = firstTurretAngles.get(firstTurretAngles.size() - 2)
+                                                - firstTurretAngles.get(firstTurretAngles.size() - 1);
+                                if (tempError > Math.toRadians(10.0)) {
+                                        numberSkips++;
+                                }
+                        }
+                }
+
+                if (initializingTurret && initLoops > 10) {
+                        if (numberSkips < 4) {
+                                initializingTurret = false;
+                                initLoops = 0;
+                                firstTurretAngles.sort(null);
+                                double median = firstTurretAngles.get(firstTurretAngles.size() / 2);
+                                turretMotor.setPosition(Units.radiansToRotations(median));
+                                System.out.println(
+                                                "Motor Zeroed succesfully at " + Math.toDegrees(median) + " degrees");
+                                System.out.println("List: " + firstTurretAngles.toString());
+                        } else {
+                                initLoops = 0;
+                                numberSkips = 0;
+                                firstTurretAngles.clear();
+                        }
+                }
+
+                Logger.recordOutput("Testing/initializingTurret", initializingTurret);
+                Logger.recordOutput("Testing/initLoops", initLoops);
+                Logger.recordOutput("Testing/firstTurretAngles", firstTurretAngles.toString());
+                Logger.recordOutput("Testing/numberSkips", numberSkips);
+
                 Constants.Vision.updateLimelightPoseFromTurret(
                                 new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION, Rotation3d.kZero),
                                 getTurretAngle(),
