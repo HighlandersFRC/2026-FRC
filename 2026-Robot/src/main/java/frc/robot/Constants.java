@@ -127,7 +127,7 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
-                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 16;
                         public static final double TURRET_PULLEY_0_TOOTH_COUNT = 130;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 39;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;

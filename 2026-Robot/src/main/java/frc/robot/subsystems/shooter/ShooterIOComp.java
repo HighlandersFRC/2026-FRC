@@ -165,18 +165,18 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.09423828125; // TODO: Try calculating offset from
-                                                                             // previous zero
-                                                                             // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.496826171875; // TODO: Try calculating offset from
+                                                                              // previous zero
+                                                                              // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.6826171875;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.0859375;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
-                turretMotor.setPosition(0);
+                turretMotor.setPosition(Units.radiansToRotations(getRelativeTurretAngleRadians()));
         }
 
         @Override
@@ -237,24 +237,67 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public double getRelativeTurretAngleRadians() {
-                double r1 = encoderOne.getAbsolutePosition().getValueAsDouble();
-                double r2 = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                Logger.recordOutput("Shooter/encoderOneLatencyPosition", r1 * 4096);
-                Logger.recordOutput("Shooter/encoderTwoLatencyPosition", r1 * 4096);
-                Logger.recordOutput("Shooter/encoderOnePosition", r1 * 4096);
-                Logger.recordOutput("Shooter/encoderTwoPosition", r2 * 4096);
-                double difference = r1 - r2;
-                if (difference > 0.5) {
-                        difference -= 1.0;
+                // return
+                // Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
+                Logger.recordOutput("Shooter/turret motor angle",
+                                Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
+
+                Logger.recordOutput("Shooter/enc1 relpos", encoderOne.getPosition().getValueAsDouble());
+                Logger.recordOutput("Shooter/enc2 relpos", encoderTwo.getPosition().getValueAsDouble());
+
+                double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+
+                double k1 = Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT
+                                / Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT;
+
+                double k2 = (Constants.Physical.Shooter.TURRET_GEAR_1_TOOTH_COUNT
+                                / Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT) * k1;
+
+                double minTheta = Units.radiansToRotations(
+                                Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS);
+                double maxTheta = Units.radiansToRotations(
+                                Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS);
+
+                double bestTheta = 0.0;
+                double bestError = Double.POSITIVE_INFINITY;
+
+                // Compute reasonable bounds on n
+                int nMin = (int) Math.floor(k1 * minTheta + aMeas - 1);
+                int nMax = (int) Math.ceil(k1 * maxTheta + aMeas);
+
+                for (int n = nMin; n <= nMax; n++) {
+                        double theta = (aMeas + n) / k1;
+
+                        if (theta < minTheta || theta > maxTheta) {
+                                continue;
+                        }
+
+                        double bPred = wrap(k2 * theta);
+                        double err = wrapDiff(bMeas, bPred);
+
+                        double error = err * err;
+
+                        if (error < bestError) {
+                                bestError = error;
+                                bestTheta = theta;
+                        }
                 }
-                if (difference < -0.5) {
-                        difference += 1.0;
-                }
-                Logger.recordOutput("Shooter/encoder difference", difference);
-                double gear1Rotations = -difference / SLOPE;
-                double turretRelativeRotations = gear1Rotations * Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT
-                                / Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT;
-                return Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
+
+                return Units.rotationsToRadians(-bestTheta);
+        }
+
+        double wrap(double x) {
+                return x - Math.floor(x);
+        }
+
+        double wrapDiff(double a, double b) {
+                double d = a - b;
+                if (d > 0.5)
+                        d -= 1.0;
+                if (d < -0.5)
+                        d += 1.0;
+                return d;
         }
 
         @Override
