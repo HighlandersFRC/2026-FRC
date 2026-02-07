@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -213,7 +215,9 @@ public class Superstructure extends SubsystemBase {
   private void handleShootState() {
     // Shooter
     Translation3d target = Constants.Field.getHubPose();
-    ShotSolution solution = ShotCalculator.calculateShot(drive.getMt2Pose2d(), target.toTranslation2d(),
+    Pose2d turretPose = new Pose2d(getTurretFieldPosition().toTranslation2d(),
+        drive.getMt2Pose2d().getRotation());
+    ShotSolution solution = ShotCalculator.calculateShot(turretPose, target.toTranslation2d(),
         drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
         solution.turretAngle,
@@ -229,7 +233,9 @@ public class Superstructure extends SubsystemBase {
   private void handleShootingState() {
     // Shooter
     Translation3d target = Constants.Field.getHubPose();
-    ShotSolution solution = ShotCalculator.calculateShot(drive.getMt2Pose2d(), target.toTranslation2d(),
+    Pose2d turretPose = new Pose2d(getTurretFieldPosition().toTranslation2d(),
+        drive.getMt2Pose2d().getRotation());
+    ShotSolution solution = ShotCalculator.calculateShot(turretPose, target.toTranslation2d(),
         drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
         solution.turretAngle,
@@ -240,11 +246,7 @@ public class Superstructure extends SubsystemBase {
 
     // Log Fuel Trajectory
     if (RobotBase.isSimulation()) {
-      Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
-          .getMt2Pose2dY(), 0.0)
-          .plus(
-              Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
-
+      Translation3d initial = getTurretFieldPosition();
       double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
       double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
       Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
@@ -265,13 +267,16 @@ public class Superstructure extends SubsystemBase {
     climber.setWantedState(ClimberState.IDLE);
   }
 
-  public void handleManualShootState() {
-
-    Translation3d target = Constants.Field.getHubPose();
-    Translation2d hub = target.toTranslation2d();
-    Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
+  public Translation3d getTurretFieldPosition() {
+    return new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
+  }
+
+  public void handleManualShootState() {
+    Translation3d target = Constants.Field.getHubPose();
+    Translation2d hub = target.toTranslation2d();
+    Translation3d initial = getTurretFieldPosition();
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     shooter.setWantedState(ShooterState.MANUAL_SHOOT,
@@ -356,6 +361,8 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Logger.recordOutput("Superstructure/turret field pose", new Pose3d(getTurretFieldPosition(),
+        new Rotation3d(drive.getMt2Pose2d().getRotation().plus(shooter.getRobotRelativeTurretAngle()))));
     PARTY();
     currentSuperState = handleStateTransitions();
     if (RobotBase.isSimulation()) {
