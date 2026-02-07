@@ -1073,14 +1073,14 @@ public class Drive extends SubsystemBase {
         finalTheta,
         targetIndex,
     };
-    double linearVelMag = Math.hypot(
-        targetPoint.getDouble("x_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
-        targetPoint.getDouble("y_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
-    double targetVelMag = Math.hypot(linearVelMag,
-        targetPoint.getDouble("angular_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
-    double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
-        : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
-            + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
+    // double linearVelMag = Math.hypot(
+    //     targetPoint.getDouble("x_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
+    //     targetPoint.getDouble("y_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
+    // double targetVelMag = Math.hypot(linearVelMag,
+    //     targetPoint.getDouble("angular_velocity") / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
+    // double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
+    //     : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
+    //         + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);

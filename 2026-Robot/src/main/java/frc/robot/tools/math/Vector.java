@@ -2,8 +2,6 @@
 
 package frc.robot.tools.math;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
