@@ -890,11 +890,9 @@ public class Drive extends SubsystemBase {
       oiRY = OI.getOperatorRightY();
       oiLY = OI.getOperatorLeftY();
     }
-    double turnLimit = 0.17;
 
     if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
       // activate slowy spin
-      turnLimit = 0.1;
       oiRX = oiRX * 0.8;
       oiLX = oiLX * 0.8;
       oiRY = oiRY * 0.8;
@@ -902,12 +900,6 @@ public class Drive extends SubsystemBase {
     }
     double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
     double originalY = -(Math.copySign(oiLX * oiLX, oiLX));
-    double turn = turnLimit
-        * (oiRX * (Constants.Physical.TOP_SPEED) / (Constants.Physical.ROBOT_RADIUS));
-
-    if (Math.abs(turn) < 0.05) {
-      turn = 0.0;
-    }
     double xPower = getAdjustedX(originalX, originalY);
     double yPower = getAdjustedY(originalX, originalY);
 
