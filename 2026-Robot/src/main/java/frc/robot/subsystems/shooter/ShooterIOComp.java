@@ -181,7 +181,7 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public Rotation2d getTurretAngle() {
-                return new Rotation2d(getRelativeTurretAngleRadians());
+                return Rotation2d.fromRotations(turretMotor.getPosition().getValueAsDouble());
         }
 
         @Override
