@@ -33,11 +33,6 @@ class ShooterIOComp implements ShooterIO {
                         Constants.CANInfo.CANBUS_NAME);
         private final CANcoder encoderTwo = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID,
                         Constants.CANInfo.CANBUS_NAME);
-        private final CANcoder hoodEncoder = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID);
-        private final double SLOPE = ((double) (Constants.Physical.Shooter.TURRET_GEAR_1_TOOTH_COUNT
-                        - Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT))
-                        / (double) Constants.Physical.Shooter.TURRET_GEAR_2_TOOTH_COUNT;
-
         // private TunableNumber turretP = new TunableNumber("Turret Position kP",
         // Constants.PIDConstants.Turret.kP0);
         // private TunableNumber turretI = new TunableNumber("Turret Position kI",
