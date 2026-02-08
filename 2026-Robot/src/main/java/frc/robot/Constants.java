@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -96,7 +97,15 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
-                public static Pose2d climbPose = new Pose2d();
+                public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
+                                15.036, 3.720), new Rotation2d(Math.PI));
+                public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
+                                14.736, 3.720), new Rotation2d(Math.PI));
+
+                public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(15.036,
+                                3.720 + 1.0033), new Rotation2d(Math.PI));
+                public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(14.736,
+                                3.720 + 1.0033), new Rotation2d(Math.PI));
 
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
@@ -567,6 +576,10 @@ public final class Constants {
                         public static final double HOPPER_GEAR_RATIO = 3.0 / 1.0;
                         public static final double LINEARIZER_GEAR_RATIO = 3.0 / 1.0;
                 }
+
+                public static final class Climber {
+                        public static final double CLIMBER_MAX_ROTATIONS = 37.249;
+                }
         }
 
         public static final ArrayList<String> paths = new ArrayList<String>();
@@ -658,6 +671,12 @@ public final class Constants {
 
         public static Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
                 return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+        }
+
+        public static Pose2d flipFieldSide(Pose2d pose) {
+                return new Pose2d(Constants.Physical.FIELD_LENGTH - pose.getX(),
+                                Constants.Physical.FIELD_WIDTH - pose.getY(),
+                                new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
         }
 
         /**

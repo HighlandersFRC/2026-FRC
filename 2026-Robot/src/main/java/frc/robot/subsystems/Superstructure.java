@@ -68,7 +68,9 @@ public class Superstructure extends SubsystemBase {
     MANUAL_EXTEND_CLIMBER,
     AUTON_PREP_SHOT,
     AUTON_SHOOT,
-    AUTO_CLIMB
+    AUTO_PREP_CLIMB,
+    AUTO_ALIGN_CLIMB,
+    AUTO_CLIMB,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -135,6 +137,12 @@ public class Superstructure extends SubsystemBase {
       case AUTON_SHOOT:
         handleAutonShot();
         break;
+      case AUTO_PREP_CLIMB:
+        handleAutoPrepClimb();
+        break;
+      case AUTO_ALIGN_CLIMB:
+        handleAutoAlignClimb();
+        break;
       case AUTO_CLIMB:
         handleAutoClimb();
         break;
@@ -198,6 +206,23 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTON_PREP_SHOT:
         currentSuperState = SuperState.AUTON_PREP_SHOT;
+        break;
+      case AUTO_PREP_CLIMB:
+        if (drive.hitSetPoint(drive.getClimbPrepSetpoint())
+            && climber.getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 10.0) {
+          wantedSuperState = SuperState.AUTO_ALIGN_CLIMB;
+          currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
+        } else {
+          currentSuperState = SuperState.AUTO_PREP_CLIMB;
+        }
+        break;
+      case AUTO_ALIGN_CLIMB:
+        if (drive.hitSetPoint(drive.getClimbAlignSetpoint())) {
+          wantedSuperState = SuperState.AUTO_CLIMB;
+          currentSuperState = SuperState.AUTO_CLIMB;
+        } else {
+          currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
+        }
         break;
       case AUTO_CLIMB:
         currentSuperState = SuperState.AUTO_CLIMB;
@@ -337,12 +362,19 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.SHOOT);
   }
 
-  private void handleAutoClimb() {
-    drive.setWantedState(DriveState.DRIVE_TO_CLIMB);
+  private void handleAutoPrepClimb() {
+    drive.setWantedState(DriveState.DRIVE_TO_PRE_CLIMB);
     climber.setWantedState(ClimberState.EXTEND);
-    if (drive.hitSetPoint(Constants.Physical.climbPose)) {
-      climber.setWantedState(ClimberState.CLIMBING);
-    }
+  }
+
+  private void handleAutoAlignClimb() {
+    drive.setWantedState(DriveState.DRIVE_TO_ALIGN_CLIMB);
+    climber.setWantedState(ClimberState.EXTEND);
+  }
+
+  private void handleAutoClimb() {
+    drive.setWantedState(DriveState.IDLE);
+    climber.setWantedState(ClimberState.CLIMBING);
   }
 
   public void PARTY() {

@@ -123,6 +123,7 @@ public class RobotContainer {
                 OI.driverX.whileTrue(new SetRobotStateOnce(superstructure, SuperState.MANUAL_SHOOT));
                 OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
                 OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));
+                OI.driverY.whileTrue(new SetRobotStateOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
                 // Operator
 
         }

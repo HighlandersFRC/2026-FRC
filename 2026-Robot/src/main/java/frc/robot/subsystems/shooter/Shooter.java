@@ -226,6 +226,7 @@ public class Shooter extends SubsystemBase {
             + Math.pow(_trajectorySetpoint.getY(), 2)
             + Math.pow(_trajectorySetpoint.getZ(), 2)));
     Logger.recordOutput("Shooter/Shooter State", systemState);
+    Logger.recordOutput("States/Shooter State", systemState);
 
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {

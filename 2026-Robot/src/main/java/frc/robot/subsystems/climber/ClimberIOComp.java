@@ -5,6 +5,7 @@ import java.io.ObjectInputFilter.Config;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -18,12 +19,15 @@ class ClimberIOComp implements ClimberIO {
     public ClimberIOComp() {
         TalonFXConfiguration climberConfig = new TalonFXConfiguration();
         climberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-
-        climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        climberConfig.Feedback.SensorToMechanismRatio = 1.0;
+        climberConfig.Feedback.RotorToSensorRatio = 1.0;
         climberConfig.CurrentLimits.StatorCurrentLimit = 80;
-
+        climberConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         climberMotor.getConfigurator().apply(climberConfig);
-        climberMotor.setNeutralMode(NeutralModeValue.Brake);
+        climberMotor.setNeutralMode(NeutralModeValue.Coast);
+        climberMotor.setPosition(0.0);
     }
 
     @Override
@@ -33,7 +37,7 @@ class ClimberIOComp implements ClimberIO {
 
     @Override
     public void stop() {
-        climberMotor.stopMotor();
+        climberMotor.set(0.0);
     }
 
     @Override
