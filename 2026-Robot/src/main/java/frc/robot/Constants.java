@@ -84,6 +84,8 @@ public final class Constants {
                 public static final double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
                 public static final double WHEEL_ROTATION_PER_METER = 1.0 / WHEEL_CIRCUMFERENCE;
                 public static final double TOP_SPEED = feetToMeters(30.0);
+                public static final double DRIVE_ACCELERATION_WHEN_SHOOTING = 0.67; // percentage of the wanted
+                                                                                    // acceleration when shooting [0, 1]
                 public static final double MAX_ACCELERATION = feetToMeters(30.0); // TODO: actually tune the top speed
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
