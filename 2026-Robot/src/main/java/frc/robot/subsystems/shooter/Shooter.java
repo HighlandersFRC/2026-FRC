@@ -81,7 +81,7 @@ public class Shooter extends SubsystemBase {
 
   private void trackTurret() {
     moveHoodToAngle(new Rotation2d(Math.toRadians(85)));
-    setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
+    setTurretAngle(normalTurretAngle);
     io.setFlywheelPercent(0.0);
   }
 
