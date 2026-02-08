@@ -79,6 +79,12 @@ public class Shooter extends SubsystemBase {
     setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
   }
 
+  private void trackTurret() {
+    moveHoodToAngle(new Rotation2d(Math.toRadians(85)));
+    setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
+    io.setFlywheelPercent(0.0);
+  }
+
   private void manualShoot() {
     // System.out.println("Manual Shooting: Hood Angle: " +
     // manualHoodAngle.getDegrees() + " Turret Angle: "
@@ -200,7 +206,7 @@ public class Shooter extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        io.setFlywheelPercent(0.0);
+        trackTurret();
         break;
       case IDLE:
         break;
