@@ -355,6 +355,11 @@ public class Superstructure extends SubsystemBase {
         new Rotation3d(drive.getMt2Pose2d().getRotation().plus(shooter.getRobotRelativeTurretAngle()))));
     PARTY();
 
+    shooter.passIdleTurrectAngleCalcs(drive.getMt2Pose2d(), getTurretFieldPosition());// TODO: make this only pass in
+                                                                                      // states
+    // where we
+    // want to, to reduce loop times
+
     shooter.passShootingTarget(Constants.Field.getHubPose(), new Pose2d(getTurretFieldPosition().toTranslation2d(),
         drive.getMt2Pose2d().getRotation()), drive.getChassisSpeeds()); // TODO: make this only pass in states where we
                                                                         // want to, to reduce loop times

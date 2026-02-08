@@ -34,10 +34,13 @@ public class Shooter extends SubsystemBase {
   private Rotation2d normalTurretAngle = new Rotation2d(0.0),
       normalHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
   private double normalFlywheelRPM = 0.0;
+  private Rotation2d idleTurretAngle = new Rotation2d(0.0);
 
   Translation3d target = Constants.Field.getHubPose();
   Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+  Pose2d robotPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
+  Translation3d turretFieldPosition = new Translation3d(0.0, 0.0, 0.0);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -63,10 +66,22 @@ public class Shooter extends SubsystemBase {
     this.normalFlywheelRPM = solution.flywheelRPM;
   }
 
+  private void calcIdleTurretAngle(Pose2d robotPose, Translation3d turretFieldPosition) {
+    Translation2d hub = Constants.Field.getHubPose().toTranslation2d();
+    Rotation2d turretToHubRotation = hub.minus(turretFieldPosition.toTranslation2d()).getAngle();
+    Logger.recordOutput("Shooter/Robot Pose 2D", robotPose);
+    this.idleTurretAngle = turretToHubRotation.minus(robotPose.getRotation());
+  }
+
   public void passShootingTarget(Translation3d target, Pose2d turretPose, ChassisSpeeds chassisSpeeds) {
     this.target = target;
     this.turretPose = turretPose;
     this.chassisSpeeds = chassisSpeeds;
+  }
+
+  public void passIdleTurrectAngleCalcs(Pose2d robotPose, Translation3d turretFieldPosition) {
+    this.robotPose = robotPose;
+    this.turretFieldPosition = turretFieldPosition;
   }
 
   private ShooterState handleStateTransition() {
@@ -92,7 +107,8 @@ public class Shooter extends SubsystemBase {
 
   private void trackTurret() {
     moveHoodToAngle(new Rotation2d(Math.toRadians(85)));
-    setTurretAngle(normalTurretAngle);
+    Logger.recordOutput("Shooter/Idle Turret Angle Goal:", idleTurretAngle.getDegrees());
+    setTurretAngle(idleTurretAngle);
     io.setFlywheelPercent(0.0);
   }
 
@@ -217,7 +233,7 @@ public class Shooter extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        calcShot(target, turretPose, chassisSpeeds);
+        calcIdleTurretAngle(robotPose, turretFieldPosition);
         trackTurret();
         break;
       case IDLE:
