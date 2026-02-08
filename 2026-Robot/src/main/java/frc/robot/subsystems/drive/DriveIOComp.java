@@ -229,20 +229,15 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Odometry.update(getYaw(), swerveModulePositions);
 
-                standardDeviation.set(0, 0, 1.5);
-                standardDeviation.set(1, 0, 1.5);
-                standardDeviation.set(2, 0, 2.5);
-
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         var rightFrontResult = peripherals.getRightFrontCamResult();
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
                                 if (true) {
-
                                         Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightFrontResult.getTimestampSeconds(), standardDeviation);
+                                                        rightFrontResult.getTimestampSeconds());
                                 }
                         }
                         var leftFrontResult = peripherals.getLeftFrontCamResult();
@@ -252,32 +247,32 @@ public class DriveIOComp extends DriveIO {
                                 if (true) {
                                         Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        leftFrontResult.getTimestampSeconds(), standardDeviation);
+                                                        leftFrontResult.getTimestampSeconds());
                                 }
                         }
 
-                        try {
-                                LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
-                                                gyro.getYawDegrees(), 0, 0, 0, 0, 0);
-                                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                                .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
+                        // try {
+                        // LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
+                        // gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                        // LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                        // .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
 
-                                boolean doRejectUpdate = false;
-                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
-                                // doRejectUpdate = true;
-                                // }
-                                if (mt2.tagCount == 0) {
-                                        doRejectUpdate = true;
-                                }
-                                if (!doRejectUpdate) {
-                                        // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-                                        // mt2Odometry.addVisionMeasurement(
-                                        // mt2.pose,
-                                        // mt2.timestampSeconds, standardDeviation);
-                                }
-                        } catch (Exception e) {
-                                System.out.println(e);
-                        }
+                        // boolean doRejectUpdate = false;
+                        // // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                        // // doRejectUpdate = true;
+                        // // }
+                        // if (mt2.tagCount == 0) {
+                        // doRejectUpdate = true;
+                        // }
+                        // if (!doRejectUpdate) {
+                        // // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                        // // mt2Odometry.addVisionMeasurement(
+                        // // mt2.pose,
+                        // // mt2.timestampSeconds, standardDeviation);
+                        // }
+                        // } catch (Exception e) {
+                        // System.out.println(e);
+                        // }
 
                 }
 

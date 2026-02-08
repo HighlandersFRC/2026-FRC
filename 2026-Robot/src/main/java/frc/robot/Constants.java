@@ -278,6 +278,10 @@ public final class Constants {
                 }
 
                 public static class Shooter {
+                        private final static double DISTANCE_OFFSET = 0.0;
+                        private final static double ANGLE_OFFSET = 0.0;
+                        private final static double RPM_OFFSET = 0.0;
+                        private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
                                         { 1.21, 85, 1200, 0.4 },
@@ -296,6 +300,15 @@ public final class Constants {
                                         { 5.64, 65, 1800, 1.28 },
                                         { 6.67, 65, 2100, 1.5 },
                         };
+
+                        static {
+                                for (int i = 0; i < SHOT_MAP.length; i++) {
+                                        SHOT_MAP[i][0] += DISTANCE_OFFSET;
+                                        SHOT_MAP[i][1] += ANGLE_OFFSET;
+                                        SHOT_MAP[i][2] += RPM_OFFSET;
+                                        SHOT_MAP[i][3] += TOF_OFFSET;
+                                }
+                        }
                 }
 
                 public static final class Intake {
@@ -432,9 +445,12 @@ public final class Constants {
                         Logger.recordOutput("Constants/Vision/RobotToCam/X", Units.metersToInches(robotToCam.getX()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/Y", Units.metersToInches(robotToCam.getY()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/Z", Units.metersToInches(robotToCam.getZ()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RX", Math.toDegrees(robotToCam.getRotation().getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RY", Math.toDegrees(robotToCam.getRotation().getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ", Math.toDegrees(robotToCam.getRotation().getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RX",
+                                        Math.toDegrees(robotToCam.getRotation().getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RY",
+                                        Math.toDegrees(robotToCam.getRotation().getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
+                                        Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
