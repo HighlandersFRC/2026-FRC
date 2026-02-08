@@ -373,7 +373,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void handleAutoClimb() {
-    drive.setWantedState(DriveState.IDLE);
+    drive.setWantedState(DriveState.STOP);
     climber.setWantedState(ClimberState.CLIMBING);
   }
 

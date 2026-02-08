@@ -1,7 +1,5 @@
 package frc.robot.subsystems.climber;
 
-import java.io.ObjectInputFilter.Config;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -10,7 +8,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
-import frc.robot.subsystems.climber.ClimberIO;
 
 class ClimberIOComp implements ClimberIO {
     private TalonFX climberMotor = new TalonFX(Constants.CANInfo.CLIMBER_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
@@ -26,7 +23,7 @@ class ClimberIOComp implements ClimberIO {
         climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         climberMotor.getConfigurator().apply(climberConfig);
-        climberMotor.setNeutralMode(NeutralModeValue.Coast);
+        climberMotor.setNeutralMode(NeutralModeValue.Brake);
         climberMotor.setPosition(0.0);
     }
 

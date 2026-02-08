@@ -288,8 +288,8 @@ public class DriveIOComp extends DriveIO {
                                                 doRejectUpdate = true;
                                         }
                                         if (!doRejectUpdate) {
-                                                standardDeviation.set(0, 0, 1.5);
-                                                standardDeviation.set(1, 0, 1.5);
+                                                standardDeviation.set(0, 0, 2.0);
+                                                standardDeviation.set(1, 0, 2.0);
                                                 standardDeviation.set(2, 0, 5.0);
                                                 mt2Odometry.addVisionMeasurement(
                                                                 mt2.pose,

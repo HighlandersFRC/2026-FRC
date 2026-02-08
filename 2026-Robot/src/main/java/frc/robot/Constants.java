@@ -100,14 +100,14 @@ public final class Constants {
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
                 public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                15.000, 4.994), new Rotation2d(Math.PI));
+                                15.075, 4.944), new Rotation2d(Math.PI));
                 public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                14.600, 4.994), new Rotation2d(Math.PI));
+                                14.600, 4.944), new Rotation2d(Math.PI));
 
                 public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
-                                14.950, 4.974), new Rotation2d(Math.PI));
+                                15.075, 4.924), new Rotation2d(Math.PI));
                 public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
-                                14.600, 4.974), new Rotation2d(Math.PI));
+                                14.600, 4.924), new Rotation2d(Math.PI));
 
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
