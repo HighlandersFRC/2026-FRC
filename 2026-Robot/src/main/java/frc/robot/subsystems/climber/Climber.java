@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.climber;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Translation3d;
@@ -24,6 +26,10 @@ public class Climber extends SubsystemBase {
 
   private ClimberState wantedState = ClimberState.IDLE;
   private ClimberState systemState = ClimberState.IDLE;
+
+  public double getClimberPosition() {
+    return io.getPosition();
+  }
 
   public Climber() {
     this.io = new ClimberIOComp();
@@ -47,18 +53,33 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     systemState = handleStateTransition();
-
+    Logger.recordOutput("Climber/Climber State", systemState);
+    Logger.recordOutput("States/Climber State", systemState);
+    Logger.recordOutput("Climber/Climber Position", getClimberPosition());
     switch (systemState) {
       case CLIMBING:
-        io.setPower(70, 0.5);
+        if (getClimberPosition() < 3.0) {
+          io.stop();
+          Logger.recordOutput("Climber/Output", "Stopped Climbing");
+        } else {
+          io.setPower(-70, 0.5);
+          Logger.recordOutput("Climber/Output", "Climbing");
+        }
         break;
       case EXTEND:
-        io.setPower(-70, 0.3);
+        if (getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 3.0) {
+          io.stop();
+          Logger.recordOutput("Climber/Output", "Stopped Extending");
+        } else {
+          io.setPower(70, 0.3);
+          Logger.recordOutput("Climber/Output", "Extending");
+        }
         break;
       case IDLE:
         io.stop();
         break;
       default:
+        io.stop();
         break;
     }
   }

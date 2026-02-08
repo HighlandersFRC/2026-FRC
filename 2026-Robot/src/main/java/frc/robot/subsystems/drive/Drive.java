@@ -163,7 +163,8 @@ public class Drive extends SubsystemBase {
     IDLE,
     IDLE_SLOW,
     STOP,
-    DRIVE_TO_CLIMB,
+    DRIVE_TO_PRE_CLIMB,
+    DRIVE_TO_ALIGN_CLIMB,
     SNAKE,
   }
 
@@ -1133,8 +1134,10 @@ public class Drive extends SubsystemBase {
         return DriveState.IDLE_SLOW;
       case STOP:
         return DriveState.STOP;
-      case DRIVE_TO_CLIMB:
-        return DriveState.DRIVE_TO_CLIMB;
+      case DRIVE_TO_ALIGN_CLIMB:
+        return DriveState.DRIVE_TO_ALIGN_CLIMB;
+      case DRIVE_TO_PRE_CLIMB:
+        return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
         return DriveState.DEFAULT; // disable this for now
       default:
@@ -1147,6 +1150,38 @@ public class Drive extends SubsystemBase {
   }
 
   Field2d field = new Field2d();
+
+  public Pose2d getClimbPrepSetpoint() {
+    if (getMt2Pose2dX() > Constants.Physical.FIELD_LENGTH / 2.0) {
+      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+        return Constants.Physical.preClimbPoseRightRedSide;
+      } else {
+        return Constants.Physical.preClimbPoseLeftRedSide;
+      }
+    } else {
+      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+        return Constants.flipFieldSide(Constants.Physical.preClimbPoseRightRedSide);
+      } else {
+        return Constants.flipFieldSide(Constants.Physical.preClimbPoseLeftRedSide);
+      }
+    }
+  }
+
+  public Pose2d getClimbAlignSetpoint() {
+    if (getMt2Pose2dX() > Constants.Physical.FIELD_LENGTH / 2.0) {
+      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+        return Constants.Physical.climbPoseRightRedSide;
+      } else {
+        return Constants.Physical.climbPoseLeftRedSide;
+      }
+    } else {
+      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+        return Constants.flipFieldSide(Constants.Physical.climbPoseRightRedSide);
+      } else {
+        return Constants.flipFieldSide(Constants.Physical.climbPoseLeftRedSide);
+      }
+    }
+  }
 
   @Override
   public void periodic() {
@@ -1171,6 +1206,8 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("Drive/Expected Speed",
         Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
     Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    Logger.recordOutput("Climber/Climb Prep Setpoint", getClimbPrepSetpoint());
+    Logger.recordOutput("Climber/Climb Align Setpoint", getClimbAlignSetpoint());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
@@ -1191,6 +1228,7 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case IDLE:
+
         break;
       case IDLE_SLOW:
         break;
@@ -1209,8 +1247,11 @@ public class Drive extends SubsystemBase {
         double desiredThetaChange = 0.0;
         autoDrive(velocityVector, desiredThetaChange);
         break;
-      case DRIVE_TO_CLIMB:
-        driveToPoint(Constants.Physical.climbPose);
+      case DRIVE_TO_PRE_CLIMB:
+        driveToPoint(getClimbPrepSetpoint());
+        break;
+      case DRIVE_TO_ALIGN_CLIMB:
+        driveToPoint(getClimbAlignSetpoint());
         break;
       default:
         break;
