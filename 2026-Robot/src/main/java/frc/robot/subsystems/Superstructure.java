@@ -220,7 +220,7 @@ public class Superstructure extends SubsystemBase {
         drive.getMt2Pose2d().getRotation());
     ShotSolution solution = ShotCalculator.calculateShot(turretPose, target.toTranslation2d(),
         drive.getChassisSpeeds());
-    shooter.setWantedState(ShooterState.MANUAL_SHOOT,
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         solution.turretAngle,
         solution.hoodAngle,
         solution.flywheelRPM);
@@ -242,7 +242,7 @@ public class Superstructure extends SubsystemBase {
         drive.getMt2Pose2d().getRotation());
     ShotSolution solution = ShotCalculator.calculateShot(turretPose, target.toTranslation2d(),
         drive.getChassisSpeeds());
-    shooter.setWantedState(ShooterState.MANUAL_SHOOT,
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         solution.turretAngle,
         solution.hoodAngle,
         solution.flywheelRPM);
@@ -288,7 +288,7 @@ public class Superstructure extends SubsystemBase {
     Translation3d initial = getTurretFieldPosition();
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
-    shooter.setWantedState(ShooterState.MANUAL_SHOOT,
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
@@ -305,7 +305,7 @@ public class Superstructure extends SubsystemBase {
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
-    shooter.setWantedState(ShooterState.MANUAL_SHOOT,
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         Rotation2d.fromDegrees(manualShootTurretAngle.get()),
         Rotation2d.fromDegrees(manualShootHoodAngle.get()),
         manualShootRPM.get());
@@ -346,13 +346,13 @@ public class Superstructure extends SubsystemBase {
 
   private void handleAutonPrepShot() {
     drive.setWantedState(DriveState.IDLE);
-    shooter.setWantedState(ShooterState.SHOOT);
+    shooter.setWantedState(ShooterState.PHYSICS_SHOOT);
     feeder.setWantedState(FeederState.FEED);
   }
 
   private void handleAutonShot() {
     drive.setWantedState(DriveState.IDLE);
-    shooter.setWantedState(ShooterState.SHOOT);
+    shooter.setWantedState(ShooterState.PHYSICS_SHOOT);
     feeder.setWantedState(FeederState.SHOOT);
   }
 

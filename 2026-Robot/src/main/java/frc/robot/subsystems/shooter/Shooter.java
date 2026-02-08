@@ -19,16 +19,16 @@ public class Shooter extends SubsystemBase {
   public enum ShooterState {
     DEFAULT,
     IDLE,
-    SHOOT,
-    MANUAL_SHOOT,
+    PHYSICS_SHOOT,
+    NORMAL_SHOOT,
   }
 
   private ShooterState wantedState = ShooterState.IDLE;
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
-  private Rotation2d manualTurretAngle = new Rotation2d(0),
-      manualHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
-  private double manualFlywheelRPM = 1000.0;
+  private Rotation2d normalTurretAngle = new Rotation2d(0),
+      normalHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
+  private double normalFlywheelRPM = 1000.0;
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -53,9 +53,9 @@ public class Shooter extends SubsystemBase {
     // hoodAngle.getDegrees() + " Turret Angle: "
     // + turretAngle.getDegrees() + " Flywheel RPM: " + flywheelRPM);
     this.wantedState = wantedState;
-    this.manualTurretAngle = turretAngle;
-    this.manualHoodAngle = hoodAngle;
-    this.manualFlywheelRPM = flywheelRPM;
+    this.normalTurretAngle = turretAngle;
+    this.normalHoodAngle = hoodAngle;
+    this.normalFlywheelRPM = flywheelRPM;
   }
 
   private ShooterState handleStateTransition() {
@@ -64,16 +64,16 @@ public class Shooter extends SubsystemBase {
         return ShooterState.DEFAULT;
       case IDLE:
         return ShooterState.IDLE;
-      case SHOOT:
-        return ShooterState.SHOOT;
-      case MANUAL_SHOOT:
-        return ShooterState.MANUAL_SHOOT;
+      case PHYSICS_SHOOT:
+        return ShooterState.PHYSICS_SHOOT;
+      case NORMAL_SHOOT:
+        return ShooterState.NORMAL_SHOOT;
       default:
         return ShooterState.IDLE;
     }
   }
 
-  private void shoot() {
+  private void physicsShoot() {
     moveHoodToAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
     setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
     setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
@@ -85,30 +85,30 @@ public class Shooter extends SubsystemBase {
     io.setFlywheelPercent(0.0);
   }
 
-  private void manualShoot() {
+  private void normalShoot() {
     // System.out.println("Manual Shooting: Hood Angle: " +
     // manualHoodAngle.getDegrees() + " Turret Angle: "
     // + manualTurretAngle.getDegrees() + " Flywheel RPM: " + manualFlywheelRPM);
-    moveHoodToAngle(manualHoodAngle);
-    setTurretAngle(manualTurretAngle);
-    setFlywheelRPM(manualFlywheelRPM);
+    moveHoodToAngle(normalHoodAngle);
+    setTurretAngle(normalTurretAngle);
+    setFlywheelRPM(normalFlywheelRPM);
   }
 
   public boolean readyToShoot(double horizontalDistanceToTargetMeters) {
     double hoodAngleError = Math
         .abs(getHoodAngle()
-            .minus(manualHoodAngle)
+            .minus(normalHoodAngle)
             .getRadians());
     double turretAngleError = Math.abs(
         getRobotRelativeTurretAngle()
-            .minus(manualTurretAngle)
+            .minus(normalTurretAngle)
             .getRadians());
     double turretPrecisionRequired = Math
         .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
     Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
-            - manualFlywheelRPM);
+            - normalFlywheelRPM);
     return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
@@ -210,11 +210,11 @@ public class Shooter extends SubsystemBase {
         break;
       case IDLE:
         break;
-      case SHOOT:
-        shoot();
+      case PHYSICS_SHOOT:
+        physicsShoot();
         break;
-      case MANUAL_SHOOT:
-        manualShoot();
+      case NORMAL_SHOOT:
+        normalShoot();
         break;
       default:
         break;
