@@ -159,6 +159,7 @@ public class Drive extends SubsystemBase {
 
   public enum DriveState {
     DEFAULT,
+    DEFAULT_SLOW,
     IDLE,
     IDLE_SLOW,
     STOP,
@@ -493,14 +494,14 @@ public class Drive extends SubsystemBase {
     }
     double turnLimit = 0.17;
 
-    if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
-      // activate slowy spin
-      turnLimit = 0.1;
-      oiRX = oiRX * 0.8;
-      oiLX = oiLX * 0.8;
-      oiRY = oiRY * 0.8;
-      oiLY = oiLY * 0.8;
-    }
+    // if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
+    // // activate slowy spin
+    // turnLimit = 0.1;
+    // oiRX = oiRX * 0.8;
+    // oiLX = oiLX * 0.8;
+    // oiRY = oiRY * 0.8;
+    // oiLY = oiLY * 0.8;
+    // }
     double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
     double originalY = -(Math.copySign(oiLX * oiLX, oiLX));
     double turn = turnLimit
@@ -519,6 +520,10 @@ public class Drive extends SubsystemBase {
     if (getFieldSide().equals("red")) {
       controllerVector.setI(-xSpeed);
       controllerVector.setJ(-ySpeed);
+    }
+    if (wantedState == DriveState.DEFAULT_SLOW) {
+      controllerVector = controllerVector.scaled(0.41);
+      turn = turn * 0.41;
     }
     io.drive(controllerVector, turn);
   }
@@ -927,9 +932,13 @@ public class Drive extends SubsystemBase {
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
       ChassisSpeeds currentSpeeds = io.getChassisSpeeds();
-      vector.setI((currentSpeeds.vxMetersPerSecond * 0.33 + vector.getI() * 0.67));
-      vector.setJ((currentSpeeds.vyMetersPerSecond * 0.33 + vector.getJ() * 0.67));
-      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond * 0.33 + turnRadiansPerSec * 0.67);
+      vector.setI((currentSpeeds.vxMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
+          + vector.getI() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
+      vector.setJ((currentSpeeds.vyMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
+          + vector.getJ() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
+      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond
+          * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
+          + turnRadiansPerSec * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING);
     }
     io.drive(vector, turnRadiansPerSec);
   }
@@ -1117,6 +1126,8 @@ public class Drive extends SubsystemBase {
     switch (wantedState) {
       case DEFAULT:
         return DriveState.DEFAULT;
+      case DEFAULT_SLOW:
+        return DriveState.DEFAULT_SLOW;
       case IDLE:
         return DriveState.IDLE;
       case IDLE_SLOW:
@@ -1203,6 +1214,13 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
+        // if (robotCentric) {
+        // robotCentricDrive(0);
+        // } else {
+        teleopDrive();
+        // }
+        break;
+      case DEFAULT_SLOW:
         // if (robotCentric) {
         // robotCentricDrive(0);
         // } else {
