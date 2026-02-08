@@ -243,9 +243,12 @@ public class DriveIOComp extends DriveIO {
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
                                 if (true) {
+                                        standardDeviation.set(0, 0, 1.5);
+                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
-                                        // mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                        // rightFrontResult.getTimestampSeconds());
+                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                        rightFrontResult.getTimestampSeconds(), standardDeviation);
                                 }
                         }
                         var leftFrontResult = peripherals.getLeftFrontCamResult();
@@ -253,9 +256,12 @@ public class DriveIOComp extends DriveIO {
                                         .update(leftFrontResult);
                         if (leftFrontMultiTagResult.isPresent()) {
                                 if (true) {
+                                        standardDeviation.set(0, 0, 1.5);
+                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
-                                        // mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                        // leftFrontResult.getTimestampSeconds());
+                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                        leftFrontResult.getTimestampSeconds(), standardDeviation);
                                 }
                         }
 
