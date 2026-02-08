@@ -244,8 +244,8 @@ public class DriveIOComp extends DriveIO {
                         if (rightFrontMultiTagResult.isPresent()) {
                                 if (true) {
                                         Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightFrontResult.getTimestampSeconds());
+                                        // mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                        // rightFrontResult.getTimestampSeconds());
                                 }
                         }
                         var leftFrontResult = peripherals.getLeftFrontCamResult();
@@ -254,8 +254,8 @@ public class DriveIOComp extends DriveIO {
                         if (leftFrontMultiTagResult.isPresent()) {
                                 if (true) {
                                         Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        leftFrontResult.getTimestampSeconds());
+                                        // mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                        // leftFrontResult.getTimestampSeconds());
                                 }
                         }
 
@@ -282,9 +282,12 @@ public class DriveIOComp extends DriveIO {
                                                 doRejectUpdate = true;
                                         }
                                         if (!doRejectUpdate) {
+                                                standardDeviation.set(0, 0, 1.5);
+                                                standardDeviation.set(1, 0, 1.5);
+                                                standardDeviation.set(2, 0, 5.0);
                                                 mt2Odometry.addVisionMeasurement(
                                                                 mt2.pose,
-                                                                mt2.timestampSeconds);
+                                                                mt2.timestampSeconds, standardDeviation);
                                         }
                                 } else {
                                         System.out.println("Turret angle not found for timestamp: "
