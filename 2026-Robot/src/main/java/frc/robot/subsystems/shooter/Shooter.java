@@ -6,12 +6,17 @@ package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.tools.math.ShotCalculator;
+import frc.robot.tools.math.ShotCalculator.ShotSolution;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
@@ -26,9 +31,13 @@ public class Shooter extends SubsystemBase {
   private ShooterState wantedState = ShooterState.IDLE;
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
-  private Rotation2d normalTurretAngle = new Rotation2d(0),
+  private Rotation2d normalTurretAngle = new Rotation2d(0.0),
       normalHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
-  private double normalFlywheelRPM = 1000.0;
+  private double normalFlywheelRPM = 0.0;
+
+  Translation3d target = Constants.Field.getHubPose();
+  Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
+  ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -47,15 +56,17 @@ public class Shooter extends SubsystemBase {
     this._trajectorySetpoint = trajectorySetpoint;
   }
 
-  public void setWantedState(ShooterState wantedState, Rotation2d turretAngle, Rotation2d hoodAngle,
-      double flywheelRPM) {
-    // System.out.println("Setting Manual Shooter State: Hood Angle: " +
-    // hoodAngle.getDegrees() + " Turret Angle: "
-    // + turretAngle.getDegrees() + " Flywheel RPM: " + flywheelRPM);
-    this.wantedState = wantedState;
-    this.normalTurretAngle = turretAngle;
-    this.normalHoodAngle = hoodAngle;
-    this.normalFlywheelRPM = flywheelRPM;
+  private void calcShot(Translation3d target, Pose2d turretPose, ChassisSpeeds chassisSpeeds) {
+    ShotSolution solution = ShotCalculator.calculateShot(turretPose, target.toTranslation2d(), chassisSpeeds);
+    this.normalTurretAngle = solution.turretAngle;
+    this.normalHoodAngle = solution.hoodAngle;
+    this.normalFlywheelRPM = solution.flywheelRPM;
+  }
+
+  public void passShootingTarget(Translation3d target, Pose2d turretPose, ChassisSpeeds chassisSpeeds) {
+    this.target = target;
+    this.turretPose = turretPose;
+    this.chassisSpeeds = chassisSpeeds;
   }
 
   private ShooterState handleStateTransition() {
@@ -206,6 +217,7 @@ public class Shooter extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
+        calcShot(target, turretPose, chassisSpeeds);
         trackTurret();
         break;
       case IDLE:
@@ -214,6 +226,7 @@ public class Shooter extends SubsystemBase {
         physicsShoot();
         break;
       case NORMAL_SHOOT:
+        calcShot(target, turretPose, chassisSpeeds);
         normalShoot();
         break;
       default:
