@@ -280,7 +280,7 @@ public final class Constants {
                 public static class Shooter {
                         private final static double DISTANCE_OFFSET = 0.0;
                         private final static double ANGLE_OFFSET = 0.0;
-                        private final static double RPM_OFFSET = 0.0;
+                        private final static double RPM_OFFSET = 80.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
@@ -392,8 +392,9 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
+                                inchesToMeters(-5.434), inchesToMeters(0.0), inchesToMeters(11.402599));
 
+                // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
                                 Math.toRadians(-24.7),
@@ -456,10 +457,10 @@ public final class Constants {
                                 LimelightHelpers.setCameraPose_RobotSpace(
                                                 limelightName,
                                                 robotToCam.getX(),
-                                                robotToCam.getY(),
+                                                -robotToCam.getY(),
                                                 robotToCam.getZ(),
                                                 Math.toDegrees(robotToCam.getRotation().getX()),
-                                                Math.toDegrees(robotToCam.getRotation().getY()),
+                                                Math.toDegrees(-robotToCam.getRotation().getY()),
                                                 Math.toDegrees(robotToCam.getRotation().getZ()));
                         } catch (Exception e) {
                                 System.out.println("Could not set limelight pose: " + e.getMessage());
