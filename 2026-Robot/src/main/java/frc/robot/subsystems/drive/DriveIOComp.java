@@ -22,13 +22,16 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
@@ -112,6 +115,9 @@ public class DriveIOComp extends DriveIO {
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
+
+        public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
+                        .createBuffer(2.0);
 
         public DriveIOComp(Peripherals peripherals) {
 
@@ -229,6 +235,8 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Odometry.update(getYaw(), swerveModulePositions);
 
+                addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
+
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         var rightFrontResult = peripherals.getRightFrontCamResult();
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
@@ -257,17 +265,30 @@ public class DriveIOComp extends DriveIO {
                                 LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
                                                 .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
 
-                                boolean doRejectUpdate = false;
-                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
-                                // doRejectUpdate = true;
-                                // }
-                                if (mt2.tagCount == 0) {
-                                        doRejectUpdate = true;
-                                }
-                                if (!doRejectUpdate) {
-                                        mt2Odometry.addVisionMeasurement(
-                                                        mt2.pose,
-                                                        mt2.timestampSeconds);
+                                Optional<Rotation2d> maybeTurretAngle = getTurretAngle(mt2.timestampSeconds);
+                                if (maybeTurretAngle.isPresent()) {
+                                        Constants.Vision.updateLimelightPoseFromTurret(
+                                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
+                                                                        Rotation3d.kZero),
+                                                        maybeTurretAngle.get(),
+                                                        Constants.Vision.turretToLimelight,
+                                                        Constants.Vision.LIMELIGHT_NAME);
+
+                                        boolean doRejectUpdate = false;
+                                        // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                                        // doRejectUpdate = true;
+                                        // }
+                                        if (mt2.tagCount == 0) {
+                                                doRejectUpdate = true;
+                                        }
+                                        if (!doRejectUpdate) {
+                                                mt2Odometry.addVisionMeasurement(
+                                                                mt2.pose,
+                                                                mt2.timestampSeconds);
+                                        }
+                                } else {
+                                        System.out.println("Turret angle not found for timestamp: "
+                                                        + mt2.timestampSeconds);
                                 }
                         } catch (Exception e) {
                                 System.out.println(e);
@@ -287,6 +308,14 @@ public class DriveIOComp extends DriveIO {
                 filterY.calculate(robotSpeeds.vyMetersPerSecond);
                 filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
 
+        }
+
+        public Optional<Rotation2d> getTurretAngle(double timestamp) {
+                return turretAngleBuffer.getSample(timestamp);
+        }
+
+        public void addTurretObservation(double timestamp, Rotation2d turretAngle) {
+                turretAngleBuffer.addSample(timestamp, turretAngle);
         }
 
         @Override

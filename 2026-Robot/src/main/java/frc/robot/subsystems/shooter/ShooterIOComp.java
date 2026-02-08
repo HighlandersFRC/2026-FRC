@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import java.util.ArrayList;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -16,12 +15,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 // import frc.robot.tools.logging.TunableNumber;
+import frc.robot.Globals;
 
 class ShooterIOComp implements ShooterIO {
         private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID,
@@ -163,14 +161,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.159423828125; // TODO: Try calculating offset from
-                                                                              // previous zero
-                                                                              // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.02197265625; // TODO: Try calculating offset from
+                                                                             // previous zero
+                                                                             // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.721923828125;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.59228515625;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -308,6 +306,7 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void updateInputs() {
+                Globals.turretAngle = getTurretAngle();
 
                 if (initializingTurret) {
                         initLoops++;
@@ -343,11 +342,6 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Testing/firstTurretAngles", firstTurretAngles.toString());
                 Logger.recordOutput("Testing/numberSkips", numberSkips);
 
-                Constants.Vision.updateLimelightPoseFromTurret(
-                                new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION, Rotation3d.kZero),
-                                getTurretAngle(),
-                                Constants.Vision.turretToLimelight,
-                                Constants.Vision.LIMELIGHT_NAME);
                 Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
