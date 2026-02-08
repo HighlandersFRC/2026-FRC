@@ -58,20 +58,20 @@ public class Climber extends SubsystemBase {
     Logger.recordOutput("Climber/Climber Position", getClimberPosition());
     switch (systemState) {
       case CLIMBING:
-        if (getClimberPosition() < 5.0) {
+        if (getClimberPosition() < 3.0) {
           io.stop();
           Logger.recordOutput("Climber/Output", "Stopped Climbing");
         } else {
-          io.setPower(70, 0.5);
+          io.setPower(-70, 0.5);
           Logger.recordOutput("Climber/Output", "Climbing");
         }
         break;
       case EXTEND:
-        if (getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 5.0) {
+        if (getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 3.0) {
           io.stop();
           Logger.recordOutput("Climber/Output", "Stopped Extending");
         } else {
-          io.setPower(-70, 0.3);
+          io.setPower(70, 0.3);
           Logger.recordOutput("Climber/Output", "Extending");
         }
         break;

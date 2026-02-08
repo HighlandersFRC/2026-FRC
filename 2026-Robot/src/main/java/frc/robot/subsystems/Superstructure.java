@@ -209,7 +209,7 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTO_PREP_CLIMB:
         if (drive.hitSetPoint(drive.getClimbPrepSetpoint())
-            && climber.getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 10.0) {
+            && climber.getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 5.0) {
           wantedSuperState = SuperState.AUTO_ALIGN_CLIMB;
           currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
         } else {
