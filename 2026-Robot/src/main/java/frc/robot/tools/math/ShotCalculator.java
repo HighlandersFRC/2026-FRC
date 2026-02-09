@@ -46,9 +46,9 @@ public class ShotCalculator {
         }
     }
 
-    public static ShotSolution calculateShot(Pose2d robotPosition, Translation2d targetPosition,
+    public static ShotSolution calculateShot(Translation2d turretPosition, Translation2d targetPosition,
             ChassisSpeeds robotVelocity) {
-        double distanceToTarget = robotPosition.getTranslation().getDistance(targetPosition);
+        double distanceToTarget = turretPosition.getDistance(targetPosition);
         double timeOfFlight = timeOfFlightMap.get(distanceToTarget);
         double vx = -robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
         double vy = robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
@@ -62,7 +62,7 @@ public class ShotCalculator {
             Translation2d predictedTarget = targetPosition.plus(new Translation2d(
                     turretVelocity.getX(),
                     turretVelocity.getY()).times(-timeOfFlight));
-            distanceToTarget = robotPosition.getTranslation().getDistance(predictedTarget);
+            distanceToTarget = turretPosition.getDistance(predictedTarget);
             timeOfFlight = timeOfFlightMap.get(distanceToTarget);
         }
         Translation2d predictedTarget = targetPosition.plus(new Translation2d(
@@ -70,11 +70,10 @@ public class ShotCalculator {
                 turretVelocity.getY()).times(-timeOfFlight));
         Logger.recordOutput("ShotCalculator/TimeOfFlight", timeOfFlight);
         Logger.recordOutput("ShotCalculator/TargetPose", new Pose2d(predictedTarget, new Rotation2d()));
-        distanceToTarget = robotPosition.getTranslation().getDistance(predictedTarget);
+        distanceToTarget = turretPosition.getDistance(predictedTarget);
         Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
         double flywheelRPM = flywheelMap.get(distanceToTarget);
-        Rotation2d turretAngle = predictedTarget.minus(robotPosition.getTranslation()).getAngle()
-                .minus(robotPosition.getRotation());
+        Rotation2d turretAngle = predictedTarget.minus(turretPosition).getAngle();
         return new ShotSolution(
                 hoodAngle, flywheelRPM, turretAngle);
     }

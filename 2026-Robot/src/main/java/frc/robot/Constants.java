@@ -230,6 +230,15 @@ public final class Constants {
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
 
+                public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(11.967, 2.410);
+                public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
+                                Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
+                public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
+                                Constants.Physical.FIELD_LENGTH - RED_LEFT_FEED_POSE.getX(),
+                                RED_RIGHT_FEED_POSE.getY());
+                public static final Translation2d BLUE_RIGHT_FEED_POSE = new Translation2d(BLUE_LEFT_FEED_POSE.getX(),
+                                RED_LEFT_FEED_POSE.getY());
+
                 public static Translation3d getHubPose() {
                         if (Globals.fieldSide.equals("blue")) {
                                 return HUB_POSE_BLUE;
@@ -238,7 +247,24 @@ public final class Constants {
                         }
                 }
 
+                public static Translation2d getFeedTarget(Translation2d turretPose) {
+                        if (Globals.fieldSide.equals("blue")) {
+                                if (turretPose.getY() > Constants.Physical.FIELD_WIDTH / 2) {
+                                        return BLUE_LEFT_FEED_POSE;
+                                } else {
+                                        return BLUE_RIGHT_FEED_POSE;
+                                }
+                        } else {
+                                if (turretPose.getY() < Constants.Physical.FIELD_WIDTH / 2) {
+                                        return RED_LEFT_FEED_POSE;
+                                } else {
+                                        return RED_RIGHT_FEED_POSE;
+                                }
+                        }
+                }
+
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
+                public static final double FEED_RADIUS = inchesToMeters(24.0);
                 public static final double BALL_WIDTH = 0.15;
         }
 

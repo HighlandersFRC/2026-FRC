@@ -31,10 +31,8 @@ public class Shooter extends SubsystemBase {
   private ShooterState wantedState = ShooterState.IDLE;
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
-  private Rotation2d normalTurretAngle = new Rotation2d(0.0),
-      normalHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
-  private double normalFlywheelRPM = 0.0;
   private Rotation2d idleTurretAngle = new Rotation2d(0.0);
+  private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle);
 
   Translation3d target = Constants.Field.getHubPose();
   Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
@@ -59,29 +57,9 @@ public class Shooter extends SubsystemBase {
     this._trajectorySetpoint = trajectorySetpoint;
   }
 
-  private void calcShot(Translation3d target, Pose2d turretPose, ChassisSpeeds chassisSpeeds) {
-    ShotSolution solution = ShotCalculator.calculateShot(turretPose, target.toTranslation2d(), chassisSpeeds);
-    this.normalTurretAngle = solution.turretAngle;
-    this.normalHoodAngle = solution.hoodAngle;
-    this.normalFlywheelRPM = solution.flywheelRPM;
-  }
-
-  private void calcIdleTurretAngle(Pose2d robotPose, Translation3d turretFieldPosition) {
-    Translation2d hub = Constants.Field.getHubPose().toTranslation2d();
-    Rotation2d turretToHubRotation = hub.minus(turretFieldPosition.toTranslation2d()).getAngle();
-    Logger.recordOutput("Shooter/Robot Pose 2D", robotPose);
-    this.idleTurretAngle = turretToHubRotation.minus(robotPose.getRotation());
-  }
-
-  public void passShootingTarget(Translation3d target, Pose2d turretPose, ChassisSpeeds chassisSpeeds) {
-    this.target = target;
-    this.turretPose = turretPose;
-    this.chassisSpeeds = chassisSpeeds;
-  }
-
-  public void passIdleTurrectAngleCalcs(Pose2d robotPose, Translation3d turretFieldPosition) {
-    this.robotPose = robotPose;
-    this.turretFieldPosition = turretFieldPosition;
+  public void setWantedState(ShooterState wantedState, ShotSolution wantedShotSolution) {
+    this.wantedState = wantedState;
+    this.wantedShotSolution = wantedShotSolution;
   }
 
   private ShooterState handleStateTransition() {
@@ -105,37 +83,47 @@ public class Shooter extends SubsystemBase {
     setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
   }
 
-  private void trackTurret() {
-    moveHoodToAngle(new Rotation2d(Math.toRadians(85)));
-    Logger.recordOutput("Shooter/Idle Turret Angle Goal:", idleTurretAngle.getDegrees());
-    setTurretAngle(idleTurretAngle);
-    io.setFlywheelPercent(0.0);
-  }
-
   private void normalShoot() {
-    // System.out.println("Manual Shooting: Hood Angle: " +
-    // manualHoodAngle.getDegrees() + " Turret Angle: "
-    // + manualTurretAngle.getDegrees() + " Flywheel RPM: " + manualFlywheelRPM);
-    moveHoodToAngle(normalHoodAngle);
-    setTurretAngle(normalTurretAngle);
-    setFlywheelRPM(normalFlywheelRPM);
+    moveHoodToAngle(wantedShotSolution.hoodAngle);
+    setTurretAngle(wantedShotSolution.turretAngle);
+    setFlywheelRPM(wantedShotSolution.flywheelRPM);
   }
 
   public boolean readyToShoot(double horizontalDistanceToTargetMeters) {
     double hoodAngleError = Math
         .abs(getHoodAngle()
-            .minus(normalHoodAngle)
+            .minus(wantedShotSolution.hoodAngle)
             .getRadians());
     double turretAngleError = Math.abs(
         getRobotRelativeTurretAngle()
-            .minus(normalTurretAngle)
+            .minus(wantedShotSolution.turretAngle)
             .getRadians());
     double turretPrecisionRequired = Math
         .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
     Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
-            - normalFlywheelRPM);
+            - wantedShotSolution.flywheelRPM);
+    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+        && turretAngleError < turretPrecisionRequired
+        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+  }
+
+  public boolean readyToPass(double horizontalDistanceToTargetMeters) {
+    double hoodAngleError = Math
+        .abs(getHoodAngle()
+            .minus(wantedShotSolution.hoodAngle)
+            .getRadians());
+    double turretAngleError = Math.abs(
+        getRobotRelativeTurretAngle()
+            .minus(wantedShotSolution.turretAngle)
+            .getRadians());
+    double turretPrecisionRequired = Math
+        .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
+    Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
+    double flywheelRPMError = Math
+        .abs(getFlywheelRPM()
+            - wantedShotSolution.flywheelRPM);
     return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
@@ -215,6 +203,10 @@ public class Shooter extends SubsystemBase {
     return clampedAngle;
   }
 
+  public void passIdleTurretAngleToIdle(Rotation2d angle) {
+    idleTurretAngle = angle;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs();
@@ -234,8 +226,7 @@ public class Shooter extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        calcIdleTurretAngle(robotPose, turretFieldPosition);
-        trackTurret();
+        trackTarget();
         break;
       case IDLE:
         break;
@@ -243,11 +234,16 @@ public class Shooter extends SubsystemBase {
         physicsShoot();
         break;
       case NORMAL_SHOOT:
-        calcShot(target, turretPose, chassisSpeeds);
         normalShoot();
         break;
       default:
         break;
     }
+  }
+
+  private void trackTarget() {
+    io.setTurretAngle(getRelativeAngleFromRotation2d(idleTurretAngle));
+    io.setHoodAngle(new Rotation2d(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
+    io.setFlywheelPercent(0.0);
   }
 }
