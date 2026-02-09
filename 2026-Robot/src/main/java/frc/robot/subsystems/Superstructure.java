@@ -176,21 +176,38 @@ public class Superstructure extends SubsystemBase {
    */
   private SuperState handleStateTransitions() {
     double distance;
+    Translation2d turret = getTurretFieldPosition().toTranslation2d();
     switch (wantedSuperState) {
       case DEFAULT:
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        distance = getTurretFieldPosition().toTranslation2d()
-            .getDistance(Constants.Field.getHubPose().toTranslation2d());
-        if (shooter.readyToShoot(distance)) {
-          currentSuperState = SuperState.SHOOTING;
+        if (Constants.Field.isOnBump(drive.getMt2Pose2d().getTranslation())) {
+          if (DriverStation.isAutonomous()) {
+            currentSuperState = SuperState.IDLE;
+          } else {
+            currentSuperState = SuperState.DEFAULT;
+          }
+          break;
+        }
+        if (Constants.Field.isInAllianceZone(drive.getMt2Pose2d().getTranslation())) {
+          distance = getTurretFieldPosition().toTranslation2d()
+              .getDistance(Constants.Field.getHubPose().toTranslation2d());
+          if (shooter.readyToShoot(distance)) {
+            currentSuperState = SuperState.SHOOTING;
+          } else {
+            currentSuperState = SuperState.SHOOT;
+          }
+          break;
+        }
+        distance = turret.getDistance(Constants.Field.getFeedTarget(turret));
+        if (shooter.readyToPass(distance)) {
+          currentSuperState = SuperState.PASSING;
         } else {
-          currentSuperState = SuperState.SHOOT;
+          currentSuperState = SuperState.PASS;
         }
         break;
       case PASS:
-        Translation2d turret = getTurretFieldPosition().toTranslation2d();
         distance = turret.getDistance(Constants.Field.getFeedTarget(turret));
         if (shooter.readyToPass(distance)) {
           currentSuperState = SuperState.PASSING;

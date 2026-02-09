@@ -229,6 +229,7 @@ public final class Constants {
                 public static final double HUB_Z = 1.83;
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
+                public static final double BUMP_WIDTH = inchesToMeters(44.4);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(11.967, 2.410);
                 public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
@@ -261,6 +262,20 @@ public final class Constants {
                                         return RED_RIGHT_FEED_POSE;
                                 }
                         }
+                }
+
+                public static boolean isInAllianceZone(Translation2d robotPosition) {
+                        if (Globals.fieldSide.equals("red")) {
+                                return HUB_POSE_RED.getX() + BUMP_WIDTH / 2 < robotPosition.getX();
+                        } else {
+                                return robotPosition.getX() < HUB_POSE_BLUE.getX() - BUMP_WIDTH / 2;
+                        }
+                }
+
+                public static boolean isOnBump(Translation2d robotPosition) {
+                        boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH / 2;
+                        boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH / 2;
+                        return onBlueBump || onRedBump;
                 }
 
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
