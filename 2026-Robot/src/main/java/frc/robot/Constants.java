@@ -353,12 +353,39 @@ public final class Constants {
                                         { 6.67, 65, 2100, 1.5 },
                         };
 
+                        private final static double FEED_DISTANCE_OFFSET = 0.0;
+                        private final static double FEED_ANGLE_OFFSET = 0.0;
+                        private final static double FEED_RPM_OFFSET = 0.0;
+                        private final static double FEED_TOF_OFFSET = 0.0;
+                        // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
+                        public static final double[][] FEED_SHOT_MAP = new double[][] {
+                                        { 1.105, 56, 700, 0.75 },
+                                        { 1.41, 58, 750, 0.8 },
+                                        { 2.117, 65, 1000, 1.01 },
+                                        { 2.539, 65, 1100, 1.04 },
+                                        { 3.099, 66, 1250, 1.19 },
+                                        { 3.564, 67, 1300, 1.24 },
+                                        { 4.101, 70, 1450, 1.4 },
+                                        { 4.524, 71, 1500, 1.44 },
+                                        { 5.092, 65, 1550, 1.48 },
+                                        { 5.587, 63, 1690, 1.48 },
+                                        { 6.021, 60, 1767, 1.48 },
+                                        { 6.469, 58, 1738, 1.33 },
+                        };
+
                         static {
                                 for (int i = 0; i < SHOT_MAP.length; i++) {
                                         SHOT_MAP[i][0] += DISTANCE_OFFSET;
                                         SHOT_MAP[i][1] += ANGLE_OFFSET;
                                         SHOT_MAP[i][2] += RPM_OFFSET;
                                         SHOT_MAP[i][3] += TOF_OFFSET;
+                                }
+
+                                for (int i = 0; i < FEED_SHOT_MAP.length; i++) {
+                                        FEED_SHOT_MAP[i][0] += FEED_DISTANCE_OFFSET;
+                                        FEED_SHOT_MAP[i][1] += FEED_ANGLE_OFFSET;
+                                        FEED_SHOT_MAP[i][2] += FEED_RPM_OFFSET;
+                                        FEED_SHOT_MAP[i][3] += FEED_TOF_OFFSET;
                                 }
                         }
                 }

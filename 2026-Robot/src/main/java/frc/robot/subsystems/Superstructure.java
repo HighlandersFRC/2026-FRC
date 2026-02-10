@@ -385,26 +385,39 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void handleManualShootState() { // TODO: not actually manual shooting
-    Translation3d target = Constants.Field.getHubPose();
-    Translation2d hub = target.toTranslation2d();
-    Translation3d initial = getTurretFieldPosition();
+    Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
+        .getMt2Pose2dY(), 0.0)
+        .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
+    Translation2d turret2d = initial.toTranslation2d();
+    Translation2d target = Constants.Field.getFeedTarget(turret2d);
+    Logger.recordOutput("Shooter/feed target", target);
+    Translation2d hub = target;
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
-    shooter.setWantedState(ShooterState.NORMAL_SHOOT);
+    ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
+        manualShootRPM.get(),
+        new Rotation2d(Math.toRadians(manualShootTurretAngle.get())));
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        shotSolution);
     feeder.setWantedState(FeederState.HOP); // Run Hopper Only
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING);
   }
 
   public void handleManualShootingState() { // TODO: not actual manual shooting
-    Translation3d target = Constants.Field.getHubPose();
-    Translation2d hub = target.toTranslation2d();
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
+    Translation2d turret2d = initial.toTranslation2d();
+    Translation2d target = Constants.Field.getFeedTarget(turret2d);
+    Translation2d hub = target;
     double distance2D = initial.toTranslation2d().getDistance(hub);
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
-    shooter.setWantedState(ShooterState.NORMAL_SHOOT);
+    ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
+        manualShootRPM.get(),
+        new Rotation2d(Math.toRadians(manualShootTurretAngle.get())));
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        shotSolution);
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING);
