@@ -119,7 +119,7 @@ public class RobotContainer {
                 // Driver
                 OI.driverLT.onTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.SHOOT));
                 OI.driverLT.onFalse(new SetRobotStateComplicatedAfterWait(superstructure, SuperState.SHOOTING_NO_FEED,
-                                SuperState.SHOOTING_NO_FEED, 0.5));
+                                SuperState.DEFAULT, 0.5));
 
                 OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
