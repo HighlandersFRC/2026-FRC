@@ -279,7 +279,7 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootState() {
     // Shooter
-    ShotSolution shotSolution = ShotCalculator.calculateShot(getTurretFieldPosition().toTranslation2d(),
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
         Constants.Field.getHubPose().toTranslation2d(),
         drive.getChassisSpeeds());
     ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
@@ -299,7 +299,7 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootingState() {
     // Shooter
-    ShotSolution shotSolution = ShotCalculator.calculateShot(getTurretFieldPosition().toTranslation2d(),
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
         Constants.Field.getHubPose().toTranslation2d(),
         drive.getChassisSpeeds());
     ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
@@ -331,7 +331,7 @@ public class Superstructure extends SubsystemBase {
   private void handlePassState() {
     // Shooter
     Translation3d turret = getTurretFieldPosition();
-    ShotSolution shotSolution = ShotCalculator.calculateShot(turret.toTranslation2d(),
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(turret.toTranslation2d(),
         Constants.Field.getFeedTarget(turret.toTranslation2d()),
         drive.getChassisSpeeds());
     ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
@@ -351,7 +351,7 @@ public class Superstructure extends SubsystemBase {
   private void handlePassingState() {
     // Shooter
     Translation3d turret = getTurretFieldPosition();
-    ShotSolution shotSolution = ShotCalculator.calculateShot(turret.toTranslation2d(),
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(turret.toTranslation2d(),
         Constants.Field.getFeedTarget(turret.toTranslation2d()),
         drive.getChassisSpeeds());
     ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
