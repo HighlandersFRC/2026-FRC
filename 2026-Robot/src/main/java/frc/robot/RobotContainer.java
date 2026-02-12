@@ -17,8 +17,11 @@ import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.commands.SetRobotState;
+import frc.robot.commands.SetRobotStateComplicatedAfterWait;
+import frc.robot.commands.SetRobotStateComplicated;
 import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
+import frc.robot.commands.SetRobotStateSimpleOnce;
 import frc.robot.commands.ZeroAngleMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
@@ -114,7 +117,10 @@ public class RobotContainer {
         private void configureBindings() {
                 // COMPETITION CONTROLS
                 // Driver
-                OI.driverLT.whileTrue(new SetRobotStateOnce(superstructure, SuperState.SHOOT));
+                OI.driverLT.onTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.SHOOT));
+                OI.driverLT.onFalse(new SetRobotStateComplicatedAfterWait(superstructure, SuperState.SHOOTING_NO_FEED,
+                                SuperState.SHOOTING_NO_FEED, 0.5));
+
                 OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
