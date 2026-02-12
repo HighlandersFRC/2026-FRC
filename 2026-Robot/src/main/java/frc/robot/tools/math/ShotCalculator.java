@@ -16,11 +16,33 @@ public class ShotCalculator {
                 public final Rotation2d hoodAngle;
                 public final double flywheelRPM;
                 public final Rotation2d turretAngle;
+                public final double distanceToTarget;
+                public final double timeOfFlight;
 
-                public ShotSolution(Rotation2d hoodAngle, double flywheelRPM, Rotation2d turretAngle) {
+                public ShotSolution() {
+                        this.hoodAngle = new Rotation2d();
+                        this.flywheelRPM = 0.0;
+                        this.turretAngle = new Rotation2d();
+                        this.distanceToTarget = 0.0;
+                        this.timeOfFlight = 0.0;
+                }
+
+                public ShotSolution(Rotation2d hoodAngle, double flywheelRPM, Rotation2d turretAngle,
+                                double distanceToTarget, double timeOfFlight) {
                         this.hoodAngle = hoodAngle;
                         this.flywheelRPM = flywheelRPM;
                         this.turretAngle = turretAngle;
+                        this.distanceToTarget = distanceToTarget;
+                        this.timeOfFlight = timeOfFlight;
+                }
+
+                public ShotSolution rotateTurretAngle(Rotation2d rotation) {
+                        return new ShotSolution(
+                                        this.hoodAngle,
+                                        this.flywheelRPM,
+                                        this.turretAngle.plus(rotation),
+                                        this.distanceToTarget,
+                                        this.timeOfFlight);
                 }
         }
 
@@ -97,7 +119,7 @@ public class ShotCalculator {
                 double flywheelRPM = flywheelMap.get(distanceToTarget);
                 Rotation2d turretAngle = predictedTarget.minus(turretPosition).getAngle();
                 return new ShotSolution(
-                                hoodAngle, flywheelRPM, turretAngle);
+                                hoodAngle, flywheelRPM, turretAngle, distanceToTarget, timeOfFlight);
 
         }
 

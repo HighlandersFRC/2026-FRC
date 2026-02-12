@@ -1,12 +1,9 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Rotation;
-
 import java.util.ArrayList;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -175,8 +172,6 @@ public class Superstructure extends SubsystemBase {
    * @see SuperState
    */
   private SuperState handleStateTransitions() {
-    double distance;
-    Translation2d turret = getTurretFieldPosition().toTranslation2d();
     switch (wantedSuperState) {
       case DEFAULT:
         currentSuperState = SuperState.DEFAULT;
@@ -191,25 +186,21 @@ public class Superstructure extends SubsystemBase {
           break;
         }
         if (Constants.Field.isInAllianceZone(drive.getMt2Pose2d().getTranslation())) {
-          distance = getTurretFieldPosition().toTranslation2d()
-              .getDistance(Constants.Field.getHubPose().toTranslation2d());
-          if (shooter.readyToShoot(distance)) {
+          if (shooter.readyToShoot()) {
             currentSuperState = SuperState.SHOOTING;
           } else {
             currentSuperState = SuperState.SHOOT;
           }
           break;
         }
-        distance = turret.getDistance(Constants.Field.getFeedTarget(turret));
-        if (shooter.readyToPass(distance)) {
+        if (shooter.readyToPass()) {
           currentSuperState = SuperState.PASSING;
         } else {
           currentSuperState = SuperState.PASS;
         }
         break;
       case PASS:
-        distance = turret.getDistance(Constants.Field.getFeedTarget(turret));
-        if (shooter.readyToPass(distance)) {
+        if (shooter.readyToPass()) {
           currentSuperState = SuperState.PASSING;
         } else {
           currentSuperState = SuperState.PASS;
@@ -282,8 +273,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
         Constants.Field.getHubPose().toTranslation2d(),
         drive.getChassisSpeeds());
-    ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
-        shotSolution.turretAngle.minus(drive.getMt2Pose2d().getRotation()));
+    ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
 
@@ -302,8 +292,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
         Constants.Field.getHubPose().toTranslation2d(),
         drive.getChassisSpeeds());
-    ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
-        shotSolution.turretAngle.minus(drive.getMt2Pose2d().getRotation()));
+    ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
@@ -334,8 +323,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(turret.toTranslation2d(),
         Constants.Field.getFeedTarget(turret.toTranslation2d()),
         drive.getChassisSpeeds());
-    ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
-        shotSolution.turretAngle.minus(drive.getMt2Pose2d().getRotation()));
+    ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
@@ -354,8 +342,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(turret.toTranslation2d(),
         Constants.Field.getFeedTarget(turret.toTranslation2d()),
         drive.getChassisSpeeds());
-    ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
-        shotSolution.turretAngle.minus(drive.getMt2Pose2d().getRotation()));
+    ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
@@ -396,7 +383,7 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
         manualShootRPM.get(),
-        new Rotation2d(Math.toRadians(manualShootTurretAngle.get())));
+        new Rotation2d(Math.toRadians(manualShootTurretAngle.get())), distance2D, 2.0);
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         shotSolution);
     feeder.setWantedState(FeederState.HOP); // Run Hopper Only
@@ -415,7 +402,7 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
         manualShootRPM.get(),
-        new Rotation2d(Math.toRadians(manualShootTurretAngle.get())));
+        new Rotation2d(Math.toRadians(manualShootTurretAngle.get())), distance2D, 2.0);
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         shotSolution);
     feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
@@ -518,9 +505,7 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Shooter/Manual Shoot RPM", manualShootRPM.get());
     Logger.recordOutput("Shooter/Manual Shoot Hood Angle", manualShootHoodAngle.get());
     Logger.recordOutput("Shooter/Manual Shoot Turret Angle", manualShootTurretAngle.get());
-    double distance = drive.getMt2Pose2d().getTranslation()
-        .getDistance(Constants.Field.getHubPose().toTranslation2d());
-    Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot(distance));
+    Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot());
     applyStates();
 
   }
