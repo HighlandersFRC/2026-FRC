@@ -47,12 +47,12 @@ public class ShotCalculator {
         }
 
         // Input: distance to target in meters, Output: hood angle (Rotation2d)
-        private final static InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap = new InterpolatingTreeMap<>(
+        private final static InterpolatingTreeMap<Double, Rotation2d> hubHoodAngleMap = new InterpolatingTreeMap<>(
                         InverseInterpolator.forDouble(), Rotation2d::interpolate);
         // Input: distance to target in meters, Output: flywheel RPM
-        private final static InterpolatingDoubleTreeMap flywheelMap = new InterpolatingDoubleTreeMap();
+        private final static InterpolatingDoubleTreeMap hubFlywheelMap = new InterpolatingDoubleTreeMap();
         // Input: distance to target in meters, Output: time of flight in seconds
-        private final static InterpolatingDoubleTreeMap timeOfFlightMap = new InterpolatingDoubleTreeMap();
+        private final static InterpolatingDoubleTreeMap hubTimeOfFlightMap = new InterpolatingDoubleTreeMap();
 
         // Input: distance to target in meters, Output: hood angle (Rotation2d)
         private final static InterpolatingTreeMap<Double, Rotation2d> feedHoodAngleMap = new InterpolatingTreeMap<>(
@@ -70,9 +70,9 @@ public class ShotCalculator {
                         double timeOfFlightSeconds = shotData[3];
 
                         // Populate the interpolating maps
-                        hoodAngleMap.put(distanceMeters, Rotation2d.fromDegrees(hoodAngleDegrees));
-                        flywheelMap.put(distanceMeters, flywheelRPM);
-                        timeOfFlightMap.put(distanceMeters, timeOfFlightSeconds);
+                        hubHoodAngleMap.put(distanceMeters, Rotation2d.fromDegrees(hoodAngleDegrees));
+                        hubFlywheelMap.put(distanceMeters, flywheelRPM);
+                        hubTimeOfFlightMap.put(distanceMeters, timeOfFlightSeconds);
                 }
 
                 for (double[] shotData : Constants.SetPoints.Shooter.FEED_SHOT_MAP) {
@@ -125,7 +125,7 @@ public class ShotCalculator {
 
         public static ShotSolution calculateHubShot(Translation2d turretPosition, Translation2d targetPosition,
                         ChassisSpeeds robotVelocity) {
-                return calculate(timeOfFlightMap, flywheelMap, hoodAngleMap, turretPosition, targetPosition,
+                return calculate(hubTimeOfFlightMap, hubFlywheelMap, hubHoodAngleMap, turretPosition, targetPosition,
                                 robotVelocity);
         }
 

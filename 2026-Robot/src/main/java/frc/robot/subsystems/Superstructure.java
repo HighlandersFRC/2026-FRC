@@ -320,7 +320,7 @@ public class Superstructure extends SubsystemBase {
   private void handlePassState() {
     // Shooter
     Translation3d turret = getTurretFieldPosition();
-    ShotSolution shotSolution = ShotCalculator.calculateHubShot(turret.toTranslation2d(),
+    ShotSolution shotSolution = ShotCalculator.calculateFeedShot(turret.toTranslation2d(),
         Constants.Field.getFeedTarget(turret.toTranslation2d()),
         drive.getChassisSpeeds());
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
@@ -339,7 +339,7 @@ public class Superstructure extends SubsystemBase {
   private void handlePassingState() {
     // Shooter
     Translation3d turret = getTurretFieldPosition();
-    ShotSolution shotSolution = ShotCalculator.calculateHubShot(turret.toTranslation2d(),
+    ShotSolution shotSolution = ShotCalculator.calculateFeedShot(turret.toTranslation2d(),
         Constants.Field.getFeedTarget(turret.toTranslation2d()),
         drive.getChassisSpeeds());
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
