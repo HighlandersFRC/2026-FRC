@@ -61,6 +61,7 @@ public class Superstructure extends SubsystemBase {
     SHOOT,
     INTAKING,
     SHOOTING,
+    SHOOTING_NO_FEED,
     PASS,
     PASSING,
     ZERO,
@@ -116,6 +117,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOTING:
         handleShootingState();
+        break;
+      case SHOOTING_NO_FEED:
+        handleShootingNoFeedState();
         break;
       case PASS:
         handlePassState();
@@ -231,6 +235,9 @@ public class Superstructure extends SubsystemBase {
       case SHOOTING:
         currentSuperState = SuperState.SHOOTING;
         break;
+      case SHOOTING_NO_FEED:
+        currentSuperState = SuperState.SHOOTING_NO_FEED;
+        break;
       case PASSING:
         currentSuperState = SuperState.PASSING;
         break;
@@ -321,6 +328,37 @@ public class Superstructure extends SubsystemBase {
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
     intake.setWantedState(IntakeState.INTAKING);
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT_SLOW);
+    }
+  }
+
+  private void handleShootingNoFeedState() {
+    // Shooter
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
+        Constants.Field.getHubPose().toTranslation2d(),
+        drive.getChassisSpeeds());
+    ShotSolution rotatedShotSolution = new ShotSolution(shotSolution.hoodAngle, shotSolution.flywheelRPM,
+        shotSolution.turretAngle.minus(drive.getMt2Pose2d().getRotation()));
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        rotatedShotSolution);
+    // Feeder
+    feeder.setWantedState(FeederState.DEFAULT); // Pass ball into shooter
+
+    // Log Fuel Trajectory
+    if (RobotBase.isSimulation()) {
+      Translation3d target = Constants.Field.getHubPose();
+      Translation3d initial = getTurretFieldPosition();
+      double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
+      double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
+      Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+      trajectoryPoint.add(initial);
+      trajectoryVelocity
+          .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
+    }
+    intake.setWantedState(IntakeState.UP);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
