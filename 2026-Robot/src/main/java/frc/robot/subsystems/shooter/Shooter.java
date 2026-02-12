@@ -14,8 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-import frc.robot.tools.math.ShotCalculator;
 import frc.robot.tools.math.ShotCalculator.ShotSolution;
 
 public class Shooter extends SubsystemBase {
@@ -32,7 +30,7 @@ public class Shooter extends SubsystemBase {
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
   private Rotation2d idleTurretAngle = new Rotation2d(0.0);
-  private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle);
+  private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle, 0.0, 0.0);
 
   Translation3d target = Constants.Field.getHubPose();
   Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
@@ -89,7 +87,7 @@ public class Shooter extends SubsystemBase {
     setFlywheelRPM(wantedShotSolution.flywheelRPM);
   }
 
-  public boolean readyToShoot(double horizontalDistanceToTargetMeters) {
+  public boolean readyToShoot() {
     double hoodAngleError = Math
         .abs(getHoodAngle()
             .minus(wantedShotSolution.hoodAngle)
@@ -99,7 +97,7 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.turretAngle)
             .getRadians());
     double turretPrecisionRequired = Math
-        .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
+        .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
     Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
@@ -109,7 +107,7 @@ public class Shooter extends SubsystemBase {
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
   }
 
-  public boolean readyToPass(double horizontalDistanceToTargetMeters) {
+  public boolean readyToPass() {
     double hoodAngleError = Math
         .abs(getHoodAngle()
             .minus(wantedShotSolution.hoodAngle)
@@ -119,7 +117,7 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.turretAngle)
             .getRadians());
     double turretPrecisionRequired = Math
-        .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
+        .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
     Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
