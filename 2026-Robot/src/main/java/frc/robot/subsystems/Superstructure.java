@@ -450,7 +450,11 @@ public class Superstructure extends SubsystemBase {
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.INTAKING);
     feeder.setWantedState(FeederState.HOP); // Run hopper and linearizer
-    drive.setWantedState(DriveState.DEFAULT);
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT);
+    }
   }
 
   public void handleIdleState() {

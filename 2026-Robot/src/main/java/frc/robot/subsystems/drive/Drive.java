@@ -561,6 +561,10 @@ public class Drive extends SubsystemBase {
 
   }
 
+  public void stop() {
+    io.drive(new Vector(), 0.0);
+  }
+
   public void driveToXTheta(double x, double theta) {
     java.util.logging.Logger.getGlobal().finer(theta + "");
     // theta = Math.toRadians(theta);
@@ -1000,11 +1004,7 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case STOP:
-        Vector velocityVector = new Vector();
-        velocityVector.setI(0);
-        velocityVector.setJ(0);
-        double desiredThetaChange = 0.0;
-        autoDrive(velocityVector, desiredThetaChange);
+        stop();
         break;
       case DRIVE_TO_PRE_CLIMB:
         driveToPoint(getClimbPrepSetpoint());

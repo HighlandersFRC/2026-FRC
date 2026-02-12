@@ -107,11 +107,7 @@ public class VariableSpeedFollower extends AutoFollower {
 
   @Override
   public void end(boolean interrupted) {
-    Vector velocityVector = new Vector();
-    velocityVector.setI(0);
-    velocityVector.setJ(0);
-    double desiredThetaChange = 0.0;
-    drive.autoDrive(velocityVector, desiredThetaChange);
+    drive.stop();
   }
 
   public void from(int pointIndex, JSONObject pathJSON, int to) {
