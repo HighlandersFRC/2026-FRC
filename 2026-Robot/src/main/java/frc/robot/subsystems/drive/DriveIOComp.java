@@ -86,11 +86,11 @@ public class DriveIOComp extends DriveIO {
                         new Rotation3d(0, Math.toRadians(-21.2), Math.toRadians(115.0)));
 
         Transform3d leftFrontRobotToCam = new Transform3d( // front reef cam on swerve module
-                        new Translation3d(Constants.inchesToMeters(10.0),
-                                        Constants.inchesToMeters(16.0),
-                                        Constants.inchesToMeters(21.5)),
-                        new Rotation3d(0.0, Math.toRadians(-21.2),
-                                        Math.toRadians(65.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.75),
+                                        Constants.inchesToMeters(13.0),
+                                        Constants.inchesToMeters(11.5)),
+                        new Rotation3d(Math.toRadians(3.0), Math.toRadians(-26.0),
+                                        Math.toRadians(195.0)));
 
         // xy position of module based on robot width and distance from edge of robot
         private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;

@@ -1007,9 +1007,11 @@ public class Drive extends SubsystemBase {
         stop();
         break;
       case DRIVE_TO_PRE_CLIMB:
+        Logger.recordOutput("climb prep", getClimbPrepSetpoint());
         driveToPoint(getClimbPrepSetpoint());
         break;
       case DRIVE_TO_ALIGN_CLIMB:
+        Logger.recordOutput("climb align", getClimbAlignSetpoint());
         driveToPoint(getClimbAlignSetpoint());
         break;
       default:
