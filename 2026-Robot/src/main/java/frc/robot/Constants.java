@@ -149,17 +149,11 @@ public final class Constants {
                 }
 
                 public static class Feeder {
-                        public static final double LINEARIZER_MAX_SPEED_MPS = 3.0;
-                        public static final double HOPPER_MAX_SPEED_MPS = 3.0;
-                        public static final double HOPPER_ACCELERATION_MPS2 = 6.0;
-                        public static final double LINEARIZER_ACCELERATION_MPS2 = 6.0;
-                        public static final double HOPPER_FRICTION_COEFFICIENT = HOPPER_ACCELERATION_MPS2 /
-                                        HOPPER_MAX_SPEED_MPS;
-                        public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
-                                        LINEARIZER_MAX_SPEED_MPS;
-                        public static final double LINEARIZER_SENSOR_TRIGGER_DISTANCE_M = inchesToMeters(3);
-                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(3);
-                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(1.25);
+                        public static final double DYE_ROTOR_MAX_SPEED_MPS = 3.0;
+                        public static final double DYE_ROTOR_ACCELERATION_MPS2 = 6.0;
+                        public static final double DYE_ROTOR_FRICTION_COEFFICIENT = DYE_ROTOR_ACCELERATION_MPS2 /
+                                        DYE_ROTOR_MAX_SPEED_MPS;
+                        public static final double DYE_ROTOR_WHEEL_DIAMETER_M = inchesToMeters(1.25);
                 }
         }
 
@@ -396,12 +390,9 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_PERCENT = 0.7;
-                        public static final double LINEARIZER_PERCENT = 0.67;
-                        public static final double LINEARIZER_SPEED_MPS = 1.0;
-                        public static final double HOPPER_SPEED_MPS = 1.0;
-                        public static final double LINEARIZER_AMPS = 60.0;
-                        public static final double HOPPER_AMPS = 60.0;
+                        public static final double DYE_ROTOR_PERCENT = 0.7;
+                        public static final double DYE_ROTOR_SPEED_MPS = 1.0;
+                        public static final double DYE_ROTOR_AMPS = 60.0;
                 }
         }
 
@@ -643,8 +634,7 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_GEAR_RATIO = 3.0 / 1.0;
-                        public static final double LINEARIZER_GEAR_RATIO = 3.0 / 1.0;
+                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0 / 1.0;
                 }
 
                 public static final class Climber {
@@ -691,9 +681,7 @@ public final class Constants {
                 public static final int INTAKE_ROLLER_MOTOR_ID = 14;
 
                 // Feeder
-                public static final int HOPPER_MOTOR_ID = 15;
-                public static final int LINEARIZER_MOTOR_ID = 16;
-                public static final int LINEARIZER_CANRANGE_ID = 0;
+                public static final int DYE_ROTOR_MOTOR_ID = 15;
 
                 // Climber
                 public static final int CLIMBER_MOTOR_ID = 20;

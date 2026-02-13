@@ -303,7 +303,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
-    feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
 
     // Log Fuel Trajectory
     if (RobotBase.isSimulation()) {
@@ -333,7 +333,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
-    feeder.setWantedState(FeederState.DEFAULT); // Pass ball into shooter
+    feeder.setWantedState(FeederState.IDLE); // Pass ball into shooter
 
     // Log Fuel Trajectory
     if (RobotBase.isSimulation()) {
@@ -383,7 +383,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
-    feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
 
     intake.setWantedState(IntakeState.INTAKING);
     if (DriverStation.isAutonomous()) {
@@ -396,7 +396,7 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
-    feeder.setWantedState(FeederState.DEFAULT); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.IDLE);
     intake.setWantedState(IntakeState.UP);
     shooter.setWantedState(ShooterState.DEFAULT);
     climber.setWantedState(ClimberState.IDLE);
@@ -423,7 +423,7 @@ public class Superstructure extends SubsystemBase {
         new Rotation2d(Math.toRadians(manualShootTurretAngle.get())), distance2D, 2.0);
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         shotSolution);
-    feeder.setWantedState(FeederState.HOP); // Run Hopper Only
+    feeder.setWantedState(FeederState.IDLE);
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING);
   }
@@ -442,14 +442,14 @@ public class Superstructure extends SubsystemBase {
         new Rotation2d(Math.toRadians(manualShootTurretAngle.get())), distance2D, 2.0);
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         shotSolution);
-    feeder.setWantedState(FeederState.SHOOT); // Pass ball into shooter
+    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING);
   }
 
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.INTAKING);
-    feeder.setWantedState(FeederState.HOP); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.IDLE);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
@@ -461,7 +461,7 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
     intake.setWantedState(IntakeState.IDLE);
-    feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.IDLE);
     shooter.setWantedState(ShooterState.DEFAULT);
   }
 
@@ -469,7 +469,7 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
     intake.setWantedState(IntakeState.IDLE);
-    feeder.setWantedState(FeederState.IDLE); // Run hopper and linearizer
+    feeder.setWantedState(FeederState.IDLE);
     // shooter.setWantedState(ShooterState.ZERO); TODO: Implement zeroing
   }
 
@@ -490,7 +490,7 @@ public class Superstructure extends SubsystemBase {
   private void handleAutonShot() {
     drive.setWantedState(DriveState.IDLE);
     shooter.setWantedState(ShooterState.PHYSICS_SHOOT);
-    feeder.setWantedState(FeederState.SHOOT);
+    feeder.setWantedState(FeederState.FEED);
   }
 
   private void handleAutoPrepClimb() {
