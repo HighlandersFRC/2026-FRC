@@ -129,6 +129,11 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
+    public void zeroTurretToEncoder() {
+
+    }
+
+    @Override
     public void updateInputs() {
         double dt = Globals.loopPeriodSecs;
         int numSteps = (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution);

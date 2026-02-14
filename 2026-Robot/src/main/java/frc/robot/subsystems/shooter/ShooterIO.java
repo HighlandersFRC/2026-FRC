@@ -22,4 +22,6 @@ interface ShooterIO {
     double getRelativeTurretAngleRadians();
 
     void setHoodAngle(Rotation2d angle);
+
+    void zeroTurretToEncoder();
 }
