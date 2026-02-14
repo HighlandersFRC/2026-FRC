@@ -116,11 +116,11 @@ public class Drive extends SubsystemBase {
    */
   public void init() {
     // sets configurations when run on robot initalization
-    xxPID.setMinOutput(-3.0);
-    xxPID.setMaxOutput(3.0);
+    xxPID.setMinOutput(-1.5);
+    xxPID.setMaxOutput(1.5);
 
-    yyPID.setMinOutput(-3.0);
-    yyPID.setMaxOutput(3.0);
+    yyPID.setMinOutput(-1.5);
+    yyPID.setMaxOutput(1.5);
 
     thetaaPID.setMinOutput(-3.0);
     thetaaPID.setMaxOutput(3.0);
@@ -442,7 +442,7 @@ public class Drive extends SubsystemBase {
     double theta = pose.getRotation().getRadians();
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.045
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.0254
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
       hitNumber += 1;
@@ -915,33 +915,49 @@ public class Drive extends SubsystemBase {
   Field2d field = new Field2d();
 
   public Pose2d getClimbPrepSetpoint() {
-    if (getMt2Pose2dX() > Constants.Physical.FIELD_LENGTH / 2.0) {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+    if (Globals.fieldSide.equals("blue")) {
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
         return Constants.Physical.preClimbPoseRightRedSide;
       } else {
         return Constants.Physical.preClimbPoseLeftRedSide;
       }
     } else {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
-        return Constants.flipFieldSide(Constants.Physical.preClimbPoseRightRedSide);
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
+        return Constants.Physical.preClimbPoseRightRedSide;
       } else {
-        return Constants.flipFieldSide(Constants.Physical.preClimbPoseLeftRedSide);
+        return Constants.Physical.preClimbPoseLeftRedSide;
       }
     }
   }
 
   public Pose2d getClimbAlignSetpoint() {
-    if (getMt2Pose2dX() > Constants.Physical.FIELD_LENGTH / 2.0) {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+    if (Globals.fieldSide.equals("blue")) {
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
         return Constants.Physical.climbPoseRightRedSide;
       } else {
         return Constants.Physical.climbPoseLeftRedSide;
       }
     } else {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
-        return Constants.flipFieldSide(Constants.Physical.climbPoseRightRedSide);
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
+        return Constants.Physical.climbPoseRightRedSide;
       } else {
-        return Constants.flipFieldSide(Constants.Physical.climbPoseLeftRedSide);
+        return Constants.Physical.climbPoseLeftRedSide;
       }
     }
   }
