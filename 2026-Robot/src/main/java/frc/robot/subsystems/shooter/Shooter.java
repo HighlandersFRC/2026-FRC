@@ -159,6 +159,10 @@ public class Shooter extends SubsystemBase {
     io.setFlywheelRPM(rpm);
   }
 
+  public void zeroTurretToEncoder() {
+    io.zeroTurretToEncoder();
+  }
+
   public Translation3d getCurrentShooterTrajectory() {
     double mag = io.getFlywheelRPM() / Constants.Physical.Shooter.SHOOTER_WHEEL_RADIUS;
     Rotation2d hoodAngle = io.getHoodAngle();
