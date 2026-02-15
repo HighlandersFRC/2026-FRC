@@ -503,7 +503,9 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.DRIVE_TO_PRE_CLIMB);
     climber.setWantedState(ClimberState.EXTEND);
     if (DriverStation.isAutonomous()) {
-      ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
+      ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+              .getRotation()),
           Constants.Field.getHubPose().toTranslation2d(),
           drive.getChassisSpeeds());
       ShotSolution rotatedShotSolution = shotSolution
@@ -523,7 +525,9 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.DRIVE_TO_ALIGN_CLIMB);
     climber.setWantedState(ClimberState.EXTEND);
     if (DriverStation.isAutonomous()) {
-      ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
+      ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+              .getRotation()),
           Constants.Field.getHubPose().toTranslation2d(),
           drive.getChassisSpeeds());
       ShotSolution rotatedShotSolution = shotSolution
@@ -542,7 +546,9 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.STOP);
     climber.setWantedState(ClimberState.CLIMBING);
     if (DriverStation.isAutonomous()) {
-      ShotSolution shotSolution = ShotCalculator.calculateHubShot(getTurretFieldPosition().toTranslation2d(),
+      ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+              .getRotation()),
           Constants.Field.getHubPose().toTranslation2d(),
           drive.getChassisSpeeds());
       ShotSolution rotatedShotSolution = shotSolution
