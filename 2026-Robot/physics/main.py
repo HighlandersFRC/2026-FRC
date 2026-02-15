@@ -24,7 +24,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 for i in range(10):
     x_offset = 0.5 + 0.5 * i
-    maxIncrement = -0.2 * i
+    maxIncrement = 0 * i
     updatedFinalPoint = np.array(
         [finalPoint[0] + x_offset, finalPoint[1], finalPoint[2]]
     )
@@ -43,6 +43,8 @@ for i in range(10):
     velocity = getVelocityVector(
         initialPoint, rotatedFinalPoint, maxHeight + maxIncrement
     )
+    velocity[0] = velocity[0]
+    print(np.arctan(velocity[2] / velocity[0]) * 180 / np.pi)
     time = np.linspace(0, 2 * velocity[2] / const.g, num=500)
     x = initialPoint[0] + velocity[0] * time
     y = initialPoint[1] + velocity[1] * time

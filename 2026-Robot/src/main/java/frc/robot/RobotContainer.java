@@ -13,15 +13,25 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoClimbFollower;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
+import frc.robot.commands.SetRobotState;
+import frc.robot.commands.SetRobotStateComplicatedAfterWait;
+import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
+import frc.robot.commands.SetRobotStateSimpleOnce;
+import frc.robot.commands.ZeroAngleMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.shooter.Shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -35,20 +45,22 @@ import frc.robot.subsystems.lights.Lights;
 public class RobotContainer {
 
         // Subsystems
-        Peripherals peripherals = new Peripherals();
-        Drive drive = new Drive(peripherals);
-        Lights lights = new Lights();
-        Superstructure superstructure = new Superstructure(drive, lights);
-
-        public boolean algaeMode = false;
-        boolean manualMode = false;
-        boolean yPressed = false;
-        RobotContainer m_container = this;
+        final Peripherals peripherals = new Peripherals();
+        final Drive drive = new Drive(peripherals);
+        final Lights lights = new Lights();
+        final Shooter shooter = new Shooter();
+        final Feeder feeder = new Feeder();
+        final Intake intake = new Intake();
+        final Climber climber = new Climber();
+        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder, climber);
 
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
+                        put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
+                        put("Climb", () -> new AutoClimbFollower(superstructure, drive));
                 }
         };
 
@@ -107,7 +119,19 @@ public class RobotContainer {
         private void configureBindings() {
                 // COMPETITION CONTROLS
                 // Driver
+                OI.driverLT.onTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.SHOOT));
+                OI.driverLT.onFalse(new SetRobotStateComplicatedAfterWait(superstructure, SuperState.SHOOTING_NO_FEED,
+                                SuperState.DEFAULT, 0.5));
 
+                OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
+                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
+                OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
+
+                OI.driverMenuButton.whileTrue(new SetRobotState(superstructure, SuperState.DEFAULT));
+                OI.driverX.whileTrue(new SetRobotStateOnce(superstructure, SuperState.MANUAL_SHOOT));
+                OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
+                OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));
+                OI.driverY.whileTrue(new SetRobotStateOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
                 // Operator
 
         }

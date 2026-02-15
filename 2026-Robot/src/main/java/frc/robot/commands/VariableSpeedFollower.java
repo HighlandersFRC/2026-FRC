@@ -100,18 +100,14 @@ public class VariableSpeedFollower extends AutoFollower {
     // create velocity vector and set desired theta change
 
     drive.autoDrive(velocityVector, desiredThetaChange);
-    Logger.recordOutput("pursuing?", true);
-    Logger.recordOutput("Path Time", path
+    Logger.recordOutput("Auto/pursuing?", true);
+    Logger.recordOutput("Auto/Path Time", path
         .getJSONObject(getPathPointIndex()).getDouble("time"));
   }
 
   @Override
   public void end(boolean interrupted) {
-    Vector velocityVector = new Vector();
-    velocityVector.setI(0);
-    velocityVector.setJ(0);
-    double desiredThetaChange = 0.0;
-    drive.autoDrive(velocityVector, desiredThetaChange);
+    drive.stop();
   }
 
   public void from(int pointIndex, JSONObject pathJSON, int to) {
@@ -124,7 +120,7 @@ public class VariableSpeedFollower extends AutoFollower {
   @Override
   public boolean isFinished() {
     boolean readyToEnd = readyToEnd(path.getJSONObject(returnPathPointIndex));
-    Logger.recordOutput("readyToEnd", readyToEnd);
+    Logger.recordOutput("Auto/readyToEnd", readyToEnd);
     if (returnPathPointIndex >= path.length() - 1 && readyToEnd) {
       return true;
     } else {
@@ -142,7 +138,7 @@ public class VariableSpeedFollower extends AutoFollower {
       odometryFusedTheta = Math.PI + odometryFusedTheta;
     }
 
-    if (OI.isProcessorSide()) {
+    if (OI.isLeftSide()) {
       odometryFusedY = Constants.Physical.FIELD_WIDTH - odometryFusedY;
       odometryFusedTheta = -odometryFusedTheta;
     }

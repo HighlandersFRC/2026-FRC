@@ -1,7 +1,10 @@
 package frc.robot.subsystems.drive;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.subsystems.drive.Drive.DriveState;
@@ -68,26 +71,30 @@ public class DriveIOSim extends DriveIO {
     }
 
     @Override
-    protected Vector getVelocityVector() {
-        return velocityVector;
+    protected ChassisSpeeds getChassisSpeeds() {
+        return new ChassisSpeeds(
+                velocityVector.getI(),
+                velocityVector.getJ(),
+                angularVelocity);
     }
 
     @Override
     void update(DriveState currentState) {
-        int numSteps = (int) Math.floor(Globals.loopPeriodSecs / Constants.closedLoopSimResolution);
-        double dt = Globals.loopPeriodSecs / numSteps;
-        for (int i = 0; i < numSteps; i++) {
-            Vector acceleration = wantedVelocityVector.subtract(velocityVector).unit()
-                    .scaled(Constants.Physical.SIM_MAX_ACCELERATION * 10);
-            velocityVector = velocityVector.add(acceleration.scaled(dt));
-            if (velocityVector.magnitude() > Constants.Physical.SIM_TOP_SPEED) {
-                velocityVector = velocityVector.scaled(Constants.Physical.SIM_TOP_SPEED / velocityVector.magnitude());
-            }
-            positionVector = positionVector.add(velocityVector.scaled(dt));
-            double angularAcceleration = Math.signum(wantedAngularVelocity - angularVelocity)
-                    * Constants.Physical.SIM_MAX_ANGULAR_ACCELERATION;
-            angularVelocity += angularAcceleration * dt;
-            angle += angularVelocity * dt;
-        }
+        ChassisSpeeds expectedSpeeds = Constants.Simulation.getExpectedDriveSpeeds(Globals.loopPeriodSecs,
+                getChassisSpeeds(),
+                new ChassisSpeeds(wantedVelocityVector.getI(), -wantedVelocityVector.getJ(), wantedAngularVelocity));
+        velocityVector = new Vector(expectedSpeeds.vxMetersPerSecond, expectedSpeeds.vyMetersPerSecond);
+        Logger.recordOutput("Sim/Robot Actual Simmed Velocity", velocityVector.magnitude());
+        angularVelocity = expectedSpeeds.omegaRadiansPerSecond;
+        positionVector = positionVector.add(velocityVector.scaled(Globals.loopPeriodSecs));
+        angle += angularVelocity * Globals.loopPeriodSecs;
+    }
+
+    @Override
+    protected ChassisSpeeds getWantedChassisSpeeds() {
+        return new ChassisSpeeds(
+                wantedVelocityVector.getI(),
+                wantedVelocityVector.getJ(),
+                wantedAngularVelocity);
     }
 }

@@ -1,11 +1,12 @@
 package frc.robot;
 
-import frc.robot.tools.math.Vector;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Globals {
-    public static double loopPeriodSecs;
+    public static double loopPeriodSecs = 0.0;
     public static double prevTimeSecs = 0.0;
     public static double runTime = 0.0;
     public static double initTime = 0.0;
-    public static Vector drive2dVelocity = new Vector(0.0, 0.0);
+    public static String fieldSide = "red";
+    public static Rotation2d turretAngle = new Rotation2d(0);
 }

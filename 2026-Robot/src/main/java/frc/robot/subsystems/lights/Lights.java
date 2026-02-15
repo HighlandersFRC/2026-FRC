@@ -215,7 +215,8 @@ public class Lights extends SubsystemBase {
       systemState = newState;
     }
 
-    Logger.recordOutput("Lights State", systemState);
+    Logger.recordOutput("Lights/Lights State", systemState);
+    Logger.recordOutput("States/Lights State", systemState);
     if (partyMode) {
       weLikeToParty();
     } else {
@@ -473,12 +474,11 @@ public class Lights extends SubsystemBase {
   }
 
   /**
-   * Initializes the Lights subsystem with the specified field side.
+   * Initializes the Lights subsystem.
    * Clears animation at index 0 of the candle object.
    * 
-   * @param fieldSide The side of the field to initialize with.
    */
-  public void init(String fieldSide) {
+  public void init() {
     clearAnimations();
   }
 }

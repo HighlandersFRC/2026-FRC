@@ -1,5 +1,9 @@
 package frc.robot.subsystems.drive;
 
+import java.util.Optional;
+
+import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -7,17 +11,28 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Globals;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -58,73 +73,59 @@ public class DriveIOComp extends DriveIO {
                         backLeftCanCoder);
         private final SwerveModule backRight = new SwerveModule(4, backRightAngleMotor, backRightDriveMotor,
                         backRightCanCoder);
-
-        PhotonPoseEstimator photonPoseEstimator;
-        PhotonPoseEstimator backPhotonPoseEstimator;
-        PhotonPoseEstimator backLeftPhotonPoseEstimator;
-        PhotonPoseEstimator backRightPhotonPoseEstimator;
-
-        // PhotonPoseEstimator rightPhotonPoseEstimator;
-        // PhotonPoseEstimator leftPhotonPoseEstimator;
-        PhotonPoseEstimator swervePhotonPoseEstimator;
-        PhotonPoseEstimator gamePiecePhotonPoseEstimator;
+        PhotonPoseEstimator rightFrontPhotonPoseEstimator;
+        PhotonPoseEstimator leftFrontPhotonPoseEstimator;
         AprilTagFieldLayout aprilTagFieldLayout;
 
         // *********************NOTE THE PITCH IS POSITIVE DOWNWARDS
         // **********************************
 
-        Transform3d frontReefRobotToCam = new Transform3d( // top front reef cam
-                        new Translation3d(Constants.inchesToMeters(2.0), Constants.inchesToMeters(-11.5),
-                                        Constants.inchesToMeters(23.625)),
-                        new Rotation3d(Math.toRadians(0.3), Math.toRadians(25.6), Math.toRadians(15.0)));
+        Transform3d rightFrontRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(9.0), Constants.inchesToMeters(16.0),
+                                        Constants.inchesToMeters(23.5)),
+                        new Rotation3d(0, Math.toRadians(-21.2), Math.toRadians(115.0)));
 
-        Transform3d frontSwerveRobotToCam = new Transform3d( // front reef cam on swerve module
-                        new Translation3d(Constants.inchesToMeters(11.75),
-                                        Constants.inchesToMeters(-8.5),
-                                        Constants.inchesToMeters(8.75)),
-                        new Rotation3d(Math.toRadians(1.1), Math.toRadians(15.4),
-                                        Math.toRadians(35.0)));
-
-        Transform3d backReefRobotToCam = new Transform3d( // top back reef cam
-                        new Translation3d(Constants.inchesToMeters(-2.0), Constants.inchesToMeters(-11.5),
-                                        Constants.inchesToMeters(23.625)),
-                        new Rotation3d(Math.toRadians(2.8), Math.toRadians(25.9), Math.toRadians(165.0)));
-
-        Transform3d backLeftReefRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-12.375), Constants.inchesToMeters(9.375),
-                                        Constants.inchesToMeters(8.6875)),
-                        new Rotation3d(Math.toRadians(1.2), Math.toRadians(-19.7), Math.toRadians(181.53))); // 0.4,
-                                                                                                             // -20.5
-
-        Transform3d backRightReefRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(
-                                        -12.375), Constants.inchesToMeters(-9.25),
-                                        Constants.inchesToMeters(8.6875)),
-                        new Rotation3d(Math.toRadians(1.5), Math.toRadians(-19.7), Math.toRadians(178.47)));
-
-        Transform3d gamePieceReefRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(2.0), Constants.inchesToMeters(-11.5),
-                                        Constants.inchesToMeters(20.25)),
-                        new Rotation3d(Math.toRadians(1.0), Math.toRadians(21.4), Math.toRadians(15.0)));
+        Transform3d leftFrontRobotToCam = new Transform3d( // front reef cam on swerve module
+                        new Translation3d(Constants.inchesToMeters(-13.75),
+                                        Constants.inchesToMeters(13.0),
+                                        Constants.inchesToMeters(11.5)),
+                        new Rotation3d(Math.toRadians(3.0), Math.toRadians(-26.0),
+                                        Math.toRadians(195.0)));
 
         // xy position of module based on robot width and distance from edge of robot
         private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;
         private final double moduleY = ((Constants.Physical.ROBOT_WIDTH) / 2) - Constants.Physical.MODULE_OFFSET;
 
         // Locations for the swerve drive modules relative to the robot center.
-        Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
-        Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
-        Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
-        Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
+        private Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
+        private Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
+        private Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
+        private Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
 
-        SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+        private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
-        SwerveDrivePoseEstimator mt2Odometry;
-        Pose2d mt2Pose;
-        Peripherals peripherals;
+        private SwerveDrivePoseEstimator mt2Odometry;
+        @SuppressWarnings("unused")
+        private Peripherals peripherals;
+        private LinearFilter filterX = LinearFilter.movingAverage(10);
+        private LinearFilter filterY = LinearFilter.movingAverage(10);
+        private LinearFilter filterOmega = LinearFilter.movingAverage(10);
+
+        private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+
+        Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
+
+        public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
+                        .createBuffer(2.0);
 
         public DriveIOComp(Peripherals peripherals) {
+
+                frontRight.init();
+                frontLeft.init();
+                backRight.init();
+                backLeft.init();
+                gyro.init();
                 this.peripherals = peripherals;
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
                 swerveModulePositions[0] = new SwerveModulePosition(0,
@@ -142,43 +143,32 @@ public class DriveIOComp extends DriveIO {
                 try {
                         aprilTagFieldLayout = new AprilTagFieldLayout(
                                         Filesystem.getDeployDirectory().getPath() + "/"
-                                                        + "2025-reefscape-andymark.json");
+                                                        + "2026-rebuilt.json");
                 } catch (Exception e) {
                         java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
                 }
-                photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontReefRobotToCam);
+                rightFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, rightFrontRobotToCam);
 
-                backPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, backReefRobotToCam);
+                leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftFrontRobotToCam);
 
-                backLeftPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, backLeftReefRobotToCam);
-
-                backRightPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, backRightReefRobotToCam);
-
-                swervePhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontSwerveRobotToCam);
-
-                // rightPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                // PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontBargeRobotToCam);
-
-                // leftPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                // PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, backBargeRobotToCam);
-
-                gamePiecePhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, gamePieceReefRobotToCam);
-
-                frontRight.init();
-                frontLeft.init();
-                backRight.init();
-                backLeft.init();
         }
 
         @Override
         void zeroIMU() {
                 gyro.setYaw(0.0);
+                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
+                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
+                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
+                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
+                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
+                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
+                                new Rotation2d(backRight.getCanCoderPositionRadians()));
+                mt2Odometry.resetPosition(new Rotation2d(), swerveModulePositions,
+                                mt2Odometry.getEstimatedPosition());
         }
 
         @Override
@@ -197,6 +187,7 @@ public class DriveIOComp extends DriveIO {
                 frontLeft.setWheelPID(0.0, 0.0);
                 backLeft.setWheelPID(0.0, 0.0);
                 backRight.setWheelPID(0.0, 0.0);
+                wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
         }
 
         @Override
@@ -242,13 +233,112 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backLeft.getCanCoderPositionRadians()));
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
-                mt2Pose = mt2Odometry.update(getYaw(), swerveModulePositions);
+                mt2Odometry.update(getYaw(), swerveModulePositions);
 
+                addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
+
+                if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
+
+                        var leftFrontResult = peripherals.getLeftFrontCamResult();
+                        Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
+                                        .update(leftFrontResult);
+                        if (leftFrontMultiTagResult.isPresent()) {
+                                if (true) {
+                                        standardDeviation.set(0, 0, 1.5);
+                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(2, 0, 2.5);
+                                        Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
+                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                        leftFrontResult.getTimestampSeconds(), standardDeviation);
+                                }
+                        }
+
+                        if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
+                                        && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                                var rightFrontResult = peripherals.getRightFrontCamResult();
+                                Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
+                                                .update(rightFrontResult);
+                                if (rightFrontMultiTagResult.isPresent()) {
+                                        if (true) {
+                                                standardDeviation.set(0, 0, 1.5);
+                                                standardDeviation.set(1, 0, 1.5);
+                                                standardDeviation.set(2, 0, 2.5);
+                                                Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
+                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                                rightFrontResult.getTimestampSeconds(),
+                                                                standardDeviation);
+                                        }
+                                }
+                                try {
+                                        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
+                                                        gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
+                                                                        Constants.Vision.LIMELIGHT_NAME);
+
+                                        Optional<Rotation2d> maybeTurretAngle = getTurretAngle(mt2.timestampSeconds);
+                                        if (maybeTurretAngle.isPresent()) {
+                                                Constants.Vision.updateLimelightPoseFromTurret(
+                                                                new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
+                                                                                Rotation3d.kZero),
+                                                                maybeTurretAngle.get(),
+                                                                Constants.Vision.turretToLimelight,
+                                                                Constants.Vision.LIMELIGHT_NAME);
+
+                                                boolean doRejectUpdate = false;
+                                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                                                // doRejectUpdate = true;
+                                                // }
+                                                if (mt2.tagCount == 0) {
+                                                        doRejectUpdate = true;
+                                                }
+                                                if (!doRejectUpdate) {
+                                                        standardDeviation.set(0, 0, 2.0);
+                                                        standardDeviation.set(1, 0, 2.0);
+                                                        standardDeviation.set(2, 0, 5.0);
+                                                        mt2Odometry.addVisionMeasurement(
+                                                                        mt2.pose,
+                                                                        mt2.timestampSeconds, standardDeviation);
+                                                }
+                                        } else {
+                                                System.out.println("Turret angle not found for timestamp: "
+                                                                + mt2.timestampSeconds);
+                                        }
+                                } catch (Exception e) {
+                                        System.out.println(e);
+                                }
+                        }
+
+                }
+
+                // Module states
+                var frontLeftState = frontLeft.getSwerveModuleState(gyro.getYaw());
+                var frontRightState = frontRight.getSwerveModuleState(gyro.getYaw());
+                var backLeftState = backLeft.getSwerveModuleState(gyro.getYaw());
+                var backRightState = backRight.getSwerveModuleState(gyro.getYaw());
+                // Convert to chassis speeds
+                ChassisSpeeds robotSpeeds = m_kinematics.toChassisSpeeds(
+                                frontLeftState, frontRightState, backLeftState, backRightState);
+                filterX.calculate(robotSpeeds.vxMetersPerSecond);
+                filterY.calculate(robotSpeeds.vyMetersPerSecond);
+                filterOmega.calculate(Math.toRadians(gyro.getAngularVelocityZWorldDegPerSec()));
+
+        }
+
+        public Optional<Rotation2d> getTurretAngle(double timestamp) {
+                return turretAngleBuffer.getSample(timestamp);
+        }
+
+        public void addTurretObservation(double timestamp, Rotation2d turretAngle) {
+                turretAngleBuffer.addSample(timestamp, turretAngle);
         }
 
         @Override
         protected Pose2d getPosition() {
-                return mt2Odometry.getEstimatedPosition();
+                double x = mt2Odometry.getEstimatedPosition().getX();
+                double y = mt2Odometry.getEstimatedPosition().getY();
+                Rotation2d heading = gyro.getYaw();
+                return new Pose2d(x, y, heading);
         }
 
         @Override
@@ -258,6 +348,11 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnVelocity, yaw);
                 backLeft.drive(velocityVector, turnVelocity, yaw);
                 backRight.drive(velocityVector, turnVelocity, yaw);
+                velocityVector = velocityVector.rotate(yaw);
+                wantedChassisSpeeds = new ChassisSpeeds(
+                                velocityVector.getI(),
+                                velocityVector.getJ(),
+                                turnVelocity);
         }
 
         @Override
@@ -266,6 +361,10 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnRadiansPerSec, 0);
                 backLeft.drive(velocityVector, turnRadiansPerSec, 0);
                 backRight.drive(velocityVector, turnRadiansPerSec, 0);
+                wantedChassisSpeeds = new ChassisSpeeds(
+                                velocityVector.getI(),
+                                velocityVector.getJ(),
+                                turnRadiansPerSec);
         }
 
         @Override
@@ -274,37 +373,31 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnRadiansPerSec, camAngle);
                 backLeft.drive(velocityVector, turnRadiansPerSec, camAngle);
                 backRight.drive(velocityVector, turnRadiansPerSec, camAngle);
+                velocityVector = velocityVector.rotate(camAngle);
+                wantedChassisSpeeds = new ChassisSpeeds(
+                                velocityVector.getI(),
+                                velocityVector.getJ(),
+                                turnRadiansPerSec);
         }
 
         @Override
-        protected Vector getVelocityVector() {
-                Vector velocityVector = new Vector();
-                double pigeonAngleRadians = getYaw().getRadians();
-
-                double frV = this.frontRight.getGroundSpeed();
-                double frTheta = this.frontRight.getWheelPosition() + pigeonAngleRadians;
-                double frVX = frV * Math.cos(frTheta);
-                double frVY = frV * Math.sin(frTheta);
-                double flV = this.frontLeft.getGroundSpeed();
-                double flTheta = this.frontLeft.getWheelPosition() + pigeonAngleRadians;
-                double flVX = flV * Math.cos(flTheta);
-                double flVY = flV * Math.sin(flTheta);
-                double blV = this.backLeft.getGroundSpeed();
-                double blTheta = this.backLeft.getWheelPosition() + pigeonAngleRadians;
-                double blVX = blV * Math.cos(blTheta);
-                double blVY = blV * Math.sin(blTheta);
-                double brV = this.backRight.getGroundSpeed();
-                double brTheta = this.backRight.getWheelPosition() + pigeonAngleRadians;
-                double brVX = brV * Math.cos(brTheta);
-                double brVY = brV * Math.sin(brTheta);
-
-                velocityVector.setI(frVX + flVX + blVX + brVX);
-                velocityVector.setJ(frVY + flVY + blVY + brVY);
-                return velocityVector;
+        protected ChassisSpeeds getChassisSpeeds() {
+                ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
+                                filterOmega.lastValue());
+                Logger.recordOutput("Drive/RobotVelocities/X", avg.vxMetersPerSecond);
+                Logger.recordOutput("Drive/RobotVelocities/Y", avg.vyMetersPerSecond);
+                Logger.recordOutput("Drive/RobotVelocities/Omega", avg.omegaRadiansPerSecond);
+                return avg;
         }
 
         @Override
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
+                getChassisSpeeds();
+        }
+
+        @Override
+        protected ChassisSpeeds getWantedChassisSpeeds() {
+                return wantedChassisSpeeds;
         }
 }

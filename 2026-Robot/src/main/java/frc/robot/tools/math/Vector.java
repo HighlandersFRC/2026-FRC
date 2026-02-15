@@ -2,6 +2,7 @@
 
 package frc.robot.tools.math;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Vector {
@@ -154,5 +155,13 @@ public class Vector {
 
     public Vector flipY() {
         return new Vector(i, -j);
+    }
+
+    public Vector sameDirectionSquare() {
+        return new Vector(Math.copySign(i * i, i), Math.copySign(j * j, j));
+    }
+
+    public Rotation2d getRotation() {
+        return new Rotation2d(i, j);
     }
 }
