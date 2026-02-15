@@ -500,9 +500,9 @@ public class Superstructure extends SubsystemBase {
       shooter.setWantedState(ShooterState.NORMAL_SHOOT,
           rotatedShotSolution);
       if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.SHOOT);
-      } else {
         feeder.setWantedState(FeederState.FEED);
+      } else {
+        feeder.setWantedState(FeederState.IDLE);
       }
     }
   }
@@ -521,9 +521,9 @@ public class Superstructure extends SubsystemBase {
       shooter.setWantedState(ShooterState.NORMAL_SHOOT,
           rotatedShotSolution);
       if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.SHOOT);
-      } else {
         feeder.setWantedState(FeederState.FEED);
+      } else {
+        feeder.setWantedState(FeederState.IDLE);
       }
     }
   }
@@ -542,9 +542,9 @@ public class Superstructure extends SubsystemBase {
       shooter.setWantedState(ShooterState.NORMAL_SHOOT,
           rotatedShotSolution);
       if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.SHOOT);
-      } else {
         feeder.setWantedState(FeederState.FEED);
+      } else {
+        feeder.setWantedState(FeederState.IDLE);
       }
     }
   }
