@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoClimbFollower;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.commands.SetRobotState;
 import frc.robot.commands.SetRobotStateComplicatedAfterWait;
-import frc.robot.commands.SetRobotStateComplicated;
 import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.SetRobotStateSimpleOnce;
@@ -60,6 +60,7 @@ public class RobotContainer {
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
                         put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
+                        put("Climb", () -> new AutoClimbFollower(superstructure, drive));
                 }
         };
 
@@ -123,7 +124,7 @@ public class RobotContainer {
                                 SuperState.DEFAULT, 0.5));
 
                 OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
-                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
+                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
                 OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
 
                 OI.driverMenuButton.whileTrue(new SetRobotState(superstructure, SuperState.DEFAULT));

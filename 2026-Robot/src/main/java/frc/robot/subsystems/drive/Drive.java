@@ -55,9 +55,6 @@ public class Drive extends SubsystemBase {
   private double kTurningP = 0.04;
   private double kTurningI = 0;
   private double kTurningD = 0.06;
-  private double kRotateP = 0.04;
-  private double kRotateI = 0.0;
-  private double kRotateD = 0.06;
 
   private PID xxPID = new PID(kkXP, kkXI, kkXD);
   private PID yyPID = new PID(kkYP, kkYI, kkYD);
@@ -67,7 +64,6 @@ public class Drive extends SubsystemBase {
   private PID yPID = new PID(kYP, kYI, kYD);
   private PID thetaPID = new PID(kThetaP, kThetaI, kThetaD);
   private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
-  private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
   public boolean robotCentric = false;
 
@@ -116,11 +112,11 @@ public class Drive extends SubsystemBase {
    */
   public void init() {
     // sets configurations when run on robot initalization
-    xxPID.setMinOutput(-3.0);
-    xxPID.setMaxOutput(3.0);
+    xxPID.setMinOutput(-1.5);
+    xxPID.setMaxOutput(1.5);
 
-    yyPID.setMinOutput(-3.0);
-    yyPID.setMaxOutput(3.0);
+    yyPID.setMinOutput(-1.5);
+    yyPID.setMaxOutput(1.5);
 
     thetaaPID.setMinOutput(-3.0);
     thetaaPID.setMaxOutput(3.0);
@@ -133,6 +129,9 @@ public class Drive extends SubsystemBase {
 
     thetaPID.setMinOutput(-3);
     thetaPID.setMaxOutput(3);
+
+    turningPID.setMinOutput(-3.0);
+    turningPID.setMaxOutput(3.0);
   }
 
   public void teleopInit() {
@@ -442,7 +441,7 @@ public class Drive extends SubsystemBase {
     double theta = pose.getRotation().getRadians();
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.045
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.0254
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
       hitNumber += 1;
@@ -915,33 +914,49 @@ public class Drive extends SubsystemBase {
   Field2d field = new Field2d();
 
   public Pose2d getClimbPrepSetpoint() {
-    if (getMt2Pose2dX() > Constants.Physical.FIELD_LENGTH / 2.0) {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+    if (Globals.fieldSide.equals("blue")) {
+      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightBlueSide.getTranslation());
+      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftBlueSide.getTranslation());
+      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
+        return Constants.Physical.preClimbPoseRightBlueSide;
+      } else {
+        return Constants.Physical.preClimbPoseLeftBlueSide;
+      }
+    } else {
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
         return Constants.Physical.preClimbPoseRightRedSide;
       } else {
         return Constants.Physical.preClimbPoseLeftRedSide;
-      }
-    } else {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
-        return Constants.flipFieldSide(Constants.Physical.preClimbPoseRightRedSide);
-      } else {
-        return Constants.flipFieldSide(Constants.Physical.preClimbPoseLeftRedSide);
       }
     }
   }
 
   public Pose2d getClimbAlignSetpoint() {
-    if (getMt2Pose2dX() > Constants.Physical.FIELD_LENGTH / 2.0) {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
+    if (Globals.fieldSide.equals("blue")) {
+      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightBlueSide.getTranslation());
+      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftBlueSide.getTranslation());
+      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
+        return Constants.Physical.climbPoseRightBlueSide;
+      } else {
+        return Constants.Physical.climbPoseLeftBlueSide;
+      }
+    } else {
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
         return Constants.Physical.climbPoseRightRedSide;
       } else {
         return Constants.Physical.climbPoseLeftRedSide;
-      }
-    } else {
-      if (getMt2Pose2dY() > Constants.Physical.FIELD_WIDTH / 2.0) {
-        return Constants.flipFieldSide(Constants.Physical.climbPoseRightRedSide);
-      } else {
-        return Constants.flipFieldSide(Constants.Physical.climbPoseLeftRedSide);
       }
     }
   }
@@ -969,8 +984,6 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("Drive/Expected Speed",
         Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
     Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
-    Logger.recordOutput("Climber/Climb Prep Setpoint", getClimbPrepSetpoint());
-    Logger.recordOutput("Climber/Climb Align Setpoint", getClimbAlignSetpoint());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
@@ -1007,10 +1020,14 @@ public class Drive extends SubsystemBase {
         stop();
         break;
       case DRIVE_TO_PRE_CLIMB:
-        driveToPoint(getClimbPrepSetpoint());
+        Pose2d climbPrepSetpoint = getClimbPrepSetpoint();
+        Logger.recordOutput("climb prep", climbPrepSetpoint);
+        driveToPoint(climbPrepSetpoint);
         break;
       case DRIVE_TO_ALIGN_CLIMB:
-        driveToPoint(getClimbAlignSetpoint());
+        Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
+        Logger.recordOutput("climb align", climbAlignSetpoint);
+        driveToPoint(climbAlignSetpoint);
         break;
       default:
         break;

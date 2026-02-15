@@ -100,14 +100,31 @@ public final class Constants {
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
                 public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                15.075, 4.944), new Rotation2d(Math.PI));
+                                15.13, 3.98), new Rotation2d(Math.PI));
                 public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                14.600, 4.944), new Rotation2d(Math.PI));
+                                14.660, 3.98), new Rotation2d(Math.PI));
 
                 public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
-                                15.075, 4.924), new Rotation2d(Math.PI));
+                                15.13, 4.774), new Rotation2d(Math.PI));
                 public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
-                                14.600, 4.924), new Rotation2d(Math.PI));
+                                14.660, 4.774), new Rotation2d(Math.PI));
+
+                public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseLeftRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - climbPoseLeftRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseLeftRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - preClimbPoseLeftRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - climbPoseRightRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseRightRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
+                                new Rotation2d());
 
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
@@ -163,8 +180,8 @@ public final class Constants {
                 public static final double SIM_BRAKE_MODE_THRESHOLD = 0.05;
                 public static final double SIM_MAX_ACCELERATION = 12.0; // meters per second
                 public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
-                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.2056;
-                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 2.0 * SIM_FRICTION_COEFFICIENT;
+                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4499;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 10.0 * SIM_FRICTION_COEFFICIENT;
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION
                                 / Constants.Physical.ROBOT_RADIUS;
 
@@ -310,6 +327,14 @@ public final class Constants {
                                         Translation3d _trajectorySetpoint) {
                                 return new Rotation2d(Math.atan2(_trajectorySetpoint.getY(),
                                                 _trajectorySetpoint.getX()));
+                        }
+
+                        public static Rotation2d getFutureSetpointEstimate(Rotation2d currentSetpoint,
+                                        double driveAngularVelocity, double foresightTime) {
+                                Logger.recordOutput("Shooter/Turret Drive Angular Velocity", driveAngularVelocity);
+                                double predictedAngle = currentSetpoint.getRadians()
+                                                - driveAngularVelocity * foresightTime;
+                                return new Rotation2d(predictedAngle);
                         }
                 }
 

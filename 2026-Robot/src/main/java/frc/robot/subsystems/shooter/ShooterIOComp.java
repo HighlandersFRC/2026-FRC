@@ -161,14 +161,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.061279296875; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.416259765625; // TODO: Try calculating offset from
                                                                               // previous zero
                                                                               // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.602294921875;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.93017578125;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -182,6 +182,11 @@ class ShooterIOComp implements ShooterIO {
                                                 Rotation2d.fromRotations(hoodMotor.getPosition().getValueAsDouble())); // TODO:
                                                                                                                        // try
                                                                                                                        // getLatencyCompensatedValueAsDouble()
+        }
+
+        @Override
+        public void zeroTurretToEncoder() {
+                turretMotor.setPosition(Units.radiansToRotations(getRelativeTurretAngleRadians()));
         }
 
         @Override
