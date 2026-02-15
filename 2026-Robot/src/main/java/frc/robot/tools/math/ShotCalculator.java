@@ -64,12 +64,14 @@ public class ShotCalculator {
                 }
 
                 public ShotSolution addRPM(double rpm) {
-                        return new ShotSolution(
+                        ShotSolution adjusted = new ShotSolution(
                                         this.hoodAngle,
                                         this.flywheelRPM + rpm,
                                         this.turretAngle,
                                         this.distanceToTarget,
                                         this.timeOfFlight);
+                        adjusted.robotVelocity = this.robotVelocity;
+                        return adjusted;
                 }
         }
 
