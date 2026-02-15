@@ -55,12 +55,14 @@ public class ShotCalculator {
                 }
 
                 public ShotSolution rotateHoodAngle(Rotation2d rotation) {
-                        return new ShotSolution(
+                        ShotSolution rotated = new ShotSolution(
                                         this.hoodAngle.plus(rotation),
                                         this.flywheelRPM,
                                         this.turretAngle,
                                         this.distanceToTarget,
                                         this.timeOfFlight);
+                        rotated.robotVelocity = this.robotVelocity;
+                        return rotated;
                 }
 
                 public ShotSolution addRPM(double rpm) {
