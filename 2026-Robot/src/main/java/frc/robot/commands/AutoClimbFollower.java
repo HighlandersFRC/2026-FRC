@@ -30,19 +30,19 @@ public class AutoClimbFollower extends AutoFollower {
   }
 
   public void from(int pointIndex, JSONObject pathJSON, int to) {
-    java.util.logging.Logger.getGlobal().fine("Running L4 in auto");
+    java.util.logging.Logger.getGlobal().fine("Running climb in auto");
     this.currentPathPointIndex = pointIndex;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    superstructure.setWantedState(SuperState.AUTO_CLIMB);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    superstructure.setWantedState(SuperState.AUTO_PREP_CLIMB);
   }
 
   // Called once the command ends or is interrupted.
