@@ -55,9 +55,6 @@ public class Drive extends SubsystemBase {
   private double kTurningP = 0.04;
   private double kTurningI = 0;
   private double kTurningD = 0.06;
-  private double kRotateP = 0.04;
-  private double kRotateI = 0.0;
-  private double kRotateD = 0.06;
 
   private PID xxPID = new PID(kkXP, kkXI, kkXD);
   private PID yyPID = new PID(kkYP, kkYI, kkYD);
@@ -67,7 +64,6 @@ public class Drive extends SubsystemBase {
   private PID yPID = new PID(kYP, kYI, kYD);
   private PID thetaPID = new PID(kThetaP, kThetaI, kThetaD);
   private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
-  private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
   public boolean robotCentric = false;
 
@@ -133,6 +129,9 @@ public class Drive extends SubsystemBase {
 
     thetaPID.setMinOutput(-3);
     thetaPID.setMaxOutput(3);
+
+    turningPID.setMinOutput(-3.0);
+    turningPID.setMaxOutput(3.0);
   }
 
   public void teleopInit() {
