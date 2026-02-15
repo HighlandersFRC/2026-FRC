@@ -317,6 +317,14 @@ public final class Constants {
                                 return new Rotation2d(Math.atan2(_trajectorySetpoint.getY(),
                                                 _trajectorySetpoint.getX()));
                         }
+
+                        public static Rotation2d getFutureSetpointEstimate(Rotation2d currentSetpoint,
+                                        double driveAngularVelocity, double foresightTime) {
+                                Logger.recordOutput("Shooter/Turret Drive Angular Velocity", driveAngularVelocity);
+                                double predictedAngle = currentSetpoint.getRadians()
+                                                - driveAngularVelocity * foresightTime;
+                                return new Rotation2d(predictedAngle);
+                        }
                 }
 
                 public static class Flywheel {

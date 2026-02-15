@@ -315,7 +315,7 @@ public class DriveIOComp extends DriveIO {
                                 frontLeftState, frontRightState, backLeftState, backRightState);
                 filterX.calculate(robotSpeeds.vxMetersPerSecond);
                 filterY.calculate(robotSpeeds.vyMetersPerSecond);
-                filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
+                filterOmega.calculate(Math.toRadians(gyro.getAngularVelocityZWorldRadPerSec()));
 
         }
 

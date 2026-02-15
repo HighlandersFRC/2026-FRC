@@ -1,6 +1,9 @@
 package frc.robot.tools.math;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.ConsoleSource.RoboRIO;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,6 +21,7 @@ public class ShotCalculator {
                 public final Rotation2d turretAngle;
                 public final double distanceToTarget;
                 public final double timeOfFlight;
+                public Optional<ChassisSpeeds> robotVelocity = Optional.empty();
 
                 public ShotSolution() {
                         this.hoodAngle = new Rotation2d();
@@ -25,6 +29,10 @@ public class ShotCalculator {
                         this.turretAngle = new Rotation2d();
                         this.distanceToTarget = 0.0;
                         this.timeOfFlight = 0.0;
+                }
+
+                public void setRobotVelocity(ChassisSpeeds robotVelocity) {
+                        this.robotVelocity = Optional.of(robotVelocity);
                 }
 
                 public ShotSolution(Rotation2d hoodAngle, double flywheelRPM, Rotation2d turretAngle,
@@ -37,12 +45,14 @@ public class ShotCalculator {
                 }
 
                 public ShotSolution rotateTurretAngle(Rotation2d rotation) {
-                        return new ShotSolution(
+                        ShotSolution rotated = new ShotSolution(
                                         this.hoodAngle,
                                         this.flywheelRPM,
                                         this.turretAngle.plus(rotation),
                                         this.distanceToTarget,
                                         this.timeOfFlight);
+                        rotated.robotVelocity = this.robotVelocity;
+                        return rotated;
                 }
         }
 
@@ -90,12 +100,12 @@ public class ShotCalculator {
 
         private static ShotSolution calculate(InterpolatingDoubleTreeMap tofMap, InterpolatingDoubleTreeMap flywheelMap,
                         InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap,
-                        Translation2d turretPosition, Translation2d targetPosition, ChassisSpeeds robotVelocity) {
-                double distanceToTarget = turretPosition.getDistance(targetPosition);
+                        Pose2d turretPosition, Translation2d targetPosition, ChassisSpeeds robotVelocity) {
+                double distanceToTarget = turretPosition.getTranslation().getDistance(targetPosition);
                 double timeOfFlight = tofMap.get(distanceToTarget);
                 double vx = -robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
                 double vy = robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
-                Translation2d tangentialVelocity = new Translation2d(vx, vy);
+                Translation2d tangentialVelocity = new Translation2d(vx, vy).rotateBy(turretPosition.getRotation());
                 Logger.recordOutput("ShotCalculator/TangentialVelocity", tangentialVelocity);
                 Translation2d turretVelocity = new Translation2d(
                                 robotVelocity.vxMetersPerSecond + tangentialVelocity.getX(),
@@ -106,7 +116,7 @@ public class ShotCalculator {
                         Translation2d predictedTarget = targetPosition.plus(new Translation2d(
                                         turretVelocity.getX(),
                                         turretVelocity.getY()).times(-timeOfFlight));
-                        distanceToTarget = turretPosition.getDistance(predictedTarget);
+                        distanceToTarget = turretPosition.getTranslation().getDistance(predictedTarget);
                         timeOfFlight = tofMap.get(distanceToTarget);
                 }
                 Translation2d predictedTarget = targetPosition.plus(new Translation2d(
@@ -114,22 +124,25 @@ public class ShotCalculator {
                                 turretVelocity.getY()).times(-timeOfFlight));
                 Logger.recordOutput("ShotCalculator/TimeOfFlight", timeOfFlight);
                 Logger.recordOutput("ShotCalculator/TargetPose", new Pose2d(predictedTarget, new Rotation2d()));
-                distanceToTarget = turretPosition.getDistance(predictedTarget);
+                distanceToTarget = turretPosition.getTranslation().getDistance(predictedTarget);
                 Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
                 double flywheelRPM = flywheelMap.get(distanceToTarget);
-                Rotation2d turretAngle = predictedTarget.minus(turretPosition).getAngle();
-                return new ShotSolution(
+                Rotation2d turretAngle = predictedTarget.minus(turretPosition.getTranslation()).getAngle();
+                ShotSolution solution = new ShotSolution(
                                 hoodAngle, flywheelRPM, turretAngle, distanceToTarget, timeOfFlight);
+                solution.setRobotVelocity(robotVelocity);
+                return solution;
 
         }
 
-        public static ShotSolution calculateHubShot(Translation2d turretPosition, Translation2d targetPosition,
+        public static ShotSolution calculateHubShot(Pose2d turretPosition, Translation2d targetPosition,
                         ChassisSpeeds robotVelocity) {
                 return calculate(hubTimeOfFlightMap, hubFlywheelMap, hubHoodAngleMap, turretPosition, targetPosition,
                                 robotVelocity);
         }
 
-        public static ShotSolution calculateFeedShot(Translation2d turretPosition, Translation2d targetPosition,
+        public static ShotSolution calculateFeedShot(
+                        Pose2d turretPosition, Translation2d targetPosition,
                         ChassisSpeeds robotVelocity) {
                 return calculate(feedTimeOfFlightMap, feedFlywheelMap, feedHoodAngleMap, turretPosition, targetPosition,
                                 robotVelocity);
