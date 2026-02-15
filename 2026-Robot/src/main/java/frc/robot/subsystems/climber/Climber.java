@@ -59,7 +59,8 @@ public class Climber extends SubsystemBase {
     switch (systemState) {
       case CLIMBING:
         if (getClimberPosition() < 3.0) {
-          io.stop();
+          // io.stop();
+          io.setPower(-60, 0.5);
           Logger.recordOutput("Climber/Output", "Stopped Climbing");
         } else {
           io.setPower(-70, 0.5);

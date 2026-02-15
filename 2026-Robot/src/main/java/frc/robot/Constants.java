@@ -169,8 +169,8 @@ public final class Constants {
                 public static final double SIM_BRAKE_MODE_THRESHOLD = 0.05;
                 public static final double SIM_MAX_ACCELERATION = 12.0; // meters per second
                 public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
-                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.2056;
-                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 2.0 * SIM_FRICTION_COEFFICIENT;
+                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4499;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 10.0 * SIM_FRICTION_COEFFICIENT;
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION
                                 / Constants.Physical.ROBOT_RADIUS;
 
