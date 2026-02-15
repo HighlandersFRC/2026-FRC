@@ -6,12 +6,15 @@ package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
+import frc.robot.tools.math.ShotCalculator.ShotSolution;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
@@ -19,16 +22,20 @@ public class Shooter extends SubsystemBase {
   public enum ShooterState {
     DEFAULT,
     IDLE,
-    SHOOT,
-    MANUAL_SHOOT,
+    PHYSICS_SHOOT,
+    NORMAL_SHOOT,
   }
 
   private ShooterState wantedState = ShooterState.IDLE;
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
-  private Rotation2d manualTurretAngle = new Rotation2d(0),
-      manualHoodAngle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
-  private double manualFlywheelRPM = 1000.0;
+  private Rotation2d idleTurretAngle = new Rotation2d(0.0);
+  private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle, 0.0, 0.0);
+
+  Translation3d target = Constants.Field.getHubPose();
+  Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
+  Pose2d robotPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
+  Translation3d turretFieldPosition = new Translation3d(0.0, 0.0, 0.0);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -47,15 +54,9 @@ public class Shooter extends SubsystemBase {
     this._trajectorySetpoint = trajectorySetpoint;
   }
 
-  public void setWantedState(ShooterState wantedState, Rotation2d turretAngle, Rotation2d hoodAngle,
-      double flywheelRPM) {
-    // System.out.println("Setting Manual Shooter State: Hood Angle: " +
-    // hoodAngle.getDegrees() + " Turret Angle: "
-    // + turretAngle.getDegrees() + " Flywheel RPM: " + flywheelRPM);
+  public void setWantedState(ShooterState wantedState, ShotSolution wantedShotSolution) {
     this.wantedState = wantedState;
-    this.manualTurretAngle = turretAngle;
-    this.manualHoodAngle = hoodAngle;
-    this.manualFlywheelRPM = flywheelRPM;
+    this.wantedShotSolution = wantedShotSolution;
   }
 
   private ShooterState handleStateTransition() {
@@ -64,45 +65,95 @@ public class Shooter extends SubsystemBase {
         return ShooterState.DEFAULT;
       case IDLE:
         return ShooterState.IDLE;
-      case SHOOT:
-        return ShooterState.SHOOT;
-      case MANUAL_SHOOT:
-        return ShooterState.MANUAL_SHOOT;
+      case PHYSICS_SHOOT:
+        return ShooterState.PHYSICS_SHOOT;
+      case NORMAL_SHOOT:
+        return ShooterState.NORMAL_SHOOT;
       default:
         return ShooterState.IDLE;
     }
   }
 
-  private void shoot() {
+  private void physicsShoot() {
     moveHoodToAngle(Constants.SetPoints.Hood.getHoodAngleSetpointForTrajectory(_trajectorySetpoint));
     setTurretAngle(Constants.SetPoints.Turret.getTurretAngleSetpointForTrajectory(_trajectorySetpoint));
     setFlywheelRPM(Constants.SetPoints.Flywheel.getFlywheelRPMSetpointForTrajectory(_trajectorySetpoint));
   }
 
-  private void manualShoot() {
-    // System.out.println("Manual Shooting: Hood Angle: " +
-    // manualHoodAngle.getDegrees() + " Turret Angle: "
-    // + manualTurretAngle.getDegrees() + " Flywheel RPM: " + manualFlywheelRPM);
-    moveHoodToAngle(manualHoodAngle);
-    setTurretAngle(manualTurretAngle);
-    setFlywheelRPM(manualFlywheelRPM);
+  private void normalShoot() {
+    Logger.recordOutput("Shooter/Wanted Turret Angle", wantedShotSolution.turretAngle.getDegrees());
+    if (wantedShotSolution.robotVelocity.isPresent()) {
+      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
+          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
+      Logger.recordOutput("Shooter/Predicted Turret Angle",
+          prediction.getDegrees());
+      setTurretAngle(prediction);
+    } else {
+      setTurretAngle(wantedShotSolution.turretAngle);
+
+    }
+    moveHoodToAngle(wantedShotSolution.hoodAngle);
+    setFlywheelRPM(wantedShotSolution.flywheelRPM);
   }
 
-  public boolean readyToShoot(double horizontalDistanceToTargetMeters) {
+  public boolean readyToShoot() {
     double hoodAngleError = Math
         .abs(getHoodAngle()
-            .minus(manualHoodAngle)
+            .minus(wantedShotSolution.hoodAngle)
             .getRadians());
-    double turretAngleError = Math.abs(
-        getRobotRelativeTurretAngle()
-            .minus(manualTurretAngle)
-            .getRadians());
+    double turretAngleError;
+    if (wantedShotSolution.robotVelocity.isPresent()) {
+      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
+          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
+      turretAngleError = Math.abs(
+          getRobotRelativeTurretAngle()
+              .minus(prediction)
+              .getRadians());
+    } else {
+      turretAngleError = Math.abs(
+          getRobotRelativeTurretAngle()
+              .minus(wantedShotSolution.turretAngle)
+              .getRadians());
+
+    }
+
     double turretPrecisionRequired = Math
-        .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / horizontalDistanceToTargetMeters);
+        .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
     Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
-            - manualFlywheelRPM);
+            - wantedShotSolution.flywheelRPM);
+    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+        && turretAngleError < turretPrecisionRequired
+        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+  }
+
+  public boolean readyToPass() {
+    double hoodAngleError = Math
+        .abs(getHoodAngle()
+            .minus(wantedShotSolution.hoodAngle)
+            .getRadians());
+    double turretAngleError;
+    if (wantedShotSolution.robotVelocity.isPresent()) {
+      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
+          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.2);
+      turretAngleError = Math.abs(
+          getRobotRelativeTurretAngle()
+              .minus(prediction)
+              .getRadians());
+    } else {
+      turretAngleError = Math.abs(
+          getRobotRelativeTurretAngle()
+              .minus(wantedShotSolution.turretAngle)
+              .getRadians());
+
+    }
+    double turretPrecisionRequired = Math
+        .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
+    Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
+    double flywheelRPMError = Math
+        .abs(getFlywheelRPM()
+            - wantedShotSolution.flywheelRPM);
     return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
@@ -138,6 +189,10 @@ public class Shooter extends SubsystemBase {
 
   public void setFlywheelRPM(double rpm) {
     io.setFlywheelRPM(rpm);
+  }
+
+  public void zeroTurretToEncoder() {
+    io.zeroTurretToEncoder();
   }
 
   public Translation3d getCurrentShooterTrajectory() {
@@ -182,6 +237,10 @@ public class Shooter extends SubsystemBase {
     return clampedAngle;
   }
 
+  public void passIdleTurretAngleToIdle(Rotation2d angle) {
+    idleTurretAngle = angle;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs();
@@ -193,6 +252,7 @@ public class Shooter extends SubsystemBase {
             + Math.pow(_trajectorySetpoint.getY(), 2)
             + Math.pow(_trajectorySetpoint.getZ(), 2)));
     Logger.recordOutput("Shooter/Shooter State", systemState);
+    Logger.recordOutput("States/Shooter State", systemState);
 
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {
@@ -200,18 +260,24 @@ public class Shooter extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        io.setFlywheelPercent(0.0);
+        trackTarget();
         break;
       case IDLE:
         break;
-      case SHOOT:
-        shoot();
+      case PHYSICS_SHOOT:
+        physicsShoot();
         break;
-      case MANUAL_SHOOT:
-        manualShoot();
+      case NORMAL_SHOOT:
+        normalShoot();
         break;
       default:
         break;
     }
+  }
+
+  private void trackTarget() {
+    io.setTurretAngle(getRelativeAngleFromRotation2d(idleTurretAngle));
+    io.setHoodAngle(new Rotation2d(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
+    io.setFlywheelPercent(0.0);
   }
 }

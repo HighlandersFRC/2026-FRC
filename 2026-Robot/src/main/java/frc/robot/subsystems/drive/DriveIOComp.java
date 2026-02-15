@@ -22,13 +22,16 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
@@ -83,11 +86,11 @@ public class DriveIOComp extends DriveIO {
                         new Rotation3d(0, Math.toRadians(-21.2), Math.toRadians(115.0)));
 
         Transform3d leftFrontRobotToCam = new Transform3d( // front reef cam on swerve module
-                        new Translation3d(Constants.inchesToMeters(10.0),
-                                        Constants.inchesToMeters(16.0),
-                                        Constants.inchesToMeters(21.5)),
-                        new Rotation3d(0.0, Math.toRadians(-21.2),
-                                        Math.toRadians(65.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.75),
+                                        Constants.inchesToMeters(13.0),
+                                        Constants.inchesToMeters(11.5)),
+                        new Rotation3d(Math.toRadians(3.0), Math.toRadians(-26.0),
+                                        Math.toRadians(195.0)));
 
         // xy position of module based on robot width and distance from edge of robot
         private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;
@@ -112,6 +115,9 @@ public class DriveIOComp extends DriveIO {
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
+
+        public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
+                        .createBuffer(2.0);
 
         public DriveIOComp(Peripherals peripherals) {
 
@@ -229,54 +235,78 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Odometry.update(getYaw(), swerveModulePositions);
 
-                standardDeviation.set(0, 0, 1.5);
-                standardDeviation.set(1, 0, 1.5);
-                standardDeviation.set(2, 0, 2.5);
+                addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
-                        var rightFrontResult = peripherals.getRightFrontCamResult();
-                        Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
-                                        .update(rightFrontResult);
-                        if (rightFrontMultiTagResult.isPresent()) {
-                                if (true) {
 
-                                        Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightFrontResult.getTimestampSeconds(), standardDeviation);
-                                }
-                        }
                         var leftFrontResult = peripherals.getLeftFrontCamResult();
                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
                                         .update(leftFrontResult);
                         if (leftFrontMultiTagResult.isPresent()) {
                                 if (true) {
+                                        standardDeviation.set(0, 0, 1.5);
+                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
                                                         leftFrontResult.getTimestampSeconds(), standardDeviation);
                                 }
                         }
 
-                        try {
-                                LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
-                                                gyro.getYawDegrees(), 0, 0, 0, 0, 0);
-                                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                                .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
+                        if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
+                                        && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                                var rightFrontResult = peripherals.getRightFrontCamResult();
+                                Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
+                                                .update(rightFrontResult);
+                                if (rightFrontMultiTagResult.isPresent()) {
+                                        if (true) {
+                                                standardDeviation.set(0, 0, 1.5);
+                                                standardDeviation.set(1, 0, 1.5);
+                                                standardDeviation.set(2, 0, 2.5);
+                                                Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
+                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                                rightFrontResult.getTimestampSeconds(),
+                                                                standardDeviation);
+                                        }
+                                }
+                                try {
+                                        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
+                                                        gyro.getYawDegrees(), 0, 0, 0, 0, 0);
+                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
+                                                                        Constants.Vision.LIMELIGHT_NAME);
 
-                                boolean doRejectUpdate = false;
-                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
-                                // doRejectUpdate = true;
-                                // }
-                                if (mt2.tagCount == 0) {
-                                        doRejectUpdate = true;
+                                        Optional<Rotation2d> maybeTurretAngle = getTurretAngle(mt2.timestampSeconds);
+                                        if (maybeTurretAngle.isPresent()) {
+                                                Constants.Vision.updateLimelightPoseFromTurret(
+                                                                new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
+                                                                                Rotation3d.kZero),
+                                                                maybeTurretAngle.get(),
+                                                                Constants.Vision.turretToLimelight,
+                                                                Constants.Vision.LIMELIGHT_NAME);
+
+                                                boolean doRejectUpdate = false;
+                                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
+                                                // doRejectUpdate = true;
+                                                // }
+                                                if (mt2.tagCount == 0) {
+                                                        doRejectUpdate = true;
+                                                }
+                                                if (!doRejectUpdate) {
+                                                        standardDeviation.set(0, 0, 2.0);
+                                                        standardDeviation.set(1, 0, 2.0);
+                                                        standardDeviation.set(2, 0, 5.0);
+                                                        mt2Odometry.addVisionMeasurement(
+                                                                        mt2.pose,
+                                                                        mt2.timestampSeconds, standardDeviation);
+                                                }
+                                        } else {
+                                                System.out.println("Turret angle not found for timestamp: "
+                                                                + mt2.timestampSeconds);
+                                        }
+                                } catch (Exception e) {
+                                        System.out.println(e);
                                 }
-                                if (!doRejectUpdate) {
-                                        // mt2Pose.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-                                        // mt2Odometry.addVisionMeasurement(
-                                        // mt2.pose,
-                                        // mt2.timestampSeconds, standardDeviation);
-                                }
-                        } catch (Exception e) {
-                                System.out.println(e);
                         }
 
                 }
@@ -291,8 +321,16 @@ public class DriveIOComp extends DriveIO {
                                 frontLeftState, frontRightState, backLeftState, backRightState);
                 filterX.calculate(robotSpeeds.vxMetersPerSecond);
                 filterY.calculate(robotSpeeds.vyMetersPerSecond);
-                filterOmega.calculate(robotSpeeds.omegaRadiansPerSecond);
+                filterOmega.calculate(Math.toRadians(gyro.getAngularVelocityZWorldDegPerSec()));
 
+        }
+
+        public Optional<Rotation2d> getTurretAngle(double timestamp) {
+                return turretAngleBuffer.getSample(timestamp);
+        }
+
+        public void addTurretObservation(double timestamp, Rotation2d turretAngle) {
+                turretAngleBuffer.addSample(timestamp, turretAngle);
         }
 
         @Override

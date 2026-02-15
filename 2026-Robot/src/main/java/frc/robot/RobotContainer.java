@@ -13,13 +13,15 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoClimbFollower;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.commands.SetRobotState;
-import frc.robot.commands.SetRobotStateComplicated;
+import frc.robot.commands.SetRobotStateComplicatedAfterWait;
 import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
+import frc.robot.commands.SetRobotStateSimpleOnce;
 import frc.robot.commands.ZeroAngleMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
@@ -56,6 +58,9 @@ public class RobotContainer {
                 {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
+                        put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
+                        put("Climb", () -> new AutoClimbFollower(superstructure, drive));
                 }
         };
 
@@ -114,14 +119,19 @@ public class RobotContainer {
         private void configureBindings() {
                 // COMPETITION CONTROLS
                 // Driver
-                OI.driverLT.whileTrue(new SetRobotStateOnce(superstructure, SuperState.SHOOT));
+                OI.driverLT.onTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.SHOOT));
+                OI.driverLT.onFalse(new SetRobotStateComplicatedAfterWait(superstructure, SuperState.SHOOTING_NO_FEED,
+                                SuperState.DEFAULT, 0.5));
+
                 OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
-                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
+                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
+                OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
 
                 OI.driverMenuButton.whileTrue(new SetRobotState(superstructure, SuperState.DEFAULT));
                 OI.driverX.whileTrue(new SetRobotStateOnce(superstructure, SuperState.MANUAL_SHOOT));
                 OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
                 OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));
+                OI.driverY.whileTrue(new SetRobotStateOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
                 // Operator
 
         }

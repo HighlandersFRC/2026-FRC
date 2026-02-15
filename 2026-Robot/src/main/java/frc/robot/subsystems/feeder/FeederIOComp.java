@@ -39,7 +39,7 @@ class FeederIOComp implements FeederIO {
         linearizerConfig.CurrentLimits.SupplyCurrentLimit = 80;
         linearizerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         linearizerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.LINEARIZER_GEAR_RATIO;
-        hopperConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        linearizerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         linearizerMotor.getConfigurator().apply(linearizerConfig);
         linearizerMotor.setNeutralMode(NeutralModeValue.Brake);
 

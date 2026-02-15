@@ -46,7 +46,7 @@ public class Gyro {
         return new Rotation2d(getYawRadians());
     }
 
-    public double getAngularVelocityZWorldRadPerSec() {
+    public double getAngularVelocityZWorldDegPerSec() {
         return pigeon.getAngularVelocityZWorld().getValueAsDouble();
     }
 

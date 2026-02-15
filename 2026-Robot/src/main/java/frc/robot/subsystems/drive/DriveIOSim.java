@@ -82,7 +82,7 @@ public class DriveIOSim extends DriveIO {
     void update(DriveState currentState) {
         ChassisSpeeds expectedSpeeds = Constants.Simulation.getExpectedDriveSpeeds(Globals.loopPeriodSecs,
                 getChassisSpeeds(),
-                new ChassisSpeeds(wantedVelocityVector.getI(), wantedVelocityVector.getJ(), wantedAngularVelocity));
+                new ChassisSpeeds(wantedVelocityVector.getI(), -wantedVelocityVector.getJ(), wantedAngularVelocity));
         velocityVector = new Vector(expectedSpeeds.vxMetersPerSecond, expectedSpeeds.vyMetersPerSecond);
         Logger.recordOutput("Sim/Robot Actual Simmed Velocity", velocityVector.magnitude());
         angularVelocity = expectedSpeeds.omegaRadiansPerSecond;

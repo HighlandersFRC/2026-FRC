@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -84,6 +85,8 @@ public final class Constants {
                 public static final double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
                 public static final double WHEEL_ROTATION_PER_METER = 1.0 / WHEEL_CIRCUMFERENCE;
                 public static final double TOP_SPEED = feetToMeters(30.0);
+                public static final double DRIVE_ACCELERATION_WHEN_SHOOTING = 0.67; // percentage of the wanted
+                                                                                    // acceleration when shooting [0, 1]
                 public static final double MAX_ACCELERATION = feetToMeters(30.0); // TODO: actually tune the top speed
                                                                                   // and max acceleration. Add a max
                                                                                   // deceleration if needed.
@@ -96,7 +99,32 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
-                public static Pose2d climbPose = new Pose2d();
+                public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
+                                15.13, 3.98), new Rotation2d(Math.PI));
+                public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
+                                14.660, 3.98), new Rotation2d(Math.PI));
+
+                public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
+                                15.13, 4.774), new Rotation2d(Math.PI));
+                public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
+                                14.660, 4.774), new Rotation2d(Math.PI));
+
+                public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseLeftRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - climbPoseLeftRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseLeftRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - preClimbPoseLeftRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - climbPoseRightRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseRightRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
+                                new Rotation2d());
 
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
@@ -158,8 +186,8 @@ public final class Constants {
                 public static final double SIM_BRAKE_MODE_THRESHOLD = 0.05;
                 public static final double SIM_MAX_ACCELERATION = 12.0; // meters per second
                 public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
-                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.2056;
-                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 2.0 * SIM_FRICTION_COEFFICIENT;
+                                / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4499;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 10.0 * SIM_FRICTION_COEFFICIENT;
                 public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION
                                 / Constants.Physical.ROBOT_RADIUS;
 
@@ -218,6 +246,16 @@ public final class Constants {
                 public static final double HUB_Z = 1.83;
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
+                public static final double BUMP_WIDTH = inchesToMeters(44.4);
+
+                public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(11.967, 2.410);
+                public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
+                                Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
+                public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
+                                Constants.Physical.FIELD_LENGTH - RED_LEFT_FEED_POSE.getX(),
+                                RED_RIGHT_FEED_POSE.getY());
+                public static final Translation2d BLUE_RIGHT_FEED_POSE = new Translation2d(BLUE_LEFT_FEED_POSE.getX(),
+                                RED_LEFT_FEED_POSE.getY());
 
                 public static Translation3d getHubPose() {
                         if (Globals.fieldSide.equals("blue")) {
@@ -227,7 +265,38 @@ public final class Constants {
                         }
                 }
 
+                public static Translation2d getFeedTarget(Translation2d turretPose) {
+                        if (Globals.fieldSide.equals("blue")) {
+                                if (turretPose.getY() > Constants.Physical.FIELD_WIDTH / 2) {
+                                        return BLUE_LEFT_FEED_POSE;
+                                } else {
+                                        return BLUE_RIGHT_FEED_POSE;
+                                }
+                        } else {
+                                if (turretPose.getY() < Constants.Physical.FIELD_WIDTH / 2) {
+                                        return RED_LEFT_FEED_POSE;
+                                } else {
+                                        return RED_RIGHT_FEED_POSE;
+                                }
+                        }
+                }
+
+                public static boolean isInAllianceZone(Translation2d robotPosition) {
+                        if (Globals.fieldSide.equals("red")) {
+                                return HUB_POSE_RED.getX() + BUMP_WIDTH / 2 < robotPosition.getX();
+                        } else {
+                                return robotPosition.getX() < HUB_POSE_BLUE.getX() - BUMP_WIDTH / 2;
+                        }
+                }
+
+                public static boolean isOnBump(Translation2d robotPosition) {
+                        boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH / 2;
+                        boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH / 2;
+                        return onBlueBump || onRedBump;
+                }
+
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
+                public static final double FEED_RADIUS = inchesToMeters(24.0);
                 public static final double BALL_WIDTH = 0.15;
         }
 
@@ -265,6 +334,14 @@ public final class Constants {
                                 return new Rotation2d(Math.atan2(_trajectorySetpoint.getY(),
                                                 _trajectorySetpoint.getX()));
                         }
+
+                        public static Rotation2d getFutureSetpointEstimate(Rotation2d currentSetpoint,
+                                        double driveAngularVelocity, double foresightTime) {
+                                Logger.recordOutput("Shooter/Turret Drive Angular Velocity", driveAngularVelocity);
+                                double predictedAngle = currentSetpoint.getRadians()
+                                                - driveAngularVelocity * foresightTime;
+                                return new Rotation2d(predictedAngle);
+                        }
                 }
 
                 public static class Flywheel {
@@ -278,6 +355,10 @@ public final class Constants {
                 }
 
                 public static class Shooter {
+                        private final static double DISTANCE_OFFSET = 0.0;
+                        private final static double ANGLE_OFFSET = 0.0;
+                        private final static double RPM_OFFSET = 80.0;
+                        private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
                                         { 1.21, 85, 1200, 0.4 },
@@ -296,6 +377,42 @@ public final class Constants {
                                         { 5.64, 65, 1800, 1.28 },
                                         { 6.67, 65, 2100, 1.5 },
                         };
+
+                        private final static double FEED_DISTANCE_OFFSET = 0.0;
+                        private final static double FEED_ANGLE_OFFSET = 0.0;
+                        private final static double FEED_RPM_OFFSET = 0.0;
+                        private final static double FEED_TOF_OFFSET = 0.0;
+                        // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
+                        public static final double[][] FEED_SHOT_MAP = new double[][] {
+                                        { 1.105, 56, 700, 0.75 },
+                                        { 1.41, 58, 750, 0.8 },
+                                        { 2.117, 65, 1000, 1.01 },
+                                        { 2.539, 65, 1100, 1.04 },
+                                        { 3.099, 66, 1250, 1.19 },
+                                        { 3.564, 67, 1300, 1.24 },
+                                        { 4.101, 70, 1450, 1.4 },
+                                        { 4.524, 71, 1500, 1.44 },
+                                        { 5.092, 65, 1550, 1.48 },
+                                        { 5.587, 63, 1690, 1.48 },
+                                        { 6.021, 60, 1767, 1.48 },
+                                        { 6.469, 58, 1738, 1.33 },
+                        };
+
+                        static {
+                                for (int i = 0; i < SHOT_MAP.length; i++) {
+                                        SHOT_MAP[i][0] += DISTANCE_OFFSET;
+                                        SHOT_MAP[i][1] += ANGLE_OFFSET;
+                                        SHOT_MAP[i][2] += RPM_OFFSET;
+                                        SHOT_MAP[i][3] += TOF_OFFSET;
+                                }
+
+                                for (int i = 0; i < FEED_SHOT_MAP.length; i++) {
+                                        FEED_SHOT_MAP[i][0] += FEED_DISTANCE_OFFSET;
+                                        FEED_SHOT_MAP[i][1] += FEED_ANGLE_OFFSET;
+                                        FEED_SHOT_MAP[i][2] += FEED_RPM_OFFSET;
+                                        FEED_SHOT_MAP[i][3] += FEED_TOF_OFFSET;
+                                }
+                        }
                 }
 
                 public static final class Intake {
@@ -333,11 +450,11 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         // Position PID
-                        public static final double kP0 = 50.0;
+                        public static final double kP0 = 75.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 5.0;
-                        public static final double kS0 = 2.0;
-                        public static final double kV0 = 1.0;
+                        public static final double kS0 = 1.0;
+                        public static final double kV0 = 2.5;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;
@@ -379,8 +496,9 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
+                                inchesToMeters(-5.434), inchesToMeters(0.0), inchesToMeters(11.402599));
 
+                // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
                                 Math.toRadians(-24.7),
@@ -432,18 +550,21 @@ public final class Constants {
                         Logger.recordOutput("Constants/Vision/RobotToCam/X", Units.metersToInches(robotToCam.getX()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/Y", Units.metersToInches(robotToCam.getY()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/Z", Units.metersToInches(robotToCam.getZ()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RX", Math.toDegrees(robotToCam.getRotation().getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RY", Math.toDegrees(robotToCam.getRotation().getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ", Math.toDegrees(robotToCam.getRotation().getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RX",
+                                        Math.toDegrees(robotToCam.getRotation().getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RY",
+                                        Math.toDegrees(robotToCam.getRotation().getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
+                                        Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
                                                 limelightName,
                                                 robotToCam.getX(),
-                                                robotToCam.getY(),
+                                                -robotToCam.getY(),
                                                 robotToCam.getZ(),
                                                 Math.toDegrees(robotToCam.getRotation().getX()),
-                                                Math.toDegrees(robotToCam.getRotation().getY()),
+                                                Math.toDegrees(-robotToCam.getRotation().getY()),
                                                 Math.toDegrees(robotToCam.getRotation().getZ()));
                         } catch (Exception e) {
                                 System.out.println("Could not set limelight pose: " + e.getMessage());
@@ -550,6 +671,10 @@ public final class Constants {
                         public static final double HOPPER_GEAR_RATIO = 3.0 / 1.0;
                         public static final double LINEARIZER_GEAR_RATIO = 3.0 / 1.0;
                 }
+
+                public static final class Climber {
+                        public static final double CLIMBER_MAX_ROTATIONS = 37.249;
+                }
         }
 
         public static final ArrayList<String> paths = new ArrayList<String>();
@@ -641,6 +766,12 @@ public final class Constants {
 
         public static Vector chassisSpeedsToVector(ChassisSpeeds chassisSpeeds) {
                 return new Vector(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+        }
+
+        public static Pose2d flipFieldSide(Pose2d pose) {
+                return new Pose2d(Constants.Physical.FIELD_LENGTH - pose.getX(),
+                                Constants.Physical.FIELD_WIDTH - pose.getY(),
+                                new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
         }
 
         /**

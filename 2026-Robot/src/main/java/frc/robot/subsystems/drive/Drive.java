@@ -38,10 +38,10 @@ public class Drive extends SubsystemBase {
   private double kThetaI = 0.00;
   private double kThetaD = 2.00;
 
-  // auto placement PID values
-  private double kkXP = 5.50;
+  // auto climb
+  private double kkXP = 4.0;
   private double kkXI = 0.00;
-  private double kkXD = 1.60;
+  private double kkXD = 1.20;
 
   private double kkYP = kkXP;
   private double kkYI = kkXI;
@@ -51,117 +51,30 @@ public class Drive extends SubsystemBase {
   private double kkThetaI = 0.00;
   private double kkThetaD = 0.971;
 
-  // l4 pid values
-  private double kkXP4 = 4.30;
-  private double kkXI4 = 0.00;
-  private double kkXD4 = 1.70;
-
-  private double kkYP4 = kkXP4;
-  private double kkYI4 = kkXI4;
-  private double kkYD4 = kkXD4;
-
-  private double kkThetaP4 = 2.056;
-  private double kkThetaI4 = 0.00;
-  private double kkThetaD4 = 0.971;
-
-  // l4 auto pids
-  private double scalar = 0.9;
-  private double kkXP4A = 4.30 * scalar;
-  private double kkXI4A = 0.00 * scalar;
-  private double kkXD4A = 1.70 * scalar;
-
-  private double kkYP4A = kkXP4A;
-  private double kkYI4A = kkXI4A;
-  private double kkYD4A = kkXD4A;
-
-  private double kkThetaP4A = 2.056;
-  private double kkThetaI4A = 0.00;
-  private double kkThetaD4A = 0.971;
-
-  // l23 pid values
-  private double kkXP23 = 4.00;
-  private double kkXI23 = 0.00;
-  private double kkXD23 = 1.60;
-
-  private double kkYP23 = kkXP23;
-  private double kkYI23 = kkXI23;
-  private double kkYD23 = kkXD23;
-
-  private double kkThetaP23 = 2.481;
-  private double kkThetaI23 = 0.00;
-  private double kkThetaD23 = 0.971;
-
-  // l1 pid values
-  private double kkXP1 = 4.00;
-  private double kkXI1 = 0.00;
-  private double kkXD1 = 1.40;
-
-  private double kkYP1 = kkXP1;
-  private double kkYI1 = kkXI1;
-  private double kkYD1 = kkXD1;
-
-  private double kkThetaP1 = 3.005;
-  private double kkThetaI1 = 0.00;
-  private double kkThetaD1 = 0.971;
-
-  // Piece pickup values
-  private double kkkXPPickup = 3.30;
-  private double kkkXIPickup = 0.00;
-  private double kkkXDPickup = 1.70;
-
-  private double kkkYPPickup = kkkXPPickup;
-  private double kkkYIPickup = kkkXIPickup;
-  private double kkkYDPickup = kkkXDPickup;
-
-  private double kkkThetaPPickup = 2.056;
-  private double kkkThetaIPickup = 0.00;
-  private double kkkThetaDPickup = 0.971;
-
   // teleop targeting PID values
   private double kTurningP = 0.04;
   private double kTurningI = 0;
   private double kTurningD = 0.06;
-  private double kRotateP = 0.04;
-  private double kRotateI = 0.0;
-  private double kRotateD = 0.06;
 
   private PID xxPID = new PID(kkXP, kkXI, kkXD);
   private PID yyPID = new PID(kkYP, kkYI, kkYD);
   private PID thetaaPID = new PID(kkThetaP, kkThetaI, kkThetaD);
 
-  private PID xxPID4 = new PID(kkXP4, kkXI4, kkXD4);
-  private PID yyPID4 = new PID(kkYP4, kkYI4, kkYD4);
-  private PID thetaaPID4 = new PID(kkThetaP4, kkThetaI4, kkThetaD4);
-
-  private PID xxPID4A = new PID(kkXP4A, kkXI4A, kkXD4A);
-  private PID yyPID4A = new PID(kkYP4A, kkYI4A, kkYD4A);
-  private PID thetaaPID4A = new PID(kkThetaP4A, kkThetaI4A, kkThetaD4A);
-
-  private PID xxPID23 = new PID(kkXP23, kkXI23, kkXD23);
-  private PID yyPID23 = new PID(kkYP23, kkYI23, kkYD23);
-  private PID thetaaPID23 = new PID(kkThetaP23, kkThetaI23, kkThetaD23);
-
-  private PID xxPID1 = new PID(kkXP1, kkXI1, kkXD1);
-  private PID yyPID1 = new PID(kkYP1, kkYI1, kkYD1);
-  private PID thetaaPID1 = new PID(kkThetaP1, kkThetaI1, kkThetaD1);
-
-  private PID xxPIDPickup = new PID(kkkXPPickup, kkkXIPickup, kkkXDPickup);
-  private PID yyPIDPickup = new PID(kkkYPPickup, kkkYIPickup, kkkYDPickup);
-  private PID thetaaPIDPickup = new PID(kkkThetaPPickup, kkkThetaIPickup, kkkThetaDPickup);
-
   private PID xPID = new PID(kXP, kXI, kXD);
   private PID yPID = new PID(kYP, kYI, kYD);
   private PID thetaPID = new PID(kThetaP, kThetaI, kThetaD);
   private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
-  private PID rotatePID = new PID(kRotateP, kRotateI, kRotateD);
 
   public boolean robotCentric = false;
 
   public enum DriveState {
     DEFAULT,
+    DEFAULT_SLOW,
     IDLE,
+    IDLE_SLOW,
     STOP,
-    DRIVE_TO_CLIMB,
+    DRIVE_TO_PRE_CLIMB,
+    DRIVE_TO_ALIGN_CLIMB,
     SNAKE,
   }
 
@@ -199,59 +112,14 @@ public class Drive extends SubsystemBase {
    */
   public void init() {
     // sets configurations when run on robot initalization
-    xxPID.setMinOutput(-3.0);
-    xxPID.setMaxOutput(3.0);
+    xxPID.setMinOutput(-1.5);
+    xxPID.setMaxOutput(1.5);
 
-    yyPID.setMinOutput(-3.0);
-    yyPID.setMaxOutput(3.0);
+    yyPID.setMinOutput(-1.5);
+    yyPID.setMaxOutput(1.5);
 
     thetaaPID.setMinOutput(-3.0);
     thetaaPID.setMaxOutput(3.0);
-
-    xxPID4.setMinOutput(-2.0);
-    xxPID4.setMaxOutput(2.0);
-
-    yyPID4.setMinOutput(-2.0);
-    yyPID4.setMaxOutput(2.0);
-
-    thetaaPID4.setMinOutput(-2.0);
-    thetaaPID4.setMaxOutput(2.0);
-
-    xxPID4A.setMinOutput(-1.4);
-    xxPID4A.setMaxOutput(1.4);
-
-    yyPID4A.setMinOutput(-1.4);
-    yyPID4A.setMaxOutput(1.4);
-
-    thetaaPID4A.setMinOutput(-1.4);
-    thetaaPID4A.setMaxOutput(1.4);
-
-    xxPID23.setMinOutput(-4.0);
-    xxPID23.setMaxOutput(4.0);
-
-    yyPID23.setMinOutput(-4.0);
-    yyPID23.setMaxOutput(4.0);
-
-    thetaaPID23.setMinOutput(-4.0);
-    thetaaPID23.setMaxOutput(4.0);
-
-    xxPID1.setMinOutput(-4.0);
-    xxPID1.setMaxOutput(4.0);
-
-    yyPID1.setMinOutput(-4.0);
-    yyPID1.setMaxOutput(4.0);
-
-    thetaaPID1.setMinOutput(-4.0);
-    thetaaPID1.setMaxOutput(4.0);
-
-    xxPIDPickup.setMinOutput(-1.0);
-    xxPIDPickup.setMaxOutput(1.0);
-
-    yyPIDPickup.setMinOutput(-1.0);
-    yyPIDPickup.setMaxOutput(1.0);
-
-    thetaaPIDPickup.setMinOutput(-2.0);
-    thetaaPIDPickup.setMaxOutput(2.0);
 
     xPID.setMinOutput(-4.9);
     xPID.setMaxOutput(4.9);
@@ -262,11 +130,8 @@ public class Drive extends SubsystemBase {
     thetaPID.setMinOutput(-3);
     thetaPID.setMaxOutput(3);
 
-    turningPID.setMinOutput(-3);
-    turningPID.setMaxOutput(3);
-
-    rotatePID.setMinOutput(-2);
-    rotatePID.setMaxOutput(2);
+    turningPID.setMinOutput(-3.0);
+    turningPID.setMaxOutput(3.0);
   }
 
   public void teleopInit() {
@@ -491,14 +356,14 @@ public class Drive extends SubsystemBase {
     }
     double turnLimit = 0.17;
 
-    if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
-      // activate slowy spin
-      turnLimit = 0.1;
-      oiRX = oiRX * 0.8;
-      oiLX = oiLX * 0.8;
-      oiRY = oiRY * 0.8;
-      oiLY = oiLY * 0.8;
-    }
+    // if (OI.driverController.getRightTriggerAxis() > 0.2 || OI.getDriverRB()) {
+    // // activate slowy spin
+    // turnLimit = 0.1;
+    // oiRX = oiRX * 0.8;
+    // oiLX = oiLX * 0.8;
+    // oiRY = oiRY * 0.8;
+    // oiLY = oiLY * 0.8;
+    // }
     double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
     double originalY = -(Math.copySign(oiLX * oiLX, oiLX));
     double turn = turnLimit
@@ -517,6 +382,10 @@ public class Drive extends SubsystemBase {
     if (getFieldSide().equals("red")) {
       controllerVector.setI(-xSpeed);
       controllerVector.setJ(-ySpeed);
+    }
+    if (wantedState == DriveState.DEFAULT_SLOW) {
+      controllerVector = controllerVector.scaled(0.41);
+      turn = turn * 0.41;
     }
     io.drive(controllerVector, turn);
   }
@@ -561,65 +430,6 @@ public class Drive extends SubsystemBase {
     io.driveCamCentric(controllerVector, turn, Math.toRadians(angle));
   }
 
-  public void teleopDriveToPiece(double yToPiece) {
-    double turnLimit = 0.17;
-    double kP = 0.8;
-
-    // joystick
-    double originalX = -(Math.copySign(OI.getDriverLeftY() * OI.getDriverLeftY(), OI.getDriverLeftY()));
-    double originalY = yToPiece * kP;
-
-    if (Math.abs(originalX) < 0.075) {
-      originalX = 0;
-    }
-
-    double turn = turnLimit
-        * (OI.getDriverRightX() * (Constants.Physical.TOP_SPEED) / (Constants.Physical.ROBOT_RADIUS));
-
-    if (Math.abs(turn) < 0.15) {
-      turn = 0.0;
-    }
-
-    if (turn == 0.0) {
-      double yaw = io.getYaw().getDegrees();
-
-      double result = -2 * turningPID.updatePID(yaw);
-
-      double x = -(Math.copySign(OI.getDriverLeftY() * OI.getDriverLeftY(), OI.getDriverLeftY()));
-      double y = yToPiece * kP;
-
-      if (Math.abs(originalX) < 0.05) {
-        originalX = 0;
-      }
-
-      double xPower = getAdjustedX(x, y);
-      double yPower = getAdjustedY(x, y);
-
-      double xSpeed = xPower * Constants.Physical.TOP_SPEED;
-      double ySpeed = yPower * Constants.Physical.TOP_SPEED;
-
-      Vector controllerVector = new Vector(xSpeed, ySpeed);
-      if (getFieldSide().equals("red")) {
-        controllerVector.setI(-xSpeed);
-        controllerVector.setJ(-ySpeed);
-      }
-      io.drive(controllerVector, result);
-    } else {
-      double xPower = getAdjustedX(originalX, originalY);
-      double yPower = getAdjustedY(originalX, originalY);
-
-      double xSpeed = xPower * Constants.Physical.TOP_SPEED;
-      double ySpeed = yPower * Constants.Physical.TOP_SPEED;
-
-      Vector controllerVector = new Vector(xSpeed, ySpeed);
-      if (getFieldSide().equals("red")) {
-        controllerVector.setI(-xSpeed);
-        controllerVector.setJ(-ySpeed);
-      }
-      io.drive(controllerVector, turn);
-    }
-  }
-
   private int hitNumber = 0;
   private int hitNumberSemiGenerous = 0;
   private int hitNumberGenerous = 0;
@@ -631,13 +441,15 @@ public class Drive extends SubsystemBase {
     double theta = pose.getRotation().getRadians();
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.045
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.0254
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
       hitNumber += 1;
     } else {
       hitNumber = 0;
     }
+    Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+        + Math.pow((y - getMt2Pose2dY()), 2)));
     if (hitNumber > 1) {
       return true;
     } else {
@@ -718,64 +530,17 @@ public class Drive extends SubsystemBase {
     double xVelNoFF = 0.0;
     double yVelNoFF = 0.0;
     double thetaVelNoFF = 0.0;
+    xxPID.setSetPoint(x);
+    yyPID.setSetPoint(y);
+    thetaaPID.setSetPoint(theta);
 
-    if (OI.driverPOVRight.getAsBoolean()) {
-      xxPID4.setSetPoint(x);
-      yyPID4.setSetPoint(y);
-      thetaaPID4.setSetPoint(theta);
+    xxPID.updatePID(getMt2Pose2dX());
+    yyPID.updatePID(getMt2Pose2dY());
+    thetaaPID.updatePID(getMt2Pose2dAngle());
 
-      xxPID4.updatePID(getMt2Pose2dX());
-      yyPID4.updatePID(getMt2Pose2dY());
-      thetaaPID4.updatePID(getMt2Pose2dAngle());
-
-      xVelNoFF = xxPID4.getResult();
-      yVelNoFF = yyPID4.getResult();
-      thetaVelNoFF = -thetaaPID4.getResult();
-
-    } else if (DriverStation.isTeleopEnabled()
-        && (OI.driverPOVLeft.getAsBoolean() || OI.driverPOVDown.getAsBoolean())) {
-
-      xxPID23.setSetPoint(x);
-      yyPID23.setSetPoint(y);
-      thetaaPID23.setSetPoint(theta);
-
-      xxPID23.updatePID(getMt2Pose2dX());
-      yyPID23.updatePID(getMt2Pose2dY());
-      thetaaPID23.updatePID(getMt2Pose2dAngle());
-
-      xVelNoFF = xxPID23.getResult();
-      yVelNoFF = yyPID23.getResult();
-      thetaVelNoFF = -thetaaPID23.getResult();
-
-    } else if (DriverStation.isTeleopEnabled() && OI.driverPOVUp.getAsBoolean()) {
-
-      xxPID1.setSetPoint(x);
-      yyPID1.setSetPoint(y);
-      thetaaPID1.setSetPoint(theta);
-
-      xxPID1.updatePID(getMt2Pose2dX());
-      yyPID1.updatePID(getMt2Pose2dY());
-      thetaaPID1.updatePID(getMt2Pose2dAngle());
-
-      xVelNoFF = xxPID1.getResult();
-      yVelNoFF = yyPID1.getResult();
-      thetaVelNoFF = -thetaaPID1.getResult();
-
-    } else {
-
-      xxPID.setSetPoint(x);
-      yyPID.setSetPoint(y);
-      thetaaPID.setSetPoint(theta);
-
-      xxPID.updatePID(getMt2Pose2dX());
-      yyPID.updatePID(getMt2Pose2dY());
-      thetaaPID.updatePID(getMt2Pose2dAngle());
-
-      xVelNoFF = xxPID.getResult();
-      yVelNoFF = yyPID.getResult();
-      thetaVelNoFF = -thetaaPID.getResult();
-    }
-
+    xVelNoFF = xxPID.getResult();
+    yVelNoFF = yyPID.getResult();
+    thetaVelNoFF = -thetaaPID.getResult();
     double finalX = xVelNoFF;
     double finalY = yVelNoFF;
     double finalTheta = thetaVelNoFF;
@@ -793,6 +558,10 @@ public class Drive extends SubsystemBase {
 
     autoDrive(velocityVector, desiredThetaChange);
 
+  }
+
+  public void stop() {
+    io.drive(new Vector(), 0.0);
   }
 
   public void driveToXTheta(double x, double theta) {
@@ -923,6 +692,16 @@ public class Drive extends SubsystemBase {
    *                          per second.
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
+    if (wantedState == DriveState.IDLE_SLOW) {
+      ChassisSpeeds currentSpeeds = io.getChassisSpeeds();
+      vector.setI((currentSpeeds.vxMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
+          + vector.getI() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
+      vector.setJ((currentSpeeds.vyMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
+          + vector.getJ() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
+      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond
+          * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
+          + turnRadiansPerSec * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING);
+    }
     io.drive(vector, turnRadiansPerSec);
   }
 
@@ -1109,12 +888,18 @@ public class Drive extends SubsystemBase {
     switch (wantedState) {
       case DEFAULT:
         return DriveState.DEFAULT;
+      case DEFAULT_SLOW:
+        return DriveState.DEFAULT_SLOW;
       case IDLE:
         return DriveState.IDLE;
+      case IDLE_SLOW:
+        return DriveState.IDLE_SLOW;
       case STOP:
         return DriveState.STOP;
-      case DRIVE_TO_CLIMB:
-        return DriveState.DRIVE_TO_CLIMB;
+      case DRIVE_TO_ALIGN_CLIMB:
+        return DriveState.DRIVE_TO_ALIGN_CLIMB;
+      case DRIVE_TO_PRE_CLIMB:
+        return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
         return DriveState.DEFAULT; // disable this for now
       default:
@@ -1127,6 +912,54 @@ public class Drive extends SubsystemBase {
   }
 
   Field2d field = new Field2d();
+
+  public Pose2d getClimbPrepSetpoint() {
+    if (Globals.fieldSide.equals("blue")) {
+      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightBlueSide.getTranslation());
+      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftBlueSide.getTranslation());
+      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
+        return Constants.Physical.preClimbPoseRightBlueSide;
+      } else {
+        return Constants.Physical.preClimbPoseLeftBlueSide;
+      }
+    } else {
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
+        return Constants.Physical.preClimbPoseRightRedSide;
+      } else {
+        return Constants.Physical.preClimbPoseLeftRedSide;
+      }
+    }
+  }
+
+  public Pose2d getClimbAlignSetpoint() {
+    if (Globals.fieldSide.equals("blue")) {
+      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightBlueSide.getTranslation());
+      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftBlueSide.getTranslation());
+      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
+        return Constants.Physical.climbPoseRightBlueSide;
+      } else {
+        return Constants.Physical.climbPoseLeftBlueSide;
+      }
+    } else {
+      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
+      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
+      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
+        return Constants.Physical.climbPoseRightRedSide;
+      } else {
+        return Constants.Physical.climbPoseLeftRedSide;
+      }
+    }
+  }
 
   @Override
   public void periodic() {
@@ -1163,7 +996,17 @@ public class Drive extends SubsystemBase {
         teleopDrive();
         // }
         break;
+      case DEFAULT_SLOW:
+        // if (robotCentric) {
+        // robotCentricDrive(0);
+        // } else {
+        teleopDrive();
+        // }
+        break;
       case IDLE:
+
+        break;
+      case IDLE_SLOW:
         break;
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
@@ -1174,14 +1017,17 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case STOP:
-        Vector velocityVector = new Vector();
-        velocityVector.setI(0);
-        velocityVector.setJ(0);
-        double desiredThetaChange = 0.0;
-        autoDrive(velocityVector, desiredThetaChange);
+        stop();
         break;
-      case DRIVE_TO_CLIMB:
-        driveToPoint(Constants.Physical.climbPose);
+      case DRIVE_TO_PRE_CLIMB:
+        Pose2d climbPrepSetpoint = getClimbPrepSetpoint();
+        Logger.recordOutput("climb prep", climbPrepSetpoint);
+        driveToPoint(climbPrepSetpoint);
+        break;
+      case DRIVE_TO_ALIGN_CLIMB:
+        Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
+        Logger.recordOutput("climb align", climbAlignSetpoint);
+        driveToPoint(climbAlignSetpoint);
         break;
       default:
         break;
