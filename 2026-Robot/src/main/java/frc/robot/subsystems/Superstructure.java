@@ -69,8 +69,6 @@ public class Superstructure extends SubsystemBase {
     MANUAL_PASSING,
     MANUAL_CLIMBING,
     MANUAL_EXTEND_CLIMBER,
-    AUTON_PREP_SHOT,
-    AUTON_SHOOT,
     AUTO_PREP_CLIMB,
     AUTO_ALIGN_CLIMB,
     AUTO_CLIMB,
@@ -142,12 +140,6 @@ public class Superstructure extends SubsystemBase {
         break;
       case MANUAL_EXTEND_CLIMBER:
         handleExtendClimberState();
-        break;
-      case AUTON_PREP_SHOT:
-        handleAutonPrepShot();
-        break;
-      case AUTON_SHOOT:
-        handleAutonShot();
         break;
       case AUTO_PREP_CLIMB:
         handleAutoPrepClimb();
@@ -242,9 +234,6 @@ public class Superstructure extends SubsystemBase {
       case MANUAL_EXTEND_CLIMBER:
         currentSuperState = SuperState.MANUAL_EXTEND_CLIMBER;
         break;
-      case AUTON_PREP_SHOT:
-        currentSuperState = SuperState.AUTON_PREP_SHOT;
-        break;
       case AUTO_PREP_CLIMB:
         if (drive.hitSetPoint(drive.getClimbPrepSetpoint())
             && climber.getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 5.0) {
@@ -264,9 +253,6 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTO_CLIMB:
         currentSuperState = SuperState.AUTO_CLIMB;
-        break;
-      case AUTON_SHOOT:
-        currentSuperState = SuperState.AUTON_SHOOT;
         break;
       default:
         currentSuperState = SuperState.IDLE;
