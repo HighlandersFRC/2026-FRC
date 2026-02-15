@@ -984,8 +984,6 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("Drive/Expected Speed",
         Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
     Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
-    Logger.recordOutput("Climber/Climb Prep Setpoint", getClimbPrepSetpoint());
-    Logger.recordOutput("Climber/Climb Align Setpoint", getClimbAlignSetpoint());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
@@ -1022,12 +1020,14 @@ public class Drive extends SubsystemBase {
         stop();
         break;
       case DRIVE_TO_PRE_CLIMB:
-        Logger.recordOutput("climb prep", getClimbPrepSetpoint());
-        driveToPoint(getClimbPrepSetpoint());
+        Pose2d climbPrepSetpoint = getClimbPrepSetpoint();
+        Logger.recordOutput("climb prep", climbPrepSetpoint);
+        driveToPoint(climbPrepSetpoint);
         break;
       case DRIVE_TO_ALIGN_CLIMB:
-        Logger.recordOutput("climb align", getClimbAlignSetpoint());
-        driveToPoint(getClimbAlignSetpoint());
+        Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
+        Logger.recordOutput("climb align", climbAlignSetpoint);
+        driveToPoint(climbAlignSetpoint);
         break;
       default:
         break;
