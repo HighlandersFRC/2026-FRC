@@ -44,6 +44,24 @@ public class ShotCalculator {
                                         this.distanceToTarget,
                                         this.timeOfFlight);
                 }
+
+                public ShotSolution rotateHoodAngle(Rotation2d rotation) {
+                        return new ShotSolution(
+                                        this.hoodAngle.plus(rotation),
+                                        this.flywheelRPM,
+                                        this.turretAngle,
+                                        this.distanceToTarget,
+                                        this.timeOfFlight);
+                }
+
+                public ShotSolution addRPM(double rpm) {
+                        return new ShotSolution(
+                                        this.hoodAngle,
+                                        this.flywheelRPM + rpm,
+                                        this.turretAngle,
+                                        this.distanceToTarget,
+                                        this.timeOfFlight);
+                }
         }
 
         // Input: distance to target in meters, Output: hood angle (Rotation2d)

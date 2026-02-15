@@ -37,12 +37,12 @@ public class AutoClimbFollower extends AutoFollower {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    superstructure.setWantedState(SuperState.AUTO_PREP_CLIMB);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    superstructure.setWantedState(SuperState.AUTO_PREP_CLIMB);
   }
 
   // Called once the command ends or is interrupted.
