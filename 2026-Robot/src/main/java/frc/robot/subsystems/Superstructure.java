@@ -473,18 +473,6 @@ public class Superstructure extends SubsystemBase {
     climber.setWantedState(ClimberState.EXTEND);
   }
 
-  private void handleAutonPrepShot() {
-    drive.setWantedState(DriveState.IDLE);
-    shooter.setWantedState(ShooterState.PHYSICS_SHOOT);
-    feeder.setWantedState(FeederState.FEED);
-  }
-
-  private void handleAutonShot() {
-    drive.setWantedState(DriveState.IDLE);
-    shooter.setWantedState(ShooterState.PHYSICS_SHOOT);
-    feeder.setWantedState(FeederState.FEED);
-  }
-
   private void handleAutoPrepClimb() {
     drive.setWantedState(DriveState.DRIVE_TO_PRE_CLIMB);
     climber.setWantedState(ClimberState.EXTEND);
