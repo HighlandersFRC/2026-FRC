@@ -3,7 +3,6 @@ package frc.robot.tools.math;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.ConsoleSource.RoboRIO;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;

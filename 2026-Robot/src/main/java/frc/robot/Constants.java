@@ -109,6 +109,23 @@ public final class Constants {
                 public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
                                 14.660, 4.774), new Rotation2d(Math.PI));
 
+                public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseLeftRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - climbPoseLeftRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseLeftRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - preClimbPoseLeftRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - climbPoseRightRedSide.getTranslation().getY()),
+                                new Rotation2d());
+                public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseRightRedSide.getTranslation().getX(),
+                                FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
+                                new Rotation2d());
+
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
                         public static final int NUM_ROLLER_MOTORS = 1;

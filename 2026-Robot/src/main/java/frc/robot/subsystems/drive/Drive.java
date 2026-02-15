@@ -916,14 +916,14 @@ public class Drive extends SubsystemBase {
 
   public Pose2d getClimbPrepSetpoint() {
     if (Globals.fieldSide.equals("blue")) {
-      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
-      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
-      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
-        return Constants.Physical.preClimbPoseRightRedSide;
+      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseRightBlueSide.getTranslation());
+      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.preClimbPoseLeftBlueSide.getTranslation());
+      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
+        return Constants.Physical.preClimbPoseRightBlueSide;
       } else {
-        return Constants.Physical.preClimbPoseLeftRedSide;
+        return Constants.Physical.preClimbPoseLeftBlueSide;
       }
     } else {
       double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
@@ -940,14 +940,14 @@ public class Drive extends SubsystemBase {
 
   public Pose2d getClimbAlignSetpoint() {
     if (Globals.fieldSide.equals("blue")) {
-      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
-      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
-      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
-        return Constants.Physical.climbPoseRightRedSide;
+      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseRightBlueSide.getTranslation());
+      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
+          .getDistance(Constants.Physical.climbPoseLeftBlueSide.getTranslation());
+      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
+        return Constants.Physical.climbPoseRightBlueSide;
       } else {
-        return Constants.Physical.climbPoseLeftRedSide;
+        return Constants.Physical.climbPoseLeftBlueSide;
       }
     } else {
       double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
