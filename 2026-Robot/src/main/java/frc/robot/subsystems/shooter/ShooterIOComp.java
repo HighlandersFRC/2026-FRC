@@ -162,14 +162,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.471923828125; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.521240234375; // TODO: Try calculating offset from
                                                                               // previous zero
                                                                               // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = 0.43994140625;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.54150390625;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -221,9 +221,8 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void setTurretAngle(double angle) {
                 Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
-                // turretMotor.setControl(new
-                // DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
-                // turretAcceleration));
+                turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
+                                turretAcceleration));
                 Logger.recordOutput("Shooter/goal motor turret degrees Er",
                                 Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
 
@@ -279,7 +278,7 @@ class ShooterIOComp implements ShooterIO {
                         }
                 }
 
-                return Units.rotationsToRadians(-bestTheta);
+                return Units.rotationsToRadians(bestTheta);
         }
 
         private double wrap(double x) {
@@ -354,8 +353,7 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Shooter/Turret Error Degrees",
                                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
                 // if (turretP.changed() || turretI.changed() || turretD.changed() ||
-                // turretS.changed() || turretVelocity.changed()
-                // || turretAcceleration.changed() || turretV.changed()) {
+                // turretS.changed() || turretV.changed()) {
                 // System.out.println("Updating Turret PID Constants");
                 // TalonFXConfiguration turretConfig = new TalonFXConfiguration();
                 // turretConfig.Slot0.kP = turretP.get();
@@ -363,8 +361,8 @@ class ShooterIOComp implements ShooterIO {
                 // turretConfig.Slot0.kD = turretD.get();
                 // turretConfig.Slot0.kS = turretS.get();
                 // turretConfig.Slot0.kV = turretV.get();
-                // turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
-                // turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
+                // turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration;
+                // turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
                 // turretConfig.Feedback.SensorToMechanismRatio =
                 // Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
                 // turretConfig.Feedback.RotorToSensorRatio = 1.0;

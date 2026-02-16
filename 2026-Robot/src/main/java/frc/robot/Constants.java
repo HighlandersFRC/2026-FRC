@@ -156,8 +156,8 @@ public final class Constants {
                                         HOOD_MAX_SPEED_RAD_S;
                         public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
                         public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
-                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 60;
-                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 31;
+                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
+                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 4 + 0.0 * distanceFromHub;
@@ -440,11 +440,11 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         // Position PID
-                        public static final double kP0 = 75.0;
+                        public static final double kP0 = 140.0;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 5.0;
-                        public static final double kS0 = 1.0;
-                        public static final double kV0 = 2.5;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.3;
+                        public static final double kV0 = 0.0;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;

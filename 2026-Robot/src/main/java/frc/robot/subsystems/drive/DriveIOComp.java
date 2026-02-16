@@ -248,8 +248,8 @@ public class DriveIOComp extends DriveIO {
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        leftFrontResult.getTimestampSeconds(), standardDeviation);
+                                        // mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                        // leftFrontResult.getTimestampSeconds(), standardDeviation);
                                 }
                         }
 
@@ -264,9 +264,9 @@ public class DriveIOComp extends DriveIO {
                                                 standardDeviation.set(1, 0, 1.5);
                                                 standardDeviation.set(2, 0, 2.5);
                                                 Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
-                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                rightFrontResult.getTimestampSeconds(),
-                                                                standardDeviation);
+                                                // mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                // rightFrontResult.getTimestampSeconds(),
+                                                // standardDeviation);
                                         }
                                 }
                                 try {
