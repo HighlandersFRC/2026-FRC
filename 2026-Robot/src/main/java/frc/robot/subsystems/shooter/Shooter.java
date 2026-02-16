@@ -222,17 +222,17 @@ public class Shooter extends SubsystemBase {
 
   protected double clampAngleToTurretRange(double radians) {
     double clampedAngle = radians;
-    while (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    while (clampedAngle < Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS) {
       clampedAngle += 2 * Math.PI;
     }
-    while (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    while (clampedAngle > Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS) {
       clampedAngle -= 2 * Math.PI;
     }
-    if (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle = -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+    if (clampedAngle < Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS) {
+      clampedAngle = Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS;
     }
-    if (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle = Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+    if (clampedAngle > Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS) {
+      clampedAngle = Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS;
     }
     return clampedAngle;
   }

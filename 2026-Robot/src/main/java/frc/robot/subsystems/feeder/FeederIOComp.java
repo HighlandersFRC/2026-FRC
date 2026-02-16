@@ -21,8 +21,8 @@ class FeederIOComp implements FeederIO {
         TalonFXConfiguration dyeRotorConfig = new TalonFXConfiguration();
         dyeRotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         dyeRotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 80;
-        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 90;
+        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 90;
         dyeRotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         dyeRotorConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.DYE_ROTOR_GEAR_RATIO;
         dyeRotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

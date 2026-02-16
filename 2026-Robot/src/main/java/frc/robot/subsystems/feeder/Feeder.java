@@ -61,10 +61,10 @@ public class Feeder extends SubsystemBase {
     systemState = handleStateTransition();
     switch (systemState) {
       case FEED:
-        setDyeRotorTorque(40, 0.5);
+        setDyeRotorTorque(80, 0.7);
         break;
       case REVERSE:
-        setDyeRotorTorque(-40, 0.5);
+        setDyeRotorTorque(-80, 0.7);
         break;
       default:
         setDyeRotorPercent(0.0);

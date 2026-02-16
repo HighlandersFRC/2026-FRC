@@ -138,7 +138,6 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(200);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -155,10 +154,10 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
-                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 16;
-                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 130;
-                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 39;
-                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
+                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
+                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 60;
+                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 31;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 4 + 0.0 * distanceFromHub;
@@ -297,8 +296,8 @@ public final class Constants {
         // Subsystem setpoint constants
         public static final class SetPoints {
                 public static class Hood {
-                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
-                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
+                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55.0);
+                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85.0);
                         public static final double HOOD_PRECISION = degreesToRadians(0.5);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
@@ -319,8 +318,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(225.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(90.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -470,11 +469,11 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.5;
+                        public static final double kP0 = 0.6;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.1;
-                        public static final double kS0 = 0.0;
-                        public static final double kV0 = 0.22;
+                        public static final double kS0 = 0.1;
+                        public static final double kV0 = 0.15;
                 }
         }
 
@@ -641,12 +640,12 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 12.0;
-                        public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 2.41;
-                        public static final double HOOD_GEAR_RATIO = 200.0;
+                        public static final double FLYWHEEL_GEAR_RATIO = 18.0 / 14.0; // 14 on motor
+                        public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 48.0 / 20.0; // encoder on 20
+                        public static final double HOOD_GEAR_RATIO = (36.0 / 12.0) * (48.0 / 16.0) * (300.0 / 16.0);
                         public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
                                         / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
-                        public static final double TURRET_GEAR_RATIO = 37.723;
+                        public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 / 15.0);
                         // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
                         // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
                         // public static final double TURRET_GEAR_RATIO = 43.112;
@@ -809,7 +808,7 @@ public final class Constants {
          * @return The equivalent quantity in radians.
          */
         public static double degreesToRadians(double degrees) {
-                return degrees * Math.PI / 180;
+                return degrees * Math.PI / 180.0;
         }
 
         /**

@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 // import frc.robot.tools.logging.TunableNumber;
 import frc.robot.Globals;
+import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
         private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID,
@@ -111,7 +112,7 @@ class ShooterIOComp implements ShooterIO {
                 hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
                 hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
                 hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
-                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
                 hoodConfig.Feedback.FeedbackRemoteSensorID = Constants.CANInfo.HOOD_CANCODER_ID;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
@@ -161,14 +162,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.416259765625; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.471923828125; // TODO: Try calculating offset from
                                                                               // previous zero
                                                                               // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.93017578125;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = 0.43994140625;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -346,7 +347,6 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Testing/initLoops", initLoops);
                 Logger.recordOutput("Testing/firstTurretAngles", firstTurretAngles.toString());
                 Logger.recordOutput("Testing/numberSkips", numberSkips);
-
                 Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
@@ -374,9 +374,7 @@ class ShooterIOComp implements ShooterIO {
                 // turretMotor.getConfigurator().apply(turretConfig);
                 // }
                 // if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed()
-                // || hoodG.changed()
-                // || hoodCruiseVelocity.changed()
-                // || hoodAcceleration.changed()) {
+                // || hoodG.changed()) {
                 // System.out.println("Updating Hood PID Constants");
                 // TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
                 // hoodConfig.Slot0.kP = hoodP.get();
@@ -384,8 +382,6 @@ class ShooterIOComp implements ShooterIO {
                 // hoodConfig.Slot0.kD = hoodD.get();
                 // hoodConfig.Slot0.kS = hoodS.get();
                 // hoodConfig.Slot0.kG = hoodG.get();
-                // hoodConfig.MotionMagic.MotionMagicAcceleration = hoodAcceleration.get();
-                // hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodCruiseVelocity.get();
                 // hoodConfig.Feedback.SensorToMechanismRatio =
                 // Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
                 // hoodConfig.Feedback.RotorToSensorRatio =
@@ -393,7 +389,11 @@ class ShooterIOComp implements ShooterIO {
                 // hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
                 // hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 // hoodConfig.Feedback.FeedbackSensorSource =
-                // FeedbackSensorSourceValue.RotorSensor;
+                // FeedbackSensorSourceValue.RemoteCANcoder;
+                // hoodConfig.Feedback.FeedbackRemoteSensorID =
+                // Constants.CANInfo.HOOD_CANCODER_ID;
+                // hoodConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
                 // hoodMotor.getConfigurator().apply(hoodConfig);
                 // }
                 // if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() ||
