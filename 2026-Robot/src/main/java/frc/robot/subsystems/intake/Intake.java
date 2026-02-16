@@ -2,13 +2,17 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
+  private double dynamicIntakeSpeed;
 
   public Intake() {
     if (RobotBase.isReal()) {
@@ -36,6 +40,7 @@ public class Intake extends SubsystemBase {
 
   public enum IntakeState {
     INTAKING,
+    DYNAMIC_INTAKING,
     UP,
     IDLE
   }
@@ -51,12 +56,25 @@ public class Intake extends SubsystemBase {
     this.wantedState = wantedState;
   }
 
+  public void setWantedState(IntakeState wantedState, ChassisSpeeds robotSpeed) {
+    this.wantedState = wantedState;
+    this.dynamicIntakeSpeed = 5.0 * Math.hypot(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond)
+        / Constants.Physical.TOP_SPEED + 0.2;
+    if (this.dynamicIntakeSpeed < 0.4) {
+      this.dynamicIntakeSpeed = 0.4;
+    } else if (this.dynamicIntakeSpeed > 1.0) {
+      this.dynamicIntakeSpeed = 1.0;
+    }
+  }
+
   private IntakeState handleStateTransition() {
     switch (wantedState) {
       case UP:
         return IntakeState.UP;
       case INTAKING:
         return IntakeState.INTAKING;
+      case DYNAMIC_INTAKING:
+        return IntakeState.DYNAMIC_INTAKING;
       default:
         return IntakeState.IDLE;
     }
@@ -67,6 +85,7 @@ public class Intake extends SubsystemBase {
     io.updateInputs(systemState);
     systemState = handleStateTransition();
     Logger.recordOutput("Intake/Intake State", systemState);
+    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("States/Intake State", systemState);
     switch (systemState) {
       case UP:
@@ -76,6 +95,10 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
         setRollerPercent(0.50);
+        break;
+      case DYNAMIC_INTAKING:
+        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setRollerPercent(dynamicIntakeSpeed);
         break;
       default:
         // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
