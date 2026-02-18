@@ -350,25 +350,25 @@ public final class Constants {
                 public static class Shooter {
                         private final static double DISTANCE_OFFSET = 0.0;
                         private final static double ANGLE_OFFSET = 0.0;
-                        private final static double RPM_OFFSET = 80.0;
+                        private final static double RPM_OFFSET = 0.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
-                                        { 1.21, 85, 1200, 0.4 },
-                                        { 1.35, 85, 1300, 1.02 },
-                                        { 1.64, 85, 1350, 1.20 },
-                                        { 1.93, 82.5, 1350, 1.11 },
-                                        { 2.24, 82.5, 1400, 1.17 },
-                                        { 2.54, 80, 1400, 1.17 },
-                                        { 2.9, 77.5, 1400, 1.14 },
-                                        { 3.26, 75, 1450, 1.15 },
-                                        { 3.56, 75, 1500, 1.19 },
-                                        { 3.96, 72.5, 1500, 1.19 },
-                                        { 4.32, 70, 1550, 1.21 },
-                                        { 4.75, 70, 1738, 1.35 },
-                                        { 5.29, 67.41, 1800, 1.27 },
-                                        { 5.64, 65, 1800, 1.28 },
-                                        { 6.67, 65, 2100, 1.5 },
+                                        { 1.45, 85, 1690, 1.07 },
+                                        { 1.8, 82, 1900, 1.11 },
+                                        { 2.17, 80.44, 2000, 1.17 },
+                                        { 2.48, 80.44, 2050, 1.32 },
+                                        { 2.76, 80.44, 2200, 1.35 },
+                                        { 3.34, 78, 2250, 1.34 },
+                                        { 3.67, 75, 2300, 1.35 },
+                                        { 3.99, 75, 2400, 1.42 },
+                                        { 4.46, 73, 2400, 1.35 },
+                                        { 4.8, 70, 2400, 1.33 },
+                                        { 5.22, 70, 2550, 1.36 },
+                                        { 5.53, 65, 2550, 1.35 },
+                                        { 6.11, 60, 2700, 1.27 },
+                                        { 6.55, 60, 2800, 1.35 },
+                                        { 6.7, 60, 2900, 1.33 },
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;

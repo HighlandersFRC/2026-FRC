@@ -238,6 +238,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void passIdleTurretAngleToIdle(Rotation2d angle) {
+    Logger.recordOutput("Shooter/Idle Turret Angle", angle.getDegrees());
     idleTurretAngle = angle;
   }
 
