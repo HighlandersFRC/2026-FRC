@@ -71,7 +71,8 @@ public class Superstructure extends SubsystemBase {
     MANUAL_EXTEND_CLIMBER,
     AUTO_PREP_CLIMB,
     AUTO_ALIGN_CLIMB,
-    AUTO_CLIMB,
+    AUTON_CLIMB,
+    AUTO_L3_CLIMB,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -147,8 +148,11 @@ public class Superstructure extends SubsystemBase {
       case AUTO_ALIGN_CLIMB:
         handleAutoAlignClimb();
         break;
-      case AUTO_CLIMB:
-        handleAutoClimb();
+      case AUTON_CLIMB:
+        handleAutonClimb();
+        break;
+      case AUTO_L3_CLIMB:
+        handleAutoL3Climb();
         break;
       default:
         handleIdleState();
@@ -236,7 +240,8 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTO_PREP_CLIMB:
         if (drive.hitSetPoint(drive.getClimbPrepSetpoint())
-            && climber.getClimberPosition() > Constants.Ratios.Climber.CLIMBER_MAX_ROTATIONS - 5.0) {
+            && climber.getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES
+                - Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
           wantedSuperState = SuperState.AUTO_ALIGN_CLIMB;
           currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
         } else {
@@ -245,14 +250,22 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTO_ALIGN_CLIMB:
         if (drive.hitSetPoint(drive.getClimbAlignSetpoint())) {
-          wantedSuperState = SuperState.AUTO_CLIMB;
-          currentSuperState = SuperState.AUTO_CLIMB;
+          if (DriverStation.isAutonomousEnabled()) {
+            wantedSuperState = SuperState.AUTON_CLIMB;
+            currentSuperState = SuperState.AUTON_CLIMB;
+          } else {
+            wantedSuperState = SuperState.AUTO_L3_CLIMB;
+            currentSuperState = SuperState.AUTO_L3_CLIMB;
+          }
         } else {
           currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
         }
         break;
-      case AUTO_CLIMB:
-        currentSuperState = SuperState.AUTO_CLIMB;
+      case AUTON_CLIMB:
+        currentSuperState = SuperState.AUTON_CLIMB;
+        break;
+      case AUTO_L3_CLIMB:
+        currentSuperState = SuperState.AUTO_L3_CLIMB;
         break;
       default:
         currentSuperState = SuperState.IDLE;
@@ -472,16 +485,16 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void handleClimbingState() {
-    climber.setWantedState(ClimberState.CLIMBING);
+    climber.setWantedState(ClimberState.AUTON_RETRACT);
   }
 
   private void handleExtendClimberState() {
-    climber.setWantedState(ClimberState.EXTEND);
+    climber.setWantedState(ClimberState.AUTON_EXTEND);
   }
 
   private void handleAutoPrepClimb() {
     drive.setWantedState(DriveState.DRIVE_TO_PRE_CLIMB);
-    climber.setWantedState(ClimberState.EXTEND);
+    climber.setWantedState(ClimberState.AUTON_EXTEND);
     if (DriverStation.isAutonomous()) {
       ShotSolution shotSolution = ShotCalculator.calculateHubShot(
           new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
@@ -503,7 +516,7 @@ public class Superstructure extends SubsystemBase {
 
   private void handleAutoAlignClimb() {
     drive.setWantedState(DriveState.DRIVE_TO_ALIGN_CLIMB);
-    climber.setWantedState(ClimberState.EXTEND);
+    climber.setWantedState(ClimberState.AUTON_EXTEND);
     if (DriverStation.isAutonomous()) {
       ShotSolution shotSolution = ShotCalculator.calculateHubShot(
           new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
@@ -522,9 +535,9 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
-  private void handleAutoClimb() {
+  private void handleAutonClimb() {
     drive.setWantedState(DriveState.STOP);
-    climber.setWantedState(ClimberState.CLIMBING);
+    climber.setWantedState(ClimberState.AUTON_RETRACT);
     if (DriverStation.isAutonomous()) {
       ShotSolution shotSolution = ShotCalculator.calculateHubShot(
           new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
@@ -541,6 +554,27 @@ public class Superstructure extends SubsystemBase {
         feeder.setWantedState(FeederState.IDLE);
       }
     }
+  }
+
+  private void handleAutoL3Climb() {
+    drive.setWantedState(DriveState.STOP);
+    climber.setWantedState(ClimberState.L3_CLIMBING);
+    // if (DriverStation.isAutonomous()) {
+    // ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+    // new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+    // .getRotation()),
+    // Constants.Field.getHubPose().toTranslation2d(),
+    // drive.getChassisSpeeds());
+    // ShotSolution rotatedShotSolution = shotSolution
+    // .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus()).addRPM(-80.0);
+    // shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+    // rotatedShotSolution);
+    // if (shooter.readyToShoot()) {
+    // feeder.setWantedState(FeederState.FEED);
+    // } else {
+    // feeder.setWantedState(FeederState.IDLE);
+    // }
+    // }
   }
 
   public void PARTY() {

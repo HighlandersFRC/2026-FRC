@@ -39,6 +39,6 @@ class ClimberIOComp implements ClimberIO {
 
     @Override
     public double getPosition() {
-        return climberMotor.getPosition().getValueAsDouble();
+        return climberMotor.getPosition().getValueAsDouble() * Constants.Ratios.Climber.CLIMBER_MOTOR_ROT_TO_INCHES;
     }
 }

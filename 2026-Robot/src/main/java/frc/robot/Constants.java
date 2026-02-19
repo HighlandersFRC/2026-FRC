@@ -418,6 +418,17 @@ public final class Constants {
                         public static final double DYE_ROTOR_SPEED_MPS = 1.0;
                         public static final double DYE_ROTOR_AMPS = 60.0;
                 }
+
+                public static final class Climber {
+                        public static final double CLIMBER_MOVEMENT_DEADZONE = 3.0;
+                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 27.0;
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 18.0;
+                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 18.0;
+                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 20.0;
+                        public static final double CLIMBER_TELEOP_L1_RETRACT_HEIGHT_INCHES = 27.0;
+                        public static final double CLIMBER_TELEOP_L2_RETRACT_HEIGHT_INCHES = 18.0;
+                        public static final double CLIMBER_TELEOP_L3_RETRACT_HEIGHT_INCHES = 18.0;
+                }
         }
 
         public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.150000);
@@ -657,15 +668,15 @@ public final class Constants {
                         public static final double INTAKE_ROLLER_GEAR_RATIO = 1.0;
                 }
 
-                public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0 / 1.0;
-                }
-
                 public static final class Climber {
                         public static final double CLIMBER_MAX_ROTATIONS = 37.249;
+                        public static final double CLIMBER_MOTOR_ROT_TO_INCHES = 0.37930804301;
+                        public static final double CLIMBER_MAX_INCHES = CLIMBER_MAX_ROTATIONS
+                                        * CLIMBER_MOTOR_ROT_TO_INCHES;
                 }
         }
 
+        
         public static final ArrayList<String> paths = new ArrayList<String>();
 
         // Can info such as IDs
