@@ -126,6 +126,14 @@ public final class Constants {
                                 FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
                                 new Rotation2d());
 
+                public static final class Drive {
+                        public static final double xAccelLimit = 4.0;
+                        public static final double yAccelLimit = 4.0;
+                        public static final double xDebounceLimit = 0.2;
+                        public static final double yDebounceLimit = 0.2;
+                        public static final double velLookaheadTime = 0.03;
+                }
+
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
                         public static final int NUM_ROLLER_MOTORS = 1;
@@ -298,7 +306,7 @@ public final class Constants {
                 public static class Hood {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55.0);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85.0);
-                        public static final double HOOD_PRECISION = degreesToRadians(0.5);
+                        public static final double HOOD_PRECISION = degreesToRadians(2.0);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -338,7 +346,7 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 75.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 100.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
@@ -570,6 +578,10 @@ public final class Constants {
                         } catch (Exception e) {
                                 System.out.println("Could not set limelight pose: " + e.getMessage());
                         }
+                }
+
+                public static double getLimelightAngVelRelToField(double turretVel, double robotVel) {
+                        return (turretVel + robotVel);
                 }
 
                 /**

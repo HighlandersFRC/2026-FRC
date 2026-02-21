@@ -238,7 +238,6 @@ public class DriveIOComp extends DriveIO {
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
-
                         var leftFrontResult = peripherals.getLeftFrontCamResult();
                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
                                         .update(leftFrontResult);
@@ -269,43 +268,55 @@ public class DriveIOComp extends DriveIO {
                                                 // standardDeviation);
                                         }
                                 }
-                                try {
-                                        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
-                                                        gyro.getYawDegrees(), 0, 0, 0, 0, 0);
-                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
+
+                                double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
+                                                Globals.turretVelocity,
+                                                getChassisSpeeds().omegaRadiansPerSecond);
+                                if (Math.abs(gyro.getPitchDegrees()) < 5.0 && Math.abs(gyro.getRollDegrees()) < 5.0
+                                                && Math.abs(limelightAngVelRelToField) < 2.0) {
+                                        try {
+                                                LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
+                                                                gyro.getYawDegrees(),
+                                                                limelightAngVelRelToField,
+                                                                0, 0, 0, 0);
+                                                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                                                .getBotPoseEstimate_wpiBlue_MegaTag2(
+                                                                                Constants.Vision.LIMELIGHT_NAME);
+
+                                                Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
+                                                                mt2.timestampSeconds);
+                                                if (maybeTurretAngle.isPresent()) {
+                                                        Constants.Vision.updateLimelightPoseFromTurret(
+                                                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
+                                                                                        Rotation3d.kZero),
+                                                                        maybeTurretAngle.get(),
+                                                                        Constants.Vision.turretToLimelight,
                                                                         Constants.Vision.LIMELIGHT_NAME);
 
-                                        Optional<Rotation2d> maybeTurretAngle = getTurretAngle(mt2.timestampSeconds);
-                                        if (maybeTurretAngle.isPresent()) {
-                                                Constants.Vision.updateLimelightPoseFromTurret(
-                                                                new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
-                                                                                Rotation3d.kZero),
-                                                                maybeTurretAngle.get(),
-                                                                Constants.Vision.turretToLimelight,
-                                                                Constants.Vision.LIMELIGHT_NAME);
-
-                                                boolean doRejectUpdate = false;
-                                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) > 360) {
-                                                // doRejectUpdate = true;
-                                                // }
-                                                if (mt2.tagCount == 0) {
-                                                        doRejectUpdate = true;
+                                                        boolean doRejectUpdate = false;
+                                                        // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) >
+                                                        // 360) {
+                                                        // doRejectUpdate = true;
+                                                        // }
+                                                        if (mt2.tagCount == 0) {
+                                                                doRejectUpdate = true;
+                                                        }
+                                                        if (!doRejectUpdate) {
+                                                                standardDeviation.set(0, 0, 2.0);
+                                                                standardDeviation.set(1, 0, 2.0);
+                                                                standardDeviation.set(2, 0, 5.0);
+                                                                mt2Odometry.addVisionMeasurement(
+                                                                                mt2.pose,
+                                                                                mt2.timestampSeconds,
+                                                                                standardDeviation);
+                                                        }
+                                                } else {
+                                                        System.out.println("Turret angle not found for timestamp: "
+                                                                        + mt2.timestampSeconds);
                                                 }
-                                                if (!doRejectUpdate) {
-                                                        standardDeviation.set(0, 0, 2.0);
-                                                        standardDeviation.set(1, 0, 2.0);
-                                                        standardDeviation.set(2, 0, 5.0);
-                                                        mt2Odometry.addVisionMeasurement(
-                                                                        mt2.pose,
-                                                                        mt2.timestampSeconds, standardDeviation);
-                                                }
-                                        } else {
-                                                System.out.println("Turret angle not found for timestamp: "
-                                                                + mt2.timestampSeconds);
+                                        } catch (Exception e) {
+                                                System.out.println(e);
                                         }
-                                } catch (Exception e) {
-                                        System.out.println(e);
                                 }
                         }
 
@@ -394,6 +405,12 @@ public class DriveIOComp extends DriveIO {
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
+                Logger.recordOutput("turret velocity filtered", Globals.turretVelocity);
+                Logger.recordOutput("limelight ang vel rel to turret",
+                                Constants.Vision.getLimelightAngVelRelToField(Globals.turretVelocity,
+                                                getChassisSpeeds().omegaRadiansPerSecond));
+                Logger.recordOutput("chassis speeds ang vel", getChassisSpeeds().omegaRadiansPerSecond);
+
         }
 
         @Override
