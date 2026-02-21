@@ -75,10 +75,10 @@ public class Drive extends SubsystemBase {
   private ChassisSpeeds currentSpeeds = new ChassisSpeeds();
   private ChassisSpeeds acceleration = new ChassisSpeeds();
 
-  SlewRateLimiter xLimiter = new SlewRateLimiter(4.0);
-  SlewRateLimiter yLimiter = new SlewRateLimiter(4.0);
-  Debouncer xDebouncer = new Debouncer(0.2);
-  Debouncer yDebouncer = new Debouncer(0.2);
+  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Physical.Drive.xAccelLimit);
+  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Physical.Drive.yAccelLimit);
+  Debouncer xDebouncer = new Debouncer(Constants.Physical.Drive.xDebounceLimit);
+  Debouncer yDebouncer = new Debouncer(Constants.Physical.Drive.yDebounceLimit);
   ChassisSpeeds previousControllerSpeeds = new ChassisSpeeds();
 
   public enum DriveState {
@@ -1005,7 +1005,7 @@ public class Drive extends SubsystemBase {
     acceleration = currentSpeeds.minus(previousSpeeds)
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
     Logger.recordOutput("Drive/Acceleration", acceleration);
-    ChassisSpeeds futureVelocity = currentSpeeds.plus(acceleration.times(0.03));
+    ChassisSpeeds futureVelocity = currentSpeeds.plus(acceleration.times(Constants.Physical.Drive.velLookaheadTime));
 
     return futureVelocity;
   }

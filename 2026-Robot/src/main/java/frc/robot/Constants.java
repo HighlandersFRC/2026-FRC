@@ -126,6 +126,14 @@ public final class Constants {
                                 FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
                                 new Rotation2d());
 
+                public static final class Drive {
+                        public static final double xAccelLimit = 4.0;
+                        public static final double yAccelLimit = 4.0;
+                        public static final double xDebounceLimit = 0.2;
+                        public static final double yDebounceLimit = 0.2;
+                        public static final double velLookaheadTime = 0.03;
+                }
+
                 public static final class Intake {
                         public static final int NUM_INTAKE_MOTORS = 1;
                         public static final int NUM_ROLLER_MOTORS = 1;
