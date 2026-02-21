@@ -123,6 +123,10 @@ public class Shooter extends SubsystemBase {
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
+
+    Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
+    Logger.recordOutput("Shooter/Turret Error", turretAngleError);
+    Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
     return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
