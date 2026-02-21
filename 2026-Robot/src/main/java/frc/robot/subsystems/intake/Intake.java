@@ -87,7 +87,11 @@ public class Intake extends SubsystemBase {
       case DYNAMIC_INTAKING:
         return IntakeState.DYNAMIC_INTAKING;
       case JIGGLE:
-        return IntakeState.JIGGLE;
+        if (OI.driverRT.getAsBoolean()) {
+          return IntakeState.DYNAMIC_INTAKING;
+        } else {
+          return IntakeState.JIGGLE;
+        }
       default:
         return IntakeState.IDLE;
     }
@@ -150,9 +154,9 @@ public class Intake extends SubsystemBase {
         setRollerPercent(dynamicIntakeSpeed);
         break;
       case JIGGLE:
-        if (OI.driverRT.getAsBoolean()) {
-          setIntakeDown();
-        }
+        // if (OI.driverRT.getAsBoolean()) {
+        // setIntakeDown();
+        // }
         setJiggle();
         setRollerPercent(dynamicIntakeSpeed);
         break;

@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoClimbFollower;
@@ -123,7 +124,14 @@ public class RobotContainer {
                 OI.driverLT.onFalse(new SetRobotStateComplicatedAfterWait(superstructure, SuperState.SHOOTING_NO_FEED,
                                 SuperState.DEFAULT, 0.5));
 
-                OI.driverRT.whileTrue(new SetRobotState(superstructure, SuperState.INTAKING));
+                // OI.driverRT.whileTrue(new SetRobotState(superstructure,
+                // SuperState.INTAKING));
+
+                OI.driverRT.whileTrue(new ConditionalCommand(
+                                new DoNothing(),
+                                new SetRobotState(superstructure, SuperState.INTAKING),
+                                OI.driverLTSupplier));
+
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
                 OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
 
