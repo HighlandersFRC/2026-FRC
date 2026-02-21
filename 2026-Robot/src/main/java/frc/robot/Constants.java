@@ -579,6 +579,10 @@ public final class Constants {
                         }
                 }
 
+                public static double getLimelightAngVelRelToField(double turretVel, double robotVel) {
+                        return (turretVel + robotVel);
+                }
+
                 /**
                  * Calculates the standard deviation of the x-coordinate based on the given
                  * offsets.
