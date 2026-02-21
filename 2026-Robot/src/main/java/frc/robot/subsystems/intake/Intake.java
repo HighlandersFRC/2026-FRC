@@ -25,10 +25,6 @@ public class Intake extends SubsystemBase {
     setIntakePosition(0.0);
   }
 
-  public void init() {
-    io.init();
-  }
-
   public double getIntakePosition() {
     return io.getIntakePosition();
   }
@@ -106,7 +102,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void setIntakeDown() {
-    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 5.0) {
+    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 10.0) {
       setPivotTorque(5, 0.3);
     } else {
       setPivotTorque(40, 1.0);
@@ -116,7 +112,7 @@ public class Intake extends SubsystemBase {
   public void setJiggle() {
     if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 15.0) {
       jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 7.0) {
+    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.0) {
       jiggleUp = false;
     }
 

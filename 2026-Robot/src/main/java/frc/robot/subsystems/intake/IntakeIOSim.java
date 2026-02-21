@@ -39,10 +39,6 @@ class IntakeIOSim implements IntakeIO {
     private double kG0 = Constants.PIDConstants.Intake.kG0; // Gravity feedforward gain
 
     @Override
-    public void init() {
-    }
-
-    @Override
     public void updateInputs(IntakeState systemState) {
         if (!closedLoop) {
             update(Globals.loopPeriodSecs);
