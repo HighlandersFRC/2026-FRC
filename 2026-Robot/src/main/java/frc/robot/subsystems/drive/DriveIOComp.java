@@ -405,11 +405,13 @@ public class DriveIOComp extends DriveIO {
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
-                Logger.recordOutput("turret velocity filtered", Globals.turretVelocity);
-                Logger.recordOutput("limelight ang vel rel to turret",
+                Logger.recordOutput("Robot/turret velocity filtered", Globals.turretVelocity);
+                Logger.recordOutput("Robot/limelight ang vel rel to turret",
                                 Constants.Vision.getLimelightAngVelRelToField(Globals.turretVelocity,
                                                 getChassisSpeeds().omegaRadiansPerSecond));
-                Logger.recordOutput("chassis speeds ang vel", getChassisSpeeds().omegaRadiansPerSecond);
+                Logger.recordOutput("Robot/chassis speeds ang vel", getChassisSpeeds().omegaRadiansPerSecond);
+                Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
+                Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
 
         }
 

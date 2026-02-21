@@ -154,9 +154,6 @@ public class Intake extends SubsystemBase {
         setRollerPercent(dynamicIntakeSpeed);
         break;
       case JIGGLE:
-        // if (OI.driverRT.getAsBoolean()) {
-        // setIntakeDown();
-        // }
         setJiggle();
         setRollerPercent(dynamicIntakeSpeed);
         break;

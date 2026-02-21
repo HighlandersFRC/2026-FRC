@@ -16,6 +16,7 @@ public class Feeder extends SubsystemBase {
     IDLE, // Stop all movement
     FEED, // Move balls into shooter
     REVERSE, // Reverses for some reason idk maybe to unclog stuff
+    DEFAULT, // reverses slowly to reduce clogs
   }
 
   private final FeederIO io;
@@ -41,6 +42,8 @@ public class Feeder extends SubsystemBase {
         return FeederState.FEED;
       case REVERSE:
         return FeederState.REVERSE;
+      case DEFAULT:
+        return FeederState.DEFAULT;
       default:
         return FeederState.IDLE;
     }
@@ -65,6 +68,9 @@ public class Feeder extends SubsystemBase {
         break;
       case REVERSE:
         setDyeRotorTorque(-80, 0.7);
+        break;
+      case DEFAULT:
+        setDyeRotorTorque(-20, 0.3);
         break;
       default:
         setDyeRotorPercent(0.0);
