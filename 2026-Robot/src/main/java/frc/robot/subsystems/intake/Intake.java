@@ -20,6 +20,7 @@ public class Intake extends SubsystemBase {
     } else {
       io = new IntakeIOSim();
     }
+    setIntakePosition(0.0);
   }
 
   public void init() {
@@ -89,19 +90,19 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("States/Intake State", systemState);
     switch (systemState) {
       case UP:
-        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
         setRollerPercent(0.0);
         break;
       case INTAKING:
-        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
         setRollerPercent(0.50);
         break;
       case DYNAMIC_INTAKING:
-        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
         setRollerPercent(dynamicIntakeSpeed);
         break;
       default:
-        // setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
         setRollerPercent(0.0);
         break;
     }

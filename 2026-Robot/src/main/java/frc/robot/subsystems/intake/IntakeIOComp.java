@@ -66,6 +66,7 @@ class IntakeIOComp implements IntakeIO {
 
                 rollerMotor.getConfigurator().apply(intakeConfig);
                 rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+                setIntakePosition(0.0);
         }
 
         @Override
@@ -74,7 +75,7 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setIntakePosition(double rotations) {
-
+                System.out.println("Setting intake position to " + rotations + " rotations");
                 pivotMotor.setControl(this.intakeMotionProfileRequest
                                 .withPosition(rotations)
                                 .withVelocity(this.intakeCruiseVelocity * intakeProfileScalarFactor)

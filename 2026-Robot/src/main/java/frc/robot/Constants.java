@@ -409,7 +409,7 @@ public final class Constants {
                 }
 
                 public static final class Intake {
-                        public static final double INTAKE_DOWN_POSITION = Constants.degreesToRotations(90.0);
+                        public static final double INTAKE_DOWN_POSITION = 0.521484 + 25.076172;
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
                 }
 
