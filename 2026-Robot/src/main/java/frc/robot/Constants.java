@@ -668,15 +668,18 @@ public final class Constants {
                         public static final double INTAKE_ROLLER_GEAR_RATIO = 1.0;
                 }
 
+                public static final class Feeder {
+                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0;
+                }
+
                 public static final class Climber {
-                        public static final double CLIMBER_MAX_ROTATIONS = 37.249;
-                        public static final double CLIMBER_MOTOR_ROT_TO_INCHES = 0.37930804301;
-                        public static final double CLIMBER_MAX_INCHES = CLIMBER_MAX_ROTATIONS
-                                        * CLIMBER_MOTOR_ROT_TO_INCHES;
+                        public static final double CLIMBER_MOTOR_INCHES_PER_ROTATION = 0.38903389;
+                        public static final double CLIMBER_MAX_INCHES = 20.25;
+                        public static final double CLIMBER_MAX_ROTATIONS = CLIMBER_MAX_INCHES
+                                        / CLIMBER_MOTOR_INCHES_PER_ROTATION;
                 }
         }
 
-        
         public static final ArrayList<String> paths = new ArrayList<String>();
 
         // Can info such as IDs
@@ -719,7 +722,8 @@ public final class Constants {
                 public static final int DYE_ROTOR_MOTOR_ID = 15;
 
                 // Climber
-                public static final int CLIMBER_MOTOR_ID = 20;
+                public static final int CLIMBER_MASTER_MOTOR_ID = 19;
+                public static final int CLIMBER_SLAVE_MOTOR_ID = 20;
         }
 
         // Misc. controller values
