@@ -1006,7 +1006,7 @@ public class Drive extends SubsystemBase {
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
     Logger.recordOutput("Drive/Acceleration", acceleration);
     ChassisSpeeds futureVelocity = currentSpeeds.plus(acceleration.times(Constants.Physical.Drive.velLookaheadTime));
-
+    futureVelocity.omegaRadiansPerSecond = currentSpeeds.omegaRadiansPerSecond;
     return futureVelocity;
   }
 
