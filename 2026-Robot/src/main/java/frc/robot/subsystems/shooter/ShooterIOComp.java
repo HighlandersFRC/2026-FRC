@@ -15,11 +15,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-// import frc.robot.tools.logging.TunableNumber;
 import frc.robot.Globals;
+import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
         private final TalonFX flywheelMaster = new TalonFX(Constants.CANInfo.FLYWHEEL_MASTER_ID,
@@ -36,6 +37,9 @@ class ShooterIOComp implements ShooterIO {
                         Constants.CANInfo.CANBUS_NAME);
         private final CANcoder encoderTwo = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID,
                         Constants.CANInfo.CANBUS_NAME);
+
+        private LinearFilter filterTurret = LinearFilter.movingAverage(10);
+
         // private TunableNumber turretP = new TunableNumber("Turret Position kP",
         // Constants.PIDConstants.Turret.kP0);
         // private TunableNumber turretI = new TunableNumber("Turret Position kI",
@@ -161,14 +165,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.416259765625; // TODO: Try calculating offset from
-                                                                              // previous zero
-                                                                              // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.89990234375; // TODO: Try calculating offset from
+                                                                             // previous zero
+                                                                             // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.93017578125;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.3984375;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -220,8 +224,9 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void setTurretAngle(double angle) {
                 Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
-                turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
-                                turretAcceleration));
+                turretMotor.setControl(
+                                new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
+                                                turretAcceleration));
                 Logger.recordOutput("Shooter/goal motor turret degrees Er",
                                 Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
 
@@ -312,7 +317,10 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void updateInputs() {
                 Globals.turretAngle = getTurretAngle();
-
+                Logger.recordOutput("Turret vel unfiltered",
+                                Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
+                filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
+                Globals.turretVelocity = filterTurret.lastValue();
                 if (initializingTurret) {
                         initLoops++;
                         firstTurretAngles.add(getRelativeTurretAngleRadians());

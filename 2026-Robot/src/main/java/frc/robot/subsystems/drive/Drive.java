@@ -3,6 +3,10 @@ package frc.robot.subsystems.drive;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -66,6 +70,16 @@ public class Drive extends SubsystemBase {
   private PID turningPID = new PID(kTurningP, kTurningI, kTurningD);
 
   public boolean robotCentric = false;
+
+  private ChassisSpeeds previousSpeeds = new ChassisSpeeds();
+  private ChassisSpeeds currentSpeeds = new ChassisSpeeds();
+  private ChassisSpeeds acceleration = new ChassisSpeeds();
+
+  SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.Physical.Drive.xAccelLimit);
+  SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.Physical.Drive.yAccelLimit);
+  Debouncer xDebouncer = new Debouncer(Constants.Physical.Drive.xDebounceLimit);
+  Debouncer yDebouncer = new Debouncer(Constants.Physical.Drive.yDebounceLimit);
+  ChassisSpeeds previousControllerSpeeds = new ChassisSpeeds();
 
   public enum DriveState {
     DEFAULT,
@@ -132,6 +146,9 @@ public class Drive extends SubsystemBase {
 
     turningPID.setMinOutput(-3.0);
     turningPID.setMaxOutput(3.0);
+
+    xDebouncer.setDebounceType(DebounceType.kBoth);
+    yDebouncer.setDebounceType(DebounceType.kBoth);
   }
 
   public void teleopInit() {
@@ -379,13 +396,32 @@ public class Drive extends SubsystemBase {
     double ySpeed = yPower * Constants.Physical.TOP_SPEED;
 
     Vector controllerVector = new Vector(xSpeed, ySpeed);
+    ChassisSpeeds controllerSpeeds = new ChassisSpeeds(controllerVector.getI(), controllerVector.getJ(), turn);
+
     if (getFieldSide().equals("red")) {
       controllerVector.setI(-xSpeed);
       controllerVector.setJ(-ySpeed);
     }
+
+    boolean xDecreasing = xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
+        .abs(previousSpeeds.vxMetersPerSecond));
+    boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
+        .abs(previousSpeeds.vyMetersPerSecond));
+
+    previousControllerSpeeds = controllerSpeeds;
+    double vx = xLimiter.calculate(controllerVector.getI());
+    double vy = yLimiter.calculate(controllerVector.getJ());
     if (wantedState == DriveState.DEFAULT_SLOW) {
+      if (!xDecreasing) {
+        controllerVector.setI(vx);
+        xLimiter.reset(vx);
+      }
+      if (!yDecreasing) {
+        controllerVector.setJ(vy);
+        yLimiter.reset(vy);
+      }
       controllerVector = controllerVector.scaled(0.41);
-      turn = turn * 0.41;
+      turn *= 0.41;
     }
     io.drive(controllerVector, turn);
   }
@@ -959,6 +995,19 @@ public class Drive extends SubsystemBase {
         return Constants.Physical.climbPoseLeftRedSide;
       }
     }
+  }
+
+  public ChassisSpeeds getFutureVelocity() {
+
+    previousSpeeds = currentSpeeds;
+    currentSpeeds = getChassisSpeeds();
+
+    acceleration = currentSpeeds.minus(previousSpeeds)
+        .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
+    Logger.recordOutput("Drive/Acceleration", acceleration);
+    ChassisSpeeds futureVelocity = currentSpeeds.plus(acceleration.times(Constants.Physical.Drive.velLookaheadTime));
+    futureVelocity.omegaRadiansPerSecond = currentSpeeds.omegaRadiansPerSecond;
+    return futureVelocity;
   }
 
   @Override
