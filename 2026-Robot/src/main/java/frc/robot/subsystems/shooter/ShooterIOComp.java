@@ -15,10 +15,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-// import frc.robot.tools.logging.TunableNumber;
 import frc.robot.Globals;
 import frc.robot.tools.logging.TunableNumber;
 
@@ -37,6 +37,9 @@ class ShooterIOComp implements ShooterIO {
                         Constants.CANInfo.CANBUS_NAME);
         private final CANcoder encoderTwo = new CANcoder(Constants.CANInfo.TURRET_CANCODER_TWO_ID,
                         Constants.CANInfo.CANBUS_NAME);
+
+        private LinearFilter filterTurret = LinearFilter.movingAverage(10);
+
         // private TunableNumber turretP = new TunableNumber("Turret Position kP",
         // Constants.PIDConstants.Turret.kP0);
         // private TunableNumber turretI = new TunableNumber("Turret Position kI",
@@ -221,8 +224,9 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void setTurretAngle(double angle) {
                 Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
-                turretMotor.setControl(new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
-                                turretAcceleration));
+                turretMotor.setControl(
+                                new DynamicMotionMagicVoltage(Units.radiansToRotations(angle), turretVelocity,
+                                                turretAcceleration));
                 Logger.recordOutput("Shooter/goal motor turret degrees Er",
                                 Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
 
@@ -313,7 +317,10 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void updateInputs() {
                 Globals.turretAngle = getTurretAngle();
-
+                Logger.recordOutput("Turret vel unfiltered",
+                                Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
+                filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
+                Globals.turretVelocity = filterTurret.lastValue();
                 if (initializingTurret) {
                         initLoops++;
                         firstTurretAngles.add(getRelativeTurretAngleRadians());

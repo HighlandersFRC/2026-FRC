@@ -51,7 +51,23 @@ public class Gyro {
     }
 
     public double getAngularVelocityZDeviceDegPerSec() {
-        return Math.abs(pigeon.getAngularVelocityZDevice().getValueAsDouble());
+        return pigeon.getAngularVelocityZDevice().getValueAsDouble();
+    }
+
+    public double getAngularVelocityXDeviceDegPerSec() {
+        return pigeon.getAngularVelocityXDevice().getValueAsDouble();
+    }
+
+    public double getAngularVelocityYDeviceDegPerSec() {
+        return pigeon.getAngularVelocityYDevice().getValueAsDouble();
+    }
+
+    public double getAngularVelocityXWorldDegPerSec() {
+        return pigeon.getAngularVelocityXWorld().getValueAsDouble();
+    }
+
+    public double getAngularVelocityYWorldDegPerSec() {
+        return pigeon.getAngularVelocityYWorld().getValueAsDouble();
     }
 
     public double getPitchDegrees() {
@@ -60,6 +76,10 @@ public class Gyro {
 
     public double getPitchAdjustedDegrees() {
         return getPitchDegrees() - pitchOffset;
+    }
+
+    public double getRollDegrees() {
+        return pigeon.getRoll().getValueAsDouble();
     }
 
     public void setPitchOffsetDegrees(double offsetDeg) {
