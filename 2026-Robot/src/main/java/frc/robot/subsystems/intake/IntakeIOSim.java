@@ -95,7 +95,12 @@ class IntakeIOSim implements IntakeIO {
     }
 
     @Override
-    public void setRollerTorque(double amps) {
+    public void setRollerTorque(double amps, double maxPercent) {
+
+    }
+
+    @Override
+    public void setPivotTorque(double amps, double maxPercent) {
 
     }
 }

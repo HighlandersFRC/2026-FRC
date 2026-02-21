@@ -39,6 +39,14 @@ public class Intake extends SubsystemBase {
     io.setRollerPercent(percent);
   }
 
+  public void setRollerTorque(double amps, double maxPercent) {
+    io.setRollerTorque(amps, maxPercent);
+  }
+
+  public void setPivotTorque(double amps, double maxPercent) {
+    io.setPivotTorque(amps, maxPercent);
+  }
+
   public enum IntakeState {
     INTAKING,
     DYNAMIC_INTAKING,
@@ -81,28 +89,45 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  public void setIntakeUp() {
+    if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
+      setPivotTorque(-5, 0.3);
+    } else {
+      setPivotTorque(-60, 1.0);
+    }
+  }
+
+  public void setIntakeDown() {
+    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 5.0) {
+      setPivotTorque(5, 0.3);
+    } else {
+      setPivotTorque(40, 1.0);
+    }
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(systemState);
     systemState = handleStateTransition();
     Logger.recordOutput("Intake/Intake State", systemState);
-    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("States/Intake State", systemState);
+    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
+    Logger.recordOutput("Intake/Intake Position", getIntakePosition());
     switch (systemState) {
       case UP:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        setIntakeUp();
         setRollerPercent(0.0);
         break;
       case INTAKING:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setIntakeDown();
         setRollerPercent(0.50);
         break;
       case DYNAMIC_INTAKING:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        setIntakeDown();
         setRollerPercent(dynamicIntakeSpeed);
         break;
       default:
-        setIntakePosition(Constants.SetPoints.Intake.INTAKE_UP_POSITION);
+        setIntakeUp();
         setRollerPercent(0.0);
         break;
     }

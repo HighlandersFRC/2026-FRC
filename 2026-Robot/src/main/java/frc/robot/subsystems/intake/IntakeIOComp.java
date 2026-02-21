@@ -75,7 +75,6 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setIntakePosition(double rotations) {
-                System.out.println("Setting intake position to " + rotations + " rotations");
                 pivotMotor.setControl(this.intakeMotionProfileRequest
                                 .withPosition(rotations)
                                 .withVelocity(this.intakeCruiseVelocity * intakeProfileScalarFactor)
@@ -97,7 +96,12 @@ class IntakeIOComp implements IntakeIO {
         }
 
         @Override
-        public void setRollerTorque(double amps) {
-                rollerMotor.setControl(new TorqueCurrentFOC(-amps));
+        public void setRollerTorque(double amps, double maxPercent) {
+                rollerMotor.setControl(new TorqueCurrentFOC(-amps).withMaxAbsDutyCycle(maxPercent));
+        }
+
+        @Override
+        public void setPivotTorque(double amps, double maxPercent) {
+                pivotMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
         }
 }
