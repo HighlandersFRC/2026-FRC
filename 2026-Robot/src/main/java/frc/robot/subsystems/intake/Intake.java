@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.OI;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.util.Units;
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private double dynamicIntakeSpeed;
+  private boolean jiggleUp = true;
 
   public Intake() {
     if (RobotBase.isReal()) {
@@ -51,6 +53,8 @@ public class Intake extends SubsystemBase {
     INTAKING,
     DYNAMIC_INTAKING,
     UP,
+    DOWN,
+    JIGGLE,
     IDLE
   }
 
@@ -80,10 +84,14 @@ public class Intake extends SubsystemBase {
     switch (wantedState) {
       case UP:
         return IntakeState.UP;
+      case DOWN:
+        return IntakeState.DOWN;
       case INTAKING:
         return IntakeState.INTAKING;
       case DYNAMIC_INTAKING:
         return IntakeState.DYNAMIC_INTAKING;
+      case JIGGLE:
+        return IntakeState.JIGGLE;
       default:
         return IntakeState.IDLE;
     }
@@ -105,6 +113,21 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  public void setJiggle() {
+    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 15.0) {
+      jiggleUp = true;
+    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 7.0) {
+      jiggleUp = false;
+    }
+
+    if (jiggleUp) {
+      setPivotTorque(-50, 0.67);
+    } else {
+      setPivotTorque(30, 0.67);
+    }
+
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(systemState);
@@ -118,12 +141,23 @@ public class Intake extends SubsystemBase {
         setIntakeUp();
         setRollerPercent(0.0);
         break;
+      case DOWN:
+        setIntakeDown();
+        setRollerPercent(0.0);
+        break;
       case INTAKING:
         setIntakeDown();
         setRollerPercent(0.50);
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
+        setRollerPercent(dynamicIntakeSpeed);
+        break;
+      case JIGGLE:
+        if (OI.driverRT.getAsBoolean()) {
+          setIntakeDown();
+        }
+        setJiggle();
         setRollerPercent(dynamicIntakeSpeed);
         break;
       default:
