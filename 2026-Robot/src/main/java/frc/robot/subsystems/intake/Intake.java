@@ -114,16 +114,16 @@ public class Intake extends SubsystemBase {
   }
 
   public void setJiggle() {
-    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 15.0) {
+    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 5.0) {
       jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.0) {
+    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.0) {
       jiggleUp = false;
     }
 
     if (jiggleUp) {
-      setPivotTorque(-50, 0.67);
+      setPivotTorque(-50, 0.41);
     } else {
-      setPivotTorque(30, 0.67);
+      setPivotTorque(30, 0.41);
     }
 
   }
