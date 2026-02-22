@@ -464,9 +464,10 @@ public class Superstructure extends SubsystemBase {
   public void handleIdleState() {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
-    intake.setWantedState(IntakeState.IDLE);
-    feeder.setWantedState(FeederState.IDLE);
     shooter.setWantedState(ShooterState.DEFAULT);
+    feeder.setWantedState(FeederState.DEFAULT);
+    intake.setWantedState(IntakeState.DOWN);
+    climber.setWantedState(ClimberState.IDLE);
   }
 
   public void handleZeroState() {
