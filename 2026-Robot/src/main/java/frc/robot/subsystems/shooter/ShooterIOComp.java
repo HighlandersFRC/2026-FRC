@@ -139,7 +139,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
                 flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-                flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
+                flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 flywheelMaster.getConfigurator().apply(flywheelConfig);
                 flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
                 flywheelFollower.getConfigurator().apply(flywheelConfig);
