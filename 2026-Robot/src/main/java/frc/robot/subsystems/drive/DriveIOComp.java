@@ -272,13 +272,12 @@ public class DriveIOComp extends DriveIO {
                                 double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
                                                 Globals.turretVelocity,
                                                 getChassisSpeeds().omegaRadiansPerSecond);
-                                if (Math.abs(gyro.getPitchDegrees()) < 5.0 && Math.abs(gyro.getRollDegrees()) < 5.0
-                                                && Math.abs(limelightAngVelRelToField) < 2.0) {
+                                if (Math.abs(limelightAngVelRelToField) < 2.0) {
                                         try {
                                                 LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
                                                                 gyro.getYawDegrees(),
                                                                 limelightAngVelRelToField,
-                                                                0, 0, 0, 0);
+                                                                gyro.getPitchDegrees(), 0, -gyro.getRollDegrees(), 0);
                                                 LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
                                                                 .getBotPoseEstimate_wpiBlue_MegaTag2(
                                                                                 Constants.Vision.LIMELIGHT_NAME);
@@ -418,5 +417,10 @@ public class DriveIOComp extends DriveIO {
         @Override
         protected ChassisSpeeds getWantedChassisSpeeds() {
                 return wantedChassisSpeeds;
+        }
+
+        @Override
+        protected boolean getFlat() {
+                return Math.abs(gyro.getPitchDegrees()) < 5.0 && Math.abs(gyro.getRollDegrees()) < 5.0;
         }
 }

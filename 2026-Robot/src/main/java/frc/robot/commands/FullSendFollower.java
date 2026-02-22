@@ -144,6 +144,6 @@ public class FullSendFollower extends AutoFollower {
                 (point.getDouble("y") - odometryFusedY) / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
                 (point.getDouble("angle") - odometryFusedTheta)
                         / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS,
-                Constants.Autonomous.AUTONOMOUS_END_ACCURACY);
+                Constants.Autonomous.AUTONOMOUS_END_ACCURACY) && drive.isFlat();
     }
 }

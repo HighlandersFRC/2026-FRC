@@ -1010,6 +1010,10 @@ public class Drive extends SubsystemBase {
     return futureVelocity;
   }
 
+  public boolean isFlat() {
+    return io.getFlat();
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putData("Field", field);
