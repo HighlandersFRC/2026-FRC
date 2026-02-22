@@ -97,4 +97,9 @@ public class DriveIOSim extends DriveIO {
                 wantedVelocityVector.getJ(),
                 wantedAngularVelocity);
     }
+
+    @Override
+    protected boolean getFlat() {
+        return true;
+    }
 }

@@ -32,4 +32,6 @@ abstract class DriveIO {
     abstract void update(DriveState currentState);
 
     protected abstract ChassisSpeeds getWantedChassisSpeeds();
+
+    protected abstract boolean getFlat();
 }
