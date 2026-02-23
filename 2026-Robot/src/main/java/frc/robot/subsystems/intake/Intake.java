@@ -151,6 +151,7 @@ public class Intake extends SubsystemBase {
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
+        Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
         setRollerPercent(dynamicIntakeSpeed);
         break;
       case JIGGLE:

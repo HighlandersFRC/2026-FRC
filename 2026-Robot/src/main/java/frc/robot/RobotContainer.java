@@ -23,6 +23,7 @@ import frc.robot.commands.SetRobotStateComplicatedAfterWait;
 import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.SetRobotStateSimpleOnce;
+import frc.robot.commands.SetRobotStateTimeout;
 import frc.robot.commands.ZeroAngleMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
@@ -59,7 +60,7 @@ public class RobotContainer {
                 {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
-                        put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Shoot", () -> new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 6.0));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
                         put("Climb", () -> new AutoClimbFollower(superstructure, drive));
                 }

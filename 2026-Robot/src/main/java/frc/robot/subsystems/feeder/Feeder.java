@@ -70,7 +70,8 @@ public class Feeder extends SubsystemBase {
         setDyeRotorTorque(-80, 0.7);
         break;
       case DEFAULT:
-        setDyeRotorTorque(-20, 0.3);
+        // setDyeRotorTorque(-10, 0.3);
+        setDyeRotorPercent(0.0);
         break;
       default:
         setDyeRotorPercent(0.0);
