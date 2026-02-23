@@ -114,16 +114,24 @@ public class Intake extends SubsystemBase {
   }
 
   public void setJiggle() {
-    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 5.0) {
-      jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.0) {
-      jiggleUp = false;
-    }
+    // if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
+    // 5.0) {
+    // jiggleUp = true;
+    // } else if (getIntakePosition() <
+    // Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.0) {
+    // jiggleUp = false;
+    // }
 
-    if (jiggleUp) {
-      setPivotTorque(-50, 0.41);
+    // if (jiggleUp) {
+    // setPivotTorque(-50, 0.41);
+    // } else {
+    // setPivotTorque(30, 0.41);
+    // }
+
+    if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
+      setPivotTorque(0, 0.0);
     } else {
-      setPivotTorque(30, 0.41);
+      setPivotTorque(-30, 0.6);
     }
 
   }
