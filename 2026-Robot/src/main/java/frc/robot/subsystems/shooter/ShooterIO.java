@@ -24,4 +24,8 @@ interface ShooterIO {
     void setHoodAngle(Rotation2d angle);
 
     void zeroTurretToEncoder();
+
+    double getFlywheelCurrent();
+
+    double getFlywheelAcceleration();
 }

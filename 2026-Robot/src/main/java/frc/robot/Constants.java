@@ -166,6 +166,12 @@ public final class Constants {
                         public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
+                        public static final double SHOT_DEBOUNCE_S = 0.06;
+                        public static final double SHOT_ACCEL_LOW = -20.0;
+                        public static final double SHOT_ACCEL_HIGH = 20.0;
+                        public static final double SHOT_RPM_DELTA_LOW = -100.0;
+                        public static final double SHOT_RPM_DELTA_HIGH = 120.0;
+                        public static final double SHOT_SPIKE_CURRENT = 40.0;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 4 + 0.0 * distanceFromHub;

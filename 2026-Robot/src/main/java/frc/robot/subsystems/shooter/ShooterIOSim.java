@@ -124,6 +124,16 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
+    public double getFlywheelCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getFlywheelAcceleration() {
+        return 0;
+    }
+
+    @Override
     public void setFlywheelPercent(double percent) {
 
     }
