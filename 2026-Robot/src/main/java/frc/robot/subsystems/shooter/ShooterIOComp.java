@@ -309,6 +309,16 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollower.set(-percent);
         }
 
+        @Override
+        public double getFlywheelCurrent() {
+                return flywheelMaster.getStatorCurrent().getValueAsDouble();
+        }
+
+        @Override
+        public double getFlywheelAcceleration() {
+                return flywheelMaster.getAcceleration().getValueAsDouble();
+        }
+
         private boolean initializingTurret;
         private int initLoops;
         private ArrayList<Double> firstTurretAngles = new ArrayList<>();
