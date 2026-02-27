@@ -330,10 +330,19 @@ public class Shooter extends SubsystemBase {
         shotLog.add(new frc.robot.tools.wrappers.ShotLogger(now));
         lastShotTs = now;
       }
+      Logger.recordOutput("Shooter/Raw RPM", curRPM);
+      Logger.recordOutput("Shooter/RPM Delta", rpmDelta);
+      Logger.recordOutput("Shooter/Accel (RPM/s)", accel);
+      Logger.recordOutput("Shooter/Current", current);
+      Logger.recordOutput("Shooter/Accel Stable", accelStable);
+      Logger.recordOutput("Shooter/Vel Stable", velStable);
+      Logger.recordOutput("Shooter/Current Spike", currentSpike);
+      Logger.recordOutput("Shooter/Time Since Last Shot", timeSinceLast);
+      Logger.recordOutput("Shooter/System State", systemState.toString());
     }
 
     lastRPM = curRPM;
-
+    Logger.recordOutput("Shooter/Last Shot Timestamp", lastShotTs);
     Logger.recordOutput("Shooter/Shot Log Size", shotLog.size());
   }
 }
