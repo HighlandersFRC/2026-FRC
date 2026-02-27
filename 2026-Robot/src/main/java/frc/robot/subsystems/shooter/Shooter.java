@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.shooter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.filter.Debouncer;
@@ -12,10 +15,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.tools.math.ShotCalculator.ShotSolution;
+import frc.robot.tools.wrappers.ShotLogger;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
@@ -32,6 +37,11 @@ public class Shooter extends SubsystemBase {
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
   private Rotation2d idleTurretAngle = new Rotation2d(0.0);
   private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle, 0.0, 0.0);
+
+  public List<ShotLogger> shotLog = new ArrayList<>();
+
+  private double lastRPM = 0.0;
+  private double lastShotTs = 0.0;
 
   Translation3d target = Constants.Field.getHubPose();
   Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
@@ -284,11 +294,52 @@ public class Shooter extends SubsystemBase {
       default:
         break;
     }
+    if (readyToShoot()) {
+      detectAndLogShot();
+    }
+
+    if (DriverStation.isDisabled()) {
+      Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
+    }
   }
 
   private void trackTarget() {
     io.setTurretAngle(getRelativeAngleFromRotation2d(idleTurretAngle));
     io.setHoodAngle(new Rotation2d(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
     io.setFlywheelPercent(0.0);
+  }
+
+  public void detectAndLogShot() {
+    double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
+    double curRPM = getFlywheelRPM();
+    double current = io.getFlywheelCurrent();
+    double accel = io.getFlywheelAcceleration();
+    final double DEBOUNCE_S = Constants.Physical.Shooter.SHOT_DEBOUNCE_S;
+    final double ACCEL_LOW = Constants.Physical.Shooter.SHOT_ACCEL_LOW;
+    final double ACCEL_HIGH = Constants.Physical.Shooter.SHOT_ACCEL_HIGH;
+    final double RPM_LOW = Constants.Physical.Shooter.SHOT_RPM_DELTA_LOW;
+    final double RPM_HIGH = Constants.Physical.Shooter.SHOT_RPM_DELTA_HIGH;
+    final double SPIKE_CURRENT = Constants.Physical.Shooter.SHOT_SPIKE_CURRENT;
+
+    if (!Double.isFinite(lastRPM) || lastRPM <= 1.0) {
+      lastRPM = curRPM;
+    } else {
+      double rpmDelta = lastRPM - curRPM;
+      double timeSinceLast = now - lastShotTs;
+      boolean debounceOk = timeSinceLast >= DEBOUNCE_S;
+      boolean accelStable = accel >= ACCEL_LOW && accel <= ACCEL_HIGH;
+      boolean velStable = rpmDelta >= RPM_LOW && rpmDelta <= RPM_HIGH;
+      boolean currentSpike = current >= SPIKE_CURRENT;
+      boolean shootingState = systemState == ShooterState.NORMAL_SHOOT || systemState == ShooterState.PHYSICS_SHOOT;
+
+      if (debounceOk && accelStable && velStable && currentSpike && shootingState) {
+        shotLog.add(new frc.robot.tools.wrappers.ShotLogger(now));
+        lastShotTs = now;
+      }
+    }
+
+    lastRPM = curRPM;
+
+    Logger.recordOutput("Shooter/Shot Log Size", shotLog.size());
   }
 }
