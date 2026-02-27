@@ -53,7 +53,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void retractClimber() {
-    io.setPower(-70, 0.1);
+    io.setPower(-50, 0.05);
   }
 
   public void extendClimber() {
@@ -61,7 +61,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void stallClimber() {
-    io.setPower(-60, 0.5);
+    io.setPower(-70, 0.2);
   }
 
   public void setWantedState(ClimberState wantedState) {
