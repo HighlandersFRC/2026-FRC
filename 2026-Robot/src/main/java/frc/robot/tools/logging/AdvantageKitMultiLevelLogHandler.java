@@ -67,9 +67,12 @@ public class AdvantageKitMultiLevelLogHandler extends Handler {
     }
 
     public void write() {
-        logEntries.forEach((key, value) -> {
+        Map<String, String> snapshot = new HashMap<>(logEntries);
+
+        snapshot.forEach((key, value) -> {
             org.littletonrobotics.junction.Logger.recordOutput(key, value);
-            logEntries.replace(key, "");
         });
+
+        logEntries.replaceAll((k, v) -> "");
     }
 }

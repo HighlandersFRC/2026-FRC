@@ -6,6 +6,7 @@ package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -36,6 +37,8 @@ public class Shooter extends SubsystemBase {
   Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
   Pose2d robotPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
   Translation3d turretFieldPosition = new Translation3d(0.0, 0.0, 0.0);
+
+  private Debouncer readyToShootDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -127,9 +130,12 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
     Logger.recordOutput("Shooter/Turret Error", turretAngleError);
     Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
-    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+    boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+    boolean debouncedReady = readyToShootDebouncer.calculate(ready);
+    Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
+    return debouncedReady;
   }
 
   public boolean readyToPass() {

@@ -346,7 +346,7 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 100.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 200.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();

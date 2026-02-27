@@ -329,7 +329,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
-    feeder.setWantedState(FeederState.IDLE); // Pass ball into shooter
+    feeder.setWantedState(FeederState.DEFAULT); // Pass ball into shooter
 
     // Log Fuel Trajectory
     if (RobotBase.isSimulation()) {
@@ -361,7 +361,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
     // Feeder
-    feeder.setWantedState(FeederState.IDLE);
+    feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.DOWN);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
@@ -453,7 +453,7 @@ public class Superstructure extends SubsystemBase {
 
   public void handleIntakeingState() {
     intake.setWantedState(IntakeState.DYNAMIC_INTAKING, drive.getChassisSpeeds());
-    feeder.setWantedState(FeederState.IDLE);
+    feeder.setWantedState(FeederState.DEFAULT);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
@@ -474,7 +474,7 @@ public class Superstructure extends SubsystemBase {
     drive.setWantedState(DriveState.IDLE);
     lights.setWantedState(LightsState.DEFAULT);
     intake.setWantedState(IntakeState.IDLE);
-    feeder.setWantedState(FeederState.IDLE);
+    feeder.setWantedState(FeederState.DEFAULT);
     // shooter.setWantedState(ShooterState.ZERO); TODO: Implement zeroing
   }
 
@@ -503,7 +503,7 @@ public class Superstructure extends SubsystemBase {
       if (shooter.readyToShoot()) {
         feeder.setWantedState(FeederState.FEED);
       } else {
-        feeder.setWantedState(FeederState.IDLE);
+        feeder.setWantedState(FeederState.DEFAULT);
       }
     }
   }
@@ -524,7 +524,7 @@ public class Superstructure extends SubsystemBase {
       if (shooter.readyToShoot()) {
         feeder.setWantedState(FeederState.FEED);
       } else {
-        feeder.setWantedState(FeederState.IDLE);
+        feeder.setWantedState(FeederState.DEFAULT);
       }
     }
   }
@@ -545,7 +545,7 @@ public class Superstructure extends SubsystemBase {
       if (shooter.readyToShoot()) {
         feeder.setWantedState(FeederState.FEED);
       } else {
-        feeder.setWantedState(FeederState.IDLE);
+        feeder.setWantedState(FeederState.DEFAULT);
       }
     }
   }
