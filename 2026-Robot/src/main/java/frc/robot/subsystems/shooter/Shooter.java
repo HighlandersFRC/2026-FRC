@@ -132,17 +132,20 @@ public class Shooter extends SubsystemBase {
 
     double turretPrecisionRequired = Math
         .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
-    Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
 
     Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
+    Logger.recordOutput("Shooter/Hood Precision Required", Constants.SetPoints.Hood.HOOD_PRECISION);
     Logger.recordOutput("Shooter/Turret Error", turretAngleError);
+    Logger.recordOutput("Shooter/Turret Precision Required", turretPrecisionRequired);
     Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
+    Logger.recordOutput("Shooter/Flywheel RPM Precision Required", Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+    Logger.recordOutput("Shooter/Ready To Shoot Raw", ready);
     boolean debouncedReady = readyToShootDebouncer.calculate(ready);
     Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
     return debouncedReady;

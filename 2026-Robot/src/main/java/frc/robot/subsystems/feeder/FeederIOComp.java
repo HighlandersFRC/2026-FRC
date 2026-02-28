@@ -1,5 +1,7 @@
 package frc.robot.subsystems.feeder;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -44,6 +46,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void updateInputs(FeederState systemState) {
+        Logger.recordOutput("Dye Rotor Torque", dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 
     }
 
