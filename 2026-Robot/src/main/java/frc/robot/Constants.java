@@ -166,7 +166,7 @@ public final class Constants {
                         public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
-                        public static final double SHOT_DEBOUNCE_S = 0.06;
+                        public static final double SHOT_DEBOUNCE_S = 0.08;
                         public static final double SHOT_ACCEL_LOW = -30.0;
                         public static final double SHOT_ACCEL_HIGH = 36.0;
                         public static final double SHOT_RPM_DELTA_LOW = -180.0;
@@ -255,14 +255,11 @@ public final class Constants {
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
 
-                public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(11.967, 2.410);
-                public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
-                                Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
-                public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
-                                Constants.Physical.FIELD_LENGTH - RED_LEFT_FEED_POSE.getX(),
-                                RED_RIGHT_FEED_POSE.getY());
-                public static final Translation2d BLUE_RIGHT_FEED_POSE = new Translation2d(BLUE_LEFT_FEED_POSE.getX(),
-                                RED_LEFT_FEED_POSE.getY());
+                public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
+                                Constants.Physical.FIELD_LENGTH, 0.0);
+                public static final Translation2d RED_RIGHT_FEED_POSE = RED_LEFT_FEED_POSE;
+                public static final Translation2d BLUE_LEFT_FEED_POSE = RED_LEFT_FEED_POSE;
+                public static final Translation2d BLUE_RIGHT_FEED_POSE = RED_LEFT_FEED_POSE;
 
                 public static Translation3d getHubPose() {
                         if (Globals.fieldSide.equals("blue")) {
@@ -425,7 +422,7 @@ public final class Constants {
                 public static final class Intake {
                         public static final double INTAKE_DOWN_POSITION = 0.521484 + 25.076172;
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
-                        public static final double INTAKE_SHOOT_POSITION = 15.0;
+                        public static final double INTAKE_SHOOT_POSITION = 10.0;
                 }
 
                 public static final class Feeder {
