@@ -21,8 +21,8 @@ class ClimberIOComp implements ClimberIO {
         climberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         climberConfig.Feedback.SensorToMechanismRatio = 1.0;
         climberConfig.Feedback.RotorToSensorRatio = 1.0;
-        climberConfig.CurrentLimits.StatorCurrentLimit = 80;
-        climberConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        climberConfig.CurrentLimits.StatorCurrentLimit = 120;
+        climberConfig.CurrentLimits.SupplyCurrentLimit = 120;
         climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         climberMasterMotor.getConfigurator().apply(climberConfig);

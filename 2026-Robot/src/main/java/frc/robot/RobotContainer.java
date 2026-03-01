@@ -136,7 +136,7 @@ public class RobotContainer {
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
                 OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
 
-                OI.driverMenuButton.whileTrue(new SetRobotState(superstructure, SuperState.DEFAULT));
+                OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
                 OI.driverX.whileTrue(new SetRobotStateOnce(superstructure, SuperState.MANUAL_SHOOT));
                 OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
                 OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));

@@ -15,4 +15,12 @@ interface IntakeIO {
     public void setPivotTorque(double amps, double maxPercent);
 
     public double getIntakePosition();
+
+    public double getIntakeVelocity();
+
+    public double getIntakeCurrent();
+
+    public double getIntakeAcceleration();
+
+    public void zeroIntakePosition();
 }

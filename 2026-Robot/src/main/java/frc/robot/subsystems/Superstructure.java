@@ -223,6 +223,10 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.PASSING;
         break;
       case ZERO:
+        if (intake.isZeroed()) {
+          wantedSuperState = SuperState.DEFAULT;
+          currentSuperState = SuperState.DEFAULT;
+        }
         currentSuperState = SuperState.ZERO;
         break;
       case MANUAL_CLIMBING:
@@ -474,11 +478,11 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void handleZeroState() {
-    drive.setWantedState(DriveState.IDLE);
+    drive.setWantedState(DriveState.DEFAULT);
     lights.setWantedState(LightsState.DEFAULT);
-    intake.setWantedState(IntakeState.IDLE);
+    intake.setWantedState(IntakeState.ZERO);
     feeder.setWantedState(FeederState.DEFAULT);
-    // shooter.setWantedState(ShooterState.ZERO); TODO: Implement zeroing
+    shooter.setWantedState(ShooterState.IDLE);
   }
 
   private void handleClimbingState() {

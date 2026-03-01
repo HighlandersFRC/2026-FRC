@@ -99,4 +99,23 @@ class IntakeIOSim implements IntakeIO {
     public void setPivotTorque(double amps, double maxPercent) {
 
     }
+
+    @Override
+    public double getIntakeVelocity() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeAcceleration() {
+        return 0.0;
+    }
+
+    @Override
+    public void zeroIntakePosition() {
+    }
 }

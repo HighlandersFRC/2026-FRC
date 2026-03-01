@@ -46,7 +46,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void updateInputs(FeederState systemState) {
-        Logger.recordOutput("Dye Rotor Torque", dyeRotorMotor.getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput("Feeder/Dye Rotor Torque", dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 
     }
 
