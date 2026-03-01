@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.OI;
@@ -15,6 +16,8 @@ public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private double dynamicIntakeSpeed;
   private boolean jiggleUp = true;
+  private double timeZeroed = Timer.getFPGATimestamp();
+  private boolean firstTimeZeroed = true;
 
   public Intake() {
     if (RobotBase.isReal()) {
@@ -51,6 +54,7 @@ public class Intake extends SubsystemBase {
     UP,
     DOWN,
     JIGGLE,
+    ZERO,
     IDLE
   }
 
@@ -92,6 +96,8 @@ public class Intake extends SubsystemBase {
         } else {
           return IntakeState.JIGGLE;
         }
+      case ZERO:
+        return IntakeState.ZERO;
       default:
         return IntakeState.IDLE;
     }
@@ -110,6 +116,27 @@ public class Intake extends SubsystemBase {
       setPivotTorque(5, 0.3);
     } else {
       setPivotTorque(40, 1.0);
+    }
+  }
+
+  public void zero() {
+    setPivotTorque(40, 0.5);
+  }
+
+  public boolean isZeroed() {
+    if (io.getIntakeCurrent() > 15.0 && io.getIntakeVelocity() < 1.0 && io.getIntakeAcceleration() < 1.0) {
+      if (!firstTimeZeroed) {
+        timeZeroed = Timer.getFPGATimestamp();
+      }
+      firstTimeZeroed = false;
+      if (Timer.getFPGATimestamp() - timeZeroed > 0.5) {
+        io.zeroIntakePosition();
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
     }
   }
 
@@ -144,6 +171,10 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("States/Intake State", systemState);
     Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake/Intake Position", getIntakePosition());
+
+    Logger.recordOutput("Intake/Intake Velocity", io.getIntakeVelocity());
+    Logger.recordOutput("Intake/Intake Torque", io.getIntakeCurrent());
+    Logger.recordOutput("Intake/Intake Acceleration", io.getIntakeAcceleration());
     switch (systemState) {
       case UP:
         setIntakeUp();
@@ -165,6 +196,10 @@ public class Intake extends SubsystemBase {
       case JIGGLE:
         setJiggle();
         setRollerPercent(dynamicIntakeSpeed);
+        break;
+      case ZERO:
+        setRollerPercent(0.0);
+        zero();
         break;
       default:
         setIntakeUp();

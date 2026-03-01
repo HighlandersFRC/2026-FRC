@@ -101,4 +101,24 @@ class IntakeIOComp implements IntakeIO {
         public void setPivotTorque(double amps, double maxPercent) {
                 pivotMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
         }
+
+        @Override
+        public double getIntakeVelocity() {
+                return pivotMotor.getVelocity().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeCurrent() {
+                return pivotMotor.getTorqueCurrent().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeAcceleration() {
+                return pivotMotor.getAcceleration().getValueAsDouble();
+        }
+
+        @Override
+        public void zeroIntakePosition() {
+                pivotMotor.setPosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
+        }
 }
