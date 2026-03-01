@@ -129,7 +129,7 @@ public class Intake extends SubsystemBase {
     // }
 
     if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
-      setPivotTorque(0, 0.0);
+      setPivotTorque(-5, 0.1);
     } else {
       setPivotTorque(-30, 0.6);
     }
