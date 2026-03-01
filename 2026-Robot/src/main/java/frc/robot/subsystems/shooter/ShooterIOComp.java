@@ -327,7 +327,7 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void updateInputs() {
                 Globals.turretAngle = getTurretAngle();
-                Logger.recordOutput("Turret vel unfiltered",
+                Logger.recordOutput("Shooter/Turret vel unfiltered",
                                 Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 Globals.turretVelocity = filterTurret.lastValue();
