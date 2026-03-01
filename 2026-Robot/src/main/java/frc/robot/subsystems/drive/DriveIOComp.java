@@ -272,23 +272,23 @@ public class DriveIOComp extends DriveIO {
                                 }
                         }
 
+                        var leftFrontResult = peripherals.getLeftFrontCamResult();
+                        Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
+                                        .update(leftFrontResult);
+                        if (leftFrontMultiTagResult.isPresent()) {
+                                if (true) {
+                                        standardDeviation.set(0, 0, 1.5);
+                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(2, 0, 2.5);
+                                        Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
+                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                        leftFrontResult.getTimestampSeconds(),
+                                                        standardDeviation);
+                                }
+                        }
+
                         if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
                                         && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
-                                var leftFrontResult = peripherals.getLeftFrontCamResult();
-                                Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
-                                                .update(leftFrontResult);
-                                if (leftFrontMultiTagResult.isPresent()) {
-                                        if (true) {
-                                                standardDeviation.set(0, 0, 1.5);
-                                                standardDeviation.set(1, 0, 1.5);
-                                                standardDeviation.set(2, 0, 2.5);
-                                                Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
-                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                leftFrontResult.getTimestampSeconds(),
-                                                                standardDeviation);
-                                        }
-                                }
-
                                 double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
                                                 Globals.turretVelocity,
                                                 getChassisSpeeds().omegaRadiansPerSecond);
