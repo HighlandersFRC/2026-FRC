@@ -183,7 +183,7 @@ public final class Constants {
                         public static final double DYE_ROTOR_ACCELERATION_MPS2 = 6.0;
                         public static final double DYE_ROTOR_FRICTION_COEFFICIENT = DYE_ROTOR_ACCELERATION_MPS2 /
                                         DYE_ROTOR_MAX_SPEED_MPS;
-                        public static final double DYE_ROTOR_WHEEL_DIAMETER_M = inchesToMeters(1.25);
+                        public static final double DYE_ROTOR_WHEEL_DIAMETER_M = inchesToMeters(15);
                 }
         }
 
