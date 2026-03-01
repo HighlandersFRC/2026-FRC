@@ -256,10 +256,14 @@ public final class Constants {
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
-                                Constants.Physical.FIELD_LENGTH, 0.0);
-                public static final Translation2d RED_RIGHT_FEED_POSE = RED_LEFT_FEED_POSE;
-                public static final Translation2d BLUE_LEFT_FEED_POSE = RED_LEFT_FEED_POSE;
-                public static final Translation2d BLUE_RIGHT_FEED_POSE = RED_LEFT_FEED_POSE;
+                                13.6, 1.85);
+                public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
+                                Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
+                public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
+                                Constants.Physical.FIELD_LENGTH - RED_LEFT_FEED_POSE.getX(),
+                                RED_RIGHT_FEED_POSE.getY());
+                public static final Translation2d BLUE_RIGHT_FEED_POSE = new Translation2d(BLUE_LEFT_FEED_POSE.getX(),
+                                RED_LEFT_FEED_POSE.getY());
 
                 public static Translation3d getHubPose() {
                         if (Globals.fieldSide.equals("blue")) {
@@ -310,6 +314,7 @@ public final class Constants {
                         public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55.0);
                         public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85.0);
                         public static final double HOOD_PRECISION = degreesToRadians(2.0);
+                        public static final double HOOD_FEED_PRECISION = degreesToRadians(5.0);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -350,6 +355,7 @@ public final class Constants {
 
                 public static class Flywheel {
                         public static final double FLYWHEEL_RPM_PRECISION = 200.0;
+                        public static final double FLYWHEEL_RPM_FEED_PRECISION = 400.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
@@ -388,18 +394,21 @@ public final class Constants {
                         private final static double FEED_TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] FEED_SHOT_MAP = new double[][] {
-                                        { 1.105, 56, 700, 0.75 },
-                                        { 1.41, 58, 750, 0.8 },
-                                        { 2.117, 65, 1000, 1.01 },
-                                        { 2.539, 65, 1100, 1.04 },
-                                        { 3.099, 66, 1250, 1.19 },
-                                        { 3.564, 67, 1300, 1.24 },
-                                        { 4.101, 70, 1450, 1.4 },
-                                        { 4.524, 71, 1500, 1.44 },
-                                        { 5.092, 65, 1550, 1.48 },
-                                        { 5.587, 63, 1690, 1.48 },
-                                        { 6.021, 60, 1767, 1.48 },
-                                        { 6.469, 58, 1738, 1.33 },
+                                        { 1, 60, 700, 0.74 },
+                                        { 1.5, 60, 900, 0.85 },
+                                        { 1.79, 60, 1254, 0.84 },
+                                        { 2.5, 60, 1400, 1.02 },
+                                        { 3.01, 60, 1600, 1.0 },
+                                        { 3.2, 60, 1750, 1.0 },
+                                        { 3.49, 60, 1800, 1.01 },
+                                        { 4.04, 60, 1900, 1.14 },
+                                        { 4.48, 60, 2000, 1.21 },
+                                        { 5.01, 60, 2150, 1.15 },
+                                        { 5.52, 60, 2250, 1.35 },
+                                        { 5.99, 60, 2350, 1.44 },
+                                        { 6.42, 60, 2550, 1.38 },
+                                        { 6.99, 60, 2700, 1.52 },
+                                        { 7.51, 60, 2850, 1.57 },
                         };
 
                         static {

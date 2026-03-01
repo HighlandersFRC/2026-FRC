@@ -177,9 +177,9 @@ public class Shooter extends SubsystemBase {
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
-    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+    return hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
         && turretAngleError < turretPrecisionRequired
-        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION;
   }
 
   public Rotation2d getHoodAngle() {
