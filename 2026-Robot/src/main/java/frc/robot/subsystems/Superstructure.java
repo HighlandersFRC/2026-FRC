@@ -410,11 +410,12 @@ public class Superstructure extends SubsystemBase {
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
-    Translation2d target = Constants.Field.getHubPose().toTranslation2d();
+    Translation2d target = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation());
     Logger.recordOutput("Shooter/feed target", target);
     Translation2d hub = target;
     double distance2D = initial.toTranslation2d().getDistance(hub);
-    Rotation2d turret = Constants.Field.getHubPose().toTranslation2d().minus(drive.getMt2Pose2d().getTranslation())
+    Rotation2d turret = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation())
+        .minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
@@ -433,10 +434,12 @@ public class Superstructure extends SubsystemBase {
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
-    Translation2d target = Constants.Field.getHubPose().toTranslation2d();
+    Translation2d target = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation());
+    Logger.recordOutput("Shooter/feed target", target);
     Translation2d hub = target;
     double distance2D = initial.toTranslation2d().getDistance(hub);
-    Rotation2d turret = Constants.Field.getHubPose().toTranslation2d().minus(drive.getMt2Pose2d().getTranslation())
+    Rotation2d turret = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation())
+        .minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
     Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
