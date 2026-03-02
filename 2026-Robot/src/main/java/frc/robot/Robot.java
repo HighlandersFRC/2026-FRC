@@ -184,7 +184,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopInit() {
     Elastic.selectTab("Teleoperated");
-    m_robotContainer.superstructure.setWantedState(SuperState.ZERO);
+    m_robotContainer.superstructure.setWantedState(SuperState.DEFAULT);
+    m_robotContainer.intake.teleopInit();
     m_robotContainer.lights.clearAnimations();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

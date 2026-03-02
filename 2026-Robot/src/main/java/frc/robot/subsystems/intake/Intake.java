@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.OI;
+import frc.robot.subsystems.Superstructure.SuperState;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -26,6 +27,10 @@ public class Intake extends SubsystemBase {
       io = new IntakeIOSim();
     }
     setIntakePosition(0.0);
+  }
+
+  public void teleopInit() {
+    setWantedState(IntakeState.ZERO);
   }
 
   public double getIntakePosition() {
@@ -81,6 +86,9 @@ public class Intake extends SubsystemBase {
   }
 
   private IntakeState handleStateTransition() {
+    if (OI.driverRT.getAsBoolean()) {
+      return IntakeState.DYNAMIC_INTAKING;
+    }
     switch (wantedState) {
       case UP:
         return IntakeState.UP;
@@ -97,6 +105,10 @@ public class Intake extends SubsystemBase {
           return IntakeState.JIGGLE;
         }
       case ZERO:
+        if (isZeroed()) {
+          wantedState = IntakeState.DOWN;
+          return IntakeState.DOWN;
+        }
         return IntakeState.ZERO;
       default:
         return IntakeState.IDLE;
@@ -124,11 +136,11 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isZeroed() {
-    if (io.getIntakeCurrent() > 15.0 && io.getIntakeVelocity() < 1.0 && io.getIntakeAcceleration() < 1.0) {
-      if (!firstTimeZeroed) {
+    if (Math.abs(io.getIntakeCurrent()) > 15.0 && io.getIntakeVelocity() < 1.0 && io.getIntakeAcceleration() < 1.0) {
+      if (firstTimeZeroed) {
         timeZeroed = Timer.getFPGATimestamp();
+        firstTimeZeroed = false;
       }
-      firstTimeZeroed = false;
       if (Timer.getFPGATimestamp() - timeZeroed > 0.5) {
         io.zeroIntakePosition();
         return true;
@@ -167,6 +179,9 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(systemState);
     systemState = handleStateTransition();
+    if (systemState != IntakeState.ZERO) {
+      firstTimeZeroed = true;
+    }
     Logger.recordOutput("Intake/Intake State", systemState);
     Logger.recordOutput("States/Intake State", systemState);
     Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
@@ -175,6 +190,7 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("Intake/Intake Velocity", io.getIntakeVelocity());
     Logger.recordOutput("Intake/Intake Torque", io.getIntakeCurrent());
     Logger.recordOutput("Intake/Intake Acceleration", io.getIntakeAcceleration());
+    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     switch (systemState) {
       case UP:
         setIntakeUp();
@@ -190,12 +206,11 @@ public class Intake extends SubsystemBase {
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
-        Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
-        setRollerPercent(dynamicIntakeSpeed);
+        setRollerTorque(80, dynamicIntakeSpeed);
         break;
       case JIGGLE:
         setJiggle();
-        setRollerPercent(dynamicIntakeSpeed);
+        setRollerTorque(80, dynamicIntakeSpeed);
         break;
       case ZERO:
         setRollerPercent(0.0);

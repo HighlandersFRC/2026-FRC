@@ -224,6 +224,7 @@ public class Superstructure extends SubsystemBase {
         break;
       case ZERO:
         if (intake.isZeroed()) {
+          intake.setWantedState(IntakeState.DOWN);
           wantedSuperState = SuperState.DEFAULT;
           currentSuperState = SuperState.DEFAULT;
         }
@@ -284,7 +285,7 @@ public class Superstructure extends SubsystemBase {
 
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.JIGGLE);
+    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -346,7 +347,7 @@ public class Superstructure extends SubsystemBase {
       trajectoryVelocity
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
-    intake.setWantedState(IntakeState.DOWN);
+    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -366,7 +367,7 @@ public class Superstructure extends SubsystemBase {
         rotatedShotSolution);
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.DOWN);
+    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -399,7 +400,7 @@ public class Superstructure extends SubsystemBase {
     lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.DOWN);
+    // intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
     shooter.setWantedState(ShooterState.DEFAULT);
     climber.setWantedState(ClimberState.IDLE);
   }
@@ -473,24 +474,26 @@ public class Superstructure extends SubsystemBase {
     lights.setWantedState(LightsState.DEFAULT);
     shooter.setWantedState(ShooterState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.DOWN);
+    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
     climber.setWantedState(ClimberState.IDLE);
   }
 
   public void handleZeroState() {
     drive.setWantedState(DriveState.DEFAULT);
     lights.setWantedState(LightsState.DEFAULT);
-    intake.setWantedState(IntakeState.ZERO);
+    intake.setWantedState(IntakeState.ZERO, drive.getChassisSpeeds());
     feeder.setWantedState(FeederState.DEFAULT);
     shooter.setWantedState(ShooterState.IDLE);
   }
 
   private void handleClimbingState() {
     climber.setWantedState(ClimberState.AUTON_RETRACT);
+    intake.setWantedState(IntakeState.UP, drive.getChassisSpeeds());
   }
 
   private void handleExtendClimberState() {
     climber.setWantedState(ClimberState.AUTON_EXTEND);
+    intake.setWantedState(IntakeState.UP, drive.getChassisSpeeds());
   }
 
   private void handleAutoPrepClimb() {
