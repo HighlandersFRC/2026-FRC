@@ -256,7 +256,7 @@ public final class Constants {
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
-                                13.6, 1.85);
+                                13.0, 1.85);
                 public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
                                 Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
                 public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
