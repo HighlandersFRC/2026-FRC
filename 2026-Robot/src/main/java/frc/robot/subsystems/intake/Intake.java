@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -97,9 +98,12 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         return IntakeState.INTAKING;
       case DYNAMIC_INTAKING:
+        if (!OI.driverRT.getAsBoolean() && DriverStation.isTeleopEnabled()) {
+          return IntakeState.DOWN;
+        }
         return IntakeState.DYNAMIC_INTAKING;
       case JIGGLE:
-        if (OI.driverRT.getAsBoolean()) {
+        if (OI.driverRT.getAsBoolean() && DriverStation.isTeleopEnabled()) {
           return IntakeState.DYNAMIC_INTAKING;
         } else {
           return IntakeState.JIGGLE;
@@ -170,7 +174,7 @@ public class Intake extends SubsystemBase {
     if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
       setPivotTorque(-5, 0.1);
     } else {
-      setPivotTorque(-30, 0.6);
+      setPivotTorque(-45, 0.6);
     }
 
   }
