@@ -110,21 +110,21 @@ public final class Constants {
                                 14.660, 4.774), new Rotation2d(Math.PI));
 
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - climbPoseLeftRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - climbPoseLeftRedSide.getTranslation().getY()),
-                                new Rotation2d());
+                                1.536,
+                                4.179),
+                                new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - preClimbPoseLeftRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - preClimbPoseLeftRedSide.getTranslation().getY()),
-                                new Rotation2d());
+                                1.736,
+                                4.179),
+                                new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
                                 FIELD_WIDTH - climbPoseRightRedSide.getTranslation().getY()),
-                                new Rotation2d());
+                                new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 FIELD_LENGTH - preClimbPoseRightRedSide.getTranslation().getX(),
                                 FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
-                                new Rotation2d());
+                                new Rotation2d(Math.toRadians(-90.0)));
 
                 public static final class Drive {
                         public static final double xAccelLimit = 4.0;
@@ -304,7 +304,7 @@ public final class Constants {
                 }
 
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
-                public static final double FEED_RADIUS = inchesToMeters(24.0);
+                public static final double FEED_RADIUS = inchesToMeters(39.37);
                 public static final double BALL_WIDTH = 0.15;
         }
 
@@ -523,7 +523,7 @@ public final class Constants {
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
-                                Math.toRadians(-23.9),
+                                Math.toRadians(-22.1),
                                 Math.toRadians(0.0));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,

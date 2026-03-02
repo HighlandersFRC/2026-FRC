@@ -6,6 +6,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 public class Peripherals {
   private PhotonCamera left_front_cam = new PhotonCamera("left_front_cam");
   private PhotonCamera left_back_cam = new PhotonCamera("left_back_cam");
+  private PhotonCamera right_front_cam = new PhotonCamera("right_front_cam");
+  private PhotonCamera right_back_cam = new PhotonCamera("right_back_cam");
 
   double pigeonSetpoint = 0.0;
 
@@ -32,6 +34,24 @@ public class Peripherals {
 
   public PhotonPipelineResult getLeftBackCamResult() {
     var result = left_back_cam.getAllUnreadResults();
+    if (!result.isEmpty()) {
+      return result.get(0);
+    } else {
+      return new PhotonPipelineResult();
+    }
+  }
+
+  public PhotonPipelineResult getRightFrontCamResult() {
+    var result = right_front_cam.getAllUnreadResults();
+    if (!result.isEmpty()) {
+      return result.get(0);
+    } else {
+      return new PhotonPipelineResult();
+    }
+  }
+
+  public PhotonPipelineResult getRightBackCamResult() {
+    var result = right_back_cam.getAllUnreadResults();
     if (!result.isEmpty()) {
       return result.get(0);
     } else {

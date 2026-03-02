@@ -152,8 +152,8 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.Slot0.kD = Constants.PIDConstants.Turret.kD0;
                 turretConfig.Slot0.kS = Constants.PIDConstants.Turret.kS0;
                 turretConfig.Slot0.kV = Constants.PIDConstants.Turret.kV0;
-                turretConfig.MotionMagic.MotionMagicAcceleration = 2.0;
-                turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
+                turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration;
+                turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
                 turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
                 turretConfig.Feedback.RotorToSensorRatio = 1.0;
                 turretConfig.CurrentLimits.StatorCurrentLimit = 67;
@@ -430,9 +430,11 @@ class ShooterIOComp implements ShooterIO {
                 // flywheelConfig.Feedback.FeedbackSensorSource =
                 // FeedbackSensorSourceValue.RotorSensor;
                 // flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-                // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
+                // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 // flywheelMaster.getConfigurator().apply(flywheelConfig);
+                // flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
                 // flywheelFollower.getConfigurator().apply(flywheelConfig);
+                // flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
                 // }
         }
 }
