@@ -25,6 +25,7 @@ import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.SetRobotStateSimpleOnce;
 import frc.robot.commands.SetRobotStateTimeout;
 import frc.robot.commands.ZeroAngleMidMatch;
+import frc.robot.commands.ZeroTurretMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.climber.Climber;
@@ -133,7 +134,8 @@ public class RobotContainer {
                                 new SetRobotState(superstructure, SuperState.INTAKING),
                                 OI.driverLTSupplier));
 
-                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
+                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
+                OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
                 OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
 
                 OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
