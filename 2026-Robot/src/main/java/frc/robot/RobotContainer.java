@@ -11,10 +11,10 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoClimbFollower;
+import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
@@ -129,7 +129,7 @@ public class RobotContainer {
                 // OI.driverRT.whileTrue(new SetRobotState(superstructure,
                 // SuperState.INTAKING));
 
-                OI.driverRT.whileTrue(new ConditionalCommand(
+                OI.driverRT.whileTrue(new ContinuousConditionalCommand(
                                 new DoNothing(),
                                 new SetRobotState(superstructure, SuperState.INTAKING),
                                 OI.driverLTSupplier));
