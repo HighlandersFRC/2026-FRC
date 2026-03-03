@@ -431,7 +431,7 @@ public final class Constants {
                 public static final class Intake {
                         public static final double INTAKE_DOWN_POSITION = 0.521484 + 25.076172;
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
-                        public static final double INTAKE_SHOOT_POSITION = 6.7;
+                        public static final double INTAKE_SHOOT_POSITION = 10.0;
                 }
 
                 public static final class Feeder {
