@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
 import frc.robot.tools.math.Vector;
 
@@ -872,6 +873,12 @@ public class Drive extends SubsystemBase {
     if (OI.isLeftSide()) {
       finalY = -finalY;
       finalTheta = -finalTheta;
+    }
+
+    if (Field.isOnBump(getMt2Pose2d().getTranslation())) { // if on the bump, slow down to maintain control
+      finalTheta = finalTheta * 0.75;
+      finalX = finalX * 0.75;
+      finalY = finalY * 0.75;
     }
 
     Number[] velocityArray = new Number[] {
