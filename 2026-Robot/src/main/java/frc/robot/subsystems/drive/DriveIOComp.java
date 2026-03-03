@@ -277,7 +277,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
                                         .update(leftBackResult);
                         if (leftBackMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -291,7 +291,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
                                         .update(leftFrontResult);
                         if (leftFrontMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -306,7 +306,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -321,7 +321,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
                                         .update(rightBackResult);
                         if (rightBackMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
