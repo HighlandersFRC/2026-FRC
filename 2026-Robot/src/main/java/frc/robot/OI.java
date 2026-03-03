@@ -95,6 +95,7 @@ public class OI {
         leftRight.addOption("left", "left");
         leftRight.addOption("right", "right");
         leftRight.setDefaultOption("right", "right");
+        SmartDashboard.putData("Left or Right", leftRight);
         for (String path : Constants.Autonomous.paths) {
             auto.addOption(path, path);
         }
