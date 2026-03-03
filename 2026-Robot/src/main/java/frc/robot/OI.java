@@ -244,6 +244,14 @@ public class OI {
         }
     }
 
+    public static boolean getPOVDown() {
+        if (getPOV() == 180) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static boolean isRedSide() {
         if (autoChooserConnected()) {
             return !autoChooser.getRawButton(8);

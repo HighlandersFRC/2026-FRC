@@ -944,7 +944,7 @@ public class Drive extends SubsystemBase {
       case DRIVE_TO_PRE_CLIMB:
         return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
-        return DriveState.DEFAULT; // disable this for now
+        return DriveState.SNAKE; // disable this for now
       default:
         return DriveState.IDLE;
     }
@@ -1050,18 +1050,18 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        // if (robotCentric) {
-        // robotCentricDrive(0);
-        // } else {
-        teleopDrive();
-        // }
+        if (OI.getPOVDown()) {
+          snakeDrive();
+        } else {
+          teleopDrive();
+        }
         break;
       case DEFAULT_SLOW:
-        // if (robotCentric) {
-        // robotCentricDrive(0);
-        // } else {
-        teleopDrive();
-        // }
+        if (OI.getPOVDown()) {
+          snakeDrive();
+        } else {
+          teleopDrive();
+        }
         break;
       case IDLE:
 
