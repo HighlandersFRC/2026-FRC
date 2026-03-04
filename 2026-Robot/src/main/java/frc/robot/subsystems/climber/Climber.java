@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.shooter.Shooter.ShooterState;
 
 public class Climber extends SubsystemBase {
@@ -27,9 +28,7 @@ public class Climber extends SubsystemBase {
 
   public enum L3ClimberState {
     L1EXTEND,
-    L1RETRACT,
     L2EXTEND,
-    L2RETRACT,
     L3EXTEND,
     L3RETRACT
   }
@@ -85,25 +84,25 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (systemState != handleStateTransition() && handleStateTransition() == ClimberState.L3_CLIMBING) {
+      l3State = L3ClimberState.L1EXTEND;
+    }
     systemState = handleStateTransition();
     Logger.recordOutput("Climber/Climber State", systemState);
     Logger.recordOutput("States/Climber State", systemState);
     Logger.recordOutput("Climber/Climber Position", getClimberPosition());
     switch (systemState) {
-      case AUTON_RETRACT:
-        if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES
-            + Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) { // TODO: tune for just the
-          // L1 climb in auto
-          stallClimber();
+      case AUTON_RETRACT: // L1 retract in auto
+        if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES) {
+          stopClimber();
           Logger.recordOutput("Climber/Output", "Stopped Auton Retracting");
         } else {
           retractClimber();
           Logger.recordOutput("Climber/Output", "Auton Retracting");
         }
         break;
-      case AUTON_EXTEND:
-        if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES
-            - Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
+      case AUTON_EXTEND: // L1 extend in auto
+        if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES) {
           stopClimber();
           Logger.recordOutput("Climber/Output", "Stopped Auton Extending");
         } else {
@@ -111,68 +110,46 @@ public class Climber extends SubsystemBase {
           Logger.recordOutput("Climber/Output", "Auton Extending");
         }
         break;
-      case MANUAL_EXTEND:
+      case MANUAL_EXTEND: // manual mode, no restrictions
         extendClimber();
         Logger.recordOutput("Climber/Output", "Manual Extending");
         break;
-      case MANUAL_RETRACT:
+      case MANUAL_RETRACT: // manual mode, no restrictions
         retractClimber();
         Logger.recordOutput("Climber/Output", "Manual Retracting");
         break;
-      case L3_CLIMBING:
+      case L3_CLIMBING: // auto l3 climb state
         switch (l3State) {
-          case L1EXTEND:
-            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES
-                - Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
-              stopClimber();
+          case L1EXTEND: // step 1
+            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES) {
+              l3State = L3ClimberState.L2EXTEND;
               Logger.recordOutput("Climber/Output", "Stopped Extending L1");
             } else {
               extendClimber();
               Logger.recordOutput("Climber/Output", "Extending L1");
             }
             break;
-          case L1RETRACT:
-            if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_TELEOP_L1_RETRACT_HEIGHT_INCHES
-                + Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
-              stallClimber(); // TODO: change to stop maybe
-              Logger.recordOutput("Climber/Output", "Stopped Retracting L1");
-            } else {
-              retractClimber();
-              Logger.recordOutput("Climber/Output", "Retracting L1");
-            }
-          case L2EXTEND:
-            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES
-                - Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
-              stopClimber();
+          case L2EXTEND: // step 2
+            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES) {
+              l3State = L3ClimberState.L3EXTEND;
               Logger.recordOutput("Climber/Output", "Stopped Extending L2");
             } else {
-              extendClimber();
+              retractClimber();
               Logger.recordOutput("Climber/Output", "Extending L2");
             }
             break;
-          case L2RETRACT:
-            if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_TELEOP_L2_RETRACT_HEIGHT_INCHES
-                + Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
-              stallClimber(); // TODO: change to stop maybe
-              Logger.recordOutput("Climber/Output", "Stopped Retracting L2");
-            } else {
-              retractClimber();
-              Logger.recordOutput("Climber/Output", "Retracting L2");
-            }
-          case L3EXTEND:
-            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L3_EXTEND_HEIGHT_INCHES
-                - Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
-              stopClimber();
+          case L3EXTEND: // step 3
+            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L3_EXTEND_HEIGHT_INCHES) {
+              l3State = L3ClimberState.L3RETRACT;
               Logger.recordOutput("Climber/Output", "Stopped Extending L3");
             } else {
               extendClimber();
               Logger.recordOutput("Climber/Output", "Extending L3");
             }
             break;
-          case L3RETRACT:
-            if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_TELEOP_L3_RETRACT_HEIGHT_INCHES
-                + Constants.SetPoints.Climber.CLIMBER_MOVEMENT_DEADZONE) {
-              stallClimber(); // TODO: change to stop maybe
+          case L3RETRACT: // step 4 (final step)
+            if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L3_RETRACT_HEIGHT_INCHES) {
+              stopClimber();
               Logger.recordOutput("Climber/Output", "Stopped Retracting L3");
             } else {
               retractClimber();
