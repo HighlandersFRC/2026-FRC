@@ -52,15 +52,15 @@ public class Climber extends SubsystemBase {
   }
 
   public void retractClimber() {
-    io.setPower(100, 0.7);
-  }
-
-  public void extendClimber() {
     io.setPower(-100, 0.7);
   }
 
-  public void stallClimber() {
+  public void extendClimber() {
     io.setPower(100, 0.7);
+  }
+
+  public void stallClimber() {
+    io.setPower(-100, 0.7);
   }
 
   public void setWantedState(ClimberState wantedState) {
@@ -134,7 +134,7 @@ public class Climber extends SubsystemBase {
             }
             break;
           case L2EXTEND: // step 2
-            if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES) {
+            if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES) {
               l3State = L3ClimberState.L3EXTEND;
               Logger.recordOutput("Climber/Output", "Stopped Extending L2");
             } else {
