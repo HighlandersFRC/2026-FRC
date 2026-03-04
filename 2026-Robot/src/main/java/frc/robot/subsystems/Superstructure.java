@@ -52,7 +52,8 @@ public class Superstructure extends SubsystemBase {
   private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 2000);
   private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 60.0);
   private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0.0);
-  private ShotSolution presetShotSolution = new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+  private ShotSolution presetShotSolution = new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000,
+      new Rotation2d(Math.PI),
       0.0, 0.0);
 
   public enum SuperState {
@@ -96,7 +97,7 @@ public class Superstructure extends SubsystemBase {
     this.wantedSuperState = wantedState;
   }
 
-  public void setWantedState(SuperState wantedState, ShotSolution shotSolution){
+  public void setWantedState(SuperState wantedState, ShotSolution shotSolution) {
     this.wantedSuperState = wantedState;
     this.presetShotSolution = shotSolution;
   }
@@ -534,12 +535,12 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void handleClimbingState() {
-    climber.setWantedState(ClimberState.AUTON_RETRACT);
+    climber.setWantedState(ClimberState.MANUAL_RETRACT);
     intake.setWantedState(IntakeState.UP, drive.getChassisSpeeds());
   }
 
   private void handleExtendClimberState() {
-    climber.setWantedState(ClimberState.AUTON_EXTEND);
+    climber.setWantedState(ClimberState.MANUAL_EXTEND);
     intake.setWantedState(IntakeState.UP, drive.getChassisSpeeds());
   }
 
