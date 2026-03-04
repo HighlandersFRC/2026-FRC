@@ -45,6 +45,7 @@ public final class Constants {
                 // Feed Forward Multiplier
                 public static final double FEED_FORWARD_MULTIPLIER = 0.8044;
                 public static final double ACCURATE_FOLLOWER_FEED_FORWARD_MULTIPLIER = 1;
+                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.5;
                 public static String[] paths;
 
                 static {
@@ -440,15 +441,26 @@ public final class Constants {
                         public static final double DYE_ROTOR_AMPS = 60.0;
                 }
 
-                public static final class Climber {
-                        public static final double CLIMBER_MOVEMENT_DEADZONE = 3.0;
-                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 27.0;
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 18.0;
-                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 18.0;
-                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 20.0;
-                        public static final double CLIMBER_TELEOP_L1_RETRACT_HEIGHT_INCHES = 27.0;
-                        public static final double CLIMBER_TELEOP_L2_RETRACT_HEIGHT_INCHES = 18.0;
-                        public static final double CLIMBER_TELEOP_L3_RETRACT_HEIGHT_INCHES = 18.0;
+                public static final class Climber { // TODO: tune ALL OF THESE because they are just guesses
+                        public static final double CLIMBER_HOOKS_RETRACT_ZONE = 1.0; // climber position that the hooks
+                                                                                     // come out at (assuming climber
+                                                                                     // initializes to zero)
+                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.0; // climber position to get
+                                                                                           // ready to grab l1
+                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 15.0; // climber position to
+                                                                                                  // hover off the
+                                                                                                  // ground in auto
+                                                                                                  // (already latched on
+                                                                                                  // L1)
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 5.0; // climber position to get
+                                                                                          // ready to grab L2 (already
+                                                                                          // latched on L1)
+                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 20.0; // climber position to get
+                                                                                           // ready to grab L3 (already
+                                                                                           // latched on L2)
+                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 10.0; // climber position to hover
+                                                                                            // above L2 (scoring L3)
+                                                                                            // (already latched on L3)
                 }
         }
 
