@@ -24,7 +24,7 @@ class ClimberIOComp implements ClimberIO {
         climberConfig.CurrentLimits.StatorCurrentLimit = 120;
         climberConfig.CurrentLimits.SupplyCurrentLimit = 120;
         climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        climberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        climberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         climberMasterMotor.getConfigurator().apply(climberConfig);
         climberSlaveMotor.getConfigurator().apply(climberConfig);
         climberMasterMotor.setNeutralMode(NeutralModeValue.Brake);
