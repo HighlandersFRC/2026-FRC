@@ -39,8 +39,10 @@ public class SlowFollower extends AutoFollower {
     public SlowFollower(Drive drive, JSONArray pathPoints,
             boolean record) {
         this.drive = drive;
-        this.path = pathPoints;
-        pathStartTime = pathPoints.getJSONObject(0).getDouble("time");
+        if (pathPoints != null) {
+            this.path = pathPoints;
+            pathStartTime = pathPoints.getJSONObject(0).getDouble("time");
+        }
         addRequirements(drive);
     }
 

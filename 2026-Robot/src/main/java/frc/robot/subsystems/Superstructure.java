@@ -263,7 +263,11 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTO_PREP_CLIMB:
         if (drive.hitSetPoint(drive.getClimbPrepSetpoint())
-            && climber.getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES) {
+        /**
+         * && climber.getClimberPosition() >
+         * Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES
+         **/
+        ) {
           wantedSuperState = SuperState.AUTO_ALIGN_CLIMB;
           currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
         } else {
@@ -611,7 +615,11 @@ public class Superstructure extends SubsystemBase {
         feeder.setWantedState(FeederState.DEFAULT);
       }
     } else {
-      climber.setWantedState(ClimberState.L3_CLIMBING);
+      if (DriverStation.isTeleopEnabled()) {
+        climber.setWantedState(ClimberState.L3_CLIMBING);
+      } else {
+        climber.setWantedState(ClimberState.AUTON_RETRACT);
+      }
     }
   }
 

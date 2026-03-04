@@ -44,9 +44,9 @@ public class Drive extends SubsystemBase {
   private double kThetaD = 2.00;
 
   // auto climb
-  private double kkXP = 4.0;
+  private double kkXP = 2.5;
   private double kkXI = 0.00;
-  private double kkXD = 1.20;
+  private double kkXD = 0.60;
 
   private double kkYP = kkXP;
   private double kkYI = kkXI;
@@ -127,11 +127,11 @@ public class Drive extends SubsystemBase {
    */
   public void init() {
     // sets configurations when run on robot initalization
-    xxPID.setMinOutput(-1.5);
-    xxPID.setMaxOutput(1.5);
+    xxPID.setMinOutput(-1.0);
+    xxPID.setMaxOutput(1.0);
 
-    yyPID.setMinOutput(-1.5);
-    yyPID.setMaxOutput(1.5);
+    yyPID.setMinOutput(-1.0);
+    yyPID.setMaxOutput(1.0);
 
     thetaaPID.setMinOutput(-3.0);
     thetaaPID.setMaxOutput(3.0);
@@ -478,7 +478,7 @@ public class Drive extends SubsystemBase {
     double theta = pose.getRotation().getRadians();
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.0254
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.01690
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
       hitNumber += 1;
@@ -731,24 +731,24 @@ public class Drive extends SubsystemBase {
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
       boolean xDecreasing = xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
-        .abs(previousSpeeds.vxMetersPerSecond));
-    boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
-        .abs(previousSpeeds.vyMetersPerSecond));
+          .abs(previousSpeeds.vxMetersPerSecond));
+      boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
+          .abs(previousSpeeds.vyMetersPerSecond));
 
-    double vx = xLimiter.calculate(vector.getI());
-    double vy = yLimiter.calculate(vector.getJ());
-    if (wantedState == DriveState.DEFAULT_SLOW) {
-      if (!xDecreasing) {
-        vector.setI(vx);
-        xLimiter.reset(vx);
+      double vx = xLimiter.calculate(vector.getI());
+      double vy = yLimiter.calculate(vector.getJ());
+      if (wantedState == DriveState.DEFAULT_SLOW) {
+        if (!xDecreasing) {
+          vector.setI(vx);
+          xLimiter.reset(vx);
+        }
+        if (!yDecreasing) {
+          vector.setJ(vy);
+          yLimiter.reset(vy);
+        }
+        vector = vector.scaled(0.41);
+        turnRadiansPerSec *= 0.41;
       }
-      if (!yDecreasing) {
-        vector.setJ(vy);
-        yLimiter.reset(vy);
-      }
-      vector = vector.scaled(0.41);
-      turnRadiansPerSec *= 0.41;
-    }
     }
     io.drive(vector, turnRadiansPerSec);
   }

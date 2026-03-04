@@ -111,12 +111,12 @@ public final class Constants {
                                 14.660, 4.774), new Rotation2d(Math.PI));
 
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.536,
-                                4.179),
+                                1.437,
+                                4.11),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
-                                4.179),
+                                4.11),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
