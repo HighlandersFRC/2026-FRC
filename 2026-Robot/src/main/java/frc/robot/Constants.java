@@ -445,22 +445,22 @@ public final class Constants {
                         public static final double CLIMBER_HOOKS_RETRACT_ZONE = 1.0; // climber position that the hooks
                                                                                      // come out at (assuming climber
                                                                                      // initializes to zero)
-                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.0; // climber position to get
-                                                                                           // ready to grab l1
+                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.48; // climber position to get
+                                                                                            // ready to grab l1
                         public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 15.0; // climber position to
                                                                                                   // hover off the
                                                                                                   // ground in auto
                                                                                                   // (already latched on
                                                                                                   // L1)
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 5.0; // climber position to get
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.5; // climber position to get
                                                                                           // ready to grab L2 (already
                                                                                           // latched on L1)
-                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 20.0; // climber position to get
-                                                                                           // ready to grab L3 (already
-                                                                                           // latched on L2)
-                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 10.0; // climber position to hover
-                                                                                            // above L2 (scoring L3)
-                                                                                            // (already latched on L3)
+                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
+                                                                                            // ready to grab L3 (already
+                                                                                            // latched on L2)
+                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 9.5; // climber position to hover
+                                                                                           // above L2 (scoring L3)
+                                                                                           // (already latched on L3)
                 }
         }
 
@@ -711,7 +711,7 @@ public final class Constants {
 
                 public static final class Climber {
                         public static final double CLIMBER_MOTOR_INCHES_PER_ROTATION = 0.25287202867;
-                        public static final double CLIMBER_MAX_INCHES = 20.25;
+                        public static final double CLIMBER_MAX_INCHES = 20.48;
                         public static final double CLIMBER_MAX_ROTATIONS = CLIMBER_MAX_INCHES
                                         / CLIMBER_MOTOR_INCHES_PER_ROTATION;
                 }
