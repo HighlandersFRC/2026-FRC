@@ -192,7 +192,8 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("Intake/Intake Position", getIntakePosition());
 
     Logger.recordOutput("Intake/Intake Velocity", io.getIntakeVelocity());
-    Logger.recordOutput("Intake/Intake Torque", io.getIntakeCurrent());
+    Logger.recordOutput("Intake/Intake Pivot Current", io.getIntakeCurrent());
+    Logger.recordOutput("Intake/Intake Roller Current", io.getIntakeRollerCurrent());
     Logger.recordOutput("Intake/Intake Acceleration", io.getIntakeAcceleration());
     Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     switch (systemState) {

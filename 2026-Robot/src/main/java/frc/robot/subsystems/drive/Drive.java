@@ -730,14 +730,25 @@ public class Drive extends SubsystemBase {
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
-      ChassisSpeeds currentSpeeds = io.getChassisSpeeds();
-      vector.setI((currentSpeeds.vxMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + vector.getI() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
-      vector.setJ((currentSpeeds.vyMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + vector.getJ() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
-      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond
-          * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + turnRadiansPerSec * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING);
+      boolean xDecreasing = xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
+        .abs(previousSpeeds.vxMetersPerSecond));
+    boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
+        .abs(previousSpeeds.vyMetersPerSecond));
+
+    double vx = xLimiter.calculate(vector.getI());
+    double vy = yLimiter.calculate(vector.getJ());
+    if (wantedState == DriveState.DEFAULT_SLOW) {
+      if (!xDecreasing) {
+        vector.setI(vx);
+        xLimiter.reset(vx);
+      }
+      if (!yDecreasing) {
+        vector.setJ(vy);
+        yLimiter.reset(vy);
+      }
+      vector = vector.scaled(0.41);
+      turnRadiansPerSec *= 0.41;
+    }
     }
     io.drive(vector, turnRadiansPerSec);
   }

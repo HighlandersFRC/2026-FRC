@@ -55,4 +55,8 @@ class FeederIOComp implements FeederIO {
         dyeRotorMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
+    @Override
+    public double getDyeRotorCurrent() {
+        return dyeRotorMotor.getStatorCurrent().getValueAsDouble();
+    }
 }
