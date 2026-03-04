@@ -69,14 +69,16 @@ public class Climber extends SubsystemBase {
 
   private ClimberState handleStateTransition() {
     switch (wantedState) {
-      case AUTON_RETRACT:
-        return ClimberState.AUTON_RETRACT;
       case L3_CLIMBING:
         return ClimberState.L3_CLIMBING;
       case MANUAL_RETRACT:
         return ClimberState.MANUAL_RETRACT;
+      case MANUAL_EXTEND:
+        return ClimberState.MANUAL_EXTEND;
       case AUTON_EXTEND:
         return ClimberState.AUTON_EXTEND;
+      case AUTON_RETRACT:
+        return ClimberState.AUTON_RETRACT;
       default:
         return ClimberState.IDLE;
     }
