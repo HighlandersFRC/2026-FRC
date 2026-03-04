@@ -5,13 +5,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.shooter.Shooter;
 
-public class ZeroAngleMidMatch extends Command {
-  private Drive drive;
+public class ZeroTurretMidMatch extends Command {
+  private Shooter shooter;
 
-  public ZeroAngleMidMatch(Drive drive) {
-    this.drive = drive;
+  public ZeroTurretMidMatch(Shooter shooter) {
+    this.shooter = shooter;
   }
 
   @Override
@@ -20,7 +20,7 @@ public class ZeroAngleMidMatch extends Command {
 
   @Override
   public void execute() {
-    drive.zeroIMU();
+        shooter.zeroTurretToEncoder();
   }
 
   @Override

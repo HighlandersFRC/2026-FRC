@@ -91,6 +91,8 @@ public class Climber extends SubsystemBase {
     Logger.recordOutput("Climber/Climber State", systemState);
     Logger.recordOutput("States/Climber State", systemState);
     Logger.recordOutput("Climber/Climber Position", getClimberPosition());
+    Logger.recordOutput("Climber/Climber Slave Current", io.getSlaveCurrent());
+    Logger.recordOutput("Climber/Climber Master Current", io.getMasterCurrent());
     switch (systemState) {
       case AUTON_RETRACT: // L1 retract in auto
         if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES) {

@@ -149,9 +149,19 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
+    public double getHoodCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getTurretCurrent() {
+        return 0.0;
+    }
+
+    @Override
     public void updateInputs() {
         double dt = Globals.loopPeriodSecs;
-        int numSteps = (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution);
+        int numSteps = Math.max(1, (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution));
         turretSlot0.setSetPoint(turretPositionSetpointRad);
         for (int i = 0; i < numSteps; i++) {
             double pidOutput = turretSlot0.updatePID(turretSimState.get(0));
@@ -162,13 +172,56 @@ class ShooterIOSim implements ShooterIO {
                     wantedSpeed);
             updateTurret(dt / numSteps);
         }
-        updateHood(Globals.loopPeriodSecs);
-        updateFlywheel(Globals.loopPeriodSecs);
-        Pose3d pose = new Pose3d(new Translation3d(0.0, 0.0, 0.0),
-                new Rotation3d(0.0, 0.0, getTurretAngle().getRadians()));
-        Logger.recordOutput("Sim/shooter pose3d", pose);
-        Logger.recordOutput("Sim/hood pose3d",
-                new Pose3d(new Translation3d(0.0, 0.0, 0.0),
-                        new Rotation3d(0, -getHoodAngle().getRadians(), getTurretAngle().getRadians())));
+        updateHood(dt);
+        updateFlywheel(dt);
+
+        double turretRad = getTurretAngle().getRadians();
+        double hoodRad = getHoodAngle().getRadians();
+
+        Pose3d shooterPose = new Pose3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, turretRad));
+        Logger.recordOutput("Sim/shooter pose3d", shooterPose);
+
+        Rotation3d hoodRotation = new Rotation3d(0.0, -hoodRad, turretRad);
+        Translation3d PIVOT_OFFSET_HOOD = new Translation3d(0.0, -0.06, 0.01);
+
+        double rx = hoodRotation.getX();
+        double ry = hoodRotation.getY();
+        double rz = hoodRotation.getZ();
+
+        double cx = Math.cos(rx), sx = Math.sin(rx);
+        double cy = Math.cos(ry), sy = Math.sin(ry);
+        double cz = Math.cos(rz), sz = Math.sin(rz);
+
+        double x1 = PIVOT_OFFSET_HOOD.getX();
+        double y1 = PIVOT_OFFSET_HOOD.getY() * cx - PIVOT_OFFSET_HOOD.getZ() * sx;
+        double z1 = PIVOT_OFFSET_HOOD.getY() * sx + PIVOT_OFFSET_HOOD.getZ() * cx;
+
+        double x2 = x1 * cy + z1 * sy;
+        double y2 = y1;
+        double z2 = -x1 * sy + z1 * cy;
+
+        double x3 = x2 * cz - y2 * sz;
+        double y3 = x2 * sz + y2 * cz;
+        double z3 = z2;
+
+        Translation3d rotatedPivotHood = new Translation3d(x3, y3, z3);
+        Translation3d correctionHood = new Translation3d(
+                PIVOT_OFFSET_HOOD.getX() - rotatedPivotHood.getX(),
+                PIVOT_OFFSET_HOOD.getY() - rotatedPivotHood.getY(),
+                PIVOT_OFFSET_HOOD.getZ() - rotatedPivotHood.getZ());
+
+        Pose3d hoodPose = new Pose3d(correctionHood, hoodRotation);
+        Logger.recordOutput("Sim/hood pose3d", hoodPose);
+
+        Logger.recordOutput("Sim/hood pivot_rotated_x", rotatedPivotHood.getX());
+        Logger.recordOutput("Sim/hood pivot_rotated_y", rotatedPivotHood.getY());
+        Logger.recordOutput("Sim/hood pivot_rotated_z", rotatedPivotHood.getZ());
+        Logger.recordOutput("Sim/hood pivot_correction_x", correctionHood.getX());
+        Logger.recordOutput("Sim/hood pivot_correction_y", correctionHood.getY());
+        Logger.recordOutput("Sim/hood pivot_correction_z", correctionHood.getZ());
+        double corrMag = Math.sqrt(correctionHood.getX() * correctionHood.getX()
+                + correctionHood.getY() * correctionHood.getY()
+                + correctionHood.getZ() * correctionHood.getZ());
+        Logger.recordOutput("Sim/hood pivot_correction_magnitude", corrMag);
     }
 }

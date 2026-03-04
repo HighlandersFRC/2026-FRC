@@ -118,7 +118,6 @@ public class Robot extends LoggedRobot {
         System.out.println("ERROR LOADING PATH " + Constants.paths.get(i) + ":" + e);
       }
     }
-    Elastic.selectTab("Autonomous");
   }
 
   @Override
@@ -164,7 +163,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    Elastic.selectTab("Autonomous");
     double autoInitTime = Timer.getFPGATimestamp();
     m_robotContainer.superstructure.setWantedState(SuperState.IDLE);
     if (Globals.fieldSide == "blue") {
@@ -183,7 +181,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    Elastic.selectTab("Teleoperated");
     m_robotContainer.superstructure.setWantedState(SuperState.DEFAULT);
     m_robotContainer.intake.teleopInit();
     m_robotContainer.lights.clearAnimations();
@@ -209,13 +206,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
 
-    // if (m_robotContainer.manualMode) {
-    // m_robotContainer.drive.robotCentric = true;
-    // Elastic.selectTab("Camera View");
-    // } else {
-    // m_robotContainer.drive.robotCentric = false;
-    // Elastic.selectTab("Teleoperated");
-    // }
   }
 
   @Override

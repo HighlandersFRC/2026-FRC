@@ -45,6 +45,7 @@ public final class Constants {
                 // Feed Forward Multiplier
                 public static final double FEED_FORWARD_MULTIPLIER = 0.8044;
                 public static final double ACCURATE_FOLLOWER_FEED_FORWARD_MULTIPLIER = 1;
+                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.5;
                 public static String[] paths;
 
                 static {
@@ -372,10 +373,10 @@ public final class Constants {
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
                                         { 1.45, 85, 1690, 1.07 },
-                                        { 1.8, 82, 1900, 1.11 },
-                                        { 2.17, 80.44, 2000, 1.17 },
-                                        { 2.48, 80.44, 2050, 1.32 },
-                                        { 2.76, 80.44, 2200, 1.35 },
+                                        { 1.8, 82, 1850, 1.11 },
+                                        { 2.17, 80.44, 1950, 1.17 },
+                                        { 2.48, 80.44, 2000, 1.32 },
+                                        { 2.76, 80.44, 2150, 1.35 },
                                         { 3.34, 78, 2250, 1.34 },
                                         { 3.67, 75, 2300, 1.35 },
                                         { 3.99, 75, 2400, 1.42 },
@@ -431,7 +432,7 @@ public final class Constants {
                 public static final class Intake {
                         public static final double INTAKE_DOWN_POSITION = 0.521484 + 25.076172;
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
-                        public static final double INTAKE_SHOOT_POSITION = 6.7;
+                        public static final double INTAKE_SHOOT_POSITION = 10.0;
                 }
 
                 public static final class Feeder {

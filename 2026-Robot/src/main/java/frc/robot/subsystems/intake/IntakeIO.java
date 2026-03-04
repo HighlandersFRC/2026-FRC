@@ -20,6 +20,8 @@ interface IntakeIO {
 
     public double getIntakeCurrent();
 
+    public double getIntakeRollerCurrent();
+
     public double getIntakeAcceleration();
 
     public void zeroIntakePosition();

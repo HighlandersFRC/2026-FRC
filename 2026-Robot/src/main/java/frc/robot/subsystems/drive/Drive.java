@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
 import frc.robot.tools.math.Vector;
 
@@ -729,14 +730,25 @@ public class Drive extends SubsystemBase {
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
-      ChassisSpeeds currentSpeeds = io.getChassisSpeeds();
-      vector.setI((currentSpeeds.vxMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + vector.getI() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
-      vector.setJ((currentSpeeds.vyMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + vector.getJ() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
-      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond
-          * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + turnRadiansPerSec * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING);
+      boolean xDecreasing = xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
+        .abs(previousSpeeds.vxMetersPerSecond));
+    boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
+        .abs(previousSpeeds.vyMetersPerSecond));
+
+    double vx = xLimiter.calculate(vector.getI());
+    double vy = yLimiter.calculate(vector.getJ());
+    if (wantedState == DriveState.DEFAULT_SLOW) {
+      if (!xDecreasing) {
+        vector.setI(vx);
+        xLimiter.reset(vx);
+      }
+      if (!yDecreasing) {
+        vector.setJ(vy);
+        yLimiter.reset(vy);
+      }
+      vector = vector.scaled(0.41);
+      turnRadiansPerSec *= 0.41;
+    }
     }
     io.drive(vector, turnRadiansPerSec);
   }
@@ -874,6 +886,12 @@ public class Drive extends SubsystemBase {
       finalTheta = -finalTheta;
     }
 
+    if (Field.isOnBump(getMt2Pose2d().getTranslation())) { // if on the bump, slow down to maintain control
+      finalTheta = finalTheta * 0.75;
+      finalX = finalX * 0.75;
+      finalY = finalY * 0.75;
+    }
+
     Number[] velocityArray = new Number[] {
         finalX,
         -finalY,
@@ -937,7 +955,7 @@ public class Drive extends SubsystemBase {
       case DRIVE_TO_PRE_CLIMB:
         return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
-        return DriveState.DEFAULT; // disable this for now
+        return DriveState.SNAKE; // disable this for now
       default:
         return DriveState.IDLE;
     }
@@ -1043,18 +1061,18 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        // if (robotCentric) {
-        // robotCentricDrive(0);
-        // } else {
-        teleopDrive();
-        // }
+        if (OI.getPOVDown()) {
+          snakeDrive();
+        } else {
+          teleopDrive();
+        }
         break;
       case DEFAULT_SLOW:
-        // if (robotCentric) {
-        // robotCentricDrive(0);
-        // } else {
-        teleopDrive();
-        // }
+        if (OI.getPOVDown()) {
+          snakeDrive();
+        } else {
+          teleopDrive();
+        }
         break;
       case IDLE:
 

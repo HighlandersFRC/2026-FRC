@@ -96,14 +96,14 @@ public class DriveIOComp extends DriveIO {
                                         Math.toRadians(54.8)));
 
         Transform3d rightFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-8.5), Constants.inchesToMeters(-15.0),
-                                        Constants.inchesToMeters(14.5)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-27.2), Math.toRadians(-65.0)));
+                        new Translation3d(Constants.inchesToMeters(-9.6521), Constants.inchesToMeters(-14.6780),
+                                        Constants.inchesToMeters(13.8457)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-27.0), Math.toRadians(-65.0)));
 
-        Transform3d rightBackRobotToCam = new Transform3d( // need to measure
-                        new Translation3d(Constants.inchesToMeters(-10.25), Constants.inchesToMeters(-14.5),
-                                        Constants.inchesToMeters(23.5)),
-                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-4.7),
+        Transform3d rightBackRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(-10.1431), Constants.inchesToMeters(-14.765415),
+                                        Constants.inchesToMeters(15.879)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0),
                                         Math.toRadians(-110.0)));
 
         // xy position of module based on robot width and distance from edge of robot
@@ -277,7 +277,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
                                         .update(leftBackResult);
                         if (leftBackMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -291,7 +291,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
                                         .update(leftFrontResult);
                         if (leftFrontMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -306,7 +306,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -321,7 +321,7 @@ public class DriveIOComp extends DriveIO {
                         Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
                                         .update(rightBackResult);
                         if (rightBackMultiTagResult.isPresent()) {
-                                if (true) {
+                                if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                         standardDeviation.set(0, 0, 1.5);
                                         standardDeviation.set(1, 0, 1.5);
                                         standardDeviation.set(2, 0, 2.5);
@@ -347,13 +347,13 @@ public class DriveIOComp extends DriveIO {
                                                                 .getBotPoseEstimate_wpiBlue_MegaTag2(
                                                                                 Constants.Vision.LIMELIGHT_NAME);
 
-                                                Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
-                                                                mt2.timestampSeconds);
-                                                if (maybeTurretAngle.isPresent()) {
+                                                // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
+                                                //                 mt2.timestampSeconds);
+                                                // if (maybeTurretAngle.isPresent()) {
                                                         Constants.Vision.updateLimelightPoseFromTurret(
                                                                         new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
                                                                                         Rotation3d.kZero),
-                                                                        maybeTurretAngle.get(),
+                                                                        Globals.turretAngle,
                                                                         Constants.Vision.turretToLimelight,
                                                                         Constants.Vision.LIMELIGHT_NAME);
 
@@ -374,10 +374,10 @@ public class DriveIOComp extends DriveIO {
                                                                                 mt2.timestampSeconds,
                                                                                 standardDeviation);
                                                         }
-                                                } else {
-                                                        System.out.println("Turret angle not found for timestamp: "
-                                                                        + mt2.timestampSeconds);
-                                                }
+                                                // } else {
+                                                //         System.out.println("Turret angle not found for timestamp: "
+                                                //                         + mt2.timestampSeconds);
+                                                // }
                                         } catch (Exception e) {
                                                 System.out.println(e);
                                         }

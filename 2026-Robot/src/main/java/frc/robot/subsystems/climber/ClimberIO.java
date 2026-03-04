@@ -7,4 +7,7 @@ public interface ClimberIO {
 
     abstract double getPosition();
 
+    abstract double getSlaveCurrent();
+
+    abstract double getMasterCurrent();
 }

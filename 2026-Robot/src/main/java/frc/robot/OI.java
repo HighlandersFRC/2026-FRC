@@ -95,6 +95,7 @@ public class OI {
         leftRight.addOption("left", "left");
         leftRight.addOption("right", "right");
         leftRight.setDefaultOption("right", "right");
+        SmartDashboard.putData("Left or Right", leftRight);
         for (String path : Constants.Autonomous.paths) {
             auto.addOption(path, path);
         }
@@ -238,6 +239,14 @@ public class OI {
 
     public static boolean getPOVUp() {
         if (getPOV() == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean getPOVDown() {
+        if (getPOV() == 180) {
             return true;
         } else {
             return false;

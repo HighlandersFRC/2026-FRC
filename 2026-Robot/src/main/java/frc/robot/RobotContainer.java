@@ -11,10 +11,10 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoClimbFollower;
+import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
 import frc.robot.commands.PolarAutoFollower;
@@ -24,7 +24,9 @@ import frc.robot.commands.SetRobotStateOnce;
 import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.SetRobotStateSimpleOnce;
 import frc.robot.commands.SetRobotStateTimeout;
+import frc.robot.commands.SlowFollower;
 import frc.robot.commands.ZeroAngleMidMatch;
+import frc.robot.commands.ZeroTurretMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.climber.Climber;
@@ -60,9 +62,10 @@ public class RobotContainer {
                 {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
-                        put("Shoot", () -> new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 6.0));
+                        put("Slow Mode", () -> new SlowFollower(drive, null, false));
+                        put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
-                        put("Climb", () -> new AutoClimbFollower(superstructure, drive));
+                        put("Climb", () -> new SetRobotState(superstructure, SuperState.SHOOT));
                 }
         };
 
@@ -128,12 +131,13 @@ public class RobotContainer {
                 // OI.driverRT.whileTrue(new SetRobotState(superstructure,
                 // SuperState.INTAKING));
 
-                OI.driverRT.whileTrue(new ConditionalCommand(
+                OI.driverRT.whileTrue(new ContinuousConditionalCommand(
                                 new DoNothing(),
                                 new SetRobotState(superstructure, SuperState.INTAKING),
                                 OI.driverLTSupplier));
 
-                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive, shooter));
+                OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
+                OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
                 OI.driverB.whileTrue(new SetRobotStateOnce(superstructure, SuperState.PASS));
 
                 OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
