@@ -60,8 +60,10 @@ public class Superstructure extends SubsystemBase {
     DEFAULT,
     IDLE,
     SHOOT,
+    SHOOT_NO_JIGGLE,
     INTAKING,
     SHOOTING,
+    SHOOTING_NO_JIGGLE,
     SHOOTING_NO_FEED,
     PASS,
     PASSING,
@@ -127,6 +129,12 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOTING_NO_FEED:
         handleShootingNoFeedState();
+        break;
+      case SHOOTING_NO_JIGGLE:
+        handleShootingNoJiggleState();
+        break;
+      case SHOOT_NO_JIGGLE:
+        handleShootNoJiggleState();
         break;
       case PASS:
         handlePassState();
@@ -208,6 +216,21 @@ public class Superstructure extends SubsystemBase {
           currentSuperState = SuperState.PASS;
         }
         break;
+      case SHOOT_NO_JIGGLE:
+        if (Constants.Field.isInAllianceZone(drive.getMt2Pose2d().getTranslation())) {
+          if (shooter.readyToShoot() && !Constants.Field.isOnBump(drive.getMt2Pose2d().getTranslation())) {
+            currentSuperState = SuperState.SHOOTING_NO_JIGGLE;
+          } else {
+            currentSuperState = SuperState.SHOOT_NO_JIGGLE;
+          }
+          break;
+        }
+        if (shooter.readyToPass()) {
+          currentSuperState = SuperState.PASSING;
+        } else {
+          currentSuperState = SuperState.PASS;
+        }
+        break;
       case PASS:
         if (shooter.readyToPass()) {
           currentSuperState = SuperState.PASSING;
@@ -243,6 +266,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case SHOOTING_NO_FEED:
         currentSuperState = SuperState.SHOOTING_NO_FEED;
+        break;
+      case SHOOTING_NO_JIGGLE:
+        currentSuperState = SuperState.SHOOTING_NO_JIGGLE;
         break;
       case PASSING:
         currentSuperState = SuperState.PASSING;
@@ -321,6 +347,26 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
+  private void handleShootNoJiggleState() {
+    // Shooter
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+        new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+        Constants.Field.getHubPose().toTranslation2d(),
+        drive.getFutureVelocity());
+    ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        rotatedShotSolution);
+
+    // Feeder
+    feeder.setWantedState(FeederState.DEFAULT);
+    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT_SLOW);
+    }
+  }
+
   private void handleShootingState() {
     // Shooter
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
@@ -345,6 +391,37 @@ public class Superstructure extends SubsystemBase {
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
     intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT_SLOW);
+    }
+  }
+
+  private void handleShootingNoJiggleState() {
+    // Shooter
+    ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+        new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+        Constants.Field.getHubPose().toTranslation2d(),
+        drive.getFutureVelocity());
+    ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        rotatedShotSolution);
+    // Feeder
+    feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
+
+    // Log Fuel Trajectory
+    if (RobotBase.isSimulation()) {
+      Translation3d target = Constants.Field.getHubPose();
+      Translation3d initial = getTurretFieldPosition();
+      double distance2D = initial.toTranslation2d().getDistance(target.toTranslation2d());
+      double height = Constants.Physical.Shooter.getTrajectoryHeight(distance2D);
+      Translation3d initialVelocity = PhysicsModel.getHeightBoundTrajectory(initial, target, height);
+      trajectoryPoint.add(initial);
+      trajectoryVelocity
+          .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
+    }
+    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {

@@ -13,6 +13,7 @@ import org.json.JSONTokener;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ContinuousConditionalCommand;
@@ -66,7 +67,9 @@ public class RobotContainer {
                         put("Idle", () -> new SetRobotStateSimple(superstructure, SuperState.IDLE));
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
                         put("Slow Mode", () -> new SlowFollower(drive, null, false));
-                        put("Shoot", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Shoot", () -> new SequentialCommandGroup(
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.5),
+                                        new SetRobotState(superstructure, SuperState.SHOOT)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
                         put("Climb", () -> new SetRobotState(superstructure, SuperState.SHOOT));
                 }
@@ -139,12 +142,15 @@ public class RobotContainer {
                                 new SetRobotState(superstructure, SuperState.INTAKING),
                                 OI.driverLTSupplier));
 
-                OI.driverPOVLeft.whileTrue(new SetRobotStatePresetShot(superstructure, new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
-                                0.0, 0.0)));
-                OI.driverPOVUp.whileTrue(new SetRobotStatePresetShot(superstructure, new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
-                                0.0, 0.0)));
-                OI.driverPOVRight.whileTrue(new SetRobotStatePresetShot(superstructure, new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
-                                0.0, 0.0)));
+                OI.driverPOVLeft.whileTrue(new SetRobotStatePresetShot(superstructure,
+                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                                0.0, 0.0)));
+                OI.driverPOVUp.whileTrue(new SetRobotStatePresetShot(superstructure,
+                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                                0.0, 0.0)));
+                OI.driverPOVRight.whileTrue(new SetRobotStatePresetShot(superstructure,
+                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                                0.0, 0.0)));
 
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
