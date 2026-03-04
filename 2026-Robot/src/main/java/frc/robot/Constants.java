@@ -305,7 +305,7 @@ public final class Constants {
                 }
 
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
-                public static final double FEED_RADIUS = inchesToMeters(39.37);
+                public static final double FEED_RADIUS = inchesToMeters(33.39);
                 public static final double BALL_WIDTH = 0.15;
         }
 

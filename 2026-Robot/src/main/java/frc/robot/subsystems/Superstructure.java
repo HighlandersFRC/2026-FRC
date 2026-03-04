@@ -52,6 +52,8 @@ public class Superstructure extends SubsystemBase {
   private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 2000);
   private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 60.0);
   private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0.0);
+  private ShotSolution presetShotSolution = new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+      0.0, 0.0);
 
   public enum SuperState {
     DEFAULT,
@@ -65,6 +67,8 @@ public class Superstructure extends SubsystemBase {
     ZERO,
     MANUAL_SHOOT,
     MANUAL_SHOOTING,
+    PRESET_SHOOT,
+    PRESET_SHOOTING,
     MANUAL_PASS, // TODO: implement ts and passing
     MANUAL_PASSING,
     MANUAL_CLIMBING,
@@ -90,6 +94,11 @@ public class Superstructure extends SubsystemBase {
 
   public void setWantedState(SuperState wantedState) {
     this.wantedSuperState = wantedState;
+  }
+
+  public void setWantedState(SuperState wantedState, ShotSolution shotSolution){
+    this.wantedSuperState = wantedState;
+    this.presetShotSolution = shotSolution;
   }
 
   public Command setWantedSuperStateCommand(SuperState wantedSuperState) {
@@ -129,6 +138,12 @@ public class Superstructure extends SubsystemBase {
         break;
       case MANUAL_SHOOTING:
         handleManualShootingState();
+        break;
+      case PRESET_SHOOT:
+        handlePresetShootState();
+        break;
+      case PRESET_SHOOTING:
+        handlePresetShootingState();
         break;
       case INTAKING:
         handleIntakeingState();
@@ -208,6 +223,16 @@ public class Superstructure extends SubsystemBase {
         break;
       case MANUAL_SHOOTING:
         currentSuperState = SuperState.MANUAL_SHOOTING;
+        break;
+      case PRESET_SHOOT:
+        if (shooter.readyToShoot()) {
+          currentSuperState = SuperState.PRESET_SHOOTING;
+        } else {
+          currentSuperState = SuperState.PRESET_SHOOT;
+        }
+        break;
+      case PRESET_SHOOTING:
+        currentSuperState = SuperState.PRESET_SHOOTING;
         break;
       case INTAKING:
         currentSuperState = SuperState.INTAKING;
@@ -346,6 +371,30 @@ public class Superstructure extends SubsystemBase {
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
     intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT_SLOW);
+    }
+  }
+
+  private void handlePresetShootState() {
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        presetShotSolution);
+    feeder.setWantedState(FeederState.DEFAULT);
+    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOW);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT_SLOW);
+    }
+  }
+
+  private void handlePresetShootingState() {
+    shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+        presetShotSolution);
+    feeder.setWantedState(FeederState.FEED);
+    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {

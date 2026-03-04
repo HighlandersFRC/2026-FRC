@@ -9,11 +9,12 @@ import java.util.function.Supplier;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AutoClimbFollower;
 import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
@@ -21,6 +22,7 @@ import frc.robot.commands.PolarAutoFollower;
 import frc.robot.commands.SetRobotState;
 import frc.robot.commands.SetRobotStateComplicatedAfterWait;
 import frc.robot.commands.SetRobotStateOnce;
+import frc.robot.commands.SetRobotStatePresetShot;
 import frc.robot.commands.SetRobotStateSimple;
 import frc.robot.commands.SetRobotStateSimpleOnce;
 import frc.robot.commands.SetRobotStateTimeout;
@@ -36,6 +38,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.tools.math.ShotCalculator.ShotSolution;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -135,6 +138,13 @@ public class RobotContainer {
                                 new DoNothing(),
                                 new SetRobotState(superstructure, SuperState.INTAKING),
                                 OI.driverLTSupplier));
+
+                OI.driverPOVLeft.whileTrue(new SetRobotStatePresetShot(superstructure, new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                0.0, 0.0)));
+                OI.driverPOVUp.whileTrue(new SetRobotStatePresetShot(superstructure, new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                0.0, 0.0)));
+                OI.driverPOVRight.whileTrue(new SetRobotStatePresetShot(superstructure, new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                0.0, 0.0)));
 
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
