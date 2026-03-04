@@ -711,7 +711,7 @@ public final class Constants {
 
                 public static final class Climber {
                         public static final double CLIMBER_MOTOR_INCHES_PER_ROTATION = 0.25287202867;
-                        public static final double CLIMBER_MAX_INCHES = 20.25;
+                        public static final double CLIMBER_MAX_INCHES = 20.48;
                         public static final double CLIMBER_MAX_ROTATIONS = CLIMBER_MAX_INCHES
                                         / CLIMBER_MOTOR_INCHES_PER_ROTATION;
                 }
