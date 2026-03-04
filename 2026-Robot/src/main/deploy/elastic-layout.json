@@ -3,7 +3,7 @@
   "grid_size": 128,
   "tabs": [
     {
-      "name": "Teleoperated",
+      "name": "Main",
       "grid_layout": {
         "layouts": [],
         "containers": [
@@ -34,12 +34,11 @@
             "y": 384.0,
             "width": 512.0,
             "height": 384.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Console",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {

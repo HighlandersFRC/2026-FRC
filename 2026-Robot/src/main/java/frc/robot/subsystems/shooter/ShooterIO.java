@@ -28,4 +28,8 @@ interface ShooterIO {
     double getFlywheelCurrent();
 
     double getFlywheelAcceleration();
+
+    double getHoodCurrent();
+
+    double getTurretCurrent();
 }

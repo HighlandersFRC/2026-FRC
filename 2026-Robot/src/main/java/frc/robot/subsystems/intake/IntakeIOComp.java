@@ -113,6 +113,11 @@ class IntakeIOComp implements IntakeIO {
         }
 
         @Override
+        public double getIntakeRollerCurrent() {
+                return rollerMotor.getTorqueCurrent().getValueAsDouble();
+        }
+
+        @Override
         public double getIntakeAcceleration() {
                 return pivotMotor.getAcceleration().getValueAsDouble();
         }

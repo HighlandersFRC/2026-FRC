@@ -30,6 +30,11 @@ class FeederIOSim implements FeederIO {
     }
 
     @Override
+    public double getDyeRotorCurrent() {
+        return 0.0;
+    }
+
+    @Override
     public void updateInputs(FeederState systemState) {
         double dt = Globals.loopPeriodSecs;
         double sign = Math.signum(dyeRotorWantedVelocity - dyeRotorVelocity);

@@ -149,6 +149,16 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
+    public double getHoodCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getTurretCurrent() {
+        return 0.0;
+    }
+
+    @Override
     public void updateInputs() {
         double dt = Globals.loopPeriodSecs;
         int numSteps = Math.max(1, (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution));

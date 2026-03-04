@@ -79,5 +79,6 @@ public class Feeder extends SubsystemBase {
     }
     Logger.recordOutput("Feeder/Feeder State", systemState);
     Logger.recordOutput("States/Feeder State", systemState);
+    Logger.recordOutput("Feeder/Dye Rotor Current", io.getDyeRotorCurrent());
   }
 }

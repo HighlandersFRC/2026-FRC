@@ -40,6 +40,16 @@ class ClimberIOComp implements ClimberIO {
     }
 
     @Override
+    public double getSlaveCurrent() {
+        return climberSlaveMotor.getStatorCurrent().getValueAsDouble();
+    }
+
+    @Override
+    public double getMasterCurrent() {
+        return climberMasterMotor.getStatorCurrent().getValueAsDouble();
+    }
+
+    @Override
     public void stop() {
         climberMasterMotor.set(0.0);
         climberSlaveMotor.set(0.0);
