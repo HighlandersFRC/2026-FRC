@@ -105,7 +105,9 @@ public class FullSendFollower extends AutoFollower {
 
     @Override
     public void end(boolean interrupted) {
-        drive.stop();
+        if (!interrupted) {
+            drive.stop();
+        }
     }
 
     public void from(int pointIndex, JSONObject pathJSON, int to) {

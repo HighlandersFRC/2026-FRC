@@ -161,7 +161,7 @@ public class DriveIOComp extends DriveIO {
                 try {
                         aprilTagFieldLayout = new AprilTagFieldLayout(
                                         Filesystem.getDeployDirectory().getPath() + "/"
-                                                        + "2026-rebuilt.json");
+                                                        + "2026-rebuilt-welded.json");
                 } catch (Exception e) {
                         java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
                 }
@@ -309,8 +309,7 @@ public class DriveIOComp extends DriveIO {
                                 }
                         }
 
-                        if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
-                                        && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                        if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB) {
                                 var leftBackResult = peripherals.getLeftBackCamResult();
                                 Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
                                                 .update(leftBackResult);

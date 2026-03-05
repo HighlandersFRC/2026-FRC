@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoClimbFollower;
 import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
@@ -71,7 +72,7 @@ public class RobotContainer {
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.5),
                                         new SetRobotState(superstructure, SuperState.SHOOT)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
-                        put("Climb", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Climb", () -> new AutoClimbFollower(superstructure, drive));
                 }
         };
 

@@ -27,7 +27,9 @@ import frc.robot.tools.math.Vector;
 public final class Constants {
         public static final class Autonomous {
                 public static final int STAGNATE_BOOST = 25;
-                public static final int STAGNATE_THRESHOLD = 8; // Number of cycles of stagnation before ending path
+                public static final int STAGNATE_THRESHOLD = (int) Math.floor(6.7); // Number of cycles of stagnation
+                                                                                    // before ending
+                // path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
@@ -45,7 +47,7 @@ public final class Constants {
                 // Feed Forward Multiplier
                 public static final double FEED_FORWARD_MULTIPLIER = 0.8044;
                 public static final double ACCURATE_FOLLOWER_FEED_FORWARD_MULTIPLIER = 1;
-                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.60;
+                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.90;
                 public static String[] paths;
 
                 static {
@@ -80,8 +82,8 @@ public final class Constants {
 
         // Physical constants (e.g. field and robot dimensions)
         public static final class Physical {
-                public static final double FIELD_WIDTH = inchesToMeters(316.64);
-                public static final double FIELD_LENGTH = inchesToMeters(650.12);
+                public static final double FIELD_WIDTH = 8.069;
+                public static final double FIELD_LENGTH = 16.541;
                 public static final double WHEEL_DIAMETER = inchesToMeters(4);
                 public static final double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
                 public static final double WHEEL_ROTATION_PER_METER = 1.0 / WHEEL_CIRCUMFERENCE;
@@ -112,11 +114,11 @@ public final class Constants {
 
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.437,
-                                4.11),
+                                4.115),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
-                                4.11),
+                                4.115),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
@@ -445,22 +447,28 @@ public final class Constants {
                         public static final double CLIMBER_HOOKS_RETRACT_ZONE = 1.0; // climber position that the hooks
                                                                                      // come out at (assuming climber
                                                                                      // initializes to zero)
-                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.25; // climber position to get
-                                                                                            // ready to grab l1
-                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 15.0; // climber position to
+                        // public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.25; //
+                        // climber position to get
+                        // 20.25
+                        // ready to grab l1
+                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 10.0; // climber position to
+                                                                                                  // 15.0
                                                                                                   // hover off the
                                                                                                   // ground in auto
                                                                                                   // (already latched on
                                                                                                   // L1)
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.4; // climber position to get
-                                                                                          // ready to grab L2 (already
-                                                                                          // latched on L1)
-                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
-                                                                                            // ready to grab L3 (already
-                                                                                            // latched on L2)
-                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 9.5; // climber position to hover
-                                                                                           // above L2 (scoring L3)
-                                                                                           // (already latched on L3)
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 20.25; // climber position to get
+                                                                                            // 0.4
+                                                                                            // ready to grab L2 (already
+                                                                                            // latched on L1)
+                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 0.7; // climber position to get
+                                                                                          // 19.85
+                                                                                          // ready to grab L3 (already
+                                                                                          // latched on L2)
+                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 11.5; // climber position to hover
+                                                                                            // 9.5
+                                                                                            // above L2 (scoring L3)
+                                                                                            // (already latched on L3)
                 }
         }
 
