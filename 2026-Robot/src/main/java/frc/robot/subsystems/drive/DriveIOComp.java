@@ -166,13 +166,13 @@ public class DriveIOComp extends DriveIO {
                         java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
                 }
                 leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftFrontRobotToCam);
+                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, leftFrontRobotToCam);
                 leftBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
                                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftBackRobotToCam);
                 rightFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, rightFrontRobotToCam);
+                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, rightFrontRobotToCam);
                 rightBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, rightBackRobotToCam);
+                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, rightBackRobotToCam);
         }
 
         @Override
@@ -272,14 +272,20 @@ public class DriveIOComp extends DriveIO {
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
+                Rotation2d robotRotation = new Rotation2d(Math.toRadians(gyro.getYawDegrees()));
+                double time = Timer.getFPGATimestamp();
+                rightFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
+                rightBackPhotonPoseEstimator.addHeadingData(time, robotRotation);
+                leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
+
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         var rightFrontResult = peripherals.getRightFrontCamResult();
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
                                         .update(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
                                 if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                        standardDeviation.set(0, 0, 1.5);
-                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(0, 0, 0.7);
+                                        standardDeviation.set(1, 0, 0.7);
                                         standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
@@ -293,8 +299,8 @@ public class DriveIOComp extends DriveIO {
                                         .update(rightBackResult);
                         if (rightBackMultiTagResult.isPresent()) {
                                 if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                        standardDeviation.set(0, 0, 1.5);
-                                        standardDeviation.set(1, 0, 1.5);
+                                        standardDeviation.set(0, 0, 0.7);
+                                        standardDeviation.set(1, 0, 0.7);
                                         standardDeviation.set(2, 0, 2.5);
                                         Pose3d robotPose = rightBackMultiTagResult.get().estimatedPose;
                                         mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
@@ -310,9 +316,9 @@ public class DriveIOComp extends DriveIO {
                                                 .update(leftBackResult);
                                 if (leftBackMultiTagResult.isPresent()) {
                                         if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                                standardDeviation.set(0, 0, 1.5);
-                                                standardDeviation.set(1, 0, 1.5);
-                                                standardDeviation.set(2, 0, 2.5);
+                                                standardDeviation.set(0, 0, 1.0);
+                                                standardDeviation.set(1, 0, 1.0);
+                                                standardDeviation.set(2, 0, 2.0);
                                                 Pose3d robotPose = leftBackMultiTagResult.get().estimatedPose;
                                                 mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
                                                                 leftBackResult.getTimestampSeconds(),
@@ -325,8 +331,8 @@ public class DriveIOComp extends DriveIO {
                                                 .update(leftFrontResult);
                                 if (leftFrontMultiTagResult.isPresent()) {
                                         if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                                standardDeviation.set(0, 0, 1.5);
-                                                standardDeviation.set(1, 0, 1.5);
+                                                standardDeviation.set(0, 0, 0.7);
+                                                standardDeviation.set(1, 0, 0.7);
                                                 standardDeviation.set(2, 0, 2.5);
                                                 Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
                                                 mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
