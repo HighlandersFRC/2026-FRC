@@ -55,6 +55,10 @@ public class Climber extends SubsystemBase {
     io.setPower(-100, 0.7);
   }
 
+  public void idleClimber() {
+    io.setPower(-2.54, 0.1);
+  }
+
   public void extendClimber() {
     io.setPower(100, 0.7);
   }
@@ -166,7 +170,8 @@ public class Climber extends SubsystemBase {
         }
         break;
       case IDLE:
-        stopClimber();
+        // stopClimber();
+        idleClimber();
         break;
       default:
         stopClimber();
