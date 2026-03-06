@@ -100,36 +100,52 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
-                public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                15.13, 3.98), new Rotation2d(Math.PI));
-                public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                14.660, 3.98), new Rotation2d(Math.PI));
-
-                public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
-                                15.13, 4.774), new Rotation2d(Math.PI));
-                public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
-                                14.660, 4.774), new Rotation2d(Math.PI));
-
+                // 1.437/1.736 4.115
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.437,
-                                4.11),
+                                1.398,
+                                4.272),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
-                                4.11),
+                                4.272),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - climbPoseRightRedSide.getTranslation().getY()),
+                                climbPoseLeftBlueSide.getTranslation().getX(),
+                                climbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - preClimbPoseRightRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
+                                preClimbPoseLeftBlueSide.getTranslation().getX(),
+                                preClimbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
                                 new Rotation2d(Math.toRadians(-90.0)));
 
+                // public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
+                // 14.94, 3.94), new Rotation2d(Math.PI / 2));
+                // public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
+                // 14.6, 3.94), new Rotation2d(Math.PI / 2));
+
+                // public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
+                // 14.94, 4.84), new Rotation2d(Math.PI / 2));
+                // public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
+                // 14.6, 4.84), new Rotation2d(Math.PI / 2));
+
+                // 33.75 in
+                public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseLeftBlueSide.getX(),
+                                FIELD_WIDTH - climbPoseLeftBlueSide.getY()), new Rotation2d(Math.PI / 2));
+                public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseLeftBlueSide.getX(),
+                                FIELD_WIDTH - preClimbPoseLeftBlueSide.getY()), new Rotation2d(Math.PI / 2));
+
+                public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - climbPoseRightBlueSide.getX(),
+                                FIELD_WIDTH - climbPoseRightBlueSide.getY()), new Rotation2d(Math.PI / 2));
+                public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
+                                FIELD_LENGTH - preClimbPoseRightBlueSide.getX(),
+                                FIELD_WIDTH - preClimbPoseRightBlueSide.getY()), new Rotation2d(Math.PI / 2));
+
                 public static final class Drive {
-                        public static final double xAccelLimit = 4.0;
-                        public static final double yAccelLimit = 4.0;
+                        public static final double xAccelLimit = 3.5;
+                        public static final double yAccelLimit = 3.5;
                         public static final double xDebounceLimit = 0.2;
                         public static final double yDebounceLimit = 0.2;
                         public static final double velLookaheadTime = 0.03;
@@ -257,7 +273,7 @@ public final class Constants {
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
-                                13.0, 1.85);
+                                13.0, 2.35);
                 public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
                                 Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
                 public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
@@ -451,16 +467,17 @@ public final class Constants {
                                                                                                   // hover off the
                                                                                                   // ground in auto
                                                                                                   // (already latched on
-                                                                                                  // L1)
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.4; // climber position to get
+                                                                                                  // L1) // 15.0
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.6; // climber position to get
                                                                                           // ready to grab L2 (already
-                                                                                          // latched on L1)
+                                                                                          // latched on L1) // 0.4
                         public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
                                                                                             // ready to grab L3 (already
-                                                                                            // latched on L2)
+                                                                                            // latched on L2) // 19.85
                         public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 9.5; // climber position to hover
                                                                                            // above L2 (scoring L3)
                                                                                            // (already latched on L3)
+                                                                                           // // 9.5
                 }
         }
 

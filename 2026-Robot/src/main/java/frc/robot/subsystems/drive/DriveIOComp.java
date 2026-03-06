@@ -92,7 +92,7 @@ public class DriveIOComp extends DriveIO {
                         new Translation3d(Constants.inchesToMeters(-10.25),
                                         Constants.inchesToMeters(14.5),
                                         Constants.inchesToMeters(23.5)),
-                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-4.7),
+                        new Rotation3d(Math.toRadians(4.0), Math.toRadians(-5.4),
                                         Math.toRadians(54.8)));
 
         Transform3d rightFrontRobotToCam = new Transform3d(

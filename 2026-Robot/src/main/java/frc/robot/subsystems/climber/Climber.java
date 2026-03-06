@@ -38,6 +38,28 @@ public class Climber extends SubsystemBase {
   private ClimberState wantedState = ClimberState.IDLE;
   private ClimberState systemState = ClimberState.IDLE;
   private L3ClimberState l3State = L3ClimberState.L1EXTEND;
+  private int manualProg = 0;
+  private boolean stop = false;
+
+  public void incrementManualProg() {
+    stop = false;
+    manualProg++;
+  }
+
+  public L3ClimberState getWantedManualProgState() {
+    switch (manualProg) {
+      case 0:
+        return L3ClimberState.L1EXTEND;
+      case 1:
+        return L3ClimberState.L2EXTEND;
+      case 2:
+        return L3ClimberState.L3EXTEND;
+      case 3:
+        return L3ClimberState.L3RETRACT;
+      default:
+        return l3State;
+    }
+  }
 
   public double getClimberPosition() {
     return io.getPosition();
@@ -52,19 +74,27 @@ public class Climber extends SubsystemBase {
   }
 
   public void retractClimber() {
-    io.setPower(-100, 0.7);
+    io.setPower(-100, 0.99);
   }
 
   public void idleClimber() {
-    io.setPower(-2.54, 0.1);
+    io.setPower(-10.0, 0.1);
   }
 
   public void extendClimber() {
-    io.setPower(100, 0.7);
+    io.setPower(100, 0.99);
+  }
+
+  public void extendClimberSlow() {
+    io.setPower(100, 0.3);
+  }
+
+  public void retractClimberSlow() {
+    io.setPower(-100, 0.3);
   }
 
   public void stallClimber() {
-    io.setPower(-100, 0.7);
+    io.setPower(-100, 0.99);
   }
 
   public void setWantedState(ClimberState wantedState) {
@@ -92,7 +122,10 @@ public class Climber extends SubsystemBase {
   public void periodic() {
     if (systemState != handleStateTransition() && handleStateTransition() == ClimberState.L3_CLIMBING) {
       l3State = L3ClimberState.L1EXTEND;
+      manualProg = 0;
+      stop = false;
     }
+    l3State = getWantedManualProgState();
     systemState = handleStateTransition();
     Logger.recordOutput("Climber/Climber State", systemState);
     Logger.recordOutput("States/Climber State", systemState);
@@ -130,37 +163,73 @@ public class Climber extends SubsystemBase {
         switch (l3State) {
           case L1EXTEND: // step 1
             if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES) {
-              l3State = L3ClimberState.L2EXTEND;
+              // l3State = L3ClimberState.L2EXTEND;
+              stop = true;
+              stopClimber();
               Logger.recordOutput("Climber/Output", "Stopped Extending L1");
             } else {
-              extendClimber();
+              // if (getClimberPosition() >
+              // Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES - 3.0) {
+              // extendClimberSlow();
+              // }
+              // else {
+              if (!stop) {
+                extendClimber();
+              }
+              // }
               Logger.recordOutput("Climber/Output", "Extending L1");
             }
             break;
           case L2EXTEND: // step 2
             if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES) {
-              l3State = L3ClimberState.L3EXTEND;
+              // l3State = L3ClimberState.L3EXTEND;
+              stop = true;
+              stopClimber();
               Logger.recordOutput("Climber/Output", "Stopped Extending L2");
             } else {
-              retractClimber();
+              // if (getClimberPosition() <
+              // Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES + 3.0) {
+              // retractClimberSlow();
+              // } else {
+              if (!stop) {
+                retractClimber();
+              }
+              // }
               Logger.recordOutput("Climber/Output", "Extending L2");
             }
             break;
           case L3EXTEND: // step 3
             if (getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L3_EXTEND_HEIGHT_INCHES) {
-              l3State = L3ClimberState.L3RETRACT;
+              // l3State = L3ClimberState.L3RETRACT;
+              stop = true;
+              stopClimber();
               Logger.recordOutput("Climber/Output", "Stopped Extending L3");
             } else {
-              extendClimber();
+              // if (getClimberPosition() >
+              // Constants.SetPoints.Climber.CLIMBER_L3_EXTEND_HEIGHT_INCHES - 3.5) {
+              // extendClimberSlow();
+              // } else {
+              if (!stop) {
+                extendClimber();
+              }
+              // }
               Logger.recordOutput("Climber/Output", "Extending L3");
             }
             break;
           case L3RETRACT: // step 4 (final step)
             if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L3_RETRACT_HEIGHT_INCHES) {
               stopClimber();
+              stop = true;
               Logger.recordOutput("Climber/Output", "Stopped Retracting L3");
             } else {
-              retractClimber();
+              // if (getClimberPosition() <
+              // Constants.SetPoints.Climber.CLIMBER_L3_RETRACT_HEIGHT_INCHES + 3.0) {
+              // retractClimberSlow();
+              // } else {
+              if (!stop) {
+                retractClimber();
+              }
+              // }
               Logger.recordOutput("Climber/Output", "Retracting L3");
             }
             break;

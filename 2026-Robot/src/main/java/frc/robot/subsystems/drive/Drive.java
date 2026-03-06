@@ -900,6 +900,8 @@ public class Drive extends SubsystemBase {
     // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
     // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
+    Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
+
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);
     // Logger.recordOutput("theta-vel", thetaVelNoFF);
@@ -908,8 +910,8 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
     // Logger.recordOutput("FF-x-vel", feedForwardX);
     // Logger.recordOutput("FF-y-vel", feedForwardY);
-    // Logger.recordOutput("current point idx", currentIndex);
-    // Logger.recordOutput("point idx", velocityArray[3].intValue());
+    Logger.recordOutput("current point idx", currentIndex);
+    Logger.recordOutput("point idx", velocityArray[3].intValue());
     // Logger.recordOutput("look-ahead", lookaheadRadius);
     // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
     // Rotation2d(targetTheta)));
