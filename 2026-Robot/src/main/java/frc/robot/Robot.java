@@ -124,7 +124,11 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
     Logger.recordOutput("Physical/Blue Hub", Constants.Field.HUB_POSE_BLUE);
-    Globals.fieldSide = OI.fieldSide.getSelected();
+    if (OI.isRedSide()) {
+      Globals.fieldSide = "red";
+    } else {
+      Globals.fieldSide = "blue";
+    }
 
     CommandScheduler.getInstance().run();
     Logger.recordOutput("Robot/MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
@@ -141,6 +145,8 @@ public class Robot extends LoggedRobot {
       bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
       Logger.recordOutput("Sim/Arm Sim", bot);
     }
+    Logger.recordOutput("Field Side", Globals.fieldSide);
+    Logger.recordOutput("Left or Right", OI.isLeftSide());
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;

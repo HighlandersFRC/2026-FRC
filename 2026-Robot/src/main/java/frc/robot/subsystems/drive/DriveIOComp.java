@@ -86,7 +86,7 @@ public class DriveIOComp extends DriveIO {
         Transform3d leftFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(3.125), Constants.inchesToMeters(14.38),
                                         Constants.inchesToMeters(23.75)),
-                        new Rotation3d(Math.toRadians(0.5), Math.toRadians(-5.0), Math.toRadians(126.3)));
+                        new Rotation3d(Math.toRadians(0.5), Math.toRadians(-4.3), Math.toRadians(126.3)));
 
         Transform3d leftBackRobotToCam = new Transform3d( // front reef cam on swerve module
                         new Translation3d(Constants.inchesToMeters(-10.25),

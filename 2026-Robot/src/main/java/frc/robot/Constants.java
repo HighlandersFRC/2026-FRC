@@ -33,7 +33,7 @@ public final class Constants {
                 // their constants
                 public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.04; // Lookahead at 1m/s scaled by wanted
                                                                                  // velocity
-                public static final double FULL_SEND_LOOKAHEAD = 0.60;
+                public static final double FULL_SEND_LOOKAHEAD = 0.6741;
                 public static final double MIN_LOOKAHEAD_DISTANCE = 0.05; // Lookahead distance at 0m/s
                 // Path follower will end if within this radius of the final point
                 public static final double AUTONOMOUS_END_ACCURACY = 0.40;

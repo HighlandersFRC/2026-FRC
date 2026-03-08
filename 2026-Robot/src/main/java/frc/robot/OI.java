@@ -115,7 +115,8 @@ public class OI {
     }
 
     public static String getSelectedPath() {
-        return auto.getSelected();
+        // return auto.getSelected();
+        return "TwoCycle.polarauto";
     }
 
     public static double getDriverLeftX() {
@@ -254,9 +255,7 @@ public class OI {
     }
 
     public static boolean isRedSide() {
-        if (autoChooserConnected()) {
-            return !autoChooser.getRawButton(8);
-        } else if (DriverStation.isDSAttached()) {
+        if (DriverStation.isDSAttached()) {
             return DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
         } else {
             return true;
@@ -264,7 +263,8 @@ public class OI {
     }
 
     public static boolean isLeftSide() {
-        return leftRight.getSelected().equals("left");
+        // return leftRight.getSelected().equals("left");
+        return false;
     }
 
     public static boolean isRecalculateMode() {
