@@ -135,8 +135,8 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
                 flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
-                flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
-                flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
+                flywheelConfig.CurrentLimits.StatorCurrentLimit = 60;
+                flywheelConfig.CurrentLimits.SupplyCurrentLimit = 60;
                 flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
                 flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;

@@ -85,6 +85,13 @@ public class FullSendFollower extends AutoFollower {
 
         Vector velocityVector = new Vector();
 
+        desiredVelocityArray[0] = desiredVelocityArray[0].doubleValue()
+                * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
+        desiredVelocityArray[1] = desiredVelocityArray[1].doubleValue()
+                * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
+        desiredVelocityArray[2] = desiredVelocityArray[2].doubleValue()
+                * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
+
         if (currentPathPointIndex == path.length() - 1) {
             velocityVector.setI(desiredVelocityArray[0].doubleValue() * 2);
             velocityVector.setJ(desiredVelocityArray[1].doubleValue() * 2);
@@ -96,7 +103,6 @@ public class FullSendFollower extends AutoFollower {
         }
 
         // create velocity vector and set desired theta change
-
         drive.autoDrive(velocityVector, desiredThetaChange);
         // Logger.recordOutput("Auto/pursuing?", true);
         // Logger.recordOutput("Auto/Path Time", path

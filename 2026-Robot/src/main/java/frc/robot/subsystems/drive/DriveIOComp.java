@@ -212,6 +212,7 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected void setCurrentLimits(int supply, int stator) {
+                System.out.println("Setting current limit");
                 frontLeft.setDriveCurrentLimits(supply, stator);
                 frontRight.setDriveCurrentLimits(supply, stator);
                 backLeft.setDriveCurrentLimits(supply, stator);

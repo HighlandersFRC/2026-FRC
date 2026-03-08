@@ -49,6 +49,7 @@ public class Shooter extends SubsystemBase {
   Translation3d turretFieldPosition = new Translation3d(0.0, 0.0, 0.0);
 
   private Debouncer readyToShootDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
+  private Debouncer readyToFeedDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -177,9 +178,11 @@ public class Shooter extends SubsystemBase {
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
-    return hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
+    boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION;
+    boolean debouncedReady = readyToFeedDebouncer.calculate(ready);
+    return debouncedReady;
   }
 
   public Rotation2d getHoodAngle() {

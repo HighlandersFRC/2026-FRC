@@ -45,7 +45,8 @@ public final class Constants {
                 // Feed Forward Multiplier
                 public static final double FEED_FORWARD_MULTIPLIER = 0.8044;
                 public static final double ACCURATE_FOLLOWER_FEED_FORWARD_MULTIPLIER = 1;
-                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.60;
+                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.95;
+                public static final double FULL_SEND_FOLLOWER_MULTIPLIER = 1.2;
                 public static String[] paths;
 
                 static {

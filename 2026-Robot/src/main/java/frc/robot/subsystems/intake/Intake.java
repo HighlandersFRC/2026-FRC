@@ -1,18 +1,16 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.OI;
-import frc.robot.subsystems.Superstructure.SuperState;
-
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
@@ -195,6 +193,8 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("Intake/Intake Roller Current", io.getIntakeRollerCurrent());
     Logger.recordOutput("Intake/Intake Acceleration", io.getIntakeAcceleration());
     Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
+    Logger.recordOutput("Intake Roller Vel", io.getIntakeRollerVelocity());
+    Logger.recordOutput("Intake Roller Temp", io.getIntakeRollerTemp());
     switch (systemState) {
       case UP:
         setIntakeUp();
@@ -214,7 +214,8 @@ public class Intake extends SubsystemBase {
         break;
       case JIGGLE:
         setJiggle();
-        setRollerTorque(80, dynamicIntakeSpeed);
+        // setRollerTorque(80, dynamicIntakeSpeed);
+        setRollerPercent(0.2);
         break;
       case ZERO:
         setRollerPercent(0.0);

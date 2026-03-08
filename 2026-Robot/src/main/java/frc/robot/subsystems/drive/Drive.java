@@ -153,7 +153,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void teleopInit() {
-
+    io.setCurrentLimits(80, 80);
   }
 
   /**

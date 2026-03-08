@@ -106,7 +106,17 @@ class IntakeIOSim implements IntakeIO {
     }
 
     @Override
+    public double getIntakeRollerVelocity() {
+        return 0.0;
+    }
+
+    @Override
     public double getIntakeCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeRollerTemp() {
         return 0.0;
     }
 

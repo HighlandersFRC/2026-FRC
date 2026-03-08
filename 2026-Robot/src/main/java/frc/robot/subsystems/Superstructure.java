@@ -589,6 +589,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void handleIntakeingState() {
+    shooter.setWantedState(ShooterState.DEFAULT);
     intake.setWantedState(IntakeState.DYNAMIC_INTAKING, drive.getChassisSpeeds());
     feeder.setWantedState(FeederState.DEFAULT);
     if (DriverStation.isAutonomous()) {
