@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
 import frc.robot.tools.math.Vector;
 
@@ -43,9 +44,9 @@ public class Drive extends SubsystemBase {
   private double kThetaD = 2.00;
 
   // auto climb
-  private double kkXP = 4.0;
+  private double kkXP = 2.5;
   private double kkXI = 0.00;
-  private double kkXD = 1.20;
+  private double kkXD = 0.60;
 
   private double kkYP = kkXP;
   private double kkYI = kkXI;
@@ -126,11 +127,11 @@ public class Drive extends SubsystemBase {
    */
   public void init() {
     // sets configurations when run on robot initalization
-    xxPID.setMinOutput(-1.5);
-    xxPID.setMaxOutput(1.5);
+    xxPID.setMinOutput(-1.0);
+    xxPID.setMaxOutput(1.0);
 
-    yyPID.setMinOutput(-1.5);
-    yyPID.setMaxOutput(1.5);
+    yyPID.setMinOutput(-1.0);
+    yyPID.setMaxOutput(1.0);
 
     thetaaPID.setMinOutput(-3.0);
     thetaaPID.setMaxOutput(3.0);
@@ -152,7 +153,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void teleopInit() {
-
+    io.setCurrentLimits(80, 80);
   }
 
   /**
@@ -477,7 +478,7 @@ public class Drive extends SubsystemBase {
     double theta = pose.getRotation().getRadians();
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.0254
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.01690
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
       hitNumber += 1;
@@ -729,14 +730,14 @@ public class Drive extends SubsystemBase {
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
-      ChassisSpeeds currentSpeeds = io.getChassisSpeeds();
-      vector.setI((currentSpeeds.vxMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + vector.getI() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
-      vector.setJ((currentSpeeds.vyMetersPerSecond * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + vector.getJ() * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING));
-      turnRadiansPerSec = (currentSpeeds.omegaRadiansPerSecond
-          * (1 - Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING)
-          + turnRadiansPerSec * Constants.Physical.DRIVE_ACCELERATION_WHEN_SHOOTING);
+      double vx = xLimiter.calculate(vector.getI());
+      double vy = yLimiter.calculate(vector.getJ());
+      if (wantedState == DriveState.DEFAULT_SLOW) {
+        vector.setI(vx);
+        vector.setJ(vy);
+        vector = vector.scaled(0.41);
+        turnRadiansPerSec *= 0.41;
+      }
     }
     io.drive(vector, turnRadiansPerSec);
   }
@@ -874,6 +875,13 @@ public class Drive extends SubsystemBase {
       finalTheta = -finalTheta;
     }
 
+    // if (Field.isOnBump(getMt2Pose2d().getTranslation())) { // if on the bump,
+    // slow down to maintain control
+    // finalTheta = finalTheta * 0.75;
+    // finalX = finalX * 0.75;
+    // finalY = finalY * 0.75;
+    // }
+
     Number[] velocityArray = new Number[] {
         finalX,
         -finalY,
@@ -892,6 +900,8 @@ public class Drive extends SubsystemBase {
     // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
     // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
+    Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
+
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);
     // Logger.recordOutput("theta-vel", thetaVelNoFF);
@@ -900,8 +910,8 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
     // Logger.recordOutput("FF-x-vel", feedForwardX);
     // Logger.recordOutput("FF-y-vel", feedForwardY);
-    // Logger.recordOutput("current point idx", currentIndex);
-    // Logger.recordOutput("point idx", velocityArray[3].intValue());
+    Logger.recordOutput("current point idx", currentIndex);
+    Logger.recordOutput("point idx", velocityArray[3].intValue());
     // Logger.recordOutput("look-ahead", lookaheadRadius);
     // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
     // Rotation2d(targetTheta)));
@@ -937,7 +947,7 @@ public class Drive extends SubsystemBase {
       case DRIVE_TO_PRE_CLIMB:
         return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
-        return DriveState.DEFAULT; // disable this for now
+        return DriveState.SNAKE; // disable this for now
       default:
         return DriveState.IDLE;
     }
@@ -1010,6 +1020,10 @@ public class Drive extends SubsystemBase {
     return futureVelocity;
   }
 
+  public boolean isFlat() {
+    return io.getFlat();
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putData("Field", field);
@@ -1039,18 +1053,18 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        // if (robotCentric) {
-        // robotCentricDrive(0);
-        // } else {
-        teleopDrive();
-        // }
+        if (OI.getPOVDown()) {
+          snakeDrive();
+        } else {
+          teleopDrive();
+        }
         break;
       case DEFAULT_SLOW:
-        // if (robotCentric) {
-        // robotCentricDrive(0);
-        // } else {
-        teleopDrive();
-        // }
+        if (OI.getPOVDown()) {
+          snakeDrive();
+        } else {
+          teleopDrive();
+        }
         break;
       case IDLE:
 

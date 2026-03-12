@@ -115,7 +115,7 @@ class ShooterIOComp implements ShooterIO {
                 hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
                 hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
                 hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
-                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
                 hoodConfig.Feedback.FeedbackRemoteSensorID = Constants.CANInfo.HOOD_CANCODER_ID;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
@@ -135,11 +135,11 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
                 flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
-                flywheelConfig.CurrentLimits.StatorCurrentLimit = 80;
-                flywheelConfig.CurrentLimits.SupplyCurrentLimit = 80;
+                flywheelConfig.CurrentLimits.StatorCurrentLimit = 60;
+                flywheelConfig.CurrentLimits.SupplyCurrentLimit = 60;
                 flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-                flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
+                flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 flywheelMaster.getConfigurator().apply(flywheelConfig);
                 flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
                 flywheelFollower.getConfigurator().apply(flywheelConfig);
@@ -152,8 +152,8 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.Slot0.kD = Constants.PIDConstants.Turret.kD0;
                 turretConfig.Slot0.kS = Constants.PIDConstants.Turret.kS0;
                 turretConfig.Slot0.kV = Constants.PIDConstants.Turret.kV0;
-                turretConfig.MotionMagic.MotionMagicAcceleration = 2.0;
-                turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
+                turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration;
+                turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
                 turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
                 turretConfig.Feedback.RotorToSensorRatio = 1.0;
                 turretConfig.CurrentLimits.StatorCurrentLimit = 67;
@@ -165,14 +165,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.89990234375; // TODO: Try calculating offset from
-                                                                             // previous zero
-                                                                             // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.281494140625; // TODO: Try calculating offset from
+                                                                              // previous zero
+                                                                              // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.3984375;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.129150390625;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -282,7 +282,7 @@ class ShooterIOComp implements ShooterIO {
                         }
                 }
 
-                return Units.rotationsToRadians(-bestTheta);
+                return Units.rotationsToRadians(bestTheta);
         }
 
         private double wrap(double x) {
@@ -309,6 +309,26 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollower.set(-percent);
         }
 
+        @Override
+        public double getFlywheelCurrent() {
+                return flywheelMaster.getStatorCurrent().getValueAsDouble();
+        }
+
+        @Override
+        public double getFlywheelAcceleration() {
+                return flywheelMaster.getAcceleration().getValueAsDouble();
+        }
+
+        @Override
+        public double getHoodCurrent() {
+                return hoodMotor.getStatorCurrent().getValueAsDouble();
+        }
+
+        @Override
+        public double getTurretCurrent() {
+                return turretMotor.getStatorCurrent().getValueAsDouble();
+        }
+
         private boolean initializingTurret;
         private int initLoops;
         private ArrayList<Double> firstTurretAngles = new ArrayList<>();
@@ -317,7 +337,7 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void updateInputs() {
                 Globals.turretAngle = getTurretAngle();
-                Logger.recordOutput("Turret vel unfiltered",
+                Logger.recordOutput("Shooter/Turret vel unfiltered",
                                 Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 Globals.turretVelocity = filterTurret.lastValue();
@@ -354,15 +374,13 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Testing/initLoops", initLoops);
                 Logger.recordOutput("Testing/firstTurretAngles", firstTurretAngles.toString());
                 Logger.recordOutput("Testing/numberSkips", numberSkips);
-
                 Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
                 Logger.recordOutput("Shooter/Turret Error Degrees",
                                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
                 // if (turretP.changed() || turretI.changed() || turretD.changed() ||
-                // turretS.changed() || turretVelocity.changed()
-                // || turretAcceleration.changed() || turretV.changed()) {
+                // turretS.changed() || turretV.changed()) {
                 // System.out.println("Updating Turret PID Constants");
                 // TalonFXConfiguration turretConfig = new TalonFXConfiguration();
                 // turretConfig.Slot0.kP = turretP.get();
@@ -370,8 +388,8 @@ class ShooterIOComp implements ShooterIO {
                 // turretConfig.Slot0.kD = turretD.get();
                 // turretConfig.Slot0.kS = turretS.get();
                 // turretConfig.Slot0.kV = turretV.get();
-                // turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
-                // turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
+                // turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration;
+                // turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
                 // turretConfig.Feedback.SensorToMechanismRatio =
                 // Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
                 // turretConfig.Feedback.RotorToSensorRatio = 1.0;
@@ -382,9 +400,7 @@ class ShooterIOComp implements ShooterIO {
                 // turretMotor.getConfigurator().apply(turretConfig);
                 // }
                 // if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed()
-                // || hoodG.changed()
-                // || hoodCruiseVelocity.changed()
-                // || hoodAcceleration.changed()) {
+                // || hoodG.changed()) {
                 // System.out.println("Updating Hood PID Constants");
                 // TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
                 // hoodConfig.Slot0.kP = hoodP.get();
@@ -392,8 +408,6 @@ class ShooterIOComp implements ShooterIO {
                 // hoodConfig.Slot0.kD = hoodD.get();
                 // hoodConfig.Slot0.kS = hoodS.get();
                 // hoodConfig.Slot0.kG = hoodG.get();
-                // hoodConfig.MotionMagic.MotionMagicAcceleration = hoodAcceleration.get();
-                // hoodConfig.MotionMagic.MotionMagicCruiseVelocity = hoodCruiseVelocity.get();
                 // hoodConfig.Feedback.SensorToMechanismRatio =
                 // Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
                 // hoodConfig.Feedback.RotorToSensorRatio =
@@ -401,7 +415,11 @@ class ShooterIOComp implements ShooterIO {
                 // hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
                 // hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 // hoodConfig.Feedback.FeedbackSensorSource =
-                // FeedbackSensorSourceValue.RotorSensor;
+                // FeedbackSensorSourceValue.RemoteCANcoder;
+                // hoodConfig.Feedback.FeedbackRemoteSensorID =
+                // Constants.CANInfo.HOOD_CANCODER_ID;
+                // hoodConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
                 // hoodMotor.getConfigurator().apply(hoodConfig);
                 // }
                 // if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() ||
@@ -422,9 +440,11 @@ class ShooterIOComp implements ShooterIO {
                 // flywheelConfig.Feedback.FeedbackSensorSource =
                 // FeedbackSensorSourceValue.RotorSensor;
                 // flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-                // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.1;
+                // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 // flywheelMaster.getConfigurator().apply(flywheelConfig);
+                // flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
                 // flywheelFollower.getConfigurator().apply(flywheelConfig);
+                // flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
                 // }
         }
 }

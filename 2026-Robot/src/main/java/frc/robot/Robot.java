@@ -118,14 +118,17 @@ public class Robot extends LoggedRobot {
         System.out.println("ERROR LOADING PATH " + Constants.paths.get(i) + ":" + e);
       }
     }
-    Elastic.selectTab("Autonomous");
   }
 
   @Override
   public void robotPeriodic() {
     Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
     Logger.recordOutput("Physical/Blue Hub", Constants.Field.HUB_POSE_BLUE);
-    Globals.fieldSide = OI.fieldSide.getSelected();
+    if (OI.isRedSide()) {
+      Globals.fieldSide = "red";
+    } else {
+      Globals.fieldSide = "blue";
+    }
 
     CommandScheduler.getInstance().run();
     Logger.recordOutput("Robot/MT2 Odometry", m_robotContainer.drive.getMt2Pose2d());
@@ -142,6 +145,8 @@ public class Robot extends LoggedRobot {
       bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
       Logger.recordOutput("Sim/Arm Sim", bot);
     }
+    Logger.recordOutput("Field Side", Globals.fieldSide);
+    Logger.recordOutput("Left or Right", OI.isLeftSide());
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
@@ -164,7 +169,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    Elastic.selectTab("Autonomous");
     double autoInitTime = Timer.getFPGATimestamp();
     m_robotContainer.superstructure.setWantedState(SuperState.IDLE);
     if (Globals.fieldSide == "blue") {
@@ -183,8 +187,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    Elastic.selectTab("Teleoperated");
     m_robotContainer.superstructure.setWantedState(SuperState.DEFAULT);
+    m_robotContainer.intake.teleopInit();
     m_robotContainer.lights.clearAnimations();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
@@ -208,13 +212,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
 
-    // if (m_robotContainer.manualMode) {
-    // m_robotContainer.drive.robotCentric = true;
-    // Elastic.selectTab("Camera View");
-    // } else {
-    // m_robotContainer.drive.robotCentric = false;
-    // Elastic.selectTab("Teleoperated");
-    // }
   }
 
   @Override

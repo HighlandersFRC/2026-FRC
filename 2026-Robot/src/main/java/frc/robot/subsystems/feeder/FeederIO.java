@@ -4,23 +4,13 @@ import frc.robot.subsystems.feeder.Feeder.FeederState;
 
 interface FeederIO {
 
-    void setHopperPercent(double percent);
+    void setDyeRotorPercent(double percent);
 
-    void setLinearizerPercent(double percent);
+    double getDyeRotorRPM();
 
-    boolean getLinearizerSensorTripped();
-
-    void setLinearizerSpeed(double metersPerSecond);
-
-    double getLinearizerSpeed();
-
-    void setHopperSpeed(double metersPerSecond);
-
-    double getHopperSpeed();
-
-    void setHopperTorque(double amps, double maxPercent);
-
-    void setLinearizerTorque(double amps, double maxPercent);
+    void setDyeRotorTorque(double amps, double maxPercent);
 
     void updateInputs(FeederState systemState);
+
+    double getDyeRotorCurrent();
 }

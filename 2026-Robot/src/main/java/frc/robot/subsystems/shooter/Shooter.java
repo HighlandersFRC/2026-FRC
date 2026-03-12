@@ -4,17 +4,23 @@
 
 package frc.robot.subsystems.shooter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.tools.math.ShotCalculator.ShotSolution;
+import frc.robot.tools.wrappers.ShotLogger;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
@@ -32,10 +38,18 @@ public class Shooter extends SubsystemBase {
   private Rotation2d idleTurretAngle = new Rotation2d(0.0);
   private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle, 0.0, 0.0);
 
+  public List<ShotLogger> shotLog = new ArrayList<>();
+
+  private double lastRPM = 0.0;
+  private double lastShotTs = 0.0;
+
   Translation3d target = Constants.Field.getHubPose();
   Pose2d turretPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
   Pose2d robotPose = new Pose2d(new Translation2d(0.0, 0.0), new Rotation2d(0.0));
   Translation3d turretFieldPosition = new Translation3d(0.0, 0.0, 0.0);
+
+  private Debouncer readyToShootDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
+  private Debouncer readyToFeedDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -119,17 +133,23 @@ public class Shooter extends SubsystemBase {
 
     double turretPrecisionRequired = Math
         .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
-    Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
 
     Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
+    Logger.recordOutput("Shooter/Hood Precision Required", Constants.SetPoints.Hood.HOOD_PRECISION);
     Logger.recordOutput("Shooter/Turret Error", turretAngleError);
+    Logger.recordOutput("Shooter/Turret Precision Required", turretPrecisionRequired);
     Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
-    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+    Logger.recordOutput("Shooter/Flywheel RPM Precision Required", Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
+    boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+    Logger.recordOutput("Shooter/Ready To Shoot Raw", ready);
+    boolean debouncedReady = readyToShootDebouncer.calculate(ready);
+    Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
+    return debouncedReady;
   }
 
   public boolean readyToPass() {
@@ -158,9 +178,11 @@ public class Shooter extends SubsystemBase {
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
-    return hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
+    boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
         && turretAngleError < turretPrecisionRequired
-        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
+        && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION;
+    boolean debouncedReady = readyToFeedDebouncer.calculate(ready);
+    return debouncedReady;
   }
 
   public Rotation2d getHoodAngle() {
@@ -226,22 +248,23 @@ public class Shooter extends SubsystemBase {
 
   protected double clampAngleToTurretRange(double radians) {
     double clampedAngle = radians;
-    while (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    while (clampedAngle < Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS) {
       clampedAngle += 2 * Math.PI;
     }
-    while (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
+    while (clampedAngle > Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS) {
       clampedAngle -= 2 * Math.PI;
     }
-    if (clampedAngle < -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle = -Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+    if (clampedAngle < Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS) {
+      clampedAngle = Constants.SetPoints.Turret.TURRET_MIN_ANGLE_RADIANS;
     }
-    if (clampedAngle > Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS) {
-      clampedAngle = Constants.Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+    if (clampedAngle > Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS) {
+      clampedAngle = Constants.SetPoints.Turret.TURRET_MAX_ANGLE_RADIANS;
     }
     return clampedAngle;
   }
 
   public void passIdleTurretAngleToIdle(Rotation2d angle) {
+    Logger.recordOutput("Shooter/Idle Turret Angle", angle.getDegrees());
     idleTurretAngle = angle;
   }
 
@@ -256,6 +279,9 @@ public class Shooter extends SubsystemBase {
             + Math.pow(_trajectorySetpoint.getY(), 2)
             + Math.pow(_trajectorySetpoint.getZ(), 2)));
     Logger.recordOutput("Shooter/Shooter State", systemState);
+    Logger.recordOutput("Shooter/Turret Current", io.getTurretCurrent());
+    Logger.recordOutput("Shooter/Hood Current", io.getHoodCurrent());
+    Logger.recordOutput("Shooter/Flywheel Current", io.getFlywheelCurrent());
     Logger.recordOutput("States/Shooter State", systemState);
 
     ShooterState newState = handleStateTransition();
@@ -277,11 +303,61 @@ public class Shooter extends SubsystemBase {
       default:
         break;
     }
+    if (readyToShoot()) {
+      detectAndLogShot();
+    }
+
+    if (DriverStation.isDisabled()) {
+      Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
+    }
   }
 
   private void trackTarget() {
     io.setTurretAngle(getRelativeAngleFromRotation2d(idleTurretAngle));
     io.setHoodAngle(new Rotation2d(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
     io.setFlywheelPercent(0.0);
+  }
+
+  public void detectAndLogShot() {
+    double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
+    double curRPM = getFlywheelRPM();
+    double current = io.getFlywheelCurrent();
+    double accel = io.getFlywheelAcceleration();
+    final double DEBOUNCE_S = Constants.Physical.Shooter.SHOT_DEBOUNCE_S;
+    final double ACCEL_LOW = Constants.Physical.Shooter.SHOT_ACCEL_LOW;
+    final double ACCEL_HIGH = Constants.Physical.Shooter.SHOT_ACCEL_HIGH;
+    final double RPM_LOW = Constants.Physical.Shooter.SHOT_RPM_DELTA_LOW;
+    final double RPM_HIGH = Constants.Physical.Shooter.SHOT_RPM_DELTA_HIGH;
+    final double SPIKE_CURRENT = Constants.Physical.Shooter.SHOT_SPIKE_CURRENT;
+
+    if (!Double.isFinite(lastRPM) || lastRPM <= 1.0) {
+      lastRPM = curRPM;
+    } else {
+      double rpmDelta = lastRPM - curRPM;
+      double timeSinceLast = now - lastShotTs;
+      boolean debounceOk = timeSinceLast >= DEBOUNCE_S;
+      boolean accelStable = accel >= ACCEL_LOW && accel <= ACCEL_HIGH;
+      boolean velStable = rpmDelta >= RPM_LOW && rpmDelta <= RPM_HIGH;
+      boolean currentSpike = current >= SPIKE_CURRENT;
+      boolean shootingState = systemState == ShooterState.NORMAL_SHOOT || systemState == ShooterState.PHYSICS_SHOOT;
+
+      if (debounceOk && accelStable && velStable && currentSpike && shootingState) {
+        shotLog.add(new frc.robot.tools.wrappers.ShotLogger(now));
+        lastShotTs = now;
+      }
+      // Logger.recordOutput("Shooter/Raw RPM", curRPM);
+      // Logger.recordOutput("Shooter/RPM Delta", rpmDelta);
+      // Logger.recordOutput("Shooter/Accel (RPM/s)", accel);
+      // Logger.recordOutput("Shooter/Shooter Current", current);
+      // Logger.recordOutput("Shooter/Accel Stable", accelStable);
+      // Logger.recordOutput("Shooter/Vel Stable", velStable);
+      // Logger.recordOutput("Shooter/Current Spike", currentSpike);
+      // Logger.recordOutput("Shooter/Time Since Last Shot", timeSinceLast);
+      Logger.recordOutput("Shooter/System State", systemState.toString());
+    }
+
+    lastRPM = curRPM;
+    // Logger.recordOutput("Shooter/Last Shot Timestamp", lastShotTs);
+    Logger.recordOutput("Shooter/Shot Log Size", shotLog.size());
   }
 }

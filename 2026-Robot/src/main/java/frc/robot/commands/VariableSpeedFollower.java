@@ -39,8 +39,10 @@ public class VariableSpeedFollower extends AutoFollower {
   public VariableSpeedFollower(Drive drive, JSONArray pathPoints,
       boolean record) {
     this.drive = drive;
-    this.path = pathPoints;
-    pathStartTime = pathPoints.getJSONObject(0).getDouble("time");
+    if (pathPoints != null) {
+      this.path = pathPoints;
+      pathStartTime = pathPoints.getJSONObject(0).getDouble("time");
+    }
     addRequirements(drive);
   }
 
@@ -147,6 +149,6 @@ public class VariableSpeedFollower extends AutoFollower {
         (point.getDouble("y") - odometryFusedY) / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
         (new Rotation2d(point.getDouble("angle")).minus(new Rotation2d(odometryFusedTheta)).getRadians())
             / Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS,
-        Constants.Autonomous.AUTONOMOUS_END_ACCURACY);
+        Constants.Autonomous.AUTONOMOUS_END_ACCURACY) && drive.isFlat();
   }
 }

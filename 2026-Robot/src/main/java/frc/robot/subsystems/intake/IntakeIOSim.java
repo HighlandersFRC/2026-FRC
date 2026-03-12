@@ -39,10 +39,6 @@ class IntakeIOSim implements IntakeIO {
     private double kG0 = Constants.PIDConstants.Intake.kG0; // Gravity feedforward gain
 
     @Override
-    public void init() {
-    }
-
-    @Override
     public void updateInputs(IntakeState systemState) {
         if (!closedLoop) {
             update(Globals.loopPeriodSecs);
@@ -95,7 +91,46 @@ class IntakeIOSim implements IntakeIO {
     }
 
     @Override
-    public void setRollerTorque(double amps) {
+    public void setRollerTorque(double amps, double maxPercent) {
 
+    }
+
+    @Override
+    public void setPivotTorque(double amps, double maxPercent) {
+
+    }
+
+    @Override
+    public double getIntakeVelocity() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeRollerVelocity() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeRollerTemp() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeRollerCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getIntakeAcceleration() {
+        return 0.0;
+    }
+
+    @Override
+    public void zeroIntakePosition() {
     }
 }

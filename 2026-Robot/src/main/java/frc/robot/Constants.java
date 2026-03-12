@@ -33,7 +33,7 @@ public final class Constants {
                 // their constants
                 public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.04; // Lookahead at 1m/s scaled by wanted
                                                                                  // velocity
-                public static final double FULL_SEND_LOOKAHEAD = 0.60;
+                public static final double FULL_SEND_LOOKAHEAD = 0.6741;
                 public static final double MIN_LOOKAHEAD_DISTANCE = 0.05; // Lookahead distance at 0m/s
                 // Path follower will end if within this radius of the final point
                 public static final double AUTONOMOUS_END_ACCURACY = 0.40;
@@ -45,6 +45,8 @@ public final class Constants {
                 // Feed Forward Multiplier
                 public static final double FEED_FORWARD_MULTIPLIER = 0.8044;
                 public static final double ACCURATE_FOLLOWER_FEED_FORWARD_MULTIPLIER = 1;
+                public static final double SLOW_FOLLOWER_MULTIPLIER = 0.95;
+                public static final double FULL_SEND_FOLLOWER_MULTIPLIER = 1.2;
                 public static String[] paths;
 
                 static {
@@ -99,36 +101,52 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
+                // 1.437/1.736 4.115
+                public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                1.398,
+                                4.272),
+                                new Rotation2d(Math.toRadians(-90.0)));
+                public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                                1.736,
+                                4.272),
+                                new Rotation2d(Math.toRadians(-90.0)));
+                public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                climbPoseLeftBlueSide.getTranslation().getX(),
+                                climbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
+                                new Rotation2d(Math.toRadians(-90.0)));
+                public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
+                                preClimbPoseLeftBlueSide.getTranslation().getX(),
+                                preClimbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
+                                new Rotation2d(Math.toRadians(-90.0)));
+
+                // public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
+                // 14.94, 3.94), new Rotation2d(Math.PI / 2));
+                // public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
+                // 14.6, 3.94), new Rotation2d(Math.PI / 2));
+
+                // public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
+                // 14.94, 4.84), new Rotation2d(Math.PI / 2));
+                // public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
+                // 14.6, 4.84), new Rotation2d(Math.PI / 2));
+
+                // 33.75 in
                 public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                15.13, 3.98), new Rotation2d(Math.PI));
+                                FIELD_LENGTH - climbPoseLeftBlueSide.getX(),
+                                FIELD_WIDTH - climbPoseLeftBlueSide.getY()), new Rotation2d(Math.PI / 2));
                 public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                14.660, 3.98), new Rotation2d(Math.PI));
+                                FIELD_LENGTH - preClimbPoseLeftBlueSide.getX(),
+                                FIELD_WIDTH - preClimbPoseLeftBlueSide.getY()), new Rotation2d(Math.PI / 2));
 
                 public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
-                                15.13, 4.774), new Rotation2d(Math.PI));
+                                FIELD_LENGTH - climbPoseRightBlueSide.getX(),
+                                FIELD_WIDTH - climbPoseRightBlueSide.getY()), new Rotation2d(Math.PI / 2));
                 public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
-                                14.660, 4.774), new Rotation2d(Math.PI));
-
-                public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - climbPoseLeftRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - climbPoseLeftRedSide.getTranslation().getY()),
-                                new Rotation2d());
-                public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - preClimbPoseLeftRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - preClimbPoseLeftRedSide.getTranslation().getY()),
-                                new Rotation2d());
-                public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - climbPoseRightRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - climbPoseRightRedSide.getTranslation().getY()),
-                                new Rotation2d());
-                public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - preClimbPoseRightRedSide.getTranslation().getX(),
-                                FIELD_WIDTH - preClimbPoseRightRedSide.getTranslation().getY()),
-                                new Rotation2d());
+                                FIELD_LENGTH - preClimbPoseRightBlueSide.getX(),
+                                FIELD_WIDTH - preClimbPoseRightBlueSide.getY()), new Rotation2d(Math.PI / 2));
 
                 public static final class Drive {
-                        public static final double xAccelLimit = 4.0;
-                        public static final double yAccelLimit = 4.0;
+                        public static final double xAccelLimit = 3.5;
+                        public static final double yAccelLimit = 3.5;
                         public static final double xDebounceLimit = 0.2;
                         public static final double yDebounceLimit = 0.2;
                         public static final double velLookaheadTime = 0.03;
@@ -146,7 +164,6 @@ public final class Constants {
 
                 public static class Shooter {
                         public static final double SHOOTER_HEIGHT = 0.635;
-                        public static final double TURRET_MAX_ROTATION_RADIANS = degreesToRadians(200);
                         public static final double SHOOTER_FLYWHEEL_ACCELERATION_RAD_S = Units
                                         .rotationsToRadians(4167 / 60);
                         public static final double SHOOTER_MAX_SPEED_RAD_S = Units.rotationsToRadians(10000 / 60);
@@ -158,15 +175,21 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(-3.749), inchesToMeters(6.502), inchesToMeters(17.8125));
+                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.1905));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
-                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 16;
-                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 130;
-                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 39;
-                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 40;
+                        public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
+                        public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
+                        public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
+                        public static final double SHOT_DEBOUNCE_S = 0.08;
+                        public static final double SHOT_ACCEL_LOW = -30.0;
+                        public static final double SHOT_ACCEL_HIGH = 36.0;
+                        public static final double SHOT_RPM_DELTA_LOW = -180.0;
+                        public static final double SHOT_RPM_DELTA_HIGH = 200.0;
+                        public static final double SHOT_SPIKE_CURRENT = 27.0;
 
                         public static double getTrajectoryHeight(double distanceFromHub) {
                                 return 4 + 0.0 * distanceFromHub;
@@ -174,17 +197,11 @@ public final class Constants {
                 }
 
                 public static class Feeder {
-                        public static final double LINEARIZER_MAX_SPEED_MPS = 3.0;
-                        public static final double HOPPER_MAX_SPEED_MPS = 3.0;
-                        public static final double HOPPER_ACCELERATION_MPS2 = 6.0;
-                        public static final double LINEARIZER_ACCELERATION_MPS2 = 6.0;
-                        public static final double HOPPER_FRICTION_COEFFICIENT = HOPPER_ACCELERATION_MPS2 /
-                                        HOPPER_MAX_SPEED_MPS;
-                        public static final double LINEARIZER_FRICTION_COEFFICIENT = LINEARIZER_ACCELERATION_MPS2 /
-                                        LINEARIZER_MAX_SPEED_MPS;
-                        public static final double LINEARIZER_SENSOR_TRIGGER_DISTANCE_M = inchesToMeters(3);
-                        public static final double LINEARIZER_WHEEL_DIAMETER_M = inchesToMeters(3);
-                        public static final double HOPPER_WHEEL_DIAMETER_M = inchesToMeters(1.25);
+                        public static final double DYE_ROTOR_MAX_SPEED_MPS = 3.0;
+                        public static final double DYE_ROTOR_ACCELERATION_MPS2 = 6.0;
+                        public static final double DYE_ROTOR_FRICTION_COEFFICIENT = DYE_ROTOR_ACCELERATION_MPS2 /
+                                        DYE_ROTOR_MAX_SPEED_MPS;
+                        public static final double DYE_ROTOR_WHEEL_DIAMETER_M = inchesToMeters(15);
                 }
         }
 
@@ -256,7 +273,8 @@ public final class Constants {
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
 
-                public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(11.967, 2.410);
+                public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
+                                13.0, 2.35);
                 public static final Translation2d RED_RIGHT_FEED_POSE = new Translation2d(RED_LEFT_FEED_POSE.getX(),
                                 Constants.Physical.FIELD_WIDTH - RED_LEFT_FEED_POSE.getY());
                 public static final Translation2d BLUE_LEFT_FEED_POSE = new Translation2d(
@@ -304,16 +322,17 @@ public final class Constants {
                 }
 
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
-                public static final double FEED_RADIUS = inchesToMeters(24.0);
+                public static final double FEED_RADIUS = inchesToMeters(33.39);
                 public static final double BALL_WIDTH = 0.15;
         }
 
         // Subsystem setpoint constants
         public static final class SetPoints {
                 public static class Hood {
-                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55);
-                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85);
+                        public static final double HOOD_MIN_ANGLE_RADIANS = degreesToRadians(55.0);
+                        public static final double HOOD_MAX_ANGLE_RADIANS = degreesToRadians(85.0);
                         public static final double HOOD_PRECISION = degreesToRadians(2.0);
+                        public static final double HOOD_FEED_PRECISION = degreesToRadians(5.0);
 
                         public static Rotation2d getHoodAngleSetpointForTrajectory(Translation3d trajectory) {
                                 double dz = trajectory.getZ();
@@ -333,8 +352,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Physical.Shooter.TURRET_MAX_ROTATION_RADIANS;
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(360.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(90.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -353,7 +372,8 @@ public final class Constants {
                 }
 
                 public static class Flywheel {
-                        public static final double FLYWHEEL_RPM_PRECISION = 100.0;
+                        public static final double FLYWHEEL_RPM_PRECISION = 200.0;
+                        public static final double FLYWHEEL_RPM_FEED_PRECISION = 400.0;
 
                         public static double getFlywheelRPMSetpointForTrajectory(Translation3d _trajectorySetpoint) {
                                 double v = _trajectorySetpoint.getNorm();
@@ -365,25 +385,25 @@ public final class Constants {
                 public static class Shooter {
                         private final static double DISTANCE_OFFSET = 0.0;
                         private final static double ANGLE_OFFSET = 0.0;
-                        private final static double RPM_OFFSET = 80.0;
+                        private final static double RPM_OFFSET = 0.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = new double[][] {
-                                        { 1.21, 85, 1200, 0.4 },
-                                        { 1.35, 85, 1300, 1.02 },
-                                        { 1.64, 85, 1350, 1.20 },
-                                        { 1.93, 82.5, 1350, 1.11 },
-                                        { 2.24, 82.5, 1400, 1.17 },
-                                        { 2.54, 80, 1400, 1.17 },
-                                        { 2.9, 77.5, 1400, 1.14 },
-                                        { 3.26, 75, 1450, 1.15 },
-                                        { 3.56, 75, 1500, 1.19 },
-                                        { 3.96, 72.5, 1500, 1.19 },
-                                        { 4.32, 70, 1550, 1.21 },
-                                        { 4.75, 70, 1738, 1.35 },
-                                        { 5.29, 67.41, 1800, 1.27 },
-                                        { 5.64, 65, 1800, 1.28 },
-                                        { 6.67, 65, 2100, 1.5 },
+                                        { 1.45, 85, 1690, 1.07 },
+                                        { 1.8, 82, 1850, 1.11 },
+                                        { 2.17, 80.44, 1950, 1.17 },
+                                        { 2.48, 80.44, 2000, 1.32 },
+                                        { 2.76, 80.44, 2150, 1.35 },
+                                        { 3.34, 78, 2250, 1.34 },
+                                        { 3.67, 75, 2300, 1.35 },
+                                        { 3.99, 75, 2400, 1.42 },
+                                        { 4.46, 73, 2400, 1.35 },
+                                        { 4.8, 70, 2400, 1.33 },
+                                        { 5.22, 70, 2550, 1.36 },
+                                        { 5.53, 65, 2550, 1.35 },
+                                        { 6.11, 60, 2700, 1.27 },
+                                        { 6.55, 60, 2800, 1.35 },
+                                        { 6.7, 60, 2900, 1.33 },
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;
@@ -392,18 +412,21 @@ public final class Constants {
                         private final static double FEED_TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] FEED_SHOT_MAP = new double[][] {
-                                        { 1.105, 56, 700, 0.75 },
-                                        { 1.41, 58, 750, 0.8 },
-                                        { 2.117, 65, 1000, 1.01 },
-                                        { 2.539, 65, 1100, 1.04 },
-                                        { 3.099, 66, 1250, 1.19 },
-                                        { 3.564, 67, 1300, 1.24 },
-                                        { 4.101, 70, 1450, 1.4 },
-                                        { 4.524, 71, 1500, 1.44 },
-                                        { 5.092, 65, 1550, 1.48 },
-                                        { 5.587, 63, 1690, 1.48 },
-                                        { 6.021, 60, 1767, 1.48 },
-                                        { 6.469, 58, 1738, 1.33 },
+                                        { 1, 60, 700, 0.74 },
+                                        { 1.5, 60, 900, 0.85 },
+                                        { 1.79, 60, 1254, 0.84 },
+                                        { 2.5, 60, 1400, 1.02 },
+                                        { 3.01, 60, 1600, 1.0 },
+                                        { 3.2, 60, 1750, 1.0 },
+                                        { 3.49, 60, 1800, 1.01 },
+                                        { 4.04, 60, 1900, 1.14 },
+                                        { 4.48, 60, 2000, 1.21 },
+                                        { 5.01, 60, 2150, 1.15 },
+                                        { 5.52, 60, 2250, 1.35 },
+                                        { 5.99, 60, 2350, 1.44 },
+                                        { 6.42, 60, 2550, 1.38 },
+                                        { 6.99, 60, 2700, 1.52 },
+                                        { 7.51, 60, 2850, 1.57 },
                         };
 
                         static {
@@ -424,17 +447,38 @@ public final class Constants {
                 }
 
                 public static final class Intake {
-                        public static final double INTAKE_DOWN_POSITION = Constants.degreesToRotations(90.0);
+                        public static final double INTAKE_DOWN_POSITION = 0.521484 + 25.076172;
                         public static final double INTAKE_UP_POSITION = Constants.degreesToRotations(0.0);
+                        public static final double INTAKE_SHOOT_POSITION = 10.0;
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_PERCENT = 0.7;
-                        public static final double LINEARIZER_PERCENT = 0.67;
-                        public static final double LINEARIZER_SPEED_MPS = 1.0;
-                        public static final double HOPPER_SPEED_MPS = 1.0;
-                        public static final double LINEARIZER_AMPS = 60.0;
-                        public static final double HOPPER_AMPS = 60.0;
+                        public static final double DYE_ROTOR_PERCENT = 0.7;
+                        public static final double DYE_ROTOR_SPEED_MPS = 1.0;
+                        public static final double DYE_ROTOR_AMPS = 60.0;
+                }
+
+                public static final class Climber { // TODO: tune ALL OF THESE because they are just guesses
+                        public static final double CLIMBER_HOOKS_RETRACT_ZONE = 1.0; // climber position that the hooks
+                                                                                     // come out at (assuming climber
+                                                                                     // initializes to zero)
+                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.25; // climber position to get
+                                                                                            // ready to grab l1
+                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 15.0; // climber position to
+                                                                                                  // hover off the
+                                                                                                  // ground in auto
+                                                                                                  // (already latched on
+                                                                                                  // L1) // 15.0
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.6; // climber position to get
+                                                                                          // ready to grab L2 (already
+                                                                                          // latched on L1) // 0.4
+                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
+                                                                                            // ready to grab L3 (already
+                                                                                            // latched on L2) // 19.85
+                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 9.5; // climber position to hover
+                                                                                           // above L2 (scoring L3)
+                                                                                           // (already latched on L3)
+                                                                                           // // 9.5
                 }
         }
 
@@ -487,29 +531,29 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.5;
+                        public static final double kP0 = 0.6;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.1;
-                        public static final double kS0 = 0.0;
-                        public static final double kV0 = 0.22;
+                        public static final double kS0 = 0.1;
+                        public static final double kV0 = 0.15;
                 }
         }
 
         // Vision constants (e.g. camera offsets)
         public static final class Vision {
 
-                public static final String LIMELIGHT_NAME = "limelight-goon";
+                public static final String LIMELIGHT_NAME = "limelight-turret";
 
                 // Poses of cameras relative to robot, {x, y, z, rx, ry, rz}, in meters and
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-5.434), inchesToMeters(0.0), inchesToMeters(11.402599));
+                                inchesToMeters(-6.19143), inchesToMeters(0.0), inchesToMeters(21.1905));
 
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
-                                Math.toRadians(-24.7),
+                                Math.toRadians(-21.6),
                                 Math.toRadians(0.0));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
@@ -662,12 +706,12 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 12.0;
-                        public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 2.41;
-                        public static final double HOOD_GEAR_RATIO = 200.0;
+                        public static final double FLYWHEEL_GEAR_RATIO = 18.0 / 14.0; // 14 on motor
+                        public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 48.0 / 20.0; // encoder on 20
+                        public static final double HOOD_GEAR_RATIO = (36.0 / 12.0) * (48.0 / 16.0) * (300.0 / 16.0);
                         public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
                                         / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
-                        public static final double TURRET_GEAR_RATIO = 37.723;
+                        public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 / 15.0);
                         // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
                         // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
                         // public static final double TURRET_GEAR_RATIO = 43.112;
@@ -680,12 +724,14 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double HOPPER_GEAR_RATIO = 3.0 / 1.0;
-                        public static final double LINEARIZER_GEAR_RATIO = 3.0 / 1.0;
+                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0;
                 }
 
                 public static final class Climber {
-                        public static final double CLIMBER_MAX_ROTATIONS = 37.249;
+                        public static final double CLIMBER_MOTOR_INCHES_PER_ROTATION = 0.25287202867;
+                        public static final double CLIMBER_MAX_INCHES = 20.48;
+                        public static final double CLIMBER_MAX_ROTATIONS = CLIMBER_MAX_INCHES
+                                        / CLIMBER_MOTOR_INCHES_PER_ROTATION;
                 }
         }
 
@@ -728,12 +774,11 @@ public final class Constants {
                 public static final int INTAKE_ROLLER_MOTOR_ID = 14;
 
                 // Feeder
-                public static final int HOPPER_MOTOR_ID = 15;
-                public static final int LINEARIZER_MOTOR_ID = 16;
-                public static final int LINEARIZER_CANRANGE_ID = 0;
+                public static final int DYE_ROTOR_MOTOR_ID = 15;
 
                 // Climber
-                public static final int CLIMBER_MOTOR_ID = 20;
+                public static final int CLIMBER_MASTER_MOTOR_ID = 19;
+                public static final int CLIMBER_SLAVE_MOTOR_ID = 20;
         }
 
         // Misc. controller values
@@ -833,7 +878,7 @@ public final class Constants {
          * @return The equivalent quantity in radians.
          */
         public static double degreesToRadians(double degrees) {
-                return degrees * Math.PI / 180;
+                return degrees * Math.PI / 180.0;
         }
 
         /**

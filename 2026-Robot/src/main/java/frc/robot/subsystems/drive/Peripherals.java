@@ -3,21 +3,13 @@ package frc.robot.subsystems.drive;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.Filesystem;
-
 public class Peripherals {
-  private PhotonCamera right_front_cam = new PhotonCamera("right_front_cam");
   private PhotonCamera left_front_cam = new PhotonCamera("left_front_cam");
-
-  AprilTagFieldLayout aprilTagFieldLayout;
+  private PhotonCamera left_back_cam = new PhotonCamera("left_back_cam");
+  private PhotonCamera right_front_cam = new PhotonCamera("right_front_cam");
+  private PhotonCamera right_back_cam = new PhotonCamera("right_back_cam");
 
   double pigeonSetpoint = 0.0;
-
-  boolean frontReefCamTrack = false;
-  boolean backReefCamTrack = false;
-  boolean frontBargeCamTrack = false;
-  boolean backBargeCamTrack = false;
 
   public Peripherals() {
   }
@@ -29,11 +21,23 @@ public class Peripherals {
    * It also applies the default command to the Peripherals subsystem.
    */
   public void init() {
-    try {
-      aprilTagFieldLayout = new AprilTagFieldLayout(
-          Filesystem.getDeployDirectory().getPath() + "/" + "2026-rebuilt.json");
-    } catch (Exception e) {
-      java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
+  }
+
+  public PhotonPipelineResult getLeftFrontCamResult() {
+    var result = left_front_cam.getAllUnreadResults();
+    if (!result.isEmpty()) {
+      return result.get(0);
+    } else {
+      return new PhotonPipelineResult();
+    }
+  }
+
+  public PhotonPipelineResult getLeftBackCamResult() {
+    var result = left_back_cam.getAllUnreadResults();
+    if (!result.isEmpty()) {
+      return result.get(0);
+    } else {
+      return new PhotonPipelineResult();
     }
   }
 
@@ -46,8 +50,8 @@ public class Peripherals {
     }
   }
 
-  public PhotonPipelineResult getLeftFrontCamResult() {
-    var result = left_front_cam.getAllUnreadResults();
+  public PhotonPipelineResult getRightBackCamResult() {
+    var result = right_back_cam.getAllUnreadResults();
     if (!result.isEmpty()) {
       return result.get(0);
     } else {

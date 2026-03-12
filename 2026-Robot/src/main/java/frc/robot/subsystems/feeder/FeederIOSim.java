@@ -1,71 +1,72 @@
 package frc.robot.subsystems.feeder;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
+import org.littletonrobotics.junction.Logger;
 
 class FeederIOSim implements FeederIO {
-    private double linearizerVelocity = 0.0;
-    private double linearizerWantedVelocity = 0.0;
-    private double hopperVelocity = 0.0;
-    private double hopperWantedVelocity = 0.0;
+    private double dyeRotorVelocity = 0.0;
+    private double dyeRotorWantedVelocity = 0.0;
+    private double dyeRotorAngleRad = 0.0;
 
     @Override
-    public void setHopperPercent(double percent) {
-        hopperWantedVelocity = percent * Constants.Physical.Feeder.HOPPER_MAX_SPEED_MPS;
+    public void setDyeRotorPercent(double percent) {
+        dyeRotorWantedVelocity = percent * Constants.Physical.Feeder.DYE_ROTOR_MAX_SPEED_MPS;
     }
 
     @Override
-    public void setLinearizerPercent(double percent) {
-        linearizerWantedVelocity = percent * Constants.Physical.Feeder.LINEARIZER_MAX_SPEED_MPS;
+    public double getDyeRotorRPM() {
+        double radius = Constants.Physical.Feeder.DYE_ROTOR_WHEEL_DIAMETER_M / 2.0;
+        if (radius <= 0.0) {
+            return 0.0;
+        }
+        double rotationsPerSecond = dyeRotorVelocity / (2.0 * Math.PI * radius);
+        return rotationsPerSecond * 60.0;
     }
 
     @Override
-    public boolean getLinearizerSensorTripped() {
-        return OI.driverPOVUp.getAsBoolean();
-    }
-
-    @Override
-    public void setLinearizerSpeed(double metersPerSecond) {
-        linearizerWantedVelocity = metersPerSecond;
-    }
-
-    @Override
-    public double getLinearizerSpeed() {
-        return linearizerVelocity;
-    }
-
-    @Override
-    public void setHopperSpeed(double metersPerSecond) {
-        hopperWantedVelocity = metersPerSecond;
-    }
-
-    @Override
-    public double getHopperSpeed() {
-        return hopperVelocity;
+    public double getDyeRotorCurrent() {
+        return 0.0;
     }
 
     @Override
     public void updateInputs(FeederState systemState) {
         double dt = Globals.loopPeriodSecs;
-        double linearizerAcceleration = Math.signum(linearizerWantedVelocity - linearizerVelocity)
-                * Constants.Physical.Feeder.LINEARIZER_ACCELERATION_MPS2;
-        double friction = Constants.Physical.Feeder.LINEARIZER_FRICTION_COEFFICIENT * linearizerVelocity;
-        linearizerVelocity += (linearizerAcceleration - friction) * dt;
-        double hopperAcceleration = Math.signum(hopperWantedVelocity - hopperVelocity)
-                * Constants.Physical.Feeder.HOPPER_ACCELERATION_MPS2;
-        friction = Constants.Physical.Feeder.HOPPER_FRICTION_COEFFICIENT * hopperVelocity;
-        hopperVelocity += (hopperAcceleration - friction) * dt;
+        double sign = Math.signum(dyeRotorWantedVelocity - dyeRotorVelocity);
+        double accelCmd = sign * Constants.Physical.Feeder.DYE_ROTOR_ACCELERATION_MPS2;
+        double friction = Constants.Physical.Feeder.DYE_ROTOR_FRICTION_COEFFICIENT * dyeRotorVelocity;
+        double netAcc = accelCmd - friction;
+        dyeRotorVelocity += netAcc * dt;
+        double maxSpeed = Constants.Physical.Feeder.DYE_ROTOR_MAX_SPEED_MPS;
+        if (Math.abs(dyeRotorVelocity) > maxSpeed) {
+            dyeRotorVelocity = Math.copySign(maxSpeed, dyeRotorVelocity);
+        }
+        double distance = dyeRotorVelocity * dt;
+        double radius = Constants.Physical.Feeder.DYE_ROTOR_WHEEL_DIAMETER_M / 2.0;
+        if (radius > 0.0) {
+            dyeRotorAngleRad += distance / radius;
+        }
+        Logger.recordOutput("Sim/feeder dyeRotorVelocity_mps", dyeRotorVelocity);
+        Logger.recordOutput("Sim/feeder dyeRotorAngle_rad", dyeRotorAngleRad);
+        Pose3d pose = new Pose3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, -dyeRotorAngleRad));
+        Logger.recordOutput("Sim/feeder pose3d", pose);
     }
 
     @Override
-    public void setHopperTorque(double amps, double maxPercent) {
-
-    }
-
-    @Override
-    public void setLinearizerTorque(double amps, double maxPercent) {
-
+    public void setDyeRotorTorque(double amps, double maxPercent) {
+        double pct;
+        if (amps > 0.0) {
+            pct = Math.abs(maxPercent);
+        } else if (amps < 0.0) {
+            pct = -Math.abs(maxPercent);
+        } else {
+            pct = 0.0;
+        }
+        dyeRotorWantedVelocity = pct * Constants.Physical.Feeder.DYE_ROTOR_MAX_SPEED_MPS;
     }
 }

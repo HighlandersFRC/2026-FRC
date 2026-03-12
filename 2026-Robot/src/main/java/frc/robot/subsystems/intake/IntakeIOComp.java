@@ -28,12 +28,8 @@ class IntakeIOComp implements IntakeIO {
 
         private final double intakeProfileScalarFactor = 1;
 
-        @Override
-        public void init() {
-                pivotMotor.setNeutralMode(NeutralModeValue.Brake);
+        public IntakeIOComp() {
                 TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
-                TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
-
                 intakeConfig.Slot0.kP = 100.0;
                 intakeConfig.Slot0.kI = 0.0;
                 intakeConfig.Slot0.kD = 5.0;
@@ -53,18 +49,20 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
-                intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 pivotMotor.getConfigurator().apply(intakeConfig);
-                pivotMotor.setNeutralMode(NeutralModeValue.Brake);
+                pivotMotor.setNeutralMode(NeutralModeValue.Coast);
+                pivotMotor.setPosition(0.0);
 
+                TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
                 rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerConfig.CurrentLimits.StatorCurrentLimit = 40;
-                rollerConfig.CurrentLimits.SupplyCurrentLimit = 40;
+                rollerConfig.CurrentLimits.StatorCurrentLimit = 80;
+                rollerConfig.CurrentLimits.SupplyCurrentLimit = 80;
                 rollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-                rollerMotor.getConfigurator().apply(intakeConfig);
+                rollerMotor.getConfigurator().apply(rollerConfig);
                 rollerMotor.setNeutralMode(NeutralModeValue.Brake);
         }
 
@@ -74,7 +72,6 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setIntakePosition(double rotations) {
-
                 pivotMotor.setControl(this.intakeMotionProfileRequest
                                 .withPosition(rotations)
                                 .withVelocity(this.intakeCruiseVelocity * intakeProfileScalarFactor)
@@ -92,11 +89,53 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public double getIntakePosition() {
-                return (pivotMotor.getPosition().getValueAsDouble());
+                return pivotMotor.getPosition().getValueAsDouble();
         }
 
         @Override
-        public void setRollerTorque(double amps) {
-                rollerMotor.setControl(new TorqueCurrentFOC(-amps));
+        public void setRollerTorque(double amps, double maxPercent) {
+                // rollerMotor.setControl(new
+                // TorqueCurrentFOC(-amps).withMaxAbsDutyCycle(maxPercent));
+                rollerMotor.set(-maxPercent);
+        }
+
+        @Override
+        public void setPivotTorque(double amps, double maxPercent) {
+                pivotMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+        }
+
+        @Override
+        public double getIntakeVelocity() {
+                return pivotMotor.getVelocity().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeRollerTemp() {
+                return rollerMotor.getDeviceTemp().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeRollerVelocity() {
+                return rollerMotor.getVelocity().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeCurrent() {
+                return pivotMotor.getTorqueCurrent().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeRollerCurrent() {
+                return rollerMotor.getTorqueCurrent().getValueAsDouble();
+        }
+
+        @Override
+        public double getIntakeAcceleration() {
+                return pivotMotor.getAcceleration().getValueAsDouble();
+        }
+
+        @Override
+        public void zeroIntakePosition() {
+                pivotMotor.setPosition(Constants.SetPoints.Intake.INTAKE_DOWN_POSITION);
         }
 }
