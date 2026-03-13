@@ -123,7 +123,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
-    Logger.recordOutput("Physical/Blue Hub", Constants.Field.HUB_POSE_BLUE);
     if (OI.isRedSide()) {
       Globals.fieldSide = "red";
     } else {
@@ -146,7 +145,7 @@ public class Robot extends LoggedRobot {
       Logger.recordOutput("Sim/Arm Sim", bot);
     }
     Logger.recordOutput("Field Side", Globals.fieldSide);
-    Logger.recordOutput("Left or Right", OI.isLeftSide());
+    Logger.recordOutput("Left Side?", OI.isLeftSide());
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
