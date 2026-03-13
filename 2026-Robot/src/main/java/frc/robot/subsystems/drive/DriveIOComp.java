@@ -132,6 +132,9 @@ public class DriveIOComp extends DriveIO {
 
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
+        private boolean onBump = false;
+        private SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[4];
+        private double bumpLength = 1.12776;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
 
         public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
@@ -245,20 +248,33 @@ public class DriveIOComp extends DriveIO {
          */
         private void updateOdometryFusedArray(DriveState currentState) {
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
-
-                if (Math.abs(gyro.getPitchDegrees()) > 5.0 || Math.abs(gyro.getRollDegrees()) > 5.0) {
-                        swerveModulePositions[0] = new SwerveModulePosition(
-                                        mod1SlewRateLimiter.calculate(frontLeft.getModuleDistance()),
+                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 5.0 || Math.abs(gyro.getRollDegrees()) > 5.0;
+                if (tilted && !onBump) {
+                        onBump = true;
+                        lastModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
                                         new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                        swerveModulePositions[1] = new SwerveModulePosition(
-                                        mod2SlewRateLimiter.calculate(frontRight.getModuleDistance()),
+                        lastModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
                                         new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                        swerveModulePositions[2] = new SwerveModulePosition(
-                                        mod3SlewRateLimiter.calculate(backLeft.getModuleDistance()),
+                        lastModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
                                         new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                        swerveModulePositions[3] = new SwerveModulePosition(
-                                        mod4SlewRateLimiter.calculate(backRight.getModuleDistance()),
+                        lastModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                         new Rotation2d(backRight.getCanCoderPositionRadians()));
+                }
+                if (!tilted && onBump) {
+                        onBump = false;
+                        double vx = getChassisSpeeds().vxMetersPerSecond;
+                        double direction = Math.signum(vx);
+                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
+                        Translation2d bump = new Translation2d(
+                                        direction * bumpLength, 0).rotateBy(currentPose.getRotation());
+                        Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
+                                        currentPose.getRotation());
+                        mt2Odometry.resetPosition(getYaw(), lastModulePositions,
+                                        correctedPose);
+                }
+
+                if (onBump) {
+                        swerveModulePositions = lastModulePositions;
                 } else {
                         swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
                                         new Rotation2d(frontLeft.getCanCoderPositionRadians()));
@@ -269,6 +285,7 @@ public class DriveIOComp extends DriveIO {
                         swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                         new Rotation2d(backRight.getCanCoderPositionRadians()));
                 }
+
                 mt2Odometry.update(getYaw(), swerveModulePositions);
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
@@ -309,7 +326,6 @@ public class DriveIOComp extends DriveIO {
                                                         standardDeviation);
                                 }
                         }
-
                         if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
                                         && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
                                 var leftBackResult = peripherals.getLeftBackCamResult();

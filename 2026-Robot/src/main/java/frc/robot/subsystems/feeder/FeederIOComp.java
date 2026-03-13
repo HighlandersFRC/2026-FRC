@@ -34,7 +34,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void setDyeRotorPercent(double percent) {
-        dyeRotorMotor.set(percent);
+        // dyeRotorMotor.set(percent);
     }
 
     @Override
@@ -52,7 +52,8 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void setDyeRotorTorque(double amps, double maxPercent) {
-        dyeRotorMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+        // dyeRotorMotor.setControl(new
+        // TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
     @Override
