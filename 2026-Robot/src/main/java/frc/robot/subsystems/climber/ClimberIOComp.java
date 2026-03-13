@@ -35,8 +35,8 @@ class ClimberIOComp implements ClimberIO {
 
     @Override
     public void setPower(double amps, double percent) {
-        climberMasterMotor.setControl(climberMotorControl.withOutput(amps).withMaxAbsDutyCycle(percent));
-        climberSlaveMotor.setControl(climberMotorControl.withOutput(amps).withMaxAbsDutyCycle(percent));
+        // climberMasterMotor.setControl(climberMotorControl.withOutput(amps).withMaxAbsDutyCycle(percent));
+        // climberSlaveMotor.setControl(climberMotorControl.withOutput(amps).withMaxAbsDutyCycle(percent));
     }
 
     @Override

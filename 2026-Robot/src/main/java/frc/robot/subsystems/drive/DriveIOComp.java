@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
+import frc.robot.OI;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -125,16 +126,13 @@ public class DriveIOComp extends DriveIO {
         private LinearFilter filterX = LinearFilter.movingAverage(10);
         private LinearFilter filterY = LinearFilter.movingAverage(10);
         private LinearFilter filterOmega = LinearFilter.movingAverage(10);
-        private SlewRateLimiter mod1SlewRateLimiter = new SlewRateLimiter(2.0);
-        private SlewRateLimiter mod2SlewRateLimiter = new SlewRateLimiter(2.0);
-        private SlewRateLimiter mod3SlewRateLimiter = new SlewRateLimiter(2.0);
-        private SlewRateLimiter mod4SlewRateLimiter = new SlewRateLimiter(2.0);
 
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
         private boolean onBump = false;
         private SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[4];
         private double bumpLength = 1.12776;
+        private int numTimesFlat = 0;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
 
         public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
@@ -248,6 +246,14 @@ public class DriveIOComp extends DriveIO {
          */
         private void updateOdometryFusedArray(DriveState currentState) {
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
+                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
+                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
+                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
+                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
+                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
+                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
+                                new Rotation2d(backRight.getCanCoderPositionRadians()));
                 boolean tilted = Math.abs(gyro.getPitchDegrees()) > 5.0 || Math.abs(gyro.getRollDegrees()) > 5.0;
                 if (tilted && !onBump) {
                         onBump = true;
@@ -260,33 +266,34 @@ public class DriveIOComp extends DriveIO {
                         lastModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                         new Rotation2d(backRight.getCanCoderPositionRadians()));
                 }
-                if (!tilted && onBump) {
-                        onBump = false;
-                        double vx = getChassisSpeeds().vxMetersPerSecond;
-                        double direction = Math.signum(vx);
-                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
-                        Translation2d bump = new Translation2d(
-                                        direction * bumpLength, 0).rotateBy(currentPose.getRotation());
-                        Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
-                                        currentPose.getRotation());
-                        mt2Odometry.resetPosition(getYaw(), lastModulePositions,
-                                        correctedPose);
-                }
 
                 if (onBump) {
                         swerveModulePositions = lastModulePositions;
                 } else {
-                        swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
-                                        new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                        swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
-                                        new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                        swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
-                                        new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                        swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
-                                        new Rotation2d(backRight.getCanCoderPositionRadians()));
+                        mt2Odometry.update(getYaw(), swerveModulePositions);
                 }
 
-                mt2Odometry.update(getYaw(), swerveModulePositions);
+                if (!tilted) {
+                        numTimesFlat++;
+                } else {
+                        numTimesFlat = 0;
+                }
+                Logger.recordOutput("num times flat", numTimesFlat);
+                if (numTimesFlat >= 5 && onBump) {
+                        onBump = false;
+                        double vx = getChassisSpeeds().vxMetersPerSecond;
+                        double direction = Math.signum(vx);
+                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
+                        Logger.recordOutput("Current pose on bump", currentPose.getTranslation());
+                        Translation2d bump = new Translation2d(
+                                        direction * bumpLength, 0.0);
+                        Logger.recordOutput("Bump translation", bump);
+                        Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
+                                        currentPose.getRotation());
+                        Logger.recordOutput("Corrected pose", correctedPose.getTranslation());
+                        setPosition(correctedPose);
+                }
+                Logger.recordOutput("on bump", onBump);
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
