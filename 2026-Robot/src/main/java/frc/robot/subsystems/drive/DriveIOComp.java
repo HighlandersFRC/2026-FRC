@@ -131,7 +131,6 @@ public class DriveIOComp extends DriveIO {
 
         private boolean onBump = false;
         private SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[4];
-        private double bumpLength = 1.12776;
         private int numTimesFlat = 0;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
 
@@ -286,7 +285,7 @@ public class DriveIOComp extends DriveIO {
                         Pose2d currentPose = mt2Odometry.getEstimatedPosition();
                         Logger.recordOutput("Current pose on bump", currentPose.getTranslation());
                         Translation2d bump = new Translation2d(
-                                        direction * bumpLength, 0.0);
+                                        direction * Constants.Field.BUMP_LENGTH, 0.0);
                         Logger.recordOutput("Bump translation", bump);
                         Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
                                         currentPose.getRotation());

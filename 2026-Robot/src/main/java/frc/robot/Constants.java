@@ -265,6 +265,8 @@ public final class Constants {
         }
 
         public static final class Field {
+                public static final double BUMP_LENGTH = 1.12776;
+
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
                 public static final double HUB_Y = Constants.Physical.FIELD_WIDTH / 2;
