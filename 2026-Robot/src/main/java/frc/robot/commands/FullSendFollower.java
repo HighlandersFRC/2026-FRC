@@ -85,12 +85,12 @@ public class FullSendFollower extends AutoFollower {
 
         Vector velocityVector = new Vector();
 
-        desiredVelocityArray[0] = desiredVelocityArray[0].doubleValue()
-                * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
-        desiredVelocityArray[1] = desiredVelocityArray[1].doubleValue()
-                * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
-        desiredVelocityArray[2] = desiredVelocityArray[2].doubleValue()
-                * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
+        desiredVelocityArray[0] = desiredVelocityArray[0].doubleValue();
+        // * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
+        desiredVelocityArray[1] = desiredVelocityArray[1].doubleValue();
+        // * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
+        desiredVelocityArray[2] = desiredVelocityArray[2].doubleValue();
+        // * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;
 
         if (currentPathPointIndex == path.length() - 1) {
             velocityVector.setI(desiredVelocityArray[0].doubleValue() * 2);
@@ -111,9 +111,9 @@ public class FullSendFollower extends AutoFollower {
 
     @Override
     public void end(boolean interrupted) {
-        if (!interrupted) {
-            drive.stop();
-        }
+        // if (!interrupted) {
+        drive.stop();
+        // }
     }
 
     public void from(int pointIndex, JSONObject pathJSON, int to) {

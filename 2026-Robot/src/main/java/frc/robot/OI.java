@@ -264,7 +264,7 @@ public class OI {
 
     public static boolean isLeftSide() {
         // return leftRight.getSelected().equals("left");
-        return false;
+        return true;
     }
 
     public static boolean isRecalculateMode() {
