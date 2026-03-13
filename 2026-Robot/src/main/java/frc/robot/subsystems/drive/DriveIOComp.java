@@ -14,6 +14,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -130,9 +131,9 @@ public class DriveIOComp extends DriveIO {
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
         private boolean onBump = false;
-        private SwerveModulePosition[] lastModulePositions = new SwerveModulePosition[4];
         private int numTimesFlat = 0;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
+        private Debouncer flatDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
 
         public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
                         .createBuffer(2.0);
@@ -256,29 +257,16 @@ public class DriveIOComp extends DriveIO {
                 boolean tilted = Math.abs(gyro.getPitchDegrees()) > 5.0 || Math.abs(gyro.getRollDegrees()) > 5.0;
                 if (tilted && !onBump) {
                         onBump = true;
-                        lastModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
-                                        new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                        lastModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
-                                        new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                        lastModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
-                                        new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                        lastModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
-                                        new Rotation2d(backRight.getCanCoderPositionRadians()));
                 }
 
-                if (onBump) {
-                        swerveModulePositions = lastModulePositions;
-                } else {
+                if (!onBump) {
                         mt2Odometry.update(getYaw(), swerveModulePositions);
                 }
 
-                if (!tilted) {
-                        numTimesFlat++;
-                } else {
-                        numTimesFlat = 0;
-                }
+                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
+
                 Logger.recordOutput("num times flat", numTimesFlat);
-                if (numTimesFlat >= 5 && onBump) {
+                if (!tiltedFiltered && onBump) {
                         onBump = false;
                         double vx = getChassisSpeeds().vxMetersPerSecond;
                         double direction = Math.signum(vx);
