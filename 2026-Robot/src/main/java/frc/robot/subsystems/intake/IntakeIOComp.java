@@ -94,15 +94,13 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setRollerTorque(double amps, double maxPercent) {
-                // rollerMotor.setControl(new
-                // TorqueCurrentFOC(-amps).withMaxAbsDutyCycle(maxPercent));
-                // rollerMotor.set(-maxPercent);
+                rollerMotor.setControl(new TorqueCurrentFOC(-amps).withMaxAbsDutyCycle(maxPercent));
+                rollerMotor.set(-maxPercent);
         }
 
         @Override
         public void setPivotTorque(double amps, double maxPercent) {
-                // pivotMotor.setControl(new
-                // TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+                pivotMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
         }
 
         @Override

@@ -213,21 +213,21 @@ class ShooterIOComp implements ShooterIO {
                         angle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MIN_ANGLE_RADIANS);
                 }
                 double wantedAngle = Constants.SetPoints.Hood.hoodAngleToMotorAngle(angle).getRotations();
-                // hoodMotor.setControl(this.hoodMotionProfileRequest
-                // .withPosition(
-                // wantedAngle)
-                // .withVelocity(hoodCruiseVelocity * hoodProfileScalarFactor)
-                // .withAcceleration(hoodAcceleration * hoodProfileScalarFactor)
-                // .withSlot(0));
+                hoodMotor.setControl(this.hoodMotionProfileRequest
+                                .withPosition(
+                                                wantedAngle)
+                                .withVelocity(hoodCruiseVelocity * hoodProfileScalarFactor)
+                                .withAcceleration(hoodAcceleration * hoodProfileScalarFactor)
+                                .withSlot(0));
         }
 
         @Override
         public void setTurretAngle(double angle) {
                 Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
-                // turretMotor.setControl(
-                // new DynamicMotionMagicVoltage(Units.radiansToRotations(angle),
-                // turretVelocity,
-                // turretAcceleration));
+                turretMotor.setControl(
+                                new DynamicMotionMagicVoltage(Units.radiansToRotations(angle),
+                                                turretVelocity,
+                                                turretAcceleration));
                 Logger.recordOutput("Shooter/goal motor turret degrees Er",
                                 Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
 
@@ -236,10 +236,10 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void setFlywheelRPM(double rpm) {
                 double velocitySetpoint = rpm / 60;
-                // flywheelMaster.setControl(
-                // flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-                // flywheelFollower.setControl(
-                // flywheelControl.withVelocity(-velocitySetpoint).withSlot(0).withEnableFOC(true));
+                flywheelMaster.setControl(
+                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                flywheelFollower.setControl(
+                                flywheelControl.withVelocity(-velocitySetpoint).withSlot(0).withEnableFOC(true));
         }
 
         @Override
