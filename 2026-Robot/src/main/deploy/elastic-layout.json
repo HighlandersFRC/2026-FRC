@@ -12,7 +12,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 1024.0,
-            "height": 768.0,
+            "height": 640.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -29,52 +29,8 @@
             }
           },
           {
-            "title": "Console",
-            "x": 1024.0,
-            "y": 384.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Console",
-              "period": 0.06,
-              "data_type": "string"
-            }
-          },
-          {
-            "title": "Voltage",
-            "x": 1024.0,
-            "y": 128.0,
-            "width": 512.0,
-            "height": 256.0,
-            "type": "Voltage View",
-            "properties": {
-              "topic": "/AdvantageKit/PowerDistribution/Voltage",
-              "period": 0.033,
-              "data_type": "double",
-              "min_value": 4.0,
-              "max_value": 13.0,
-              "divisions": 5,
-              "inverted": false,
-              "orientation": "horizontal"
-            }
-          },
-          {
-            "title": "Field Side",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Field Side",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
             "title": "Selected Auto",
-            "x": 1280.0,
+            "x": 1024.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
@@ -83,6 +39,72 @@
               "topic": "/SmartDashboard/Selected Auto",
               "period": 0.06,
               "sort_options": false
+            }
+          },
+          {
+            "title": "Left or Right",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Left or Right",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Turret Angle",
+            "x": 1024.0,
+            "y": 512.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Turret Angle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Climber Position",
+            "x": 1024.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Climber/Climber Position",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Intake Position",
+            "x": 1280.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/Intake Position",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Field Side",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Field Side",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
             }
           }
         ]

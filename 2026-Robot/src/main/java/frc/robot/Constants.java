@@ -707,15 +707,18 @@ public final class Constants {
                         Pose3d robotToCam = robotToTurret.transformBy(new Transform3d(
                                         Translation3d.kZero, new Rotation3d(turretAngle))).transformBy(turretToCam);
 
-                        Logger.recordOutput("Constants/Vision/RobotToCam/X", Units.metersToInches(robotToCam.getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/Y", Units.metersToInches(robotToCam.getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/Z", Units.metersToInches(robotToCam.getZ()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RX",
-                                        Math.toDegrees(robotToCam.getRotation().getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RY",
-                                        Math.toDegrees(robotToCam.getRotation().getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
-                                        Math.toDegrees(robotToCam.getRotation().getZ()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/X",
+                        // Units.metersToInches(robotToCam.getX()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/Y",
+                        // Units.metersToInches(robotToCam.getY()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/Z",
+                        // Units.metersToInches(robotToCam.getZ()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/RX",
+                        // Math.toDegrees(robotToCam.getRotation().getX()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/RY",
+                        // Math.toDegrees(robotToCam.getRotation().getY()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
+                        // Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
