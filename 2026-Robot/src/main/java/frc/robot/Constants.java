@@ -265,6 +265,8 @@ public final class Constants {
         }
 
         public static final class Field {
+                public static final double BUMP_LENGTH = 1.5; // 1.12776 actual
+
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
                 public static final double HUB_Y = Constants.Physical.FIELD_WIDTH / 2;
@@ -324,6 +326,114 @@ public final class Constants {
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
                 public static final double FEED_RADIUS = inchesToMeters(33.39);
                 public static final double BALL_WIDTH = 0.15;
+        }
+
+        public class DynamicPassing { // chatgpt ahh code for dynamic passing
+
+                private static final double RED_TARGET_X = 13.0;
+
+                private static final double RED_LEFT_MIN_TARGET_Y = 1.5;
+                private static final double RED_LEFT_MAX_TARGET_Y = 3.4;
+                private static final double RED_LEFT_BUMP_MIDPOINT_Y = 2.5;
+
+                private static final double RED_RIGHT_MIN_TARGET_Y = Constants.Physical.FIELD_WIDTH
+                                - RED_LEFT_MAX_TARGET_Y;
+                private static final double RED_RIGHT_MAX_TARGET_Y = Constants.Physical.FIELD_WIDTH
+                                - RED_LEFT_MIN_TARGET_Y;
+                private static final double RED_RIGHT_BUMP_MIDPOINT_Y = Constants.Physical.FIELD_WIDTH
+                                - RED_LEFT_BUMP_MIDPOINT_Y;
+
+                private static final double BLUE_TARGET_X = Constants.Physical.FIELD_LENGTH - RED_TARGET_X;
+
+                private static final double BLUE_LEFT_MIN_TARGET_Y = RED_RIGHT_MIN_TARGET_Y;
+                private static final double BLUE_LEFT_MAX_TARGET_Y = RED_RIGHT_MAX_TARGET_Y;
+                private static final double BLUE_LEFT_BUMP_MIDPOINT_Y = RED_RIGHT_BUMP_MIDPOINT_Y;
+
+                private static final double BLUE_RIGHT_MIN_TARGET_Y = RED_LEFT_MIN_TARGET_Y;
+                private static final double BLUE_RIGHT_MAX_TARGET_Y = RED_LEFT_MAX_TARGET_Y;
+                private static final double BLUE_RIGHT_BUMP_MIDPOINT_Y = RED_LEFT_BUMP_MIDPOINT_Y;
+
+                private static final double X_SCALE = 0.09;
+
+                public static Translation2d getTarget(Pose2d robotPose) {
+                        if (Globals.fieldSide.equals("red")) {
+                                if (robotPose.getY() < Constants.Physical.FIELD_WIDTH / 2) {
+                                        return getTargetRedLeft(robotPose);
+                                } else {
+                                        return getTargetRedRight(robotPose);
+                                }
+                        } else {
+                                if (robotPose.getY() > Constants.Physical.FIELD_WIDTH / 2) {
+                                        return getTargetBlueLeft(robotPose);
+                                } else {
+                                        return getTargetBlueRight(robotPose);
+                                }
+                        }
+                }
+
+                public static Translation2d getTargetRedLeft(Pose2d robotPose) {
+                        double rx = robotPose.getX();
+                        double ry = robotPose.getY();
+                        double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
+                        double targetY = RED_LEFT_MAX_TARGET_Y
+                                        - normalizedY * (RED_LEFT_MAX_TARGET_Y - RED_LEFT_MIN_TARGET_Y);
+                        double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
+                        double factor = (ry - RED_LEFT_BUMP_MIDPOINT_Y) / 3.0;
+                        factor = Math.max(-1.0, Math.min(1.0, factor));
+                        targetY -= xAdjustment * factor;
+                        targetY = Math.max(RED_LEFT_MIN_TARGET_Y, Math.min(RED_LEFT_MAX_TARGET_Y, targetY));
+                        return new Translation2d(RED_TARGET_X, targetY);
+                }
+
+                public static Translation2d getTargetRedRight(Pose2d robotPose) {
+                        double rx = robotPose.getX();
+                        double ry = robotPose.getY();
+                        double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
+                                        / (Constants.Physical.FIELD_WIDTH * 0.5);
+                        double targetY = (RED_RIGHT_MAX_TARGET_Y
+                                        - normalizedY * (RED_RIGHT_MAX_TARGET_Y - RED_RIGHT_MIN_TARGET_Y));
+                        targetY = RED_RIGHT_BUMP_MIDPOINT_Y + targetY;
+                        double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
+                        double factor = (ry - RED_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
+                        factor = Math.max(-1.0, Math.min(1.0, factor));
+                        targetY -= xAdjustment * factor;
+                        targetY = Math.max(
+                                        RED_RIGHT_MIN_TARGET_Y,
+                                        Math.min(RED_RIGHT_MAX_TARGET_Y, targetY));
+                        return new Translation2d(RED_TARGET_X, targetY);
+                }
+
+                public static Translation2d getTargetBlueLeft(Pose2d robotPose) {
+                        double rx = robotPose.getX();
+                        double ry = robotPose.getY();
+                        double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
+                                        / (Constants.Physical.FIELD_WIDTH * 0.5);
+                        double targetY = (BLUE_LEFT_MAX_TARGET_Y
+                                        - normalizedY * (BLUE_LEFT_MAX_TARGET_Y - BLUE_LEFT_MIN_TARGET_Y));
+                        targetY = BLUE_LEFT_BUMP_MIDPOINT_Y + targetY;
+                        double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
+                        double factor = (ry - BLUE_LEFT_BUMP_MIDPOINT_Y) / 3.0;
+                        factor = Math.max(-1.0, Math.min(1.0, factor));
+                        targetY += xAdjustment * factor;
+                        targetY = Math.max(
+                                        BLUE_LEFT_MIN_TARGET_Y,
+                                        Math.min(BLUE_LEFT_MAX_TARGET_Y, targetY));
+                        return new Translation2d(BLUE_TARGET_X, targetY);
+                }
+
+                public static Translation2d getTargetBlueRight(Pose2d robotPose) {
+                        double rx = robotPose.getX();
+                        double ry = robotPose.getY();
+                        double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
+                        double targetY = BLUE_RIGHT_MAX_TARGET_Y
+                                        - normalizedY * (BLUE_RIGHT_MAX_TARGET_Y - BLUE_RIGHT_MIN_TARGET_Y);
+                        double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
+                        double factor = (ry - BLUE_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
+                        factor = Math.max(-1.0, Math.min(1.0, factor));
+                        targetY += xAdjustment * factor;
+                        targetY = Math.max(BLUE_RIGHT_MIN_TARGET_Y, Math.min(BLUE_RIGHT_MAX_TARGET_Y, targetY));
+                        return new Translation2d(BLUE_TARGET_X, targetY);
+                }
         }
 
         // Subsystem setpoint constants
@@ -599,15 +709,18 @@ public final class Constants {
                         Pose3d robotToCam = robotToTurret.transformBy(new Transform3d(
                                         Translation3d.kZero, new Rotation3d(turretAngle))).transformBy(turretToCam);
 
-                        Logger.recordOutput("Constants/Vision/RobotToCam/X", Units.metersToInches(robotToCam.getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/Y", Units.metersToInches(robotToCam.getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/Z", Units.metersToInches(robotToCam.getZ()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RX",
-                                        Math.toDegrees(robotToCam.getRotation().getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RY",
-                                        Math.toDegrees(robotToCam.getRotation().getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
-                                        Math.toDegrees(robotToCam.getRotation().getZ()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/X",
+                        // Units.metersToInches(robotToCam.getX()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/Y",
+                        // Units.metersToInches(robotToCam.getY()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/Z",
+                        // Units.metersToInches(robotToCam.getZ()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/RX",
+                        // Math.toDegrees(robotToCam.getRotation().getX()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/RY",
+                        // Math.toDegrees(robotToCam.getRotation().getY()));
+                        // Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
+                        // Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
