@@ -34,7 +34,7 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void setDyeRotorPercent(double percent) {
-        // dyeRotorMotor.set(percent);
+        dyeRotorMotor.set(percent);
     }
 
     @Override
