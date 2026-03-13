@@ -305,99 +305,103 @@ public class DriveIOComp extends DriveIO {
                                                         standardDeviation);
                                 }
                         }
-
-                        var rightBackResult = peripherals.getRightBackCamResult();
-                        Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                        .update(rightBackResult);
-                        if (rightBackMultiTagResult.isPresent()) {
-                                if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                        standardDeviation.set(0, 0, 0.7);
-                                        standardDeviation.set(1, 0, 0.7);
-                                        standardDeviation.set(2, 0, 2.5);
-                                        Pose3d robotPose = rightBackMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightBackResult.getTimestampSeconds(),
-                                                        standardDeviation);
-                                }
-                        }
-                        if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
-                                        && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
-                                var leftBackResult = peripherals.getLeftBackCamResult();
-                                Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
-                                                .update(leftBackResult);
-                                if (leftBackMultiTagResult.isPresent()) {
-                                        if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                                standardDeviation.set(0, 0, 1.0);
-                                                standardDeviation.set(1, 0, 1.0);
-                                                standardDeviation.set(2, 0, 2.0);
-                                                Pose3d robotPose = leftBackMultiTagResult.get().estimatedPose;
-                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                leftBackResult.getTimestampSeconds(),
-                                                                standardDeviation);
-                                        }
-                                }
-
-                                var leftFrontResult = peripherals.getLeftFrontCamResult();
-                                Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
-                                                .update(leftFrontResult);
-                                if (leftFrontMultiTagResult.isPresent()) {
-                                        if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                        if (!onBump && !tiltedFiltered) {
+                                var rightBackResult = peripherals.getRightBackCamResult();
+                                Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
+                                                .update(rightBackResult);
+                                if (rightBackMultiTagResult.isPresent()) {
+                                        if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                                 standardDeviation.set(0, 0, 0.7);
                                                 standardDeviation.set(1, 0, 0.7);
                                                 standardDeviation.set(2, 0, 2.5);
-                                                Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
+                                                Pose3d robotPose = rightBackMultiTagResult.get().estimatedPose;
                                                 mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                leftFrontResult.getTimestampSeconds(),
+                                                                rightBackResult.getTimestampSeconds(),
                                                                 standardDeviation);
                                         }
                                 }
-
-                                double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
-                                                Globals.turretVelocity,
-                                                getChassisSpeeds().omegaRadiansPerSecond);
-                                if (Math.abs(limelightAngVelRelToField) < 2.0) {
-                                        try {
-                                                LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT_NAME,
-                                                                gyro.getYawDegrees(),
-                                                                limelightAngVelRelToField,
-                                                                gyro.getPitchDegrees(), 0, -gyro.getRollDegrees(), 0);
-                                                LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                                                .getBotPoseEstimate_wpiBlue_MegaTag2(
-                                                                                Constants.Vision.LIMELIGHT_NAME);
-
-                                                // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
-                                                // mt2.timestampSeconds);
-                                                // if (maybeTurretAngle.isPresent()) {
-                                                Constants.Vision.updateLimelightPoseFromTurret(
-                                                                new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
-                                                                                Rotation3d.kZero),
-                                                                Globals.turretAngle,
-                                                                Constants.Vision.turretToLimelight,
-                                                                Constants.Vision.LIMELIGHT_NAME);
-
-                                                boolean doRejectUpdate = false;
-                                                // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) >
-                                                // 360) {
-                                                // doRejectUpdate = true;
-                                                // }
-                                                if (mt2.tagCount == 0) {
-                                                        doRejectUpdate = true;
-                                                }
-                                                if (!doRejectUpdate) {
-                                                        standardDeviation.set(0, 0, 2.0);
-                                                        standardDeviation.set(1, 0, 2.0);
-                                                        standardDeviation.set(2, 0, 5.0);
-                                                        mt2Odometry.addVisionMeasurement(
-                                                                        mt2.pose,
-                                                                        mt2.timestampSeconds,
+                                if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
+                                                && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                                        var leftBackResult = peripherals.getLeftBackCamResult();
+                                        Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
+                                                        .update(leftBackResult);
+                                        if (leftBackMultiTagResult.isPresent()) {
+                                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                                        standardDeviation.set(0, 0, 1.0);
+                                                        standardDeviation.set(1, 0, 1.0);
+                                                        standardDeviation.set(2, 0, 2.0);
+                                                        Pose3d robotPose = leftBackMultiTagResult.get().estimatedPose;
+                                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                                        leftBackResult.getTimestampSeconds(),
                                                                         standardDeviation);
                                                 }
-                                                // } else {
-                                                // System.out.println("Turret angle not found for timestamp: "
-                                                // + mt2.timestampSeconds);
-                                                // }
-                                        } catch (Exception e) {
-                                                System.out.println(e);
+                                        }
+
+                                        var leftFrontResult = peripherals.getLeftFrontCamResult();
+                                        Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
+                                                        .update(leftFrontResult);
+                                        if (leftFrontMultiTagResult.isPresent()) {
+                                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                                        standardDeviation.set(0, 0, 0.7);
+                                                        standardDeviation.set(1, 0, 0.7);
+                                                        standardDeviation.set(2, 0, 2.5);
+                                                        Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
+                                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
+                                                                        leftFrontResult.getTimestampSeconds(),
+                                                                        standardDeviation);
+                                                }
+                                        }
+
+                                        double limelightAngVelRelToField = Constants.Vision
+                                                        .getLimelightAngVelRelToField(
+                                                                        Globals.turretVelocity,
+                                                                        getChassisSpeeds().omegaRadiansPerSecond);
+                                        if (Math.abs(limelightAngVelRelToField) < 2.0) {
+                                                try {
+                                                        LimelightHelpers.SetRobotOrientation(
+                                                                        Constants.Vision.LIMELIGHT_NAME,
+                                                                        gyro.getYawDegrees(),
+                                                                        limelightAngVelRelToField,
+                                                                        gyro.getPitchDegrees(), 0,
+                                                                        -gyro.getRollDegrees(), 0);
+                                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
+                                                                                        Constants.Vision.LIMELIGHT_NAME);
+
+                                                        // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
+                                                        // mt2.timestampSeconds);
+                                                        // if (maybeTurretAngle.isPresent()) {
+                                                        Constants.Vision.updateLimelightPoseFromTurret(
+                                                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
+                                                                                        Rotation3d.kZero),
+                                                                        Globals.turretAngle,
+                                                                        Constants.Vision.turretToLimelight,
+                                                                        Constants.Vision.LIMELIGHT_NAME);
+
+                                                        boolean doRejectUpdate = false;
+                                                        // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) >
+                                                        // 360) {
+                                                        // doRejectUpdate = true;
+                                                        // }
+                                                        if (mt2.tagCount == 0) {
+                                                                doRejectUpdate = true;
+                                                        }
+                                                        if (!doRejectUpdate) {
+                                                                standardDeviation.set(0, 0, 2.0);
+                                                                standardDeviation.set(1, 0, 2.0);
+                                                                standardDeviation.set(2, 0, 5.0);
+                                                                mt2Odometry.addVisionMeasurement(
+                                                                                mt2.pose,
+                                                                                mt2.timestampSeconds,
+                                                                                standardDeviation);
+                                                        }
+                                                        // } else {
+                                                        // System.out.println("Turret angle not found for timestamp: "
+                                                        // + mt2.timestampSeconds);
+                                                        // }
+                                                } catch (Exception e) {
+                                                        System.out.println(e);
+                                                }
                                         }
                                 }
                         }
