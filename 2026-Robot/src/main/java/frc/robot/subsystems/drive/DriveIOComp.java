@@ -259,11 +259,11 @@ public class DriveIOComp extends DriveIO {
                         onBump = true;
                 }
 
-                if (!onBump) {
+                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
+
+                if (!onBump && !tiltedFiltered) {
                         mt2Odometry.update(getYaw(), swerveModulePositions);
                 }
-
-                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
 
                 Logger.recordOutput("num times flat", numTimesFlat);
                 if (!tiltedFiltered && onBump) {
