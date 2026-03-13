@@ -116,7 +116,7 @@ public class OI {
 
     public static String getSelectedPath() {
         // return auto.getSelected();
-        return "TwoCycle.polarauto";
+        return "2climb.polarauto";
     }
 
     public static double getDriverLeftX() {

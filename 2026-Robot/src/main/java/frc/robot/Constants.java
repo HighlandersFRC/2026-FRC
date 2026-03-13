@@ -26,8 +26,8 @@ import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
-                public static final int STAGNATE_BOOST = 25;
-                public static final int STAGNATE_THRESHOLD = 8; // Number of cycles of stagnation before ending path
+                public static final int STAGNATE_BOOST = 67;
+                public static final int STAGNATE_THRESHOLD = 6; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
