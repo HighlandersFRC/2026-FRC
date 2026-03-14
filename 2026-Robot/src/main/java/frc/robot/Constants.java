@@ -647,6 +647,16 @@ public final class Constants {
                         public static final double kS0 = 0.3;
                         public static final double kV0 = 0.16;
                 }
+
+                public static final class Feeder {
+                        public static final double kP0 = 2.4;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.4;
+                        public static final double kV0 = 0.5;
+
+                        public static final double kP1 = 9999999.0;
+                }
         }
 
         // Vision constants (e.g. camera offsets)
@@ -837,7 +847,7 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0;
+                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 10.0) * (130.0 / 18.0);
                 }
 
                 public static final class Climber {

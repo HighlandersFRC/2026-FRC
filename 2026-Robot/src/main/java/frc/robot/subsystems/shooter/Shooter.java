@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -210,6 +209,7 @@ public class Shooter extends SubsystemBase {
   // }
 
   public void setTurretAngle(Rotation2d angle) {
+    Logger.recordOutput("Shooter/Turret Setpoint Angle", angle.getDegrees());
     io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
   }
 
@@ -283,6 +283,8 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Hood Current", io.getHoodCurrent());
     Logger.recordOutput("Shooter/Flywheel Current", io.getFlywheelCurrent());
     Logger.recordOutput("States/Shooter State", systemState);
+
+    Logger.recordOutput("Shooter/Turret Tracking Angle", idleTurretAngle.getDegrees());
 
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {

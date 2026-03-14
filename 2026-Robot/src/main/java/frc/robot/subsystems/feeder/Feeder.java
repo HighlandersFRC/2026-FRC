@@ -9,6 +9,8 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.OI;
+import frc.robot.tools.logging.TunableNumber;
 
 public class Feeder extends SubsystemBase {
   /** Creates a new Feeder. */
@@ -20,6 +22,7 @@ public class Feeder extends SubsystemBase {
   }
 
   private final FeederIO io;
+  // private TunableNumber feederSpeed = new TunableNumber("Feeder speed", 120.0);
 
   private FeederState wantedState = FeederState.IDLE;
   private FeederState systemState = FeederState.IDLE;
@@ -57,17 +60,35 @@ public class Feeder extends SubsystemBase {
     io.setDyeRotorTorque(amps, maxpercent);
   }
 
+  public void setDyeRotorRPM(double rpm) {
+    Logger.recordOutput("Feeder/Dye Rotor RPM Setpoint", rpm);
+    io.setDyeRotorRPM(rpm);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     io.updateInputs(systemState);
     systemState = handleStateTransition();
+    // if (OI.driverA.getAsBoolean()) {
+    // setDyeRotorRPM(120.0);
+    // } else if (OI.driverB.getAsBoolean()) {
+    // setDyeRotorRPM(-60.0);
+    // } else if (OI.driverX.getAsBoolean()) {
+    // setDyeRotorRPM(150.0);
+    // } else {
+    // setDyeRotorPercent(0);
+    // }
     switch (systemState) {
       case FEED:
         setDyeRotorTorque(80, 0.8);
+        // setDyeRotorRPM(feederSpeed.get());
+        // setDyeRotorPercent(1.0);
         break;
       case REVERSE:
         setDyeRotorTorque(-80, 0.4);
+        // setDyeRotorPercent(-0.4);
+        // setDyeRotorRPM(-60.0);
         break;
       case DEFAULT:
         // setDyeRotorTorque(-30, 0.1);
@@ -80,5 +101,6 @@ public class Feeder extends SubsystemBase {
     Logger.recordOutput("Feeder/Feeder State", systemState);
     Logger.recordOutput("States/Feeder State", systemState);
     Logger.recordOutput("Feeder/Dye Rotor Current", io.getDyeRotorCurrent());
+    Logger.recordOutput("Feeder/Dye Rotor RPM", io.getDyeRotorRPM());
   }
 }

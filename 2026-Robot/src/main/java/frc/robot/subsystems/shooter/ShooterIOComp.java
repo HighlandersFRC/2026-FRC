@@ -406,7 +406,8 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Testing/initLoops", initLoops);
                 Logger.recordOutput("Testing/firstTurretAngles", firstTurretAngles.toString());
                 Logger.recordOutput("Testing/numberSkips", numberSkips);
-                Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
+                // Logger.recordOutput("Shooter/Relative Turret Angle",
+                // Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
                 Logger.recordOutput("Shooter/Turret Error Degrees",
