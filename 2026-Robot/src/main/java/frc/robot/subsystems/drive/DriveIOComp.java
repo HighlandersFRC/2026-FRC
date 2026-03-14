@@ -259,7 +259,7 @@ public class DriveIOComp extends DriveIO {
                         onBump = true;
                 }
 
-                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
+                boolean tiltedFiltered = tilted;
 
                 if (!onBump && !tiltedFiltered) {
                         mt2Odometry.update(getYaw(), swerveModulePositions);

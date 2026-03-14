@@ -112,6 +112,7 @@ public class VariableSpeedFollower extends AutoFollower {
     // if (!interrupted) {
     drive.stop();
     // }
+    Logger.recordOutput("Auto/pursuing?", false);
   }
 
   public void from(int pointIndex, JSONObject pathJSON, int to) {

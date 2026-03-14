@@ -26,8 +26,8 @@ import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
-                public static final int STAGNATE_BOOST = 67;
-                public static final int STAGNATE_THRESHOLD = 6; // Number of cycles of stagnation before ending path
+                public static final int STAGNATE_BOOST = 90;
+                public static final int STAGNATE_THRESHOLD = 8; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
@@ -265,7 +265,7 @@ public final class Constants {
         }
 
         public static final class Field {
-                public static final double BUMP_LENGTH = 1.5; // 1.12776 actual
+                public static final double BUMP_LENGTH = 1.5 / 2.0; // 1.12776 actual
 
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
