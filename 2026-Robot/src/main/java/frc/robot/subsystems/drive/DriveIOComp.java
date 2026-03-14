@@ -276,8 +276,8 @@ public class DriveIOComp extends DriveIO {
                                         direction * Constants.Field.BUMP_LENGTH, 0.0);
                         Logger.recordOutput("Bump translation", bump);
                         Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
-                                        currentPose.getRotation());
-                        Logger.recordOutput("Corrected pose", correctedPose.getTranslation());
+                                        getYaw());
+                        Logger.recordOutput("Corrected pose", correctedPose);
                         setPosition(correctedPose);
                 }
                 Logger.recordOutput("on bump", onBump);
