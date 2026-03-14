@@ -412,6 +412,8 @@ public class Drive extends SubsystemBase {
     previousControllerSpeeds = controllerSpeeds;
     double vx = xLimiter.calculate(controllerVector.getI());
     double vy = yLimiter.calculate(controllerVector.getJ());
+    Logger.recordOutput("Drive/xDecreasing", xDecreasing);
+    Logger.recordOutput("Drive/yDecreasing", yDecreasing);
     if (wantedState == DriveState.DEFAULT_SLOW) {
       if (!xDecreasing) {
         controllerVector.setI(vx);
@@ -875,12 +877,12 @@ public class Drive extends SubsystemBase {
       finalTheta = -finalTheta;
     }
 
-    // if (Field.isOnBump(getMt2Pose2d().getTranslation())) { // if on the bump,
-    // slow down to maintain control
-    // finalTheta = finalTheta * 0.75;
-    // finalX = finalX * 0.75;
-    // finalY = finalY * 0.75;
-    // }
+    if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
+      // slow down to maintain control
+      finalTheta = finalTheta * 0.6;
+      finalX = finalX * 0.6;
+      finalY = finalY * 0.6;
+    }
 
     Number[] velocityArray = new Number[] {
         finalX,
