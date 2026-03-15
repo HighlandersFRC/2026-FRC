@@ -5,6 +5,8 @@ package frc.robot;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -12,10 +14,39 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.tools.TriggerButton;
+import frc.robot.tools.logging.TunableNumber;
 
 public class OI {
     public static SendableChooser<String> fieldSide = new SendableChooser<String>();
     public static SendableChooser<String> leftRight = new SendableChooser<String>();
+
+    public static TunableNumber leftFrontCameraYaw = new TunableNumber("Left Front Camera Yaw",
+            Math.toDegrees(Constants.Vision.leftFrontRotation3d.getX()));
+    public static TunableNumber leftBackCameraYaw = new TunableNumber("Left Back Camera Yaw",
+            Math.toDegrees(Constants.Vision.leftBackRotation3d.getX()));
+    public static TunableNumber rightFrontCameraYaw = new TunableNumber("Right Front Camera Yaw",
+            Math.toDegrees(Constants.Vision.rightFrontRotation3d.getX()));
+    public static TunableNumber rightBackCameraYaw = new TunableNumber("Right Back Camera Yaw",
+            Math.toDegrees(Constants.Vision.rightBackRotation3d.getX()));
+
+    public static TunableNumber leftFrontCameraPitch = new TunableNumber("Left Front Camera Pitch",
+            Math.toDegrees(Constants.Vision.leftFrontRotation3d.getY()));
+    public static TunableNumber leftBackCameraPitch = new TunableNumber("Left Back Camera Pitch",
+            Math.toDegrees(Constants.Vision.leftBackRotation3d.getY()));
+    public static TunableNumber rightFrontCameraPitch = new TunableNumber("Right Front Camera Pitch",
+            Math.toDegrees(Constants.Vision.rightFrontRotation3d.getY()));
+    public static TunableNumber rightBackCameraPitch = new TunableNumber("Right Back Camera Pitch",
+            Math.toDegrees(Constants.Vision.rightBackRotation3d.getY()));
+
+    public static TunableNumber leftFrontCameraRoll = new TunableNumber("Left Front Camera Roll",
+            Math.toDegrees(Constants.Vision.leftFrontRotation3d.getZ()));
+    public static TunableNumber leftBackCameraRoll = new TunableNumber("Left Back Camera Roll",
+            Math.toDegrees(Constants.Vision.leftBackRotation3d.getZ()));
+    public static TunableNumber rightFrontCameraRoll = new TunableNumber("Right Front Camera Roll",
+            Math.toDegrees(Constants.Vision.rightFrontRotation3d.getZ()));
+    public static TunableNumber rightBackCameraRoll = new TunableNumber("Right Back Camera Roll",
+            Math.toDegrees(Constants.Vision.rightBackRotation3d.getZ()));
+
     public static SendableChooser<String> auto = new SendableChooser<String>();
     public static XboxController driverController = new XboxController(0);
     public static XboxController operatorController = new XboxController(1);

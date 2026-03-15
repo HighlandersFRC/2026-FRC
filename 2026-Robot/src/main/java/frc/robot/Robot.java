@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 
 import edu.wpi.first.net.PortForwarder;
@@ -154,6 +155,40 @@ public class Robot extends LoggedRobot {
     m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
     m_logHandler.write();
+
+    if (OI.leftFrontCameraPitch.changed() || OI.leftFrontCameraYaw.changed() || OI.leftFrontCameraRoll.changed()) {
+      Constants.Vision.leftFrontRotation3d = new Rotation3d(
+          Math.toRadians(OI.leftFrontCameraPitch.get()),
+          Math.toRadians(OI.leftFrontCameraYaw.get()),
+          Math.toRadians(OI.leftFrontCameraRoll.get()));
+      System.out.println("Left Front Camera Rotation Updated: " + Constants.Vision.leftFrontRotation3d.getX() + ", " +
+          Constants.Vision.leftFrontRotation3d.getY() + ", " + Constants.Vision.leftFrontRotation3d.getZ());
+    }
+    if (OI.leftBackCameraPitch.changed() || OI.leftBackCameraYaw.changed() || OI.leftBackCameraRoll.changed()) {
+      Constants.Vision.leftBackRotation3d = new Rotation3d(
+          Math.toRadians(OI.leftBackCameraPitch.get()),
+          Math.toRadians(OI.leftBackCameraYaw.get()),
+          Math.toRadians(OI.leftBackCameraRoll.get()));
+      System.out.println("Left Back Camera Rotation Updated: " + Constants.Vision.leftBackRotation3d.getX() + ", " +
+          Constants.Vision.leftBackRotation3d.getY() + ", " + Constants.Vision.leftBackRotation3d.getZ());
+    }
+    if (OI.rightFrontCameraPitch.changed() || OI.rightFrontCameraYaw.changed() || OI.rightFrontCameraRoll.changed()) {
+      Constants.Vision.rightFrontRotation3d = new Rotation3d(
+          Math.toRadians(OI.rightFrontCameraPitch.get()),
+          Math.toRadians(OI.rightFrontCameraYaw.get()),
+          Math.toRadians(OI.rightFrontCameraRoll.get()));
+      System.out.println("Right Front Camera Rotation Updated: " + Constants.Vision.rightFrontRotation3d.getX() + ", " +
+          Constants.Vision.rightFrontRotation3d.getY() + ", " + Constants.Vision.rightFrontRotation3d.getZ());
+    }
+    if (OI.rightBackCameraPitch.changed() || OI.rightBackCameraYaw.changed() || OI.rightBackCameraRoll.changed()) {
+      Constants.Vision.rightBackRotation3d = new Rotation3d(
+          Math.toRadians(OI.rightBackCameraPitch.get()),
+          Math.toRadians(OI.rightBackCameraYaw.get()),
+          Math.toRadians(OI.rightBackCameraRoll.get()));
+      System.out.println("Right Back Camera Rotation Updated: " + Constants.Vision.rightBackRotation3d.getX() + ", " +
+          Constants.Vision.rightBackRotation3d.getY() + ", " + Constants.Vision.rightBackRotation3d.getZ());
+    }
+
   }
 
   @Override

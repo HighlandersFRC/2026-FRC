@@ -88,25 +88,23 @@ public class DriveIOComp extends DriveIO {
         Transform3d leftFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(3.125), Constants.inchesToMeters(14.38),
                                         Constants.inchesToMeters(23.75)),
-                        new Rotation3d(Math.toRadians(0.5), Math.toRadians(-4.3), Math.toRadians(126.3)));
+                        Constants.Vision.leftFrontRotation3d);
 
         Transform3d leftBackRobotToCam = new Transform3d( // front reef cam on swerve module
                         new Translation3d(Constants.inchesToMeters(-10.25),
                                         Constants.inchesToMeters(14.5),
                                         Constants.inchesToMeters(23.5)),
-                        new Rotation3d(Math.toRadians(4.0), Math.toRadians(-5.4),
-                                        Math.toRadians(54.8)));
+                        Constants.Vision.leftBackRotation3d);
 
         Transform3d rightFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-9.6521), Constants.inchesToMeters(-14.6780),
                                         Constants.inchesToMeters(13.8457)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-27.0), Math.toRadians(-65.0)));
+                        Constants.Vision.rightFrontRotation3d);
 
         Transform3d rightBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-10.1431), Constants.inchesToMeters(-14.765415),
                                         Constants.inchesToMeters(15.879)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0),
-                                        Math.toRadians(-110.0)));
+                        Constants.Vision.rightBackRotation3d);
 
         // xy position of module based on robot width and distance from edge of robot
         private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;

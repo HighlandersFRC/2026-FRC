@@ -671,6 +671,15 @@ public final class Constants {
 
                 // Poses of cameras relative to robot, {x, y, z, rx, ry, rz}, in meters and
                 // radians
+                public static Rotation3d leftFrontRotation3d = new Rotation3d(Math.toRadians(0.5), Math.toRadians(-4.3),
+                                Math.toRadians(126.3));
+                public static Rotation3d leftBackRotation3d = new Rotation3d(Math.toRadians(4.0), Math.toRadians(-5.4),
+                                Math.toRadians(54.8));
+                public static Rotation3d rightFrontRotation3d = new Rotation3d(Math.toRadians(0.0),
+                                Math.toRadians(-27.0), Math.toRadians(-65.0));
+                public static Rotation3d rightBackRotation3d = new Rotation3d(Math.toRadians(0.0),
+                                Math.toRadians(-26.0),
+                                Math.toRadians(-110.0));
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
                                 inchesToMeters(-6.19143), inchesToMeters(0.0), inchesToMeters(21.1905));
