@@ -185,14 +185,16 @@ public class Intake extends SubsystemBase {
     }
     Logger.recordOutput("Intake/Intake State", systemState);
     Logger.recordOutput("States/Intake State", systemState);
-    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
+    // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake/Intake Position", getIntakePosition());
 
     Logger.recordOutput("Intake/Intake Velocity", io.getIntakeVelocity());
     Logger.recordOutput("Intake/Intake Pivot Current", io.getIntakeCurrent());
-    Logger.recordOutput("Intake/Intake Roller Current", io.getIntakeRollerCurrent());
-    Logger.recordOutput("Intake/Intake Acceleration", io.getIntakeAcceleration());
-    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
+    Logger.recordOutput("Intake/Intake Roller Current",
+        io.getIntakeRollerCurrent());
+    // Logger.recordOutput("Intake/Intake Acceleration",
+    // io.getIntakeAcceleration());
+    // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake Roller Vel", io.getIntakeRollerVelocity());
     Logger.recordOutput("Intake Roller Temp", io.getIntakeRollerTemp());
     switch (systemState) {
@@ -206,13 +208,12 @@ public class Intake extends SubsystemBase {
         break;
       case INTAKING:
         setIntakeDown();
-        setRollerPercent(1.0);
+        setRollerPercent(0.67);
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
         // setRollerTorque(80, dynamicIntakeSpeed);
-
-        setRollerPercent(1.0);
+        setRollerPercent(0.67);
         break;
       case JIGGLE:
         setJiggle();

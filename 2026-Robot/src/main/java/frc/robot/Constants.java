@@ -483,7 +483,8 @@ public final class Constants {
 
                         public static Rotation2d getFutureSetpointEstimate(Rotation2d currentSetpoint,
                                         double driveAngularVelocity, double foresightTime) {
-                                Logger.recordOutput("Shooter/Turret Drive Angular Velocity", driveAngularVelocity);
+                                // Logger.recordOutput("Shooter/Turret Drive Angular Velocity",
+                                // driveAngularVelocity);
                                 double predictedAngle = currentSetpoint.getRadians()
                                                 - driveAngularVelocity * foresightTime;
                                 return new Rotation2d(predictedAngle);
@@ -507,22 +508,27 @@ public final class Constants {
                         private final static double RPM_OFFSET = 0.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
-                        public static final double[][] SHOT_MAP = new double[][] {
-                                        { 1.45, 85, 1690, 1.07 },
-                                        { 1.8, 82, 1850, 1.11 },
-                                        { 2.17, 80.44, 1950, 1.17 },
-                                        { 2.48, 80.44, 2000, 1.32 },
-                                        { 2.76, 80.44, 2150, 1.35 },
-                                        { 3.34, 78, 2250, 1.34 },
-                                        { 3.67, 75, 2300, 1.35 },
-                                        { 3.99, 75, 2400, 1.42 },
-                                        { 4.46, 73, 2400, 1.35 },
-                                        { 4.8, 70, 2400, 1.33 },
-                                        { 5.22, 70, 2550, 1.36 },
-                                        { 5.53, 65, 2550, 1.35 },
-                                        { 6.11, 60, 2700, 1.27 },
-                                        { 6.55, 60, 2800, 1.35 },
-                                        { 6.7, 60, 2900, 1.33 },
+                        public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
+                                        { 1.627, 85, 2000, 0.97 },
+                                        { 1.987, 82, 2000, 0.96 },
+                                        { 2.285, 80, 2250, 1.06 },
+                                        { 2.502, 78, 2300, 1.11 },
+                                        { 2.755, 77, 2350, 1.14 },
+                                        { 3.079, 76, 2400, 1.11 },
+                                        { 3.26, 75, 2450, 1.13 },
+                                        { 3.597, 74, 2500, 1.19 },
+                                        { 3.76, 73, 2525, 1.11 },
+                                        { 3.993, 72, 2575, 1.16 },
+                                        { 4.242, 71, 2650, 1.19 },
+                                        { 4.524, 70, 2750, 1.29 },
+                                        { 4.878, 69, 2750, 1.19 },
+                                        { 5.112, 69, 2850, 1.24 },
+                                        { 5.304, 69, 2900, 1.30 },
+                                        { 5.65, 69, 2980, 1.30 },
+                                        { 5.997, 67, 3150, 1.33 },
+                                        { 6.235, 65, 3250, 1.26 },
+                                        { 6.507, 63, 3300, 1.21 },
+                                        { 6.7, 59, 3450, 1.20 }
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;
@@ -588,7 +594,7 @@ public final class Constants {
                                                                                                   // ground in auto
                                                                                                   // (already latched on
                                                                                                   // L1) // 15.0
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.6; // climber position to get
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.8; // climber position to get
                                                                                           // ready to grab L2 (already
                                                                                           // latched on L1) // 0.4
                         public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
@@ -650,11 +656,21 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.6;
+                        public static final double kP0 = 0.3;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.1;
-                        public static final double kS0 = 0.1;
-                        public static final double kV0 = 0.15;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.3;
+                        public static final double kV0 = 0.16;
+                }
+
+                public static final class Feeder {
+                        public static final double kP0 = 2.4;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.4;
+                        public static final double kV0 = 0.5;
+
+                        public static final double kP1 = 9999999.0;
                 }
         }
 
@@ -846,7 +862,7 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0;
+                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 10.0) * (130.0 / 18.0);
                 }
 
                 public static final class Climber {
@@ -893,7 +909,8 @@ public final class Constants {
 
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
-                public static final int INTAKE_ROLLER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_MASTER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_FOLLOWER_MOTOR_ID = 16;
 
                 // Feeder
                 public static final int DYE_ROTOR_MOTOR_ID = 15;

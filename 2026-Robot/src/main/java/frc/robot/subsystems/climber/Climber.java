@@ -74,7 +74,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void retractClimber() {
-    io.setPower(-120, 0.7);
+    io.setPower(-120, 0.9);
   }
 
   public void idleClimber() {
@@ -83,7 +83,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void extendClimber() {
-    io.setPower(120, 0.7);
+    io.setPower(120, 0.9);
   }
 
   public void extendClimberSlow() {
@@ -188,14 +188,16 @@ public class Climber extends SubsystemBase {
               stopClimber();
               Logger.recordOutput("Climber/Output", "Stopped Extending L2");
             } else {
-              // if (getClimberPosition() <
-              // Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES + 3.0) {
-              // retractClimberSlow();
-              // } else {
-              if (!stop) {
-                retractClimber();
+              if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES + 3.0) {
+
+                if (!stop) {
+                  retractClimberSlow();
+                }
+              } else {
+                if (!stop) {
+                  retractClimber();
+                }
               }
-              // }
               Logger.recordOutput("Climber/Output", "Extending L2");
             }
             break;

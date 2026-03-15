@@ -338,7 +338,7 @@ public class Superstructure extends SubsystemBase {
         rotatedShotSolution);
 
     // Feeder
-    feeder.setWantedState(FeederState.DEFAULT);
+    feeder.setWantedState(FeederState.REVERSE);
     intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
@@ -544,16 +544,17 @@ public class Superstructure extends SubsystemBase {
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
-    Translation2d target = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation());
-    Logger.recordOutput("Shooter/feed target", target);
+    Translation2d target = Constants.Field.getHubPose().toTranslation2d();
+    // Logger.recordOutput("Shooter/feed target", target);
     Translation2d hub = target;
     double distance2D = initial.toTranslation2d().getDistance(hub);
-    Rotation2d turret = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation())
+    Rotation2d turret = Constants.Field.getHubPose().toTranslation2d()
         .minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
-    Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
-    Logger.recordOutput("Shooter/Manual Shoot Angle to Hub", turret.getDegrees());
+    // Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
+    // Logger.recordOutput("Shooter/Manual Shoot Angle to Hub",
+    // turret.getDegrees());
     ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
         manualShootRPM.get(),
         turret, distance2D, 2.0);
@@ -568,16 +569,17 @@ public class Superstructure extends SubsystemBase {
     Translation3d initial = new Translation3d(drive.getMt2Pose2dX(), drive
         .getMt2Pose2dY(), 0.0)
         .plus(Constants.Physical.Shooter.SHOOTER_POSITION.rotateBy(new Rotation3d(drive.getMt2Pose2d().getRotation())));
-    Translation2d target = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation());
-    Logger.recordOutput("Shooter/feed target", target);
+    Translation2d target = Constants.Field.getHubPose().toTranslation2d();
+    // Logger.recordOutput("Shooter/feed target", target);
     Translation2d hub = target;
     double distance2D = initial.toTranslation2d().getDistance(hub);
-    Rotation2d turret = Constants.Field.getFeedTarget(drive.getMt2Pose2d().getTranslation())
+    Rotation2d turret = Constants.Field.getHubPose().toTranslation2d()
         .minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
-    Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
-    Logger.recordOutput("Shooter/Manual Shoot Angle to Hub", turret.getDegrees());
+    // Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
+    // Logger.recordOutput("Shooter/Manual Shoot Angle to Hub",
+    // turret.getDegrees());
     ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
         manualShootRPM.get(),
         turret, distance2D, 2.0);
@@ -736,8 +738,10 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Superstructure/turret field pose", new Pose3d(getTurretFieldPosition(),
-        new Rotation3d(drive.getMt2Pose2d().getRotation().plus(shooter.getRobotRelativeTurretAngle()))));
+    // Logger.recordOutput("Superstructure/turret field pose", new
+    // Pose3d(getTurretFieldPosition(),
+    // new
+    // Rotation3d(drive.getMt2Pose2d().getRotation().plus(shooter.getRobotRelativeTurretAngle()))));
     PARTY();
     Rotation2d turret = Constants.Field.getHubPose().toTranslation2d().minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
@@ -756,7 +760,7 @@ public class Superstructure extends SubsystemBase {
           trajectoryVelocity.remove(i);
           i--;
         } else {
-          Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
+          // Logger.recordOutput("Fuel/" + i, trajectoryPoint.get(i));
         }
       }
     }
@@ -765,9 +769,9 @@ public class Superstructure extends SubsystemBase {
       tempLastState = currentSuperState;
     }
     Logger.recordOutput("States/Super State", currentSuperState);
-    Logger.recordOutput("Shooter/Manual Shoot RPM", manualShootRPM.get());
-    Logger.recordOutput("Shooter/Manual Shoot Hood Angle", manualShootHoodAngle.get());
-    Logger.recordOutput("Shooter/Manual Shoot Turret Angle", manualShootTurretAngle.get());
+    Logger.recordOutput("Testing/Manual Shoot RPM", manualShootRPM.get());
+    Logger.recordOutput("Testing/Manual Shoot Hood Angle", manualShootHoodAngle.get());
+    Logger.recordOutput("Testing/Manual Shoot Turret Angle", manualShootTurretAngle.get());
     Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot());
     applyStates();
 

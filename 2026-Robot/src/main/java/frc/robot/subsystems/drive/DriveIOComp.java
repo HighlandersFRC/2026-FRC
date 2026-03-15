@@ -265,22 +265,23 @@ public class DriveIOComp extends DriveIO {
                         mt2Odometry.update(getYaw(), swerveModulePositions);
                 }
 
-                Logger.recordOutput("num times flat", numTimesFlat);
+                // Logger.recordOutput("Testing/num times flat", numTimesFlat);
                 if (!tiltedFiltered && onBump) {
                         onBump = false;
                         double vx = getChassisSpeeds().vxMetersPerSecond;
                         double direction = Math.signum(vx);
                         Pose2d currentPose = mt2Odometry.getEstimatedPosition();
-                        Logger.recordOutput("Current pose on bump", currentPose.getTranslation());
+                        // Logger.recordOutput("Testing/Current pose on bump",
+                        // currentPose.getTranslation());
                         Translation2d bump = new Translation2d(
                                         direction * Constants.Field.BUMP_LENGTH, 0.0);
-                        Logger.recordOutput("Bump translation", bump);
+                        // Logger.recordOutput("Testing/Bump translation", bump);
                         Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
                                         getYaw());
-                        Logger.recordOutput("Corrected pose", correctedPose);
+                        // Logger.recordOutput("Testing/Corrected pose", correctedPose);
                         setPosition(correctedPose);
                 }
-                Logger.recordOutput("on bump", onBump);
+                // Logger.recordOutput("Testing/on bump", onBump);
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
@@ -481,9 +482,10 @@ public class DriveIOComp extends DriveIO {
         protected ChassisSpeeds getChassisSpeeds() {
                 ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
                                 filterOmega.lastValue());
-                Logger.recordOutput("Drive/RobotVelocities/X", avg.vxMetersPerSecond);
-                Logger.recordOutput("Drive/RobotVelocities/Y", avg.vyMetersPerSecond);
-                Logger.recordOutput("Drive/RobotVelocities/Omega", avg.omegaRadiansPerSecond);
+                // Logger.recordOutput("Drive/RobotVelocities/X", avg.vxMetersPerSecond);
+                // Logger.recordOutput("Drive/RobotVelocities/Y", avg.vyMetersPerSecond);
+                // Logger.recordOutput("Drive/RobotVelocities/Omega",
+                // avg.omegaRadiansPerSecond);
                 return avg;
         }
 
@@ -491,11 +493,13 @@ public class DriveIOComp extends DriveIO {
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
-                Logger.recordOutput("Robot/turret velocity filtered", Globals.turretVelocity);
-                Logger.recordOutput("Robot/limelight ang vel rel to turret",
-                                Constants.Vision.getLimelightAngVelRelToField(Globals.turretVelocity,
-                                                getChassisSpeeds().omegaRadiansPerSecond));
-                Logger.recordOutput("Robot/chassis speeds ang vel", getChassisSpeeds().omegaRadiansPerSecond);
+                // Logger.recordOutput("Robot/turret velocity filtered",
+                // Globals.turretVelocity);
+                // Logger.recordOutput("Robot/limelight ang vel rel to turret",
+                // Constants.Vision.getLimelightAngVelRelToField(Globals.turretVelocity,
+                // getChassisSpeeds().omegaRadiansPerSecond));
+                // Logger.recordOutput("Robot/chassis speeds ang vel",
+                // getChassisSpeeds().omegaRadiansPerSecond);
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
 
