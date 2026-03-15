@@ -11,8 +11,8 @@
             "title": "Field",
             "x": 0.0,
             "y": 0.0,
-            "width": 1024.0,
-            "height": 640.0,
+            "width": 768.0,
+            "height": 512.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -30,9 +30,9 @@
           },
           {
             "title": "Selected Auto",
-            "x": 1024.0,
+            "x": 896.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -43,7 +43,7 @@
           },
           {
             "title": "Left or Right",
-            "x": 1280.0,
+            "x": 1024.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
@@ -55,9 +55,9 @@
           },
           {
             "title": "Turret Angle",
-            "x": 1024.0,
-            "y": 512.0,
-            "width": 512.0,
+            "x": 768.0,
+            "y": 0.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -69,10 +69,10 @@
           },
           {
             "title": "Climber Position",
-            "x": 1024.0,
+            "x": 768.0,
             "y": 128.0,
-            "width": 256.0,
-            "height": 256.0,
+            "width": 128.0,
+            "height": 128.0,
             "type": "Large Text Display",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Climber/Climber Position",
@@ -82,10 +82,10 @@
           },
           {
             "title": "Intake Position",
-            "x": 1280.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 768.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
             "type": "Large Text Display",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Intake/Intake Position",
@@ -95,9 +95,9 @@
           },
           {
             "title": "Field Side",
-            "x": 1024.0,
-            "y": 384.0,
-            "width": 512.0,
+            "x": 896.0,
+            "y": 128.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -105,6 +105,125 @@
               "period": 0.06,
               "data_type": "string",
               "show_submit_button": false
+            }
+          },
+          {
+            "title": "AutoWinnerAlliance From FMS",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/AutoWinnerAlliance",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "CurrentShift",
+            "x": 1024.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/CurrentShift",
+              "period": 0.06,
+              "data_type": "int"
+            }
+          },
+          {
+            "title": "HasGameData",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/HasGameData",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "IsOurShift",
+            "x": 1152.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/IsOurShift",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "ShiftTimeRemaining",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/ShiftTimeRemaining",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "MatchTimeRemaining",
+            "x": 1152.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/MatchTimeRemaining",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "AutoWinnerChooser",
+            "x": 896.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/ShiftManager/AutoWinnerChooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "HumanOverride",
+            "x": 896.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftManager/HumanOverride",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
