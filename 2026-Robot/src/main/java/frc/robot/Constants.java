@@ -508,7 +508,8 @@ public final class Constants {
                         private final static double RPM_OFFSET = 0.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
-                        public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
+                        public static final double[][] SHOT_MAP = {
+                                        { 1.372, 85, 1850, 0.82 },
                                         { 1.627, 85, 2000, 0.97 },
                                         { 1.987, 82, 2000, 0.96 },
                                         { 2.285, 80, 2250, 1.06 },
@@ -688,7 +689,7 @@ public final class Constants {
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
-                                Math.toRadians(-21.6),
+                                Math.toRadians(-26.0),
                                 Math.toRadians(0.0));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
