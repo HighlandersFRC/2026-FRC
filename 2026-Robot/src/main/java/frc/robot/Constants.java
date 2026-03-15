@@ -175,7 +175,7 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.1905));
+                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.44));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
@@ -674,12 +674,12 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-6.19143), inchesToMeters(0.0), inchesToMeters(21.1905));
+                                inchesToMeters(-6.08), inchesToMeters(0.0), inchesToMeters(7.9));
 
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
-                                Math.toRadians(-21.6),
+                                Math.toRadians(-26.0),
                                 Math.toRadians(0.0));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
@@ -725,18 +725,18 @@ public final class Constants {
                         Pose3d robotToCam = robotToTurret.transformBy(new Transform3d(
                                         Translation3d.kZero, new Rotation3d(turretAngle))).transformBy(turretToCam);
 
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/X",
-                        // Units.metersToInches(robotToCam.getX()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/Y",
-                        // Units.metersToInches(robotToCam.getY()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/Z",
-                        // Units.metersToInches(robotToCam.getZ()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/RX",
-                        // Math.toDegrees(robotToCam.getRotation().getX()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/RY",
-                        // Math.toDegrees(robotToCam.getRotation().getY()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
-                        // Math.toDegrees(robotToCam.getRotation().getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/X",
+                                        Units.metersToInches(robotToCam.getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/Y",
+                                        -Units.metersToInches(robotToCam.getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/Z",
+                                        Units.metersToInches(robotToCam.getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RX",
+                                        Math.toDegrees(robotToCam.getRotation().getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RY",
+                                        -Math.toDegrees(robotToCam.getRotation().getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
+                                        Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
