@@ -51,7 +51,7 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
-                intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 pivotMotor.getConfigurator().apply(intakeConfig);
                 pivotMotor.setNeutralMode(NeutralModeValue.Coast);

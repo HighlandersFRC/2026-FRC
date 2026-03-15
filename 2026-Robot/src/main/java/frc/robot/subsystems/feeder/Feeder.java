@@ -61,7 +61,7 @@ public class Feeder extends SubsystemBase {
   }
 
   public void setDyeRotorRPM(double rpm) {
-    Logger.recordOutput("Feeder/Dye Rotor RPM Setpoint", rpm);
+    // Logger.recordOutput("Feeder/Dye Rotor RPM Setpoint", rpm);
     io.setDyeRotorRPM(rpm);
   }
 

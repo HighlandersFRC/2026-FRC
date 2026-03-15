@@ -28,6 +28,7 @@ import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
 import frc.robot.tools.logging.Elastic;
+import frc.robot.tools.logging.ShiftManager;
 
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
@@ -125,7 +126,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
+    Logger.recordOutput("Physical/Field Side", Globals.fieldSide);
     if (OI.isRedSide()) {
       Globals.fieldSide = "red";
     } else {
@@ -147,7 +148,7 @@ public class Robot extends LoggedRobot {
       bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
       Logger.recordOutput("Sim/Arm Sim", bot);
     }
-    Logger.recordOutput("Field Side", Globals.fieldSide);
+    // Logger.recordOutput("Field Side", Globals.fieldSide);
     Logger.recordOutput("Left Side?", OI.isLeftSide());
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
@@ -216,6 +217,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
+    ShiftManager.getInstance().update();
 
   }
 

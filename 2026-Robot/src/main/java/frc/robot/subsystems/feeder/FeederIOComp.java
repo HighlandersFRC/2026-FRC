@@ -61,7 +61,7 @@ class FeederIOComp implements FeederIO {
     public void setDyeRotorRPM(double rpm) {
         double velocitySetpoint = rpm / 60.0;
 
-        Logger.recordOutput("Feeder RPM error", rpm - getDyeRotorRPM());
+        // Logger.recordOutput("Feeder RPM error", rpm - getDyeRotorRPM());
         if (rpm - getDyeRotorRPM() < 10.0) {
             dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(false));
             useSlot0 = true;
@@ -70,7 +70,7 @@ class FeederIOComp implements FeederIO {
             // dyeRotorMotor.set(1.0);
             useSlot0 = false;
         }
-        Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
+        // Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
     }
 
     @Override
@@ -82,7 +82,8 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void updateInputs(FeederState systemState) {
-        Logger.recordOutput("Feeder/Dye Rotor Torque", dyeRotorMotor.getStatorCurrent().getValueAsDouble());
+        // Logger.recordOutput("Feeder/Dye Rotor Torque",
+        // dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 
         // if (feederP.changed() || feederI.changed() || feederD.changed() ||
         // feederS.changed() || feederV
