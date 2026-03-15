@@ -585,7 +585,7 @@ public final class Constants {
                                                                                                   // ground in auto
                                                                                                   // (already latched on
                                                                                                   // L1) // 15.0
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.6; // climber position to get
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.8; // climber position to get
                                                                                           // ready to grab L2 (already
                                                                                           // latched on L1) // 0.4
                         public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
