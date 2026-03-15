@@ -27,6 +27,7 @@ import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
 import frc.robot.tools.logging.Elastic;
+import frc.robot.tools.logging.ShiftManager;
 
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
@@ -212,6 +213,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
+    ShiftManager.getInstance().update();
 
   }
 
