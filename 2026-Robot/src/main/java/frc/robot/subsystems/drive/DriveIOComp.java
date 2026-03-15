@@ -37,6 +37,7 @@ import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
 import frc.robot.OI;
 import frc.robot.subsystems.drive.Drive.DriveState;
+import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.Vector;
 
 public class DriveIOComp extends DriveIO {
@@ -66,6 +67,40 @@ public class DriveIOComp extends DriveIO {
         private final CANcoder backRightCanCoder = new CANcoder(Constants.CANInfo.BACK_RIGHT_MODULE_CANCODER_ID,
                         Constants.CANInfo.CANBUS_NAME);
         private final Gyro gyro = new Gyro();
+
+        public static TunableNumber leftFrontCameraYaw = new TunableNumber("Left Front Camera Yaw",
+                        Math.toDegrees(Constants.Vision.leftFrontRotation3d.getX()));
+        public static TunableNumber leftBackCameraYaw = new TunableNumber("Left Back Camera Yaw",
+                        Math.toDegrees(Constants.Vision.leftBackRotation3d.getX()));
+        public static TunableNumber rightFrontCameraYaw = new TunableNumber("Right Front Camera Yaw",
+                        Math.toDegrees(Constants.Vision.rightFrontRotation3d.getX()));
+        public static TunableNumber rightBackCameraYaw = new TunableNumber("Right Back Camera Yaw",
+                        Math.toDegrees(Constants.Vision.rightBackRotation3d.getX()));
+
+        public static TunableNumber leftFrontCameraPitch = new TunableNumber("Left Front Camera Pitch",
+                        Math.toDegrees(Constants.Vision.leftFrontRotation3d.getY()));
+        public static TunableNumber leftBackCameraPitch = new TunableNumber("Left Back Camera Pitch",
+                        Math.toDegrees(Constants.Vision.leftBackRotation3d.getY()));
+        public static TunableNumber rightFrontCameraPitch = new TunableNumber("Right Front Camera Pitch",
+                        Math.toDegrees(Constants.Vision.rightFrontRotation3d.getY()));
+        public static TunableNumber rightBackCameraPitch = new TunableNumber("Right Back Camera Pitch",
+                        Math.toDegrees(Constants.Vision.rightBackRotation3d.getY()));
+
+        public static TunableNumber leftFrontCameraRoll = new TunableNumber("Left Front Camera Roll",
+                        Math.toDegrees(Constants.Vision.leftFrontRotation3d.getZ()));
+        public static TunableNumber leftBackCameraRoll = new TunableNumber("Left Back Camera Roll",
+                        Math.toDegrees(Constants.Vision.leftBackRotation3d.getZ()));
+        public static TunableNumber rightFrontCameraRoll = new TunableNumber("Right Front Camera Roll",
+                        Math.toDegrees(Constants.Vision.rightFrontRotation3d.getZ()));
+        public static TunableNumber rightBackCameraRoll = new TunableNumber("Right Back Camera Roll",
+                        Math.toDegrees(Constants.Vision.rightBackRotation3d.getZ()));
+
+        public static TunableNumber limelightYaw = new TunableNumber("Limelight Yaw",
+                        Math.toDegrees(Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET.getX()));
+        public static TunableNumber limelightPitch = new TunableNumber("Limelight Pitch",
+                        Math.toDegrees(Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET.getY()));
+        public static TunableNumber limelightRoll = new TunableNumber("Limelight Roll",
+                        Math.toDegrees(Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET.getZ()));
 
         // creates all 4 modules
         private final SwerveModule frontRight = new SwerveModule(1, frontRightAngleMotor, frontRightDriveMotor,
@@ -487,6 +522,64 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         void update(DriveState currentState) {
+                if (leftFrontCameraPitch.changed() || leftFrontCameraYaw.changed()
+                                || leftFrontCameraRoll.changed()) {
+                        Constants.Vision.leftFrontRotation3d = new Rotation3d(
+                                        Math.toRadians(leftFrontCameraPitch.get()),
+                                        Math.toRadians(leftFrontCameraYaw.get()),
+                                        Math.toRadians(leftFrontCameraRoll.get()));
+                        System.out.println("Left Front Camera Rotation Updated: "
+                                        + Constants.Vision.leftFrontRotation3d.getX() + ", " +
+                                        Constants.Vision.leftFrontRotation3d.getY() + ", "
+                                        + Constants.Vision.leftFrontRotation3d.getZ());
+                }
+                if (leftBackCameraPitch.changed() || leftBackCameraYaw.changed()
+                                || leftBackCameraRoll.changed()) {
+                        Constants.Vision.leftBackRotation3d = new Rotation3d(
+                                        Math.toRadians(leftBackCameraPitch.get()),
+                                        Math.toRadians(leftBackCameraYaw.get()),
+                                        Math.toRadians(leftBackCameraRoll.get()));
+                        System.out.println("Left Back Camera Rotation Updated: "
+                                        + Constants.Vision.leftBackRotation3d.getX() + ", " +
+                                        Constants.Vision.leftBackRotation3d.getY() + ", "
+                                        + Constants.Vision.leftBackRotation3d.getZ());
+                }
+                if (rightFrontCameraPitch.changed() || rightFrontCameraYaw.changed()
+                                || rightFrontCameraRoll.changed()) {
+                        Constants.Vision.rightFrontRotation3d = new Rotation3d(
+                                        Math.toRadians(rightFrontCameraPitch.get()),
+                                        Math.toRadians(rightFrontCameraYaw.get()),
+                                        Math.toRadians(rightFrontCameraRoll.get()));
+                        System.out.println("Right Front Camera Rotation Updated: "
+                                        + Constants.Vision.rightFrontRotation3d.getX() + ", " +
+                                        Constants.Vision.rightFrontRotation3d.getY() + ", "
+                                        + Constants.Vision.rightFrontRotation3d.getZ());
+                }
+                if (rightBackCameraPitch.changed() || rightBackCameraYaw.changed()
+                                || rightBackCameraRoll.changed()) {
+                        Constants.Vision.rightBackRotation3d = new Rotation3d(
+                                        Math.toRadians(rightBackCameraPitch.get()),
+                                        Math.toRadians(rightBackCameraYaw.get()),
+                                        Math.toRadians(rightBackCameraRoll.get()));
+                        System.out.println("Right Back Camera Rotation Updated: "
+                                        + Constants.Vision.rightBackRotation3d.getX() + ", " +
+                                        Constants.Vision.rightBackRotation3d.getY() + ", "
+                                        + Constants.Vision.rightBackRotation3d.getZ());
+                }
+                if (limelightPitch.changed() || limelightRoll.changed() || limelightYaw.changed()) {
+                        Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
+                                        Math.toRadians(limelightPitch.get()),
+                                        Math.toRadians(limelightYaw.get()),
+                                        Math.toRadians(limelightRoll.get()));
+                        System.out.println(
+                                        "Limelight Rotation Updated: "
+                                                        + Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET.getX()
+                                                        + ", " +
+                                                        Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET.getY()
+                                                        + ", "
+                                                        + Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET
+                                                                        .getZ());
+                }
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
                 Logger.recordOutput("Robot/turret velocity filtered", Globals.turretVelocity);
