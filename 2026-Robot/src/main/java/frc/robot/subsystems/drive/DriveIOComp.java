@@ -500,8 +500,8 @@ public class DriveIOComp extends DriveIO {
                 // getChassisSpeeds().omegaRadiansPerSecond));
                 // Logger.recordOutput("Robot/chassis speeds ang vel",
                 // getChassisSpeeds().omegaRadiansPerSecond);
-                // Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
-                // Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
+                Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
+                Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
 
         }
 

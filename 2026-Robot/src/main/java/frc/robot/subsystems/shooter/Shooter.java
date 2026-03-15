@@ -140,18 +140,18 @@ public class Shooter extends SubsystemBase {
     // Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
     // Logger.recordOutput("Shooter/Hood Precision Required",
     // Constants.SetPoints.Hood.HOOD_PRECISION);
-    // Logger.recordOutput("Shooter/Turret Error", turretAngleError);
-    // Logger.recordOutput("Shooter/Turret Precision Required",
-    // turretPrecisionRequired);
-    // Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
-    // Logger.recordOutput("Shooter/Flywheel RPM Precision Required",
-    // Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
+    Logger.recordOutput("Shooter/Turret Error", turretAngleError);
+    Logger.recordOutput("Shooter/Turret Precision Required",
+        turretPrecisionRequired);
+    Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
+    Logger.recordOutput("Shooter/Flywheel RPM Precision Required",
+        Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
     // Logger.recordOutput("Shooter/Ready To Shoot Raw", ready);
     boolean debouncedReady = readyToShootDebouncer.calculate(ready);
-    // Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
+    Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
     return debouncedReady;
   }
 
@@ -177,8 +177,8 @@ public class Shooter extends SubsystemBase {
     }
     double turretPrecisionRequired = Math
         .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
-    // Logger.recordOutput("Shooter/Turret Precision Required",
-    // Math.toDegrees(turretPrecisionRequired));
+    Logger.recordOutput("Shooter/Turret Precision Required",
+        Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
@@ -284,9 +284,9 @@ public class Shooter extends SubsystemBase {
     // + Math.pow(_trajectorySetpoint.getY(), 2)
     // + Math.pow(_trajectorySetpoint.getZ(), 2)));
     Logger.recordOutput("Shooter/Shooter State", systemState);
-    // Logger.recordOutput("Shooter/Turret Current", io.getTurretCurrent());
-    // Logger.recordOutput("Shooter/Hood Current", io.getHoodCurrent());
-    // Logger.recordOutput("Shooter/Flywheel Current", io.getFlywheelCurrent());
+    Logger.recordOutput("Shooter/Turret Current", io.getTurretCurrent());
+    Logger.recordOutput("Shooter/Hood Current", io.getHoodCurrent());
+    Logger.recordOutput("Shooter/Flywheel Current", io.getFlywheelCurrent());
     Logger.recordOutput("States/Shooter State", systemState);
 
     // Logger.recordOutput("Shooter/Turret Tracking Angle",
@@ -316,7 +316,7 @@ public class Shooter extends SubsystemBase {
     }
 
     if (DriverStation.isDisabled()) {
-      // Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
+      Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
     }
   }
 

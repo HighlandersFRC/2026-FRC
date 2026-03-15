@@ -144,7 +144,7 @@ public class ShotCalculator {
                                 turretVelocity.getX(),
                                 turretVelocity.getY()).times(-timeOfFlight));
                 // Logger.recordOutput("ShotCalculator/TimeOfFlight", timeOfFlight);
-                // Logger.recordOutput("ShotCalculator/TargetPose", new Pose2d(predictedTarget, new Rotation2d()));
+                Logger.recordOutput("ShotCalculator/TargetPose", new Pose2d(predictedTarget, new Rotation2d()));
                 distanceToTarget = turretPosition.getTranslation().getDistance(predictedTarget);
                 Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
                 double flywheelRPM = flywheelMap.get(distanceToTarget);
