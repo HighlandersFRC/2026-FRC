@@ -918,7 +918,7 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
     // Logger.recordOutput("FF-x-vel", feedForwardX);
     // Logger.recordOutput("FF-y-vel", feedForwardY);
-    // Logger.recordOutput("current point idx", currentIndex);
+    Logger.recordOutput("Auto/current point idx", currentIndex);
     // Logger.recordOutput("point idx", velocityArray[3].intValue());
     // Logger.recordOutput("look-ahead", lookaheadRadius);
     // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
