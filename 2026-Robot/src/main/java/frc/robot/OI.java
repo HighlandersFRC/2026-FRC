@@ -5,8 +5,6 @@ package frc.robot;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -14,12 +12,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.tools.TriggerButton;
-import frc.robot.tools.logging.TunableNumber;
 
 public class OI {
     public static SendableChooser<String> fieldSide = new SendableChooser<String>();
     public static SendableChooser<String> leftRight = new SendableChooser<String>();
-
     public static SendableChooser<String> auto = new SendableChooser<String>();
     public static XboxController driverController = new XboxController(0);
     public static XboxController operatorController = new XboxController(1);

@@ -530,6 +530,8 @@ public class DriveIOComp extends DriveIO {
                                         Math.toRadians(leftFrontCameraPitch.get()),
                                         Math.toRadians(leftFrontCameraYaw.get()),
                                         Math.toRadians(leftFrontCameraRoll.get()));
+
+                        leftFrontPhotonPoseEstimator.setRobotToCameraTransform(leftFrontRobotToCam);
                         System.out.println("Left Front Camera Rotation Updated: "
                                         + Constants.Vision.leftFrontRotation3d.getX() + ", " +
                                         Constants.Vision.leftFrontRotation3d.getY() + ", "
@@ -541,6 +543,8 @@ public class DriveIOComp extends DriveIO {
                                         Math.toRadians(leftBackCameraPitch.get()),
                                         Math.toRadians(leftBackCameraYaw.get()),
                                         Math.toRadians(leftBackCameraRoll.get()));
+
+                        leftBackPhotonPoseEstimator.setRobotToCameraTransform(leftBackRobotToCam);
                         System.out.println("Left Back Camera Rotation Updated: "
                                         + Constants.Vision.leftBackRotation3d.getX() + ", " +
                                         Constants.Vision.leftBackRotation3d.getY() + ", "
@@ -552,6 +556,8 @@ public class DriveIOComp extends DriveIO {
                                         Math.toRadians(rightFrontCameraPitch.get()),
                                         Math.toRadians(rightFrontCameraYaw.get()),
                                         Math.toRadians(rightFrontCameraRoll.get()));
+
+                        rightFrontPhotonPoseEstimator.setRobotToCameraTransform(rightFrontRobotToCam);
                         System.out.println("Right Front Camera Rotation Updated: "
                                         + Constants.Vision.rightFrontRotation3d.getX() + ", " +
                                         Constants.Vision.rightFrontRotation3d.getY() + ", "
@@ -563,6 +569,8 @@ public class DriveIOComp extends DriveIO {
                                         Math.toRadians(rightBackCameraPitch.get()),
                                         Math.toRadians(rightBackCameraYaw.get()),
                                         Math.toRadians(rightBackCameraRoll.get()));
+
+                        rightBackPhotonPoseEstimator.setRobotToCameraTransform(rightBackRobotToCam);
                         System.out.println("Right Back Camera Rotation Updated: "
                                         + Constants.Vision.rightBackRotation3d.getX() + ", " +
                                         Constants.Vision.rightBackRotation3d.getY() + ", "
@@ -573,6 +581,7 @@ public class DriveIOComp extends DriveIO {
                                         Math.toRadians(limelightPitch.get()),
                                         Math.toRadians(limelightYaw.get()),
                                         Math.toRadians(limelightRoll.get()));
+
                         System.out.println(
                                         "Limelight Rotation Updated: "
                                                         + Constants.Vision.LIMELIGHT_ROTATION_RELATIVE_TO_TURRET.getX()
