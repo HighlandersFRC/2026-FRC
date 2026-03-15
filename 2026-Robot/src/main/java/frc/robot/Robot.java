@@ -90,12 +90,14 @@ public class Robot extends LoggedRobot {
     m_robotContainer.drive.init();
     m_robotContainer.lights.init();
 
-    PortForwarder.add(5800, "orangepi1.local", 5800);
-    PortForwarder.add(5801, "orangepi1.local", 5801);
+    PortForwarder.add(4000, "10.44.99.40", 5800);
+    PortForwarder.add(4001, "10.44.99.40", 5801);
 
-    PortForwarder.add(5800, "10.44.99.34", 5800);
-    PortForwarder.add(5801, "10.44.99.34", 5801);
+    PortForwarder.add(4100, "10.44.99.41", 5800);
+    PortForwarder.add(4101, "10.44.99.41", 5801);
 
+    PortForwarder.add(4200, "10.44.99.42", 5800);
+    PortForwarder.add(4201, "10.44.99.42", 5801);
     m_robotContainer.lights.clearAnimations();
 
     // m_robotContainer.lights.setFlashYellow();
