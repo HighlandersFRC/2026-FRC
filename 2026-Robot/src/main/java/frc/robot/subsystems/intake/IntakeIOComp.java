@@ -15,7 +15,9 @@ import frc.robot.subsystems.intake.Intake.IntakeState;
 class IntakeIOComp implements IntakeIO {
         private final TalonFX pivotMotor = new TalonFX(Constants.CANInfo.INTAKE_PIVOT_MOTOR_ID,
                         new CANBus(Constants.CANInfo.CANBUS_NAME));
-        private final TalonFX rollerMotor = new TalonFX(Constants.CANInfo.INTAKE_ROLLER_MOTOR_ID,
+        private final TalonFX rollerMotorMaster = new TalonFX(Constants.CANInfo.INTAKE_ROLLER_MASTER_MOTOR_ID,
+                        new CANBus(Constants.CANInfo.CANBUS_NAME));
+        private final TalonFX rollerMotorFollower = new TalonFX(Constants.CANInfo.INTAKE_ROLLER_FOLLOWER_MOTOR_ID,
                         new CANBus(Constants.CANInfo.CANBUS_NAME));
 
         private final double intakeJerk = 0.0;
@@ -49,21 +51,31 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
-                intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 pivotMotor.getConfigurator().apply(intakeConfig);
                 pivotMotor.setNeutralMode(NeutralModeValue.Coast);
                 pivotMotor.setPosition(0.0);
 
-                TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
-                rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-                rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerConfig.CurrentLimits.StatorCurrentLimit = 80;
-                rollerConfig.CurrentLimits.SupplyCurrentLimit = 80;
-                rollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                TalonFXConfiguration rollerMasterConfig = new TalonFXConfiguration();
+                rollerMasterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+                rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 80;
+                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 80;
+                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-                rollerMotor.getConfigurator().apply(rollerConfig);
-                rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+                rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
+                rollerMotorMaster.setNeutralMode(NeutralModeValue.Brake);
+
+                TalonFXConfiguration rollerFollowerConfig = new TalonFXConfiguration();
+                rollerFollowerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 80;
+                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 80;
+                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+                rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);
+                rollerMotorFollower.setNeutralMode(NeutralModeValue.Brake);
         }
 
         @Override
@@ -84,7 +96,8 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void setRollerPercent(double percent) {
-                rollerMotor.set(-percent);
+                rollerMotorMaster.set(percent);
+                rollerMotorFollower.set(percent);
         }
 
         @Override
@@ -96,7 +109,8 @@ class IntakeIOComp implements IntakeIO {
         public void setRollerTorque(double amps, double maxPercent) {
                 // rollerMotor.setControl(new
                 // TorqueCurrentFOC(-amps).withMaxAbsDutyCycle(maxPercent));
-                rollerMotor.set(-maxPercent);
+                rollerMotorMaster.set(maxPercent);
+                rollerMotorFollower.set(maxPercent);
         }
 
         @Override
@@ -111,12 +125,12 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public double getIntakeRollerTemp() {
-                return rollerMotor.getDeviceTemp().getValueAsDouble();
+                return rollerMotorMaster.getDeviceTemp().getValueAsDouble();
         }
 
         @Override
         public double getIntakeRollerVelocity() {
-                return rollerMotor.getVelocity().getValueAsDouble();
+                return rollerMotorMaster.getVelocity().getValueAsDouble();
         }
 
         @Override
@@ -126,7 +140,7 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public double getIntakeRollerCurrent() {
-                return rollerMotor.getTorqueCurrent().getValueAsDouble();
+                return rollerMotorMaster.getTorqueCurrent().getValueAsDouble();
         }
 
         @Override

@@ -899,7 +899,8 @@ public final class Constants {
 
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
-                public static final int INTAKE_ROLLER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_MASTER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_FOLLOWER_MOTOR_ID = 16;
 
                 // Feeder
                 public static final int DYE_ROTOR_MOTOR_ID = 15;
