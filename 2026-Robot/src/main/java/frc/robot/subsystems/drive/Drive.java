@@ -404,25 +404,31 @@ public class Drive extends SubsystemBase {
       controllerVector.setJ(-ySpeed);
     }
 
-    boolean xDecreasing = xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
-        .abs(previousSpeeds.vxMetersPerSecond));
-    boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
-        .abs(previousSpeeds.vyMetersPerSecond));
+    // boolean xDecreasing =
+    // xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
+    // .abs(previousSpeeds.vxMetersPerSecond));
+    // boolean yDecreasing =
+    // yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
+    // .abs(previousSpeeds.vyMetersPerSecond));
 
     previousControllerSpeeds = controllerSpeeds;
-    double vx = xLimiter.calculate(controllerVector.getI());
-    double vy = yLimiter.calculate(controllerVector.getJ());
+    // double vx = xLimiter.calculate(controllerVector.getI());
+    // double vy = yLimiter.calculate(controllerVector.getJ());
     if (wantedState == DriveState.DEFAULT_SLOW) {
-      if (!xDecreasing) {
-        controllerVector.setI(vx);
-        xLimiter.reset(vx);
-      }
-      if (!yDecreasing) {
-        controllerVector.setJ(vy);
-        yLimiter.reset(vy);
-      }
+      // if (!xDecreasing) {
+      // controllerVector.setI(vx);
+      // xLimiter.reset(vx);
+      // }
+      // if (!yDecreasing) {
+      // controllerVector.setJ(vy);
+      // yLimiter.reset(vy);
+      // }
       controllerVector = controllerVector.scaled(0.41);
+      controllerVector = controllerVector.cap(0.67);
       turn *= 0.41;
+      if (Math.abs(turn) > Math.PI / 4.0) {
+        turn = Math.PI / 4.0 * Math.copySign(1, turn);
+      }
     }
     io.drive(controllerVector, turn);
   }
