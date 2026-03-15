@@ -491,8 +491,8 @@ public class Drive extends SubsystemBase {
     } else {
       hitNumber = 0;
     }
-    Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-        + Math.pow((y - getMt2Pose2dY()), 2)));
+    // Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    // + Math.pow((y - getMt2Pose2dY()), 2)));
     if (hitNumber > 1) {
       return true;
     } else {
@@ -564,7 +564,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToPoint(Pose2d targetPoint) {
-    Logger.recordOutput("Drive/Goal X, Y, Theta", targetPoint);
+    // Logger.recordOutput("Drive/Goal X, Y, Theta", targetPoint);
     double x = targetPoint.getX();
     double y = targetPoint.getY();
     double theta = targetPoint.getRotation().getRadians();
@@ -644,9 +644,11 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveOnLine(Vector lineVector, Translation2d pointOnLine, double angrad) {
-    Logger.recordOutput("Drive/Point On Line", new Pose2d(pointOnLine, new Rotation2d()));
-    Logger.recordOutput("Drive/LineVector",
-        new Pose2d(pointOnLine.plus(new Translation2d(lineVector.getI(), lineVector.getJ())), new Rotation2d()));
+    // Logger.recordOutput("Drive/Point On Line", new Pose2d(pointOnLine, new
+    // Rotation2d()));
+    // Logger.recordOutput("Drive/LineVector",
+    // new Pose2d(pointOnLine.plus(new Translation2d(lineVector.getI(),
+    // lineVector.getJ())), new Rotation2d()));
     double oiLY = OI.getDriverLeftY();
     double oiLX = OI.getDriverLeftX();
     double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
@@ -678,7 +680,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToTheta(double theta) {
-    Logger.recordOutput("Drive/Drive Angle Setpoint", theta);
+    // Logger.recordOutput("Drive/Drive Angle Setpoint", theta);
     theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2d().getRotation().getDegrees());
 
     turningPID.setSetPoint(theta);
@@ -906,7 +908,7 @@ public class Drive extends SubsystemBase {
     // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
     // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
-    Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
+    // Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
 
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);
@@ -916,8 +918,8 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
     // Logger.recordOutput("FF-x-vel", feedForwardX);
     // Logger.recordOutput("FF-y-vel", feedForwardY);
-    Logger.recordOutput("current point idx", currentIndex);
-    Logger.recordOutput("point idx", velocityArray[3].intValue());
+    // Logger.recordOutput("current point idx", currentIndex);
+    // Logger.recordOutput("point idx", velocityArray[3].intValue());
     // Logger.recordOutput("look-ahead", lookaheadRadius);
     // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
     // Rotation2d(targetTheta)));
@@ -1020,7 +1022,7 @@ public class Drive extends SubsystemBase {
 
     acceleration = currentSpeeds.minus(previousSpeeds)
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
-    Logger.recordOutput("Drive/Acceleration", acceleration);
+    // Logger.recordOutput("Drive/Acceleration", acceleration);
     ChassisSpeeds futureVelocity = currentSpeeds.plus(acceleration.times(Constants.Physical.Drive.velLookaheadTime));
     futureVelocity.omegaRadiansPerSecond = currentSpeeds.omegaRadiansPerSecond;
     return futureVelocity;
@@ -1050,9 +1052,9 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
-    Logger.recordOutput("Drive/Expected Speed",
-        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    // Logger.recordOutput("Drive/Expected Speed",
+    //     Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    // Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     Logger.recordOutput("Testing/Feed Setpoint",
         new Pose2d(Constants.DynamicPassing.getTarget(getMt2Pose2d()), new Rotation2d()));
     // Stop moving when disabled

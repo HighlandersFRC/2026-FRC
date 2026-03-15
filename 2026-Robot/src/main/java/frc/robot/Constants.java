@@ -474,7 +474,8 @@ public final class Constants {
 
                         public static Rotation2d getFutureSetpointEstimate(Rotation2d currentSetpoint,
                                         double driveAngularVelocity, double foresightTime) {
-                                Logger.recordOutput("Shooter/Turret Drive Angular Velocity", driveAngularVelocity);
+                                // Logger.recordOutput("Shooter/Turret Drive Angular Velocity",
+                                // driveAngularVelocity);
                                 double predictedAngle = currentSetpoint.getRadians()
                                                 - driveAngularVelocity * foresightTime;
                                 return new Rotation2d(predictedAngle);
