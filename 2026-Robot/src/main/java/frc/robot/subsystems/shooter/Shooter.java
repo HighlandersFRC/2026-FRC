@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -95,12 +94,13 @@ public class Shooter extends SubsystemBase {
   }
 
   private void normalShoot() {
-    Logger.recordOutput("Shooter/Wanted Turret Angle", wantedShotSolution.turretAngle.getDegrees());
+    // Logger.recordOutput("Shooter/Wanted Turret Angle",
+    // wantedShotSolution.turretAngle.getDegrees());
     if (wantedShotSolution.robotVelocity.isPresent()) {
       Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
           wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
-      Logger.recordOutput("Shooter/Predicted Turret Angle",
-          prediction.getDegrees());
+      // Logger.recordOutput("Shooter/Predicted Turret Angle",
+      // prediction.getDegrees());
       setTurretAngle(prediction);
     } else {
       setTurretAngle(wantedShotSolution.turretAngle);
@@ -137,16 +137,19 @@ public class Shooter extends SubsystemBase {
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
 
-    Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
-    Logger.recordOutput("Shooter/Hood Precision Required", Constants.SetPoints.Hood.HOOD_PRECISION);
+    // Logger.recordOutput("Shooter/Hood Error", hoodAngleError);
+    // Logger.recordOutput("Shooter/Hood Precision Required",
+    // Constants.SetPoints.Hood.HOOD_PRECISION);
     Logger.recordOutput("Shooter/Turret Error", turretAngleError);
-    Logger.recordOutput("Shooter/Turret Precision Required", turretPrecisionRequired);
+    Logger.recordOutput("Shooter/Turret Precision Required",
+        turretPrecisionRequired);
     Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
-    Logger.recordOutput("Shooter/Flywheel RPM Precision Required", Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
+    Logger.recordOutput("Shooter/Flywheel RPM Precision Required",
+        Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
         && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION;
-    Logger.recordOutput("Shooter/Ready To Shoot Raw", ready);
+    // Logger.recordOutput("Shooter/Ready To Shoot Raw", ready);
     boolean debouncedReady = readyToShootDebouncer.calculate(ready);
     Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
     return debouncedReady;
@@ -174,7 +177,8 @@ public class Shooter extends SubsystemBase {
     }
     double turretPrecisionRequired = Math
         .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
-    Logger.recordOutput("Shooter/Turret Precision Required", Math.toDegrees(turretPrecisionRequired));
+    Logger.recordOutput("Shooter/Turret Precision Required",
+        Math.toDegrees(turretPrecisionRequired));
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
@@ -210,6 +214,7 @@ public class Shooter extends SubsystemBase {
   // }
 
   public void setTurretAngle(Rotation2d angle) {
+    // Logger.recordOutput("Shooter/Turret Setpoint Angle", angle.getDegrees());
     io.setTurretAngle(getRelativeAngleFromRotation2d(angle));
   }
 
@@ -264,7 +269,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void passIdleTurretAngleToIdle(Rotation2d angle) {
-    Logger.recordOutput("Shooter/Idle Turret Angle", angle.getDegrees());
+    // Logger.recordOutput("Shooter/Idle Turret Angle", angle.getDegrees());
     idleTurretAngle = angle;
   }
 
@@ -274,15 +279,18 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Shooter/Flywheel RPM", getFlywheelRPM());
-    Logger.recordOutput("Shooter/Velocity Magnitude",
-        Math.sqrt(Math.pow(_trajectorySetpoint.getX(), 2)
-            + Math.pow(_trajectorySetpoint.getY(), 2)
-            + Math.pow(_trajectorySetpoint.getZ(), 2)));
+    // Logger.recordOutput("Shooter/Velocity Magnitude",
+    // Math.sqrt(Math.pow(_trajectorySetpoint.getX(), 2)
+    // + Math.pow(_trajectorySetpoint.getY(), 2)
+    // + Math.pow(_trajectorySetpoint.getZ(), 2)));
     Logger.recordOutput("Shooter/Shooter State", systemState);
     Logger.recordOutput("Shooter/Turret Current", io.getTurretCurrent());
     Logger.recordOutput("Shooter/Hood Current", io.getHoodCurrent());
     Logger.recordOutput("Shooter/Flywheel Current", io.getFlywheelCurrent());
     Logger.recordOutput("States/Shooter State", systemState);
+
+    // Logger.recordOutput("Shooter/Turret Tracking Angle",
+    // idleTurretAngle.getDegrees());
 
     ShooterState newState = handleStateTransition();
     if (newState != systemState) {
@@ -353,7 +361,7 @@ public class Shooter extends SubsystemBase {
       // Logger.recordOutput("Shooter/Vel Stable", velStable);
       // Logger.recordOutput("Shooter/Current Spike", currentSpike);
       // Logger.recordOutput("Shooter/Time Since Last Shot", timeSinceLast);
-      Logger.recordOutput("Shooter/System State", systemState.toString());
+      // Logger.recordOutput("Shooter/System State", systemState.toString());
     }
 
     lastRPM = curRPM;

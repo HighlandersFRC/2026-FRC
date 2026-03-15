@@ -102,9 +102,9 @@ public class VariableSpeedFollower extends AutoFollower {
     // create velocity vector and set desired theta change
 
     drive.autoDrive(velocityVector, desiredThetaChange);
-    Logger.recordOutput("Auto/pursuing?", true);
-    Logger.recordOutput("Auto/Path Time", path
-        .getJSONObject(getPathPointIndex()).getDouble("time"));
+    // Logger.recordOutput("Auto/pursuing?", true);
+    // Logger.recordOutput("Auto/Path Time", path
+    // .getJSONObject(getPathPointIndex()).getDouble("time"));
   }
 
   @Override
@@ -122,7 +122,7 @@ public class VariableSpeedFollower extends AutoFollower {
   @Override
   public boolean isFinished() {
     boolean readyToEnd = readyToEnd(path.getJSONObject(returnPathPointIndex));
-    Logger.recordOutput("Auto/readyToEnd", readyToEnd);
+    // Logger.recordOutput("Auto/readyToEnd", readyToEnd);
     if (returnPathPointIndex >= path.length() - 1 && readyToEnd) {
       return true;
     } else {

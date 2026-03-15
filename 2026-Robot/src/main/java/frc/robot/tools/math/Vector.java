@@ -164,4 +164,13 @@ public class Vector {
     public Rotation2d getRotation() {
         return new Rotation2d(i, j);
     }
+
+    public Vector cap(double maxMagnitude) {
+        maxMagnitude = Math.abs(maxMagnitude);
+        double mag = magnitude();
+        if (mag > maxMagnitude && mag != 0) {
+            return scaled(maxMagnitude / mag);
+        }
+        return this;
+    }
 }

@@ -191,14 +191,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.281494140625; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.212646484375; // TODO: Try calculating offset from
                                                                               // previous zero
                                                                               // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.129150390625;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.004150390625;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -231,7 +231,7 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void moveHoodToAngle(Rotation2d angle) {
-                Logger.recordOutput("Shooter/Hood target angle", angle.getDegrees());
+                // Logger.recordOutput("Shooter/Hood target angle", angle.getDegrees());
                 if (angle.getRadians() > Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS) {
                         angle = Rotation2d.fromRadians(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS);
                 }
@@ -249,24 +249,24 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void setTurretAngle(double angle) {
-                Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
+                // Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
                 turretMotor.setControl(
                                 new DynamicMotionMagicVoltage(Units.radiansToRotations(angle),
                                                 turretVelocity,
                                                 turretAcceleration));
-                Logger.recordOutput("Shooter/goal motor turret degrees Er",
-                                Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
+                // Logger.recordOutput("Shooter/goal motor turret degrees Er",
+                // Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
 
         }
 
         @Override
         public void setFlywheelRPM(double rpm) {
-                Logger.recordOutput("Shooter/Goal flywheel RPM", rpm);
+                // Logger.recordOutput("Shooter/Goal flywheel RPM", rpm);
                 double velocitySetpoint = rpm / 60.0;
-                Logger.recordOutput("Flywheel master setpoint",
-                                flywheelMaster.getClosedLoopReference().getValueAsDouble() * 60.0);
-                Logger.recordOutput("Flywheel slave setpoint",
-                                flywheelFollower.getClosedLoopReference().getValueAsDouble() * 60.0);
+                // Logger.recordOutput("Flywheel master setpoint",
+                // flywheelMaster.getClosedLoopReference().getValueAsDouble() * 60.0);
+                // Logger.recordOutput("Flywheel slave setpoint",
+                // flywheelFollower.getClosedLoopReference().getValueAsDouble() * 60.0);
                 flywheelMaster.setControl(
                                 flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
                 flywheelFollower.setControl(
@@ -369,8 +369,8 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void updateInputs() {
                 Globals.turretAngle = getTurretAngle();
-                Logger.recordOutput("Shooter/Turret vel unfiltered",
-                                Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
+                // Logger.recordOutput("Shooter/Turret vel unfiltered",
+                // Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 Globals.turretVelocity = filterTurret.lastValue();
                 if (initializingTurret) {
@@ -402,11 +402,13 @@ class ShooterIOComp implements ShooterIO {
                         }
                 }
 
-                Logger.recordOutput("Testing/initializingTurret", initializingTurret);
-                Logger.recordOutput("Testing/initLoops", initLoops);
-                Logger.recordOutput("Testing/firstTurretAngles", firstTurretAngles.toString());
-                Logger.recordOutput("Testing/numberSkips", numberSkips);
-                Logger.recordOutput("Shooter/Relative Turret Angle", Math.toDegrees(getRelativeTurretAngleRadians()));
+                // Logger.recordOutput("Testing/initializingTurret", initializingTurret);
+                // Logger.recordOutput("Testing/initLoops", initLoops);
+                // Logger.recordOutput("Testing/firstTurretAngles",
+                // firstTurretAngles.toString());
+                // Logger.recordOutput("Testing/numberSkips", numberSkips);
+                Logger.recordOutput("Shooter/Relative Turret Angle",
+                                Math.toDegrees(getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
                 Logger.recordOutput("Shooter/Turret Error Degrees",

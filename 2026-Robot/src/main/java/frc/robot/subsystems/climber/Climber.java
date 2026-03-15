@@ -240,8 +240,8 @@ public class Climber extends SubsystemBase {
         }
         break;
       case IDLE:
-        // stopClimber();
-        idleClimber();
+        stopClimber();
+        // idleClimber();
         break;
       default:
         stopClimber();
