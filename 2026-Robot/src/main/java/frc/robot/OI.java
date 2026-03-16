@@ -115,8 +115,8 @@ public class OI {
     }
 
     public static String getSelectedPath() {
-        // return auto.getSelected();
-        return "2climb.polarauto";
+        return auto.getSelected();
+        // return "2climb.polarauto"; for hardcoding auto
     }
 
     public static double getDriverLeftX() {
