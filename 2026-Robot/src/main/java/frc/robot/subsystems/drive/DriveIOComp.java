@@ -167,13 +167,13 @@ public class DriveIOComp extends DriveIO {
                         java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
                 }
                 leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, leftFrontRobotToCam);
+                                leftFrontRobotToCam);
                 leftBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftBackRobotToCam);
+                                leftBackRobotToCam);
                 rightFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, rightFrontRobotToCam);
+                                rightFrontRobotToCam);
                 rightBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, rightBackRobotToCam);
+                                rightBackRobotToCam);
         }
 
         @Override
@@ -218,6 +218,17 @@ public class DriveIOComp extends DriveIO {
                 frontRight.setDriveCurrentLimits(supply, stator);
                 backLeft.setDriveCurrentLimits(supply, stator);
                 backRight.setDriveCurrentLimits(supply, stator);
+        }
+
+        private boolean notTrenchTag(int tagId) {
+                return tagId != 1 &&
+                                tagId != 12 &&
+                                tagId != 22 &&
+                                tagId != 23 &&
+                                tagId != 7 &&
+                                tagId != 6 &&
+                                tagId != 17 &&
+                                tagId != 28;
         }
 
         @Override
@@ -299,9 +310,10 @@ public class DriveIOComp extends DriveIO {
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         var rightFrontResult = peripherals.getRightFrontCamResult();
                         Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
-                                        .update(rightFrontResult);
+                                        .estimatePnpDistanceTrigSolvePose(rightFrontResult);
                         if (rightFrontMultiTagResult.isPresent()) {
-                                if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)) {
                                         standardDeviation.set(0, 0, 0.7);
                                         standardDeviation.set(1, 0, 0.7);
                                         standardDeviation.set(2, 0, 2.5);
@@ -316,47 +328,61 @@ public class DriveIOComp extends DriveIO {
                         if (!onBump && !tiltedFiltered) {
                                 var rightBackResult = peripherals.getRightBackCamResult();
                                 Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                                .estimateCoprocMultiTagPose(rightBackResult);
+                                                .estimatePnpDistanceTrigSolvePose(rightBackResult);
                                 if (rightBackMultiTagResult.isPresent()) {
-                                        if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                        if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                        && notTrenchTag(rightBackResult.getBestTarget().fiducialId)) {
                                                 standardDeviation.set(0, 0, 0.7);
                                                 standardDeviation.set(1, 0, 0.7);
                                                 standardDeviation.set(2, 0, 2.5);
-                                                Pose3d robotPose = rightBackMultiTagResult.get().estimatedPose;
-                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                rightBackResult.getTimestampSeconds(),
-                                                                standardDeviation);
+                                                Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
+                                                                .toPose2d();
+                                                if (poseInField(robotPose)) {
+                                                        mt2Odometry.addVisionMeasurement(robotPose,
+                                                                        rightFrontResult.getTimestampSeconds(),
+                                                                        standardDeviation);
+                                                }
                                         }
                                 }
                                 if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
                                                 && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
                                         var leftBackResult = peripherals.getLeftBackCamResult();
                                         Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
-                                                        .update(leftBackResult);
+                                                        .estimateCoprocMultiTagPose(leftBackResult);
                                         if (leftBackMultiTagResult.isPresent()) {
-                                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                                && notTrenchTag(leftBackResult
+                                                                                .getBestTarget().fiducialId)) {
                                                         standardDeviation.set(0, 0, 1.0);
                                                         standardDeviation.set(1, 0, 1.0);
                                                         standardDeviation.set(2, 0, 2.0);
-                                                        Pose3d robotPose = leftBackMultiTagResult.get().estimatedPose;
-                                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                        leftBackResult.getTimestampSeconds(),
-                                                                        standardDeviation);
+                                                        Pose2d robotPose = leftBackMultiTagResult.get().estimatedPose
+                                                                        .toPose2d();
+                                                        if (poseInField(robotPose)) {
+                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                                leftBackResult.getTimestampSeconds(),
+                                                                                standardDeviation);
+                                                        }
                                                 }
                                         }
 
                                         var leftFrontResult = peripherals.getLeftFrontCamResult();
                                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
-                                                        .update(leftFrontResult);
+                                                        .estimatePnpDistanceTrigSolvePose(leftFrontResult);
                                         if (leftFrontMultiTagResult.isPresent()) {
-                                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                                && notTrenchTag(leftFrontResult
+                                                                                .getBestTarget().fiducialId)) {
                                                         standardDeviation.set(0, 0, 0.7);
                                                         standardDeviation.set(1, 0, 0.7);
                                                         standardDeviation.set(2, 0, 2.5);
-                                                        Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
-                                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                        leftFrontResult.getTimestampSeconds(),
-                                                                        standardDeviation);
+                                                        Pose2d robotPose = leftFrontMultiTagResult.get().estimatedPose
+                                                                        .toPose2d();
+                                                        if (poseInField(robotPose)) {
+                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                                leftFrontResult.getTimestampSeconds(),
+                                                                                standardDeviation);
+                                                        }
                                                 }
                                         }
 
