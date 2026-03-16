@@ -236,6 +236,11 @@ public class DriveIOComp extends DriveIO {
                                 pose);
         }
 
+        private boolean poseInField(Pose2d pose) {
+                return pose.getX() > 0 && pose.getX() < Constants.Physical.FIELD_LENGTH
+                                && pose.getY() > 0 && pose.getY() < Constants.Physical.FIELD_WIDTH;
+        }
+
         /**
          * Updates the fused odometry array with current robot position and orientation
          * information.
@@ -300,16 +305,18 @@ public class DriveIOComp extends DriveIO {
                                         standardDeviation.set(0, 0, 0.7);
                                         standardDeviation.set(1, 0, 0.7);
                                         standardDeviation.set(2, 0, 2.5);
-                                        Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightFrontResult.getTimestampSeconds(),
-                                                        standardDeviation);
+                                        Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose.toPose2d();
+                                        if (poseInField(robotPose)) {
+                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                rightFrontResult.getTimestampSeconds(),
+                                                                standardDeviation);
+                                        }
                                 }
                         }
                         if (!onBump && !tiltedFiltered) {
                                 var rightBackResult = peripherals.getRightBackCamResult();
                                 Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                                .update(rightBackResult);
+                                                .estimateCoprocMultiTagPose(rightBackResult);
                                 if (rightBackMultiTagResult.isPresent()) {
                                         if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
                                                 standardDeviation.set(0, 0, 0.7);
