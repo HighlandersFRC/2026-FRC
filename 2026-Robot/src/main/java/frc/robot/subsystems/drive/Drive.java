@@ -883,12 +883,12 @@ public class Drive extends SubsystemBase {
       finalTheta = -finalTheta;
     }
 
-    // if (Field.isOnBump(getMt2Pose2d().getTranslation())) { // if on the bump,
-    // slow down to maintain control
-    // finalTheta = finalTheta * 0.75;
-    // finalX = finalX * 0.75;
-    // finalY = finalY * 0.75;
-    // }
+    if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
+      // slow down to maintain control
+      finalTheta = finalTheta * 0.7;
+      finalX = finalX * 0.7;
+      finalY = finalY * 0.7;
+    }
 
     Number[] velocityArray = new Number[] {
         finalX,
@@ -918,7 +918,7 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
     // Logger.recordOutput("FF-x-vel", feedForwardX);
     // Logger.recordOutput("FF-y-vel", feedForwardY);
-    // Logger.recordOutput("current point idx", currentIndex);
+    Logger.recordOutput("Auto/current point idx", currentIndex);
     // Logger.recordOutput("point idx", velocityArray[3].intValue());
     // Logger.recordOutput("look-ahead", lookaheadRadius);
     // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
@@ -1053,8 +1053,9 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
     // Logger.recordOutput("Drive/Expected Speed",
-    //     Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    // Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    // Logger.recordOutput("Drive/Actual Speed",
+    // Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     Logger.recordOutput("Testing/Feed Setpoint",
         new Pose2d(Constants.DynamicPassing.getTarget(getMt2Pose2d()), new Rotation2d()));
     // Stop moving when disabled

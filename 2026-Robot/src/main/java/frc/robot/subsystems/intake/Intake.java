@@ -156,16 +156,16 @@ public class Intake extends SubsystemBase {
 
   public void setJiggle() {
     if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
-        10.0) {
+        7.0) {
       jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.0) {
+    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 7.0) {
       jiggleUp = false;
     }
 
     if (jiggleUp) {
-      setPivotTorque(-45, 0.3);
+      setPivotTorque(-45, 0.5);
     } else {
-      setPivotTorque(30, 0.3);
+      setPivotTorque(30, 0.5);
     }
 
     // if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
@@ -208,12 +208,12 @@ public class Intake extends SubsystemBase {
         break;
       case INTAKING:
         setIntakeDown();
-        setRollerPercent(0.67);
+        setRollerPercent(0.9);
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
         // setRollerTorque(80, dynamicIntakeSpeed);
-        setRollerPercent(0.67);
+        setRollerPercent(0.9);
         break;
       case JIGGLE:
         setJiggle();

@@ -254,12 +254,12 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backLeft.getCanCoderPositionRadians()));
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
-                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 5.0 || Math.abs(gyro.getRollDegrees()) > 5.0;
+                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 3.5 || Math.abs(gyro.getRollDegrees()) > 3.5;
                 if (tilted && !onBump) {
                         onBump = true;
                 }
 
-                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
+                boolean tiltedFiltered = tilted;
 
                 if (!onBump && !tiltedFiltered) {
                         mt2Odometry.update(getYaw(), swerveModulePositions);
@@ -357,7 +357,8 @@ public class DriveIOComp extends DriveIO {
                                                         .getLimelightAngVelRelToField(
                                                                         Globals.turretVelocity,
                                                                         getChassisSpeeds().omegaRadiansPerSecond);
-                                        if (Math.abs(limelightAngVelRelToField) < 2.0) {
+                                        Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
+                                        if (Math.abs(limelightAngVelRelToField) < 0.5) {
                                                 try {
                                                         LimelightHelpers.SetRobotOrientation(
                                                                         Constants.Vision.LIMELIGHT_NAME,
