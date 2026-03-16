@@ -537,11 +537,16 @@ public class DriveIOComp extends DriveIO {
                 int detectedTagIDLeftFront = peripherals.getLeftFrontCamResult().getTargets().get(0).getFiducialId();
                 Pose3d detectedTagPoseLeftFront = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark)
                                 .getTagPose(detectedTagIDLeftFront).get();
+
+                double limelightTargetID = LimelightHelpers.getFiducialID("limelight-goon");
+                Pose3d limelightTargetPose = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark)
+                                .getTagPose((int) limelightTargetID).get();
                 Pose3d robotPose = new Pose3d(mt2Odometry.getEstimatedPosition());
                 Logger.recordOutput("Tag from robot left back", detectedTagPoseLeftBack.minus(robotPose));
                 Logger.recordOutput("Tag from robot right front", detectedTagPoseRightFront.minus(robotPose));
                 Logger.recordOutput("Tag from robot right back", detectedTagPoseRightBack.minus(robotPose));
                 Logger.recordOutput("Tag from robot left front", detectedTagPoseLeftFront.minus(robotPose));
+                Logger.recordOutput("Tag from robot limelight", limelightTargetPose.minus(robotPose));
 
                 if (leftFrontCameraPitch.changed() || leftFrontCameraYaw.changed()
                                 || leftFrontCameraRoll.changed()) {
