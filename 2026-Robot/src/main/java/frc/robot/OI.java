@@ -116,7 +116,7 @@ public class OI {
 
     public static String getSelectedPath() {
         // return auto.getSelected();
-        return "TwoCycle.polarauto";
+        return "2climb.polarauto";
     }
 
     public static double getDriverLeftX() {
@@ -263,8 +263,8 @@ public class OI {
     }
 
     public static boolean isLeftSide() {
-        // return leftRight.getSelected().equals("left");
-        return false;
+        return leftRight.getSelected().equals("left");
+        // return true;
     }
 
     public static boolean isRecalculateMode() {
