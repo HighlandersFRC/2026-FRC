@@ -268,6 +268,10 @@ public final class Constants {
                 public static final double BUMP_LENGTH = 1.156 / 2.0; // 1.12776 actual
                 public static final double NEUTRAL_ZONE_BUMP_X_POSITION_BLUE = 5.37;
                 public static final double ALLIANCE_ZONE_BUMP_X_POSITION_BLUE = 5.37;
+                public static final double NEUTRAL_ZONE_BUMP_X_POSITION_RED = Constants.Physical.FIELD_LENGTH
+                                - NEUTRAL_ZONE_BUMP_X_POSITION_BLUE;
+                public static final double ALLIANCE_ZONE_BUMP_X_POSITION_RED = Constants.Physical.FIELD_LENGTH
+                                - ALLIANCE_ZONE_BUMP_X_POSITION_BLUE;
 
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;

@@ -275,29 +275,63 @@ public class DriveIOComp extends DriveIO {
                         onBump = true;
                 }
 
-                boolean tiltedFiltered = tilted;
+                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
 
                 if (!onBump && !tiltedFiltered) {
                         mt2Odometry.update(getYaw(), swerveModulePositions);
                 }
 
                 // Logger.recordOutput("Testing/num times flat", numTimesFlat);
+                // if (!tiltedFiltered && onBump) {
+                // onBump = false;
+                // double vx = getChassisSpeeds().vxMetersPerSecond;
+                // double direction = Math.signum(vx);
+                // Pose2d currentPose = mt2Odometry.getEstimatedPosition();
+                // // Logger.recordOutput("Testing/Current pose on bump",
+                // // currentPose.getTranslation());
+                // Translation2d bump = new Translation2d(
+                // direction * Constants.Field.BUMP_LENGTH, 0.0);
+                // // Logger.recordOutput("Testing/Bump translation", bump);
+                // Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
+                // getYaw());
+                // // Logger.recordOutput("Testing/Corrected pose", correctedPose);
+
+                // setPosition(correctedPose);
+                // }
+                // Logger.recordOutput("Testing/on bump", onBump);
                 if (!tiltedFiltered && onBump) {
                         onBump = false;
+
+                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
+                        double x = currentPose.getX();
+                        double y = currentPose.getY();
                         double vx = getChassisSpeeds().vxMetersPerSecond;
                         double direction = Math.signum(vx);
-                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
-                        // Logger.recordOutput("Testing/Current pose on bump",
-                        // currentPose.getTranslation());
-                        Translation2d bump = new Translation2d(
-                                        direction * Constants.Field.BUMP_LENGTH, 0.0);
-                        // Logger.recordOutput("Testing/Bump translation", bump);
-                        Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
+
+                        boolean onBlueSide = x < Constants.Physical.FIELD_LENGTH / 2.0;
+
+                        double correctedX;
+
+                        if (onBlueSide) {
+                                if (direction == 1) {
+                                        correctedX = Constants.Field.NEUTRAL_ZONE_BUMP_X_POSITION_BLUE;
+                                } else {
+                                        correctedX = Constants.Field.ALLIANCE_ZONE_BUMP_X_POSITION_BLUE;
+                                }
+                        } else {
+                                if (direction == 1) {
+                                        correctedX = Constants.Field.ALLIANCE_ZONE_BUMP_X_POSITION_RED;
+                                } else {
+                                        correctedX = Constants.Field.NEUTRAL_ZONE_BUMP_X_POSITION_RED;
+                                }
+                        }
+
+                        Pose2d correctedPose = new Pose2d(
+                                        new Translation2d(correctedX, y),
                                         getYaw());
-                        // Logger.recordOutput("Testing/Corrected pose", correctedPose);
+
                         setPosition(correctedPose);
                 }
-                // Logger.recordOutput("Testing/on bump", onBump);
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
