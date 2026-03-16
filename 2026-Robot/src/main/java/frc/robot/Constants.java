@@ -175,7 +175,7 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.1905));
+                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.44));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
@@ -508,28 +508,27 @@ public final class Constants {
                         private final static double RPM_OFFSET = 0.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
-                        public static final double[][] SHOT_MAP = {
-                                        { 1.372, 85, 1850, 0.82 },
-                                        { 1.627, 85, 2000, 0.97 },
-                                        { 1.987, 82, 2000, 0.96 },
-                                        { 2.285, 80, 2250, 1.06 },
-                                        { 2.502, 78, 2300, 1.11 },
-                                        { 2.755, 77, 2350, 1.14 },
-                                        { 3.079, 76, 2400, 1.11 },
-                                        { 3.26, 75, 2450, 1.13 },
-                                        { 3.597, 74, 2500, 1.19 },
-                                        { 3.76, 73, 2525, 1.11 },
-                                        { 3.993, 72, 2575, 1.16 },
-                                        { 4.242, 71, 2650, 1.19 },
-                                        { 4.524, 70, 2750, 1.29 },
-                                        { 4.878, 69, 2750, 1.19 },
-                                        { 5.112, 69, 2850, 1.24 },
-                                        { 5.304, 69, 2900, 1.30 },
-                                        { 5.65, 69, 2980, 1.30 },
-                                        { 5.997, 67, 3150, 1.33 },
-                                        { 6.235, 65, 3250, 1.26 },
-                                        { 6.507, 63, 3300, 1.21 },
-                                        { 6.7, 59, 3450, 1.20 }
+                        public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
+                                        { 1.358, 85, 2100, 0.9 },
+                                        { 1.6, 83, 2100, 1.02 },
+                                        { 1.899, 81, 2180, 1.03 },
+                                        { 2.19, 79, 2200, 0.96 },
+                                        { 2.438, 78, 2250, 1.04 },
+                                        { 2.67, 77, 2325, 1.04 },
+                                        { 2.932, 76, 2420, 1.02 },
+                                        { 3.288, 75, 2450, 1.09 },
+                                        { 3.65, 74, 2550, 1.13 },
+                                        { 3.985, 73, 2625, 1.16 },
+                                        { 4.317, 72, 2700, 1.22 },
+                                        { 4.505, 71, 2750, 1.18 },
+                                        { 4.758, 70, 2800, 1.24 },
+                                        { 4.943, 69, 2850, 1.24 },
+                                        { 5.253, 68, 2925, 1.31 },
+                                        { 5.546, 67, 2975, 1.25 },
+                                        { 5.801, 66, 3050, 1.23 },
+                                        { 6.155, 64, 3125, 1.19 },
+                                        { 6.45, 63, 3300, 1.26 },
+                                        { 6.732, 62, 3450, 1.27 }
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;
@@ -684,13 +683,13 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-6.19143), inchesToMeters(0.0), inchesToMeters(21.1905));
+                                inchesToMeters(-6.08), inchesToMeters(0.0), inchesToMeters(7.9));
 
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
                                 Math.toRadians(-26.0),
-                                Math.toRadians(0.0));
+                                Math.toRadians(3.5));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
                                 LIMELIGHT_ROTATION_RELATIVE_TO_TURRET);
@@ -735,18 +734,18 @@ public final class Constants {
                         Pose3d robotToCam = robotToTurret.transformBy(new Transform3d(
                                         Translation3d.kZero, new Rotation3d(turretAngle))).transformBy(turretToCam);
 
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/X",
-                        // Units.metersToInches(robotToCam.getX()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/Y",
-                        // Units.metersToInches(robotToCam.getY()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/Z",
-                        // Units.metersToInches(robotToCam.getZ()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/RX",
-                        // Math.toDegrees(robotToCam.getRotation().getX()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/RY",
-                        // Math.toDegrees(robotToCam.getRotation().getY()));
-                        // Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
-                        // Math.toDegrees(robotToCam.getRotation().getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/X",
+                                        Units.metersToInches(robotToCam.getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/Y",
+                                        -Units.metersToInches(robotToCam.getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/Z",
+                                        Units.metersToInches(robotToCam.getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RX",
+                                        Math.toDegrees(robotToCam.getRotation().getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RY",
+                                        -Math.toDegrees(robotToCam.getRotation().getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
+                                        Math.toDegrees(robotToCam.getRotation().getZ()));
 
                         try {
                                 LimelightHelpers.setCameraPose_RobotSpace(
