@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -524,6 +525,24 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         void update(DriveState currentState) {
+                int detectedTagIDLeftBack = peripherals.getLeftBackCamResult().getTargets().get(0).getFiducialId();
+                Pose3d detectedTagPoseLeftBack = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark)
+                                .getTagPose(detectedTagIDLeftBack).get();
+                int detectedTagIDRightFront = peripherals.getRightFrontCamResult().getTargets().get(0).getFiducialId();
+                Pose3d detectedTagPoseRightFront = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark)
+                                .getTagPose(detectedTagIDRightFront).get();
+                int detectedTagIDRightBack = peripherals.getRightBackCamResult().getTargets().get(0).getFiducialId();
+                Pose3d detectedTagPoseRightBack = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark)
+                                .getTagPose(detectedTagIDRightBack).get();
+                int detectedTagIDLeftFront = peripherals.getLeftFrontCamResult().getTargets().get(0).getFiducialId();
+                Pose3d detectedTagPoseLeftFront = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark)
+                                .getTagPose(detectedTagIDLeftFront).get();
+                Pose3d robotPose = new Pose3d(mt2Odometry.getEstimatedPosition());
+                Logger.recordOutput("Tag from robot left back", detectedTagPoseLeftBack.minus(robotPose));
+                Logger.recordOutput("Tag from robot right front", detectedTagPoseRightFront.minus(robotPose));
+                Logger.recordOutput("Tag from robot right back", detectedTagPoseRightBack.minus(robotPose));
+                Logger.recordOutput("Tag from robot left front", detectedTagPoseLeftFront.minus(robotPose));
+
                 if (leftFrontCameraPitch.changed() || leftFrontCameraYaw.changed()
                                 || leftFrontCameraRoll.changed()) {
                         Constants.Vision.leftFrontRotation3d = new Rotation3d(
