@@ -552,7 +552,7 @@ public class Superstructure extends SubsystemBase {
         .minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
-    // Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
+    Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     // Logger.recordOutput("Shooter/Manual Shoot Angle to Hub",
     // turret.getDegrees());
     ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),
@@ -577,7 +577,7 @@ public class Superstructure extends SubsystemBase {
         .minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
-    // Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
+    Logger.recordOutput("Shooter/Manual Shoot Distance to Hub", distance2D);
     // Logger.recordOutput("Shooter/Manual Shoot Angle to Hub",
     // turret.getDegrees());
     ShotSolution shotSolution = new ShotSolution(new Rotation2d(Math.toRadians(manualShootHoodAngle.get())),

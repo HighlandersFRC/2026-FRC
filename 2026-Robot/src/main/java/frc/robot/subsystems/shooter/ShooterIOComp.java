@@ -251,7 +251,7 @@ class ShooterIOComp implements ShooterIO {
         public void setTurretAngle(double angle) {
                 // Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
                 turretMotor.setControl(
-                                new DynamicMotionMagicVoltage(Units.radiansToRotations(angle),
+                                new DynamicMotionMagicVoltage(Units.radiansToRotations(angle - Math.toRadians(3.5)),
                                                 turretVelocity,
                                                 turretAcceleration));
                 // Logger.recordOutput("Shooter/goal motor turret degrees Er",
