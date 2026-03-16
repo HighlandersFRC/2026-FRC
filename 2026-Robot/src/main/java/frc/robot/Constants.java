@@ -26,8 +26,8 @@ import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
-                public static final int STAGNATE_BOOST = 25;
-                public static final int STAGNATE_THRESHOLD = 8; // Number of cycles of stagnation before ending path
+                public static final int STAGNATE_BOOST = 60;
+                public static final int STAGNATE_THRESHOLD = 9; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
@@ -265,7 +265,7 @@ public final class Constants {
         }
 
         public static final class Field {
-                public static final double BUMP_LENGTH = 1.5; // 1.12776 actual
+                public static final double BUMP_LENGTH = 1.156 / 2.0; // 1.12776 actual
 
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
@@ -274,6 +274,7 @@ public final class Constants {
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
+                public static final double BUMP_WIDTH_GENEROUS = inchesToMeters(67.41);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
                                 13.0, 2.35);
@@ -320,6 +321,14 @@ public final class Constants {
                 public static boolean isOnBump(Translation2d robotPosition) {
                         boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH / 2;
                         boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH / 2;
+                        return onBlueBump || onRedBump;
+                }
+
+                public static boolean isNearBump(Translation2d robotPosition) {
+                        boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH_GENEROUS
+                                        / 2;
+                        boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH_GENEROUS
+                                        / 2;
                         return onBlueBump || onRedBump;
                 }
 

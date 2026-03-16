@@ -176,7 +176,8 @@ public class PolarPathFollower extends ParallelCommandGroup {
     if (runner instanceof AutoFollower) {
       Runnable cancelPathFollower = new Runnable() {
         public void run() {
-          int runFrom = getPointIndexFromTime(start);
+          System.out.println("Canceling Path Follower and starting " + runner.getClass().getSimpleName());
+          int runFrom = getPointIndexFromTime(getPathTime());
           int runTo = getPointIndexFromTime(end);
           follower.cancel();
           follower = (AutoFollower) runner;
@@ -185,7 +186,8 @@ public class PolarPathFollower extends ParallelCommandGroup {
       };
       Runnable cancelRunner = new Runnable() {
         public void run() {
-          int runFrom = getPointIndexFromTime(end);
+          System.out.println("Canceling Runner and starting " + defaultFollower.getClass().getSimpleName());
+          int runFrom = getPointIndexFromTime(getPathTime());
           int runTo = pathPoints.length() - 1;
           follower = defaultFollower;
           follower.from(runFrom, pathJSON, runTo);

@@ -127,7 +127,8 @@ public class ShotCalculator {
                 double vx = -robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getY());
                 double vy = robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
                 Translation2d tangentialVelocity = new Translation2d(vx, vy).rotateBy(turretPosition.getRotation());
-                // Logger.recordOutput("ShotCalculator/TangentialVelocity", tangentialVelocity);
+                Logger.recordOutput("ShotCalculator/TangentialVelocity", tangentialVelocity);
+                Logger.recordOutput("ShotCalculator/TurretPose", turretPosition);
                 Translation2d turretVelocity = new Translation2d(
                                 robotVelocity.vxMetersPerSecond + tangentialVelocity.getX(),
                                 robotVelocity.vyMetersPerSecond + tangentialVelocity.getY());
@@ -143,7 +144,7 @@ public class ShotCalculator {
                 Translation2d predictedTarget = targetPosition.plus(new Translation2d(
                                 turretVelocity.getX(),
                                 turretVelocity.getY()).times(-timeOfFlight));
-                // Logger.recordOutput("ShotCalculator/TimeOfFlight", timeOfFlight);
+                Logger.recordOutput("ShotCalculator/TimeOfFlight", timeOfFlight);
                 Logger.recordOutput("ShotCalculator/TargetPose", new Pose2d(predictedTarget, new Rotation2d()));
                 distanceToTarget = turretPosition.getTranslation().getDistance(predictedTarget);
                 Rotation2d hoodAngle = hoodAngleMap.get(distanceToTarget);
