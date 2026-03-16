@@ -26,8 +26,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeState;
-import frc.robot.subsystems.lights.Lights;
-import frc.robot.subsystems.lights.Lights.LightsState;
+
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterState;
 import frc.robot.tools.logging.TunableNumber;
@@ -37,7 +36,6 @@ import frc.robot.tools.math.ShotCalculator.ShotSolution;
 
 public class Superstructure extends SubsystemBase {
   private final Drive drive;
-  private final Lights lights;
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
@@ -85,10 +83,8 @@ public class Superstructure extends SubsystemBase {
   private SuperState wantedSuperState = SuperState.IDLE;
   private SuperState currentSuperState = SuperState.IDLE;
 
-  public Superstructure(Drive drive,
-      Lights lights, Shooter shooter, Intake intake, Feeder feeder, Climber climber) {
+  public Superstructure(Drive drive, Shooter shooter, Intake intake, Feeder feeder, Climber climber) {
     this.drive = drive;
-    this.lights = lights;
     this.shooter = shooter;
     this.intake = intake;
     this.feeder = feeder;
@@ -526,7 +522,6 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void handleDefaultState() {
-    lights.setWantedState(LightsState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
     // intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
@@ -603,7 +598,6 @@ public class Superstructure extends SubsystemBase {
 
   public void handleIdleState() {
     drive.setWantedState(DriveState.IDLE);
-    lights.setWantedState(LightsState.DEFAULT);
     shooter.setWantedState(ShooterState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
@@ -612,7 +606,6 @@ public class Superstructure extends SubsystemBase {
 
   public void handleZeroState() {
     drive.setWantedState(DriveState.DEFAULT);
-    lights.setWantedState(LightsState.DEFAULT);
     intake.setWantedState(IntakeState.ZERO, drive.getChassisSpeeds());
     feeder.setWantedState(FeederState.DEFAULT);
     shooter.setWantedState(ShooterState.IDLE);
@@ -733,7 +726,6 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void PARTY() {
-    lights.PARTY();
   }
 
   @Override

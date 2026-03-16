@@ -56,12 +56,11 @@ public class RobotContainer {
         // Subsystems
         final Peripherals peripherals = new Peripherals();
         final Drive drive = new Drive(peripherals);
-        final Lights lights = new Lights();
         final Shooter shooter = new Shooter();
         final Feeder feeder = new Feeder();
         final Intake intake = new Intake();
         final Climber climber = new Climber();
-        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder, climber);
+        Superstructure superstructure = new Superstructure(drive, shooter, intake, feeder, climber);
 
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
@@ -105,7 +104,7 @@ public class RobotContainer {
                                 autoJSONs[i] = new JSONObject(new JSONTokener(scanner));
                                 autoPoints[i] = (JSONArray) autoJSONs[i].getJSONArray("paths").getJSONObject(0)
                                                 .getJSONArray("sampled_points");
-                                autos[i] = new PolarAutoFollower(autoJSONs[i], drive, lights, peripherals, commandMap,
+                                autos[i] = new PolarAutoFollower(autoJSONs[i], drive, peripherals, commandMap,
                                                 conditionMap);
                                 java.util.logging.Logger.getGlobal()
                                                 .info("Loaded Path: " + Constants.Autonomous.paths[i]);
