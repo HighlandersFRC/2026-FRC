@@ -357,7 +357,8 @@ public class DriveIOComp extends DriveIO {
                                                         .getLimelightAngVelRelToField(
                                                                         Globals.turretVelocity,
                                                                         getChassisSpeeds().omegaRadiansPerSecond);
-                                        if (Math.abs(limelightAngVelRelToField) < 2.0) {
+                                        Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
+                                        if (Math.abs(limelightAngVelRelToField) < 0.5) {
                                                 try {
                                                         LimelightHelpers.SetRobotOrientation(
                                                                         Constants.Vision.LIMELIGHT_NAME,

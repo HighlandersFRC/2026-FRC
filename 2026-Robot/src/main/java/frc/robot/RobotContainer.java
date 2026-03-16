@@ -69,8 +69,8 @@ public class RobotContainer {
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
                         put("Slow Mode", () -> new SlowFollower(drive, null, false));
                         put("Shoot", () -> new SequentialCommandGroup(
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.5),
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.0)));
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.5),
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.67)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
                         put("Climb", () -> new SetRobotState(superstructure, SuperState.SHOOT));
                         put("ShootMore", () -> new SequentialCommandGroup(
