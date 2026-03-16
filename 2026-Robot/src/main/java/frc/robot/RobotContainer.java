@@ -163,9 +163,9 @@ public class RobotContainer {
                                 SuperState.AUTO_L3_CLIMB));
 
                 OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
-                OI.driverX.whileTrue(new SetRobotStateOnce(superstructure,
-                                SuperState.MANUAL_SHOOT));
-                // OI.driverX.onTrue(new ClimbLevelManual(climber));
+                // OI.driverX.whileTrue(new SetRobotStateOnce(superstructure,
+                // SuperState.MANUAL_SHOOT));
+                OI.driverX.onTrue(new ClimbLevelManual(climber));
                 OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
                 OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));
                 OI.driverY.whileTrue(new SetRobotStateOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
