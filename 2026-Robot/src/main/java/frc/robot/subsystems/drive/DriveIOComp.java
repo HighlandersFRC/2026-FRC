@@ -168,13 +168,13 @@ public class DriveIOComp extends DriveIO {
                         java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
                 }
                 leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, leftFrontRobotToCam);
+                                leftFrontRobotToCam);
                 leftBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftBackRobotToCam);
+                                leftBackRobotToCam);
                 rightFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, rightFrontRobotToCam);
+                                rightFrontRobotToCam);
                 rightBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, rightBackRobotToCam);
+                                rightBackRobotToCam);
         }
 
         @Override
@@ -221,6 +221,17 @@ public class DriveIOComp extends DriveIO {
                 backRight.setDriveCurrentLimits(supply, stator);
         }
 
+        private boolean notTrenchTag(int tagId) {
+                return tagId != 1 &&
+                                tagId != 12 &&
+                                tagId != 22 &&
+                                tagId != 23 &&
+                                tagId != 7 &&
+                                tagId != 6 &&
+                                tagId != 17 &&
+                                tagId != 28;
+        }
+
         @Override
         protected void setPosition(Pose2d pose) {
                 setYaw(pose.getRotation().getDegrees());
@@ -235,6 +246,11 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
                 mt2Odometry.resetPosition(pose.getRotation(), swerveModulePositions,
                                 pose);
+        }
+
+        private boolean poseInField(Pose2d pose) {
+                return pose.getX() > 0 && pose.getX() < Constants.Physical.FIELD_LENGTH
+                                && pose.getY() > 0 && pose.getY() < Constants.Physical.FIELD_WIDTH;
         }
 
         /**
@@ -260,29 +276,63 @@ public class DriveIOComp extends DriveIO {
                         onBump = true;
                 }
 
-                boolean tiltedFiltered = tilted;
+                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
 
                 if (!onBump && !tiltedFiltered) {
                         mt2Odometry.update(getYaw(), swerveModulePositions);
                 }
 
                 // Logger.recordOutput("Testing/num times flat", numTimesFlat);
+                // if (!tiltedFiltered && onBump) {
+                // onBump = false;
+                // double vx = getChassisSpeeds().vxMetersPerSecond;
+                // double direction = Math.signum(vx);
+                // Pose2d currentPose = mt2Odometry.getEstimatedPosition();
+                // // Logger.recordOutput("Testing/Current pose on bump",
+                // // currentPose.getTranslation());
+                // Translation2d bump = new Translation2d(
+                // direction * Constants.Field.BUMP_LENGTH, 0.0);
+                // // Logger.recordOutput("Testing/Bump translation", bump);
+                // Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
+                // getYaw());
+                // // Logger.recordOutput("Testing/Corrected pose", correctedPose);
+
+                // setPosition(correctedPose);
+                // }
+                // Logger.recordOutput("Testing/on bump", onBump);
                 if (!tiltedFiltered && onBump) {
                         onBump = false;
+
+                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
+                        double x = currentPose.getX();
+                        double y = currentPose.getY();
                         double vx = getChassisSpeeds().vxMetersPerSecond;
                         double direction = Math.signum(vx);
-                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
-                        // Logger.recordOutput("Testing/Current pose on bump",
-                        // currentPose.getTranslation());
-                        Translation2d bump = new Translation2d(
-                                        direction * Constants.Field.BUMP_LENGTH, 0.0);
-                        // Logger.recordOutput("Testing/Bump translation", bump);
-                        Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
+
+                        boolean onBlueSide = x < Constants.Physical.FIELD_LENGTH / 2.0;
+
+                        double correctedX;
+
+                        if (onBlueSide) {
+                                if (direction == 1) {
+                                        correctedX = Constants.Field.NEUTRAL_ZONE_BUMP_X_POSITION_BLUE;
+                                } else {
+                                        correctedX = Constants.Field.ALLIANCE_ZONE_BUMP_X_POSITION_BLUE;
+                                }
+                        } else {
+                                if (direction == 1) {
+                                        correctedX = Constants.Field.ALLIANCE_ZONE_BUMP_X_POSITION_RED;
+                                } else {
+                                        correctedX = Constants.Field.NEUTRAL_ZONE_BUMP_X_POSITION_RED;
+                                }
+                        }
+
+                        Pose2d correctedPose = new Pose2d(
+                                        new Translation2d(correctedX, y),
                                         getYaw());
-                        // Logger.recordOutput("Testing/Corrected pose", correctedPose);
+
                         setPosition(correctedPose);
                 }
-                // Logger.recordOutput("Testing/on bump", onBump);
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
@@ -293,64 +343,83 @@ public class DriveIOComp extends DriveIO {
                 leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
-                        var rightFrontResult = peripherals.getRightFrontCamResult();
-                        Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
-                                        .update(rightFrontResult);
-                        if (rightFrontMultiTagResult.isPresent()) {
-                                if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
-                                        standardDeviation.set(0, 0, 0.7);
-                                        standardDeviation.set(1, 0, 0.7);
-                                        standardDeviation.set(2, 0, 2.5);
-                                        Pose3d robotPose = rightFrontMultiTagResult.get().estimatedPose;
-                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                        rightFrontResult.getTimestampSeconds(),
-                                                        standardDeviation);
-                                }
-                        }
                         if (!onBump && !tiltedFiltered) {
-                                var rightBackResult = peripherals.getRightBackCamResult();
-                                Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                                .update(rightBackResult);
-                                if (rightBackMultiTagResult.isPresent()) {
-                                        if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                var rightFrontResult = peripherals.getRightFrontCamResult();
+                                Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
+                                                .estimatePnpDistanceTrigSolvePose(rightFrontResult);
+                                if (rightFrontMultiTagResult.isPresent()) {
+                                        if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                        && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)) {
                                                 standardDeviation.set(0, 0, 0.7);
                                                 standardDeviation.set(1, 0, 0.7);
                                                 standardDeviation.set(2, 0, 2.5);
-                                                Pose3d robotPose = rightBackMultiTagResult.get().estimatedPose;
-                                                mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                rightBackResult.getTimestampSeconds(),
-                                                                standardDeviation);
+                                                Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose
+                                                                .toPose2d();
+                                                if (poseInField(robotPose)) {
+                                                        mt2Odometry.addVisionMeasurement(robotPose,
+                                                                        rightFrontResult.getTimestampSeconds(),
+                                                                        standardDeviation);
+                                                }
                                         }
                                 }
                                 if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
                                                 && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                                        var rightBackResult = peripherals.getRightBackCamResult();
+                                        Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
+                                                        .estimatePnpDistanceTrigSolvePose(rightBackResult);
+                                        if (rightBackMultiTagResult.isPresent()) {
+                                                if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                                && notTrenchTag(rightBackResult
+                                                                                .getBestTarget().fiducialId)) {
+                                                        standardDeviation.set(0, 0, 0.7);
+                                                        standardDeviation.set(1, 0, 0.7);
+                                                        standardDeviation.set(2, 0, 2.5);
+                                                        Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
+                                                                        .toPose2d();
+                                                        if (poseInField(robotPose)) {
+                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                                rightFrontResult.getTimestampSeconds(),
+                                                                                standardDeviation);
+                                                        }
+                                                }
+                                        }
                                         var leftBackResult = peripherals.getLeftBackCamResult();
                                         Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
-                                                        .update(leftBackResult);
+                                                        .estimateCoprocMultiTagPose(leftBackResult);
                                         if (leftBackMultiTagResult.isPresent()) {
-                                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                                && notTrenchTag(leftBackResult
+                                                                                .getBestTarget().fiducialId)) {
                                                         standardDeviation.set(0, 0, 1.0);
                                                         standardDeviation.set(1, 0, 1.0);
                                                         standardDeviation.set(2, 0, 2.0);
-                                                        Pose3d robotPose = leftBackMultiTagResult.get().estimatedPose;
-                                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                        leftBackResult.getTimestampSeconds(),
-                                                                        standardDeviation);
+                                                        Pose2d robotPose = leftBackMultiTagResult.get().estimatedPose
+                                                                        .toPose2d();
+                                                        if (poseInField(robotPose)) {
+                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                                leftBackResult.getTimestampSeconds(),
+                                                                                standardDeviation);
+                                                        }
                                                 }
                                         }
 
                                         var leftFrontResult = peripherals.getLeftFrontCamResult();
                                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
-                                                        .update(leftFrontResult);
+                                                        .estimatePnpDistanceTrigSolvePose(leftFrontResult);
                                         if (leftFrontMultiTagResult.isPresent()) {
-                                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3) {
+                                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                                && notTrenchTag(leftFrontResult
+                                                                                .getBestTarget().fiducialId)) {
                                                         standardDeviation.set(0, 0, 0.7);
                                                         standardDeviation.set(1, 0, 0.7);
                                                         standardDeviation.set(2, 0, 2.5);
-                                                        Pose3d robotPose = leftFrontMultiTagResult.get().estimatedPose;
-                                                        mt2Odometry.addVisionMeasurement(robotPose.toPose2d(),
-                                                                        leftFrontResult.getTimestampSeconds(),
-                                                                        standardDeviation);
+                                                        Pose2d robotPose = leftFrontMultiTagResult.get().estimatedPose
+                                                                        .toPose2d();
+                                                        if (poseInField(robotPose)) {
+                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                                leftFrontResult.getTimestampSeconds(),
+                                                                                standardDeviation);
+                                                        }
                                                 }
                                         }
 
