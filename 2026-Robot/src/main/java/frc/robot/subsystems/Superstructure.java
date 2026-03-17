@@ -358,7 +358,7 @@ public class Superstructure extends SubsystemBase {
 
     // Feeder
     feeder.setWantedState(FeederState.REVERSE);
-    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.INTAKING, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
