@@ -17,14 +17,13 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
-import frc.robot.subsystems.lights.Lights;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class PolarAutoFollower extends SequentialCommandGroup {
   /** Creates a new PolarAutoFollower. */
-  public PolarAutoFollower(JSONObject polarAutoJSON, Drive drive, Lights lights, Peripherals peripherals,
+  public PolarAutoFollower(JSONObject polarAutoJSON, Drive drive, Peripherals peripherals,
       HashMap<String, Supplier<Command>> commandMap, HashMap<String, BooleanSupplier> conditionMap) {
     JSONArray schedule = polarAutoJSON.getJSONArray("schedule");
     JSONArray paths = polarAutoJSON.getJSONArray("paths");
@@ -32,7 +31,7 @@ public class PolarAutoFollower extends SequentialCommandGroup {
       JSONObject scheduleEntry = schedule.getJSONObject(i);
       if (!scheduleEntry.getBoolean("branched")) {
         addCommands(
-            new PolarPathFollower(drive, lights, peripherals, paths.getJSONObject(scheduleEntry.getInt("path")),
+            new PolarPathFollower(drive, peripherals, paths.getJSONObject(scheduleEntry.getInt("path")),
                 commandMap, conditionMap));
       } else {
         JSONObject branchedObject = scheduleEntry.getJSONObject("branched_path");
@@ -64,8 +63,8 @@ public class PolarAutoFollower extends SequentialCommandGroup {
         BooleanSupplier condition = conditionMap.get(scheduleEntry.get("condition"));
         addCommands(
             new ConditionalCommand(
-                new PolarAutoFollower(onTrueJSON, drive, lights, peripherals, commandMap, conditionMap),
-                new PolarAutoFollower(onFalseJSON, drive, lights, peripherals, commandMap, conditionMap),
+                new PolarAutoFollower(onTrueJSON, drive, peripherals, commandMap, conditionMap),
+                new PolarAutoFollower(onFalseJSON, drive, peripherals, commandMap, conditionMap),
                 condition));
       }
     }
