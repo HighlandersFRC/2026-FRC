@@ -485,7 +485,8 @@ public class Superstructure extends SubsystemBase {
     Translation3d turret = getTurretFieldPosition();
     ShotSolution shotSolution = ShotCalculator.calculateFeedShot(
         new Pose2d(turret.toTranslation2d(), drive.getMt2Pose2d().getRotation()),
-        Constants.Field.getFeedTarget(turret.toTranslation2d()),
+        Constants.DynamicPassing.getTarget(turret
+            .toTranslation2d()),
         drive.getFutureVelocity());
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
@@ -494,9 +495,9 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
-      drive.setWantedState(DriveState.IDLE_SLOW);
+      drive.setWantedState(DriveState.IDLE);
     } else {
-      drive.setWantedState(DriveState.DEFAULT_SLOW);
+      drive.setWantedState(DriveState.DEFAULT);
     }
   }
 
@@ -505,7 +506,7 @@ public class Superstructure extends SubsystemBase {
     Translation3d turret = getTurretFieldPosition();
     ShotSolution shotSolution = ShotCalculator.calculateFeedShot(
         new Pose2d(turret.toTranslation2d(), drive.getMt2Pose2d().getRotation()),
-        Constants.Field.getFeedTarget(turret.toTranslation2d()),
+        Constants.DynamicPassing.getTarget(turret.toTranslation2d()),
         drive.getFutureVelocity());
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
@@ -515,9 +516,9 @@ public class Superstructure extends SubsystemBase {
 
     intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
-      drive.setWantedState(DriveState.IDLE_SLOW);
+      drive.setWantedState(DriveState.IDLE);
     } else {
-      drive.setWantedState(DriveState.DEFAULT_SLOW);
+      drive.setWantedState(DriveState.DEFAULT);
     }
   }
 

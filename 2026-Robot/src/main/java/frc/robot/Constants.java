@@ -265,7 +265,12 @@ public final class Constants {
         }
 
         public static final class Field {
-                public static final double BUMP_LENGTH = 1.156 / 2.0; // 1.12776 actual
+                public static final double NEUTRAL_ZONE_BUMP_X_POSITION_BLUE = 5.37;
+                public static final double ALLIANCE_ZONE_BUMP_X_POSITION_BLUE = 3.67;
+                public static final double NEUTRAL_ZONE_BUMP_X_POSITION_RED = Constants.Physical.FIELD_LENGTH
+                                - NEUTRAL_ZONE_BUMP_X_POSITION_BLUE;
+                public static final double ALLIANCE_ZONE_BUMP_X_POSITION_RED = Constants.Physical.FIELD_LENGTH
+                                - ALLIANCE_ZONE_BUMP_X_POSITION_BLUE;
 
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
@@ -342,8 +347,8 @@ public final class Constants {
                 private static final double RED_TARGET_X = 13.0;
 
                 private static final double RED_LEFT_MIN_TARGET_Y = 1.5;
-                private static final double RED_LEFT_MAX_TARGET_Y = 3.4;
-                private static final double RED_LEFT_BUMP_MIDPOINT_Y = 2.5;
+                private static final double RED_LEFT_MAX_TARGET_Y = 2.5;
+                private static final double RED_LEFT_BUMP_MIDPOINT_Y = 2.0;
 
                 private static final double RED_RIGHT_MIN_TARGET_Y = Constants.Physical.FIELD_WIDTH
                                 - RED_LEFT_MAX_TARGET_Y;
@@ -364,7 +369,7 @@ public final class Constants {
 
                 private static final double X_SCALE = 0.09;
 
-                public static Translation2d getTarget(Pose2d robotPose) {
+                public static Translation2d getTarget(Translation2d robotPose) {
                         if (Globals.fieldSide.equals("red")) {
                                 if (robotPose.getY() < Constants.Physical.FIELD_WIDTH / 2) {
                                         return getTargetRedLeft(robotPose);
@@ -380,7 +385,7 @@ public final class Constants {
                         }
                 }
 
-                public static Translation2d getTargetRedLeft(Pose2d robotPose) {
+                public static Translation2d getTargetRedLeft(Translation2d robotPose) {
                         double rx = robotPose.getX();
                         double ry = robotPose.getY();
                         double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
@@ -394,7 +399,7 @@ public final class Constants {
                         return new Translation2d(RED_TARGET_X, targetY);
                 }
 
-                public static Translation2d getTargetRedRight(Pose2d robotPose) {
+                public static Translation2d getTargetRedRight(Translation2d robotPose) {
                         double rx = robotPose.getX();
                         double ry = robotPose.getY();
                         double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
@@ -412,7 +417,7 @@ public final class Constants {
                         return new Translation2d(RED_TARGET_X, targetY);
                 }
 
-                public static Translation2d getTargetBlueLeft(Pose2d robotPose) {
+                public static Translation2d getTargetBlueLeft(Translation2d robotPose) {
                         double rx = robotPose.getX();
                         double ry = robotPose.getY();
                         double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
@@ -430,7 +435,7 @@ public final class Constants {
                         return new Translation2d(BLUE_TARGET_X, targetY);
                 }
 
-                public static Translation2d getTargetBlueRight(Pose2d robotPose) {
+                public static Translation2d getTargetBlueRight(Translation2d robotPose) {
                         double rx = robotPose.getX();
                         double ry = robotPose.getY();
                         double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
@@ -537,21 +542,24 @@ public final class Constants {
                         private final static double FEED_TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] FEED_SHOT_MAP = new double[][] {
-                                        { 1, 60, 700, 0.74 },
-                                        { 1.5, 60, 900, 0.85 },
-                                        { 1.79, 60, 1254, 0.84 },
-                                        { 2.5, 60, 1400, 1.02 },
-                                        { 3.01, 60, 1600, 1.0 },
-                                        { 3.2, 60, 1750, 1.0 },
-                                        { 3.49, 60, 1800, 1.01 },
-                                        { 4.04, 60, 1900, 1.14 },
-                                        { 4.48, 60, 2000, 1.21 },
-                                        { 5.01, 60, 2150, 1.15 },
-                                        { 5.52, 60, 2250, 1.35 },
-                                        { 5.99, 60, 2350, 1.44 },
-                                        { 6.42, 60, 2550, 1.38 },
-                                        { 6.99, 60, 2700, 1.52 },
-                                        { 7.51, 60, 2850, 1.57 },
+                                        { 0.971, 60, 800, 0.64 },
+                                        { 1.5, 60, 1100, 0.8 },
+                                        { 2.01, 60, 1350, 0.86 },
+                                        { 2.51, 60, 1550, 0.89 },
+                                        { 3.01, 60, 1800, 1.01 },
+                                        { 3.48, 60, 2100, 0.94 },
+                                        { 4.01, 60, 2300, 1.28 },
+                                        { 4.67, 60, 2400, 1.35 },
+                                        { 5.06, 60, 2500, 1.36 },
+                                        { 5.51, 60, 2600, 1.43 },
+                                        { 6.11, 60, 2750, 1.47 },
+                                        { 6.49, 60, 2850, 1.47 },
+                                        { 7.02, 60, 3000, 1.38 },
+                                        { 7.43, 60, 3150, 1.50 },
+                                        { 8.01, 60, 3300, 1.52 },
+                                        { 8.51, 58, 3700, 1.53 },
+                                        { 9.0, 55, 4400, 1.44 },
+                                        { 9.49, 55, 4500, 1.51 }
                         };
 
                         static {
