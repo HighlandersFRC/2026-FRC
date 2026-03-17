@@ -477,6 +477,7 @@ public class Drive extends SubsystemBase {
   private int hitNumberSemiGenerous = 0;
   private int hitNumberGenerous = 0;
   private int hitNumberUltraGenerous = 0;
+  private int hitNumberClimb = 0;
 
   public boolean hitSetPoint(Pose2d pose) {
     double x = pose.getX();
@@ -500,6 +501,26 @@ public class Drive extends SubsystemBase {
     }
   }
 
+  public boolean hitSetPointClimb(Pose2d pose) {
+    double x = pose.getX();
+    double y = pose.getY();
+    double theta = pose.getRotation().getRadians();
+    if (Math.abs(x - getMt2Pose2dX()) < 0.02 && Math.abs(y - getMt2Pose2dY()) < 0.01690
+        && getAngleDifferenceDegrees(Math.toDegrees(theta),
+            Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
+      hitNumberClimb += 1;
+    } else {
+      hitNumberClimb = 0;
+    }
+    // Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    // + Math.pow((y - getMt2Pose2dY()), 2)));
+    if (hitNumberClimb > 3) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public boolean hitSetPointSemiGenerous(Pose2d pose) {
     double x = pose.getX();
     double y = pose.getY();
@@ -509,7 +530,7 @@ public class Drive extends SubsystemBase {
     // + Math.pow((y - getMt2Pose2dY()), 2)));
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.05
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.02
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 2) {
       hitNumberSemiGenerous += 1;

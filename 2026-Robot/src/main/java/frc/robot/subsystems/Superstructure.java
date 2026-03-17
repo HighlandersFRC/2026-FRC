@@ -298,7 +298,9 @@ public class Superstructure extends SubsystemBase {
         }
         break;
       case AUTO_ALIGN_CLIMB:
-        if (drive.hitSetPoint(drive.getClimbAlignSetpoint())) {
+        Logger.recordOutput("Testing Thing", drive.getClimbAlignSetpoint());
+        if (drive.hitSetPointClimb(drive.getClimbAlignSetpoint())
+            && climber.getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES - 1.0) {
           if (DriverStation.isAutonomousEnabled()) {
             wantedSuperState = SuperState.AUTON_CLIMB;
             currentSuperState = SuperState.AUTON_CLIMB;
@@ -629,85 +631,88 @@ public class Superstructure extends SubsystemBase {
 
   private void handleAutoPrepClimb() {
     drive.setWantedState(DriveState.DRIVE_TO_PRE_CLIMB);
-    // if (intake.getIntakePosition() > 5.0) {
-    intake.setWantedState(IntakeState.UP);
-    // } else {
-    // climber.setWantedState(ClimberState.AUTON_EXTEND);
-    // }
-
-    if (DriverStation.isAutonomous()) {
-      ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
-              .getRotation()),
-          Constants.Field.getHubPose().toTranslation2d(),
-          drive.getFutureVelocity());
-      ShotSolution rotatedShotSolution = shotSolution
-          .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
-
-      shooter.setWantedState(ShooterState.NORMAL_SHOOT,
-          rotatedShotSolution);
-      if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.FEED);
-      } else {
-        feeder.setWantedState(FeederState.DEFAULT);
-      }
+    if (intake.getIntakePosition() > 3.0) {
+      intake.setWantedState(IntakeState.UP);
+    } else {
+      climber.setWantedState(ClimberState.AUTON_EXTEND);
     }
+
+    // if (DriverStation.isAutonomous()) {
+    // ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+    // new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+    // .getRotation()),
+    // Constants.Field.getHubPose().toTranslation2d(),
+    // drive.getFutureVelocity());
+    // ShotSolution rotatedShotSolution = shotSolution
+    // .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
+
+    // shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+    // rotatedShotSolution);
+    // if (shooter.readyToShoot()) {
+    // feeder.setWantedState(FeederState.FEED);
+    // } else {
+    // feeder.setWantedState(FeederState.DEFAULT);
+    // }
+    // }
   }
 
   private void handleAutoAlignClimb() {
     drive.setWantedState(DriveState.DRIVE_TO_ALIGN_CLIMB);
     intake.setWantedState(IntakeState.UP);
+    climber.setWantedState(ClimberState.AUTON_EXTEND);
     // climber.setWantedState(ClimberState.AUTON_EXTEND);
-    if (DriverStation.isAutonomous()) {
-      ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
-              .getRotation()),
-          Constants.Field.getHubPose().toTranslation2d(),
-          drive.getFutureVelocity());
-      ShotSolution rotatedShotSolution = shotSolution
-          .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
-      shooter.setWantedState(ShooterState.NORMAL_SHOOT,
-          rotatedShotSolution);
-      if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.FEED);
-      } else {
-        feeder.setWantedState(FeederState.DEFAULT);
-      }
-    }
+    // if (DriverStation.isAutonomous()) {
+    // ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+    // new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+    // .getRotation()),
+    // Constants.Field.getHubPose().toTranslation2d(),
+    // drive.getFutureVelocity());
+    // ShotSolution rotatedShotSolution = shotSolution
+    // .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
+    // shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+    // rotatedShotSolution);
+    // if (shooter.readyToShoot()) {
+    // feeder.setWantedState(FeederState.FEED);
+    // } else {
+    // feeder.setWantedState(FeederState.DEFAULT);
+    // }
+    // }
   }
 
   private void handleAutonClimb() {
     drive.setWantedState(DriveState.STOP);
-    if (DriverStation.isAutonomous()) {
-      // climber.setWantedState(ClimberState.AUTON_RETRACT);
-      ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
-              .getRotation()),
-          Constants.Field.getHubPose().toTranslation2d(),
-          drive.getFutureVelocity());
-      ShotSolution rotatedShotSolution = shotSolution
-          .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus()).addRPM(-80.0);
-      shooter.setWantedState(ShooterState.NORMAL_SHOOT,
-          rotatedShotSolution);
-      if (shooter.readyToShoot()) {
-        feeder.setWantedState(FeederState.FEED);
-      } else {
-        feeder.setWantedState(FeederState.DEFAULT);
-      }
-    } else {
-      // if (DriverStation.isTeleopEnabled()) {
-      // climber.setWantedState(ClimberState.L3_CLIMBING);
-      // } else {
-      // climber.setWantedState(ClimberState.AUTON_RETRACT);
-      // }
-    }
+    climber.setWantedState(ClimberState.AUTON_RETRACT);
+    // if (DriverStation.isAutonomous()) {
+    // // climber.setWantedState(ClimberState.AUTON_RETRACT);
+    // ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+    // new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+    // .getRotation()),
+    // Constants.Field.getHubPose().toTranslation2d(),
+    // drive.getFutureVelocity());
+    // ShotSolution rotatedShotSolution = shotSolution
+    // .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus()).addRPM(-80.0);
+    // shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+    // rotatedShotSolution);
+    // if (shooter.readyToShoot()) {
+    // feeder.setWantedState(FeederState.FEED);
+    // } else {
+    // feeder.setWantedState(FeederState.DEFAULT);
+    // }
+    // } else {
+    // if (DriverStation.isTeleopEnabled()) {
+    // climber.setWantedState(ClimberState.L3_CLIMBING);
+    // } else {
+    // climber.setWantedState(ClimberState.AUTON_RETRACT);
+    // }
+    // }
   }
 
   private void handleAutoL3Climb() {
     // drive.setWantedState(DriveState.STOP);
-    if (intake.getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
-      // climber.setWantedState(ClimberState.L3_CLIMBING);
-    }
+    // if (intake.getIntakePosition() <
+    // Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
+    climber.setWantedState(ClimberState.L3_CLIMBING);
+    // }
     intake.setWantedState(IntakeState.UP, drive.getChassisSpeeds());
     // if (DriverStation.isAutonomous()) {
     // ShotSolution shotSolution = ShotCalculator.calculateHubShot(

@@ -71,7 +71,7 @@ public class RobotContainer {
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.5),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.67)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
-                        put("Climb", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Climb", () -> new SetRobotStateSimpleOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
                         put("ShootMore", () -> new SequentialCommandGroup(
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.0),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 7.0)));
@@ -161,7 +161,7 @@ public class RobotContainer {
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
                 OI.driverPOVUp.whileTrue(new SetRobotStateOnce(superstructure,
-                                SuperState.AUTO_L3_CLIMB));
+                                SuperState.AUTO_PREP_CLIMB));
 
                 OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
                 // OI.driverX.whileTrue(new SetRobotStateOnce(superstructure,
