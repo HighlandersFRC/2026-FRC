@@ -134,7 +134,7 @@ public class DriveIOComp extends DriveIO {
         private boolean onBump = false;
         private int numTimesFlat = 0;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
-        private Debouncer flatDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
+        private Debouncer flatDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kFalling);
 
         public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
                         .createBuffer(2.0);
