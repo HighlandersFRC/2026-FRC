@@ -343,34 +343,17 @@ public class DriveIOComp extends DriveIO {
                 leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
-                        var rightFrontResult = peripherals.getRightFrontCamResult();
-                        Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
-                                        .estimatePnpDistanceTrigSolvePose(rightFrontResult);
-                        if (rightFrontMultiTagResult.isPresent()) {
-                                if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)) {
-                                        standardDeviation.set(0, 0, 0.7);
-                                        standardDeviation.set(1, 0, 0.7);
-                                        standardDeviation.set(2, 0, 2.5);
-                                        Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose.toPose2d();
-                                        if (poseInField(robotPose)) {
-                                                mt2Odometry.addVisionMeasurement(robotPose,
-                                                                rightFrontResult.getTimestampSeconds(),
-                                                                standardDeviation);
-                                        }
-                                }
-                        }
                         if (!onBump && !tiltedFiltered) {
-                                var rightBackResult = peripherals.getRightBackCamResult();
-                                Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                                .estimatePnpDistanceTrigSolvePose(rightBackResult);
-                                if (rightBackMultiTagResult.isPresent()) {
-                                        if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                        && notTrenchTag(rightBackResult.getBestTarget().fiducialId)) {
+                                var rightFrontResult = peripherals.getRightFrontCamResult();
+                                Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
+                                                .estimatePnpDistanceTrigSolvePose(rightFrontResult);
+                                if (rightFrontMultiTagResult.isPresent()) {
+                                        if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                        && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)) {
                                                 standardDeviation.set(0, 0, 0.7);
                                                 standardDeviation.set(1, 0, 0.7);
                                                 standardDeviation.set(2, 0, 2.5);
-                                                Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
+                                                Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose
                                                                 .toPose2d();
                                                 if (poseInField(robotPose)) {
                                                         mt2Odometry.addVisionMeasurement(robotPose,
@@ -381,6 +364,25 @@ public class DriveIOComp extends DriveIO {
                                 }
                                 if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
                                                 && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                                        var rightBackResult = peripherals.getRightBackCamResult();
+                                        Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
+                                                        .estimatePnpDistanceTrigSolvePose(rightBackResult);
+                                        if (rightBackMultiTagResult.isPresent()) {
+                                                if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
+                                                                && notTrenchTag(rightBackResult
+                                                                                .getBestTarget().fiducialId)) {
+                                                        standardDeviation.set(0, 0, 0.7);
+                                                        standardDeviation.set(1, 0, 0.7);
+                                                        standardDeviation.set(2, 0, 2.5);
+                                                        Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
+                                                                        .toPose2d();
+                                                        if (poseInField(robotPose)) {
+                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                                rightFrontResult.getTimestampSeconds(),
+                                                                                standardDeviation);
+                                                        }
+                                                }
+                                        }
                                         var leftBackResult = peripherals.getLeftBackCamResult();
                                         Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
                                                         .estimateCoprocMultiTagPose(leftBackResult);
