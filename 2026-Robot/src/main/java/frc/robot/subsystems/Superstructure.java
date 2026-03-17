@@ -706,7 +706,7 @@ public class Superstructure extends SubsystemBase {
   private void handleAutoL3Climb() {
     // drive.setWantedState(DriveState.STOP);
     if (intake.getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
-      climber.setWantedState(ClimberState.L3_CLIMBING);
+      // climber.setWantedState(ClimberState.L3_CLIMBING);
     }
     intake.setWantedState(IntakeState.UP, drive.getChassisSpeeds());
     // if (DriverStation.isAutonomous()) {

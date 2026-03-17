@@ -103,20 +103,19 @@ public final class Constants {
 
                 // 1.437/1.736 4.115
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.398,
-                                4.272),
+                                1.44,
+                                4.121),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
-                                4.272),
+                                4.121),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                climbPoseLeftBlueSide.getTranslation().getX(),
-                                climbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
+                                1.44, 3.262),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                preClimbPoseLeftBlueSide.getTranslation().getX(),
-                                preClimbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
+                                1.736,
+                                3.262),
                                 new Rotation2d(Math.toRadians(-90.0)));
 
                 // public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
