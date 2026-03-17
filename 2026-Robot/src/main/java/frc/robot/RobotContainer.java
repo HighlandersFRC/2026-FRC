@@ -75,6 +75,8 @@ public class RobotContainer {
                         put("ShootMore", () -> new SequentialCommandGroup(
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.0),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 7.0)));
+                        put("ShootNoJiggle", () -> new SequentialCommandGroup(
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 10.0)));
                 }
         };
 
