@@ -738,13 +738,11 @@ public class Drive extends SubsystemBase {
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
-      double vx = xLimiter.calculate(vector.getI());
-      double vy = yLimiter.calculate(vector.getJ());
-      if (wantedState == DriveState.DEFAULT_SLOW) {
-        vector.setI(vx);
-        vector.setJ(vy);
-        vector = vector.scaled(0.41);
-        turnRadiansPerSec *= 0.41;
+      vector = vector.scaled(0.41);
+      vector = vector.cap(0.67);
+      turnRadiansPerSec *= 0.41;
+      if (Math.abs(turnRadiansPerSec) > Math.PI / 4.0) {
+        turnRadiansPerSec = Math.PI / 4.0 * Math.copySign(1, turnRadiansPerSec);
       }
     }
     io.drive(vector, turnRadiansPerSec);
@@ -885,9 +883,9 @@ public class Drive extends SubsystemBase {
 
     if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
       // slow down to maintain control
-      finalTheta = finalTheta * 0.7;
-      finalX = finalX * 0.7;
-      finalY = finalY * 0.7;
+      finalTheta = finalTheta * 0.6;
+      finalX = finalX * 0.6;
+      finalY = finalY * 0.6;
     }
 
     Number[] velocityArray = new Number[] {
@@ -1054,8 +1052,8 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
     // Logger.recordOutput("Drive/Expected Speed",
     // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    // Logger.recordOutput("Drive/Actual Speed",
-    // Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    Logger.recordOutput("Drive/Actual Speed",
+        Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
     Logger.recordOutput("Testing/Feed Setpoint",
         new Pose2d(Constants.DynamicPassing.getTarget(getMt2Pose2d().getTranslation()), new Rotation2d()));
     // Stop moving when disabled

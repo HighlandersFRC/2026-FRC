@@ -198,7 +198,8 @@ public class Superstructure extends SubsystemBase {
         currentSuperState = SuperState.DEFAULT;
         break;
       case SHOOT:
-        if (Constants.Field.isInAllianceZone(drive.getMt2Pose2d().getTranslation())) {
+        if (Constants.Field.isInAllianceZone(drive.getMt2Pose2d().getTranslation())
+            || DriverStation.isAutonomousEnabled()) {
           if (shooter.readyToShoot() && !Constants.Field.isOnBump(drive.getMt2Pose2d().getTranslation())) {
             currentSuperState = SuperState.SHOOTING;
           } else {
