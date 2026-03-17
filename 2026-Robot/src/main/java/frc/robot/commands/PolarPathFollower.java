@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
-import frc.robot.subsystems.lights.Lights;
 import frc.robot.tools.wrappers.AutoFollower;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -38,7 +37,7 @@ public class PolarPathFollower extends ParallelCommandGroup {
   JSONArray pathPoints;
   TriggerCommand followerCommand;
 
-  public PolarPathFollower(Drive drive, Lights lights, Peripherals peripherals, JSONObject pathJSON,
+  public PolarPathFollower(Drive drive, Peripherals peripherals, JSONObject pathJSON,
       HashMap<String, Supplier<Command>> commandMap, HashMap<String, BooleanSupplier> conditionMap) {
     this.pathPoints = pathJSON.getJSONArray("sampled_points");
     defaultFollower = new VariableSpeedFollower(drive, pathPoints,

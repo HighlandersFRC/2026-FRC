@@ -459,13 +459,17 @@ public class DriveIOComp extends DriveIO {
                                                                 doRejectUpdate = true;
                                                         }
                                                         if (!doRejectUpdate) {
+                                                                Logger.recordOutput("Limelight dist to tag",
+                                                                                mt2.avgTagDist);
                                                                 standardDeviation.set(0, 0, 2.0);
                                                                 standardDeviation.set(1, 0, 2.0);
                                                                 standardDeviation.set(2, 0, 5.0);
+                                                                // if (mt2.avgTagDist < 4.5) {
                                                                 mt2Odometry.addVisionMeasurement(
                                                                                 mt2.pose,
                                                                                 mt2.timestampSeconds,
                                                                                 standardDeviation);
+                                                                // }
                                                         }
                                                         // } else {
                                                         // System.out.println("Turret angle not found for timestamp: "
