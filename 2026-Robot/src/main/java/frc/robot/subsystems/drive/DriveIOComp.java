@@ -86,27 +86,28 @@ public class DriveIOComp extends DriveIO {
         // **********************************
 
         Transform3d leftFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(3.125), Constants.inchesToMeters(14.38),
-                                        Constants.inchesToMeters(23.75)),
-                        new Rotation3d(Math.toRadians(0.5), Math.toRadians(-4.3), Math.toRadians(126.3)));
+                        new Translation3d(Constants.inchesToMeters(-9.5614), Constants.inchesToMeters(14.2213),
+                                        Constants.inchesToMeters(
+                                                        24.1563)),
+                        new Rotation3d(Math.toRadians(-0.5), Math.toRadians(-8.0), Math.toRadians(75)));
 
         Transform3d leftBackRobotToCam = new Transform3d( // front reef cam on swerve module
-                        new Translation3d(Constants.inchesToMeters(-10.25),
-                                        Constants.inchesToMeters(14.5),
-                                        Constants.inchesToMeters(23.5)),
-                        new Rotation3d(Math.toRadians(4.0), Math.toRadians(-5.4),
-                                        Math.toRadians(54.8)));
+                        new Translation3d(Constants.inchesToMeters(-11.4675),
+                                        Constants.inchesToMeters(13.5008),
+                                        Constants.inchesToMeters(24.1563)),
+                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.0),
+                                        Math.toRadians(145.0)));
 
         Transform3d rightFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.6521), Constants.inchesToMeters(-14.6780),
-                                        Constants.inchesToMeters(13.8457)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-27.0), Math.toRadians(-65.0)));
+                        new Translation3d(Constants.inchesToMeters(-9.8347), Constants.inchesToMeters(-14.7105),
+                                        Constants.inchesToMeters(13.9669)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0), Math.toRadians(275.0)));
 
         Transform3d rightBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-10.1431), Constants.inchesToMeters(-14.765415),
-                                        Constants.inchesToMeters(15.879)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0),
-                                        Math.toRadians(-110.0)));
+                        new Translation3d(Constants.inchesToMeters(-11.4424), Constants.inchesToMeters(11.4633),
+                                        Constants.inchesToMeters(24.1563)),
+                        new Rotation3d(Math.toRadians(1.7), Math.toRadians(-11.0),
+                                        Math.toRadians(215.0)));
 
         // xy position of module based on robot width and distance from edge of robot
         private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;
