@@ -54,6 +54,7 @@ public class Intake extends SubsystemBase {
 
   public enum IntakeState {
     INTAKING,
+    OUTAKE,
     DYNAMIC_INTAKING,
     UP,
     DOWN,
@@ -88,6 +89,9 @@ public class Intake extends SubsystemBase {
     if (OI.driverRT.getAsBoolean()) {
       return IntakeState.DYNAMIC_INTAKING;
     }
+    if (OI.driverA.getAsBoolean()) {
+      return IntakeState.OUTAKE;
+    }
     switch (wantedState) {
       case UP:
         return IntakeState.UP;
@@ -95,6 +99,8 @@ public class Intake extends SubsystemBase {
         return IntakeState.DOWN;
       case INTAKING:
         return IntakeState.INTAKING;
+      case OUTAKE:
+        return IntakeState.OUTAKE;
       case DYNAMIC_INTAKING:
         if (!OI.driverRT.getAsBoolean() && DriverStation.isTeleopEnabled()) {
           return IntakeState.DOWN;
@@ -209,6 +215,10 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         setIntakeDown();
         setRollerPercent(0.9);
+        break;
+      case OUTAKE:
+        setIntakeDown();
+        setRollerPercent(-0.9);
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
