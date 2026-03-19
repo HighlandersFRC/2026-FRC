@@ -152,6 +152,24 @@ public class Shooter extends SubsystemBase {
     // Logger.recordOutput("Shooter/Ready To Shoot Raw", ready);
     boolean debouncedReady = readyToShootDebouncer.calculate(ready);
     Logger.recordOutput("Shooter/Ready To Shoot Filtered", debouncedReady);
+    String whyBad = "Not Debounced Ready";
+    if (debouncedReady) {
+      whyBad = "Debounced Ready ";
+    }
+    if (!ready) {
+      if (hoodAngleError >= Constants.SetPoints.Hood.HOOD_FEED_PRECISION) {
+        whyBad += "Hood ";
+      }
+      if (turretAngleError >= turretPrecisionRequired) {
+        whyBad += "Turret ";
+      }
+      if (flywheelRPMError >= Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION) {
+        whyBad += "Flywheel ";
+      }
+    } else {
+      whyBad += "and ready ";
+    }
+    Logger.recordOutput("Shooter/Why Bad Shooting", whyBad);
     return debouncedReady;
   }
 
@@ -180,13 +198,35 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Turret Precision Required",
         Math.toDegrees(turretPrecisionRequired));
     Logger.recordOutput("Shooter/Turret Error Passing", turretAngleError);
+    Logger.recordOutput("Shooter/Hood Error Passing", hoodAngleError);
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
+    Logger.recordOutput("Shooter/Flywheel RPM Error Passing", flywheelRPMError);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
         && turretAngleError < Math.toRadians(5.0)
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION;
     boolean debouncedReady = readyToFeedDebouncer.calculate(ready);
+    Logger.recordOutput("Shooter/Ready To Pass Raw", ready);
+    Logger.recordOutput("Shooter/Ready To Pass Filtered", debouncedReady);
+    String whyBad = "Not Debounced Ready";
+    if (debouncedReady) {
+      whyBad = "Debounced Ready ";
+    }
+    if (!ready) {
+      if (hoodAngleError >= Constants.SetPoints.Hood.HOOD_FEED_PRECISION) {
+        whyBad += "Hood ";
+      }
+      if (turretAngleError >= Math.toRadians(5.0)) {
+        whyBad += "Turret ";
+      }
+      if (flywheelRPMError >= Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION) {
+        whyBad += "Flywheel ";
+      }
+    } else {
+      whyBad += "and ready ";
+    }
+    Logger.recordOutput("Shooter/Why Bad Passing", whyBad);
     return debouncedReady;
   }
 

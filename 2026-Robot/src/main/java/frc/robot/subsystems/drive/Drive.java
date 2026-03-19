@@ -1127,7 +1127,7 @@ public class Drive extends SubsystemBase {
         driveToPoint(climbAlignSetpoint);
         break;
       case DRIVE_TO_ALIGN_CLIMB_FINISH:
-        autoRobotCentricDrive(new Vector(0, -0.67), 0.0);
+        autoRobotCentricDrive(new Vector(0, 0.67), 0.0);
         break;
       default:
         break;

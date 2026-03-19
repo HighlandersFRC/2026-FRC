@@ -705,7 +705,7 @@ public final class Constants {
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
-                                Math.toRadians(-26.0),
+                                Math.toRadians(-25.5),
                                 Math.toRadians(3.5));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,

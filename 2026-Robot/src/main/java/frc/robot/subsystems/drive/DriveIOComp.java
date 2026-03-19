@@ -358,30 +358,36 @@ public class DriveIOComp extends DriveIO {
 
                 addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
 
-                Rotation2d robotRotation = new Rotation2d(Math.toRadians(gyro.getYawDegrees()));
-                double time = Timer.getFPGATimestamp();
-                rightFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
-                rightBackPhotonPoseEstimator.addHeadingData(time, robotRotation);
-                leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
+                // Rotation2d robotRotation = new
+                // Rotation2d(Math.toRadians(gyro.getYawDegrees()));
+                // double time = Timer.getFPGATimestamp();
+                // rightFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
+                // rightBackPhotonPoseEstimator.addHeadingData(time, robotRotation);
+                // leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         if (!onBump && !tiltedFiltered) {
                                 var rightFrontResult = peripherals.getRightFrontCamResult();
                                 Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
-                                                .estimatePnpDistanceTrigSolvePose(rightFrontResult);
+                                                .estimateCoprocMultiTagPose(rightFrontResult);
                                 if (rightFrontMultiTagResult.isPresent()) {
                                         if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
                                         // && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)
                                         ) {
                                                 standardDeviation.set(0, 0, 1.0);
                                                 standardDeviation.set(1, 0, 1.0);
-                                                standardDeviation.set(2, 0, 2.5);
+                                                standardDeviation.set(2, 0, 0.7);
                                                 Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose
                                                                 .toPose2d();
                                                 if (poseInField(robotPose)) {
+                                                        Logger.recordOutput("Cameras/Right Front Pose",
+                                                                        clampToField(robotPose));
                                                         mt2Odometry.addVisionMeasurement(clampToField(robotPose),
                                                                         rightFrontResult.getTimestampSeconds(),
                                                                         standardDeviation);
+                                                } else {
+                                                        Logger.recordOutput("Cameras/Right Front Pose",
+                                                                        new Pose2d());
                                                 }
                                         }
                                 }
@@ -389,7 +395,7 @@ public class DriveIOComp extends DriveIO {
                                                 && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
                                         var rightBackResult = peripherals.getRightBackCamResult();
                                         Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                                        .estimatePnpDistanceTrigSolvePose(rightBackResult);
+                                                        .estimateCoprocMultiTagPose(rightBackResult);
                                         if (rightBackMultiTagResult.isPresent()) {
                                                 if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
                                                 // && notTrenchTag(rightBackResult
@@ -397,14 +403,19 @@ public class DriveIOComp extends DriveIO {
                                                 ) {
                                                         standardDeviation.set(0, 0, 1.0);
                                                         standardDeviation.set(1, 0, 1.0);
-                                                        standardDeviation.set(2, 0, 2.5);
+                                                        standardDeviation.set(2, 0, 0.9);
                                                         Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
                                                                         .toPose2d();
                                                         if (poseInField(robotPose)) {
+                                                                Logger.recordOutput("Cameras/Right Back Pose",
+                                                                                clampToField(robotPose));
                                                                 mt2Odometry.addVisionMeasurement(
                                                                                 clampToField(robotPose),
                                                                                 rightFrontResult.getTimestampSeconds(),
                                                                                 standardDeviation);
+                                                        } else {
+                                                                Logger.recordOutput("Cameras/Right Back Pose",
+                                                                                new Pose2d());
                                                         }
                                                 }
                                         }
@@ -418,21 +429,26 @@ public class DriveIOComp extends DriveIO {
                                                 ) {
                                                         standardDeviation.set(0, 0, 1.3);
                                                         standardDeviation.set(1, 0, 1.3);
-                                                        standardDeviation.set(2, 0, 2.0);
+                                                        standardDeviation.set(2, 0, 0.9);
                                                         Pose2d robotPose = leftBackMultiTagResult.get().estimatedPose
                                                                         .toPose2d();
                                                         if (poseInField(robotPose)) {
+                                                                Logger.recordOutput("Cameras/Left Back Pose",
+                                                                                clampToField(robotPose));
                                                                 mt2Odometry.addVisionMeasurement(
                                                                                 clampToField(robotPose),
                                                                                 leftBackResult.getTimestampSeconds(),
                                                                                 standardDeviation);
+                                                        } else {
+                                                                Logger.recordOutput("Cameras/Left Back Pose",
+                                                                                new Pose2d());
                                                         }
                                                 }
                                         }
 
                                         var leftFrontResult = peripherals.getLeftFrontCamResult();
                                         Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
-                                                        .estimatePnpDistanceTrigSolvePose(leftFrontResult);
+                                                        .estimateCoprocMultiTagPose(leftFrontResult);
                                         if (leftFrontMultiTagResult.isPresent()) {
                                                 if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
                                                 // && notTrenchTag(leftFrontResult
@@ -440,14 +456,19 @@ public class DriveIOComp extends DriveIO {
                                                 ) {
                                                         standardDeviation.set(0, 0, 1.0);
                                                         standardDeviation.set(1, 0, 1.0);
-                                                        standardDeviation.set(2, 0, 2.5);
+                                                        standardDeviation.set(2, 0, 0.9);
                                                         Pose2d robotPose = leftFrontMultiTagResult.get().estimatedPose
                                                                         .toPose2d();
                                                         if (poseInField(robotPose)) {
+                                                                Logger.recordOutput("Cameras/Left Front Pose",
+                                                                                clampToField(robotPose));
                                                                 mt2Odometry.addVisionMeasurement(
                                                                                 clampToField(robotPose),
                                                                                 leftFrontResult.getTimestampSeconds(),
                                                                                 standardDeviation);
+                                                        } else {
+                                                                Logger.recordOutput("Cameras/Left Front Pose",
+                                                                                new Pose2d());
                                                         }
                                                 }
                                         }
@@ -461,13 +482,17 @@ public class DriveIOComp extends DriveIO {
                                                 try {
                                                         LimelightHelpers.SetRobotOrientation(
                                                                         Constants.Vision.LIMELIGHT_NAME,
-                                                                        gyro.getYawDegrees(),
+                                                                        getPosition().getRotation().getDegrees(),
                                                                         limelightAngVelRelToField,
                                                                         gyro.getPitchDegrees(), 0,
                                                                         -gyro.getRollDegrees(), 0);
                                                         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
                                                                         .getBotPoseEstimate_wpiBlue_MegaTag2(
                                                                                         Constants.Vision.LIMELIGHT_NAME);
+                                                        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
+                                                                        .getBotPoseEstimate_wpiBlue(
+                                                                                        Constants.Vision.LIMELIGHT_NAME);
+                                                        Logger.recordOutput("Cameras/Limelight Pose MT1", mt1.pose);
 
                                                         // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
                                                         // mt2.timestampSeconds);
@@ -494,11 +519,16 @@ public class DriveIOComp extends DriveIO {
                                                                 standardDeviation.set(1, 0, 2.1);
                                                                 standardDeviation.set(2, 0, 5.0);
                                                                 // if (mt2.avgTagDist < 4.5) {
+                                                                Logger.recordOutput("Cameras/Limelight Pose",
+                                                                                clampToField(mt2.pose));
                                                                 mt2Odometry.addVisionMeasurement(
                                                                                 clampToField(mt2.pose),
                                                                                 mt2.timestampSeconds,
                                                                                 standardDeviation);
                                                                 // }
+                                                        } else {
+                                                                Logger.recordOutput("Cameras/Limelight Pose",
+                                                                                new Pose2d());
                                                         }
                                                         // } else {
                                                         // System.out.println("Turret angle not found for timestamp: "
@@ -537,10 +567,11 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected Pose2d getPosition() {
-                double x = mt2Odometry.getEstimatedPosition().getX();
-                double y = mt2Odometry.getEstimatedPosition().getY();
-                Rotation2d heading = gyro.getYaw();
-                return new Pose2d(x, y, heading);
+                // double x = mt2Odometry.getEstimatedPosition().getX();
+                // double y = mt2Odometry.getEstimatedPosition().getY();
+                // Rotation2d heading = gyro.getYaw();
+                // return new Pose2d(x, y, heading);
+                return mt2Odometry.getEstimatedPosition();
         }
 
         @Override
@@ -597,6 +628,14 @@ public class DriveIOComp extends DriveIO {
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
+                Logger.recordOutput("Swerve/Front Right Drive Current", frontRight.getDriveMotorCurrent());
+                Logger.recordOutput("Swerve/Front Left Drive Current", frontLeft.getDriveMotorCurrent());
+                Logger.recordOutput("Swerve/Back Right Drive Current", backRight.getDriveMotorCurrent());
+                Logger.recordOutput("Swerve/Back Left Drive Current", backLeft.getDriveMotorCurrent());
+                Logger.recordOutput("Swerve/Front Right Angle Current", frontRight.getAngleMotorCurrent());
+                Logger.recordOutput("Swerve/Front Left Angle Current", frontLeft.getAngleMotorCurrent());
+                Logger.recordOutput("Swerve/Back Right Angle Current", backRight.getAngleMotorCurrent());
+                Logger.recordOutput("Swerve/Back Left Angle Current", backLeft.getAngleMotorCurrent());
                 // Logger.recordOutput("Robot/turret velocity filtered",
                 // Globals.turretVelocity);
                 // Logger.recordOutput("Robot/limelight ang vel rel to turret",
