@@ -90,6 +90,7 @@ public class Drive extends SubsystemBase {
     STOP,
     DRIVE_TO_PRE_CLIMB,
     DRIVE_TO_ALIGN_CLIMB,
+    DRIVE_TO_ALIGN_CLIMB_FINISH,
     SNAKE,
   }
 
@@ -971,6 +972,8 @@ public class Drive extends SubsystemBase {
         return DriveState.STOP;
       case DRIVE_TO_ALIGN_CLIMB:
         return DriveState.DRIVE_TO_ALIGN_CLIMB;
+      case DRIVE_TO_ALIGN_CLIMB_FINISH:
+        return DriveState.DRIVE_TO_ALIGN_CLIMB_FINISH;
       case DRIVE_TO_PRE_CLIMB:
         return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
@@ -1122,6 +1125,9 @@ public class Drive extends SubsystemBase {
         Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
         Logger.recordOutput("climb align", climbAlignSetpoint);
         driveToPoint(climbAlignSetpoint);
+        break;
+      case DRIVE_TO_ALIGN_CLIMB_FINISH:
+        autoRobotCentricDrive(new Vector(0, -0.67), 0.0);
         break;
       default:
         break;

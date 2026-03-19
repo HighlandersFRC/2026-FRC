@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,6 +44,8 @@ public class Superstructure extends SubsystemBase {
   double outakeIdleInitTime = 0;
   boolean outakeIdleInit = false;
   boolean firstTimeDefault = true;
+  boolean firstTimeAutoClimb = true;
+  double alignTime = Timer.getFPGATimestamp();
   private SuperState lastState = SuperState.IDLE;
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();
@@ -76,6 +79,7 @@ public class Superstructure extends SubsystemBase {
     MANUAL_EXTEND_CLIMBER,
     AUTO_PREP_CLIMB,
     AUTO_ALIGN_CLIMB,
+    AUTO_ALIGN_CLIMB_FINISH,
     AUTON_CLIMB,
     AUTO_L3_CLIMB,
   }
@@ -167,6 +171,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case AUTO_ALIGN_CLIMB:
         handleAutoAlignClimb();
+        break;
+      case AUTO_ALIGN_CLIMB_FINISH:
+        handleAutoAlignClimbFinish();
         break;
       case AUTON_CLIMB:
         handleAutonClimb();
@@ -301,6 +308,14 @@ public class Superstructure extends SubsystemBase {
         Logger.recordOutput("Testing Thing", drive.getClimbAlignSetpoint());
         if (drive.hitSetPointClimb(drive.getClimbAlignSetpoint())
             && climber.getClimberPosition() > Constants.SetPoints.Climber.CLIMBER_L1_EXTEND_HEIGHT_INCHES - 1.0) {
+          wantedSuperState = SuperState.AUTO_ALIGN_CLIMB_FINISH;
+          currentSuperState = SuperState.AUTO_ALIGN_CLIMB_FINISH;
+        } else {
+          currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
+        }
+        break;
+      case AUTO_ALIGN_CLIMB_FINISH:
+        if (Timer.getFPGATimestamp() - alignTime > 0.5) {
           if (DriverStation.isAutonomousEnabled()) {
             wantedSuperState = SuperState.AUTON_CLIMB;
             currentSuperState = SuperState.AUTON_CLIMB;
@@ -309,7 +324,7 @@ public class Superstructure extends SubsystemBase {
             currentSuperState = SuperState.AUTO_L3_CLIMB;
           }
         } else {
-          currentSuperState = SuperState.AUTO_ALIGN_CLIMB;
+          currentSuperState = SuperState.AUTO_ALIGN_CLIMB_FINISH;
         }
         break;
       case AUTON_CLIMB:
@@ -679,6 +694,29 @@ public class Superstructure extends SubsystemBase {
     // }
   }
 
+  private void handleAutoAlignClimbFinish() {
+    drive.setWantedState(DriveState.DRIVE_TO_ALIGN_CLIMB_FINISH);
+    intake.setWantedState(IntakeState.UP);
+    climber.setWantedState(ClimberState.AUTON_EXTEND);
+    // climber.setWantedState(ClimberState.AUTON_EXTEND);
+    // if (DriverStation.isAutonomous()) {
+    // ShotSolution shotSolution = ShotCalculator.calculateHubShot(
+    // new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d()
+    // .getRotation()),
+    // Constants.Field.getHubPose().toTranslation2d(),
+    // drive.getFutureVelocity());
+    // ShotSolution rotatedShotSolution = shotSolution
+    // .rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
+    // shooter.setWantedState(ShooterState.NORMAL_SHOOT,
+    // rotatedShotSolution);
+    // if (shooter.readyToShoot()) {
+    // feeder.setWantedState(FeederState.FEED);
+    // } else {
+    // feeder.setWantedState(FeederState.DEFAULT);
+    // }
+    // }
+  }
+
   private void handleAutonClimb() {
     drive.setWantedState(DriveState.STOP);
     climber.setWantedState(ClimberState.AUTON_RETRACT);
@@ -708,7 +746,8 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void handleAutoL3Climb() {
-    // drive.setWantedState(DriveState.STOP);
+
+    drive.setWantedState(DriveState.DEFAULT);
     // if (intake.getIntakePosition() <
     // Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
     climber.setWantedState(ClimberState.L3_CLIMBING);
@@ -748,6 +787,15 @@ public class Superstructure extends SubsystemBase {
     shooter.passIdleTurretAngleToIdle(turret);
 
     currentSuperState = handleStateTransitions();
+
+    if (currentSuperState != SuperState.AUTO_ALIGN_CLIMB_FINISH) {
+      // alignTime = Timer.getFPGATimestamp();
+      firstTimeAutoClimb = true;
+    } else if (firstTimeAutoClimb) {
+      alignTime = Timer.getFPGATimestamp();
+      firstTimeAutoClimb = false;
+    }
+
     if (RobotBase.isSimulation()) {
       for (int i = 0; i < trajectoryVelocity.size(); i++) {
         trajectoryVelocity.set(i, new Translation3d(trajectoryVelocity.get(i).getX(),
