@@ -119,7 +119,7 @@ public class ShiftManager {
 
             double fractional = timeUntilNextShift - Math.floor(timeUntilNextShift);
 
-            if (fractional < 0.5) {
+            if (fractional < 0.25) {
                 rumbleValue = 1.0;
             }
         }

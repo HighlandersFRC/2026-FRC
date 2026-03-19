@@ -1083,18 +1083,18 @@ public class Drive extends SubsystemBase {
     }
     switch (systemState) {
       case DEFAULT:
-        if (OI.getPOVDown()) {
-          snakeDrive();
-        } else {
-          teleopDrive();
-        }
+        // if (OI.getPOVDown()) {
+        // snakeDrive();
+        // } else {
+        teleopDrive();
+        // }
         break;
       case DEFAULT_SLOW:
-        if (OI.getPOVDown()) {
-          snakeDrive();
-        } else {
-          teleopDrive();
-        }
+        // if (OI.getPOVDown()) {
+        // snakeDrive();
+        // } else {
+        teleopDrive();
+        // }
         break;
       case IDLE:
 
@@ -1104,7 +1104,8 @@ public class Drive extends SubsystemBase {
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
         // Math.pow(OI.getDriverLeftY(), 2)) < 0.1) {
-        snakeDrive();
+        // snakeDrive();
+        teleopDrive();
         // } else {
         // snakeDrive();
         // }

@@ -253,6 +253,28 @@ public class DriveIOComp extends DriveIO {
                                 && pose.getY() > 0 && pose.getY() < Constants.Physical.FIELD_WIDTH;
         }
 
+        private Pose2d clampToField(Pose2d pose) {
+                if (pose.getX() > (Constants.Physical.FIELD_LENGTH - Constants.Physical.ROBOT_RADIUS)) {
+                        pose = new Pose2d(Constants.Physical.FIELD_LENGTH - Constants.Physical.ROBOT_RADIUS,
+                                        pose.getY(), pose.getRotation());
+                } else if (pose.getX() < (Constants.Physical.ROBOT_RADIUS)) {
+                        pose = new Pose2d(Constants.Physical.ROBOT_RADIUS,
+                                        pose.getY(), pose.getRotation());
+                }
+
+                if (pose.getY() > (Constants.Physical.FIELD_WIDTH - Constants.Physical.ROBOT_RADIUS)) {
+                        pose = new Pose2d(pose.getX(),
+                                        Constants.Physical.FIELD_WIDTH
+                                                        - Constants.Physical.ROBOT_RADIUS,
+                                        pose.getRotation());
+                } else if (pose.getY() < (Constants.Physical.ROBOT_RADIUS)) {
+                        pose = new Pose2d(pose.getX(),
+                                        Constants.Physical.ROBOT_RADIUS, pose.getRotation());
+                }
+
+                return pose;
+        }
+
         /**
          * Updates the fused odometry array with current robot position and orientation
          * information.
@@ -349,14 +371,15 @@ public class DriveIOComp extends DriveIO {
                                                 .estimatePnpDistanceTrigSolvePose(rightFrontResult);
                                 if (rightFrontMultiTagResult.isPresent()) {
                                         if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                        && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)) {
-                                                standardDeviation.set(0, 0, 0.7);
-                                                standardDeviation.set(1, 0, 0.7);
+                                        // && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)
+                                        ) {
+                                                standardDeviation.set(0, 0, 1.0);
+                                                standardDeviation.set(1, 0, 1.0);
                                                 standardDeviation.set(2, 0, 2.5);
                                                 Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose
                                                                 .toPose2d();
                                                 if (poseInField(robotPose)) {
-                                                        mt2Odometry.addVisionMeasurement(robotPose,
+                                                        mt2Odometry.addVisionMeasurement(clampToField(robotPose),
                                                                         rightFrontResult.getTimestampSeconds(),
                                                                         standardDeviation);
                                                 }
@@ -369,15 +392,17 @@ public class DriveIOComp extends DriveIO {
                                                         .estimatePnpDistanceTrigSolvePose(rightBackResult);
                                         if (rightBackMultiTagResult.isPresent()) {
                                                 if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                                && notTrenchTag(rightBackResult
-                                                                                .getBestTarget().fiducialId)) {
-                                                        standardDeviation.set(0, 0, 0.7);
-                                                        standardDeviation.set(1, 0, 0.7);
+                                                // && notTrenchTag(rightBackResult
+                                                // .getBestTarget().fiducialId)
+                                                ) {
+                                                        standardDeviation.set(0, 0, 1.0);
+                                                        standardDeviation.set(1, 0, 1.0);
                                                         standardDeviation.set(2, 0, 2.5);
                                                         Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
                                                                         .toPose2d();
                                                         if (poseInField(robotPose)) {
-                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                mt2Odometry.addVisionMeasurement(
+                                                                                clampToField(robotPose),
                                                                                 rightFrontResult.getTimestampSeconds(),
                                                                                 standardDeviation);
                                                         }
@@ -388,15 +413,17 @@ public class DriveIOComp extends DriveIO {
                                                         .estimateCoprocMultiTagPose(leftBackResult);
                                         if (leftBackMultiTagResult.isPresent()) {
                                                 if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                                && notTrenchTag(leftBackResult
-                                                                                .getBestTarget().fiducialId)) {
-                                                        standardDeviation.set(0, 0, 1.0);
-                                                        standardDeviation.set(1, 0, 1.0);
+                                                // && notTrenchTag(leftBackResult
+                                                // .getBestTarget().fiducialId)
+                                                ) {
+                                                        standardDeviation.set(0, 0, 1.3);
+                                                        standardDeviation.set(1, 0, 1.3);
                                                         standardDeviation.set(2, 0, 2.0);
                                                         Pose2d robotPose = leftBackMultiTagResult.get().estimatedPose
                                                                         .toPose2d();
                                                         if (poseInField(robotPose)) {
-                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                mt2Odometry.addVisionMeasurement(
+                                                                                clampToField(robotPose),
                                                                                 leftBackResult.getTimestampSeconds(),
                                                                                 standardDeviation);
                                                         }
@@ -408,15 +435,17 @@ public class DriveIOComp extends DriveIO {
                                                         .estimatePnpDistanceTrigSolvePose(leftFrontResult);
                                         if (leftFrontMultiTagResult.isPresent()) {
                                                 if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                                && notTrenchTag(leftFrontResult
-                                                                                .getBestTarget().fiducialId)) {
-                                                        standardDeviation.set(0, 0, 0.7);
-                                                        standardDeviation.set(1, 0, 0.7);
+                                                // && notTrenchTag(leftFrontResult
+                                                // .getBestTarget().fiducialId)
+                                                ) {
+                                                        standardDeviation.set(0, 0, 1.0);
+                                                        standardDeviation.set(1, 0, 1.0);
                                                         standardDeviation.set(2, 0, 2.5);
                                                         Pose2d robotPose = leftFrontMultiTagResult.get().estimatedPose
                                                                         .toPose2d();
                                                         if (poseInField(robotPose)) {
-                                                                mt2Odometry.addVisionMeasurement(robotPose,
+                                                                mt2Odometry.addVisionMeasurement(
+                                                                                clampToField(robotPose),
                                                                                 leftFrontResult.getTimestampSeconds(),
                                                                                 standardDeviation);
                                                         }
@@ -461,12 +490,12 @@ public class DriveIOComp extends DriveIO {
                                                         if (!doRejectUpdate) {
                                                                 Logger.recordOutput("Limelight dist to tag",
                                                                                 mt2.avgTagDist);
-                                                                standardDeviation.set(0, 0, 2.0);
-                                                                standardDeviation.set(1, 0, 2.0);
+                                                                standardDeviation.set(0, 0, 2.1);
+                                                                standardDeviation.set(1, 0, 2.1);
                                                                 standardDeviation.set(2, 0, 5.0);
                                                                 // if (mt2.avgTagDist < 4.5) {
                                                                 mt2Odometry.addVisionMeasurement(
-                                                                                mt2.pose,
+                                                                                clampToField(mt2.pose),
                                                                                 mt2.timestampSeconds,
                                                                                 standardDeviation);
                                                                 // }

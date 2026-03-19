@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void teleopInit() {
-    setWantedState(IntakeState.ZERO);
+    setWantedState(IntakeState.UP);
   }
 
   public double getIntakePosition() {
@@ -127,7 +127,7 @@ public class Intake extends SubsystemBase {
     if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
       setPivotTorque(-5, 0.3);
     } else {
-      setPivotTorque(-60, 1.0);
+      setPivotTorque(-40, 1.0);
     }
   }
 
@@ -169,7 +169,7 @@ public class Intake extends SubsystemBase {
     }
 
     if (jiggleUp) {
-      setPivotTorque(-45, 0.5);
+      setPivotTorque(-40, 0.5);
     } else {
       setPivotTorque(30, 0.5);
     }

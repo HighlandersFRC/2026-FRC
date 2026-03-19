@@ -148,18 +148,20 @@ public class RobotContainer {
                                 OI.driverLTSupplier));
 
                 OI.driverPOVLeft.whileTrue(new SetRobotStatePresetShot(superstructure,
-                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                new ShotSolution(new Rotation2d(Math.toRadians(75.0)), 2450, new Rotation2d(Math.PI),
                                                 0.0, 0.0)));
                 // OI.driverPOVUp.whileTrue(new SetRobotStatePresetShot(superstructure,
                 // new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 1000, new
                 // Rotation2d(Math.PI),
                 // 0.0, 0.0)));
                 OI.driverPOVRight.whileTrue(new SetRobotStatePresetShot(superstructure,
-                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 3000, new Rotation2d(Math.PI),
+                                new ShotSolution(new Rotation2d(Math.toRadians(76.0)), 2420, new Rotation2d(Math.PI),
                                                 0.0, 0.0)));
 
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
+                OI.driverPOVDown.whileTrue(new SetRobotStateOnce(superstructure,
+                                SuperState.AUTO_L3_CLIMB));
                 OI.driverPOVUp.whileTrue(new SetRobotStateOnce(superstructure,
                                 SuperState.AUTO_PREP_CLIMB));
 

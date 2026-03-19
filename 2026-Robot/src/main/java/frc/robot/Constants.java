@@ -103,15 +103,25 @@ public final class Constants {
 
                 // 1.437/1.736 4.115
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.45,
+                                1.44,
                                 4.121),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
                                 4.121),
                                 new Rotation2d(Math.toRadians(-90.0)));
+
+                // public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                // 1.483,
+                // 4.018),
+                // new Rotation2d(Math.toRadians(-90.0)));
+                // public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                // 1.736,
+                // 4.018),
+
+                // new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                1.45, 3.262),
+                                1.44, 3.262),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 1.736,

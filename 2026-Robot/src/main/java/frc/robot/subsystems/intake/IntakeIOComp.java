@@ -60,22 +60,22 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerMasterConfig = new TalonFXConfiguration();
                 rollerMasterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 80;
-                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 80;
+                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 60;
+                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 60;
                 rollerMasterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
-                rollerMotorMaster.setNeutralMode(NeutralModeValue.Brake);
+                rollerMotorMaster.setNeutralMode(NeutralModeValue.Coast);
 
                 TalonFXConfiguration rollerFollowerConfig = new TalonFXConfiguration();
                 rollerFollowerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 80;
-                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 80;
+                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
+                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 60;
                 rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);
-                rollerMotorFollower.setNeutralMode(NeutralModeValue.Brake);
+                rollerMotorFollower.setNeutralMode(NeutralModeValue.Coast);
         }
 
         @Override
@@ -140,7 +140,7 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public double getIntakeRollerCurrent() {
-                return rollerMotorMaster.getTorqueCurrent().getValueAsDouble();
+                return rollerMotorMaster.getStatorCurrent().getValueAsDouble();
         }
 
         @Override

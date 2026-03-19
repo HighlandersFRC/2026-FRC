@@ -179,11 +179,12 @@ public class Shooter extends SubsystemBase {
         .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
     Logger.recordOutput("Shooter/Turret Precision Required",
         Math.toDegrees(turretPrecisionRequired));
+    Logger.recordOutput("Shooter/Turret Error Passing", turretAngleError);
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
-        && turretAngleError < turretPrecisionRequired
+        && turretAngleError < Math.toRadians(5.0)
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION;
     boolean debouncedReady = readyToFeedDebouncer.calculate(ready);
     return debouncedReady;
