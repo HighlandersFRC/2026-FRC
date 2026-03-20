@@ -40,6 +40,11 @@ public class Feeder extends SubsystemBase {
   }
 
   private FeederState handleStateTransition() {
+    if (OI.getOperatorLB()) {
+      return FeederState.REVERSE;
+    } else if (OI.getOperatorRB()) {
+      return FeederState.FEED;
+    }
     switch (wantedState) {
       case FEED:
         return FeederState.FEED;
@@ -61,7 +66,7 @@ public class Feeder extends SubsystemBase {
   }
 
   public void setDyeRotorRPM(double rpm) {
-    // Logger.recordOutput("Feeder/Dye Rotor RPM Setpoint", rpm);
+    Logger.recordOutput("Feeder/Dye Rotor RPM Setpoint", rpm);
     io.setDyeRotorRPM(rpm);
   }
 
@@ -81,14 +86,14 @@ public class Feeder extends SubsystemBase {
     // }
     switch (systemState) {
       case FEED:
-        setDyeRotorTorque(80, 0.8);
-        // setDyeRotorRPM(feederSpeed.get());
+        // setDyeRotorTorque(80, 0.8);
+        setDyeRotorRPM(140.0);
         // setDyeRotorPercent(1.0);
         break;
       case REVERSE:
-        setDyeRotorTorque(-80, 0.4);
+        // setDyeRotorTorque(-80, 0.4);
         // setDyeRotorPercent(-0.4);
-        // setDyeRotorRPM(-60.0);
+        setDyeRotorRPM(-60.0);
         break;
       case DEFAULT:
         // setDyeRotorTorque(-30, 0.1);

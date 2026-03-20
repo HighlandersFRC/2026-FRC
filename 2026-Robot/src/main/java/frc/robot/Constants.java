@@ -361,7 +361,7 @@ public final class Constants {
 
         public class DynamicPassing { // chatgpt ahh code for dynamic passing
 
-                private static final double RED_TARGET_X = 13.0;
+                private static final double RED_TARGET_X = 13.67;
 
                 private static final double RED_LEFT_MIN_TARGET_Y = 1.5;
                 private static final double RED_LEFT_MAX_TARGET_Y = 2.5;
@@ -559,18 +559,18 @@ public final class Constants {
                                         { 2.67, 77, 2325, 1.04 },
                                         { 2.932, 76, 2420, 1.02 },
                                         { 3.288, 75, 2450, 1.09 },
-                                        { 3.65, 74, 2550, 1.13 },
-                                        { 3.985, 73, 2625, 1.16 },
-                                        { 4.317, 72, 2700, 1.22 },
-                                        { 4.505, 71, 2750, 1.18 },
-                                        { 4.758, 70, 2800, 1.24 },
-                                        { 4.943, 69, 2850, 1.24 },
-                                        { 5.253, 68, 2925, 1.31 },
-                                        { 5.546, 67, 2975, 1.25 },
-                                        { 5.801, 66, 3050, 1.23 },
-                                        { 6.155, 64, 3125, 1.19 },
-                                        { 6.45, 63, 3300, 1.26 },
-                                        { 6.732, 62, 3450, 1.27 }
+                                        { 3.65, 74, 2525, 1.13 },
+                                        { 3.985, 73, 2600, 1.16 },
+                                        { 4.317, 72, 2675, 1.22 },
+                                        { 4.505, 71, 2725, 1.18 },
+                                        { 4.758, 70, 2775, 1.24 },
+                                        { 4.943, 69, 2825, 1.24 },
+                                        { 5.253, 68, 2900, 1.31 },
+                                        { 5.546, 67, 2950, 1.25 },
+                                        { 5.801, 66, 3025, 1.23 },
+                                        { 6.155, 64, 3100, 1.19 },
+                                        { 6.45, 63, 3275, 1.26 },
+                                        { 6.732, 62, 3425, 1.27 }
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;
@@ -907,7 +907,7 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 10.0) * (130.0 / 18.0);
+                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 / 18.0);
                 }
 
                 public static final class Climber {

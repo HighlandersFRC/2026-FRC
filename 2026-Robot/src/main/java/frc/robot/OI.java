@@ -230,6 +230,10 @@ public class OI {
         return operatorController.getLeftBumperButton();
     }
 
+    public static boolean getOperatorRB() {
+        return operatorController.getRightBumperButton();
+    }
+
     public static int getPOV() {
         return driverController.getPOV();
     }

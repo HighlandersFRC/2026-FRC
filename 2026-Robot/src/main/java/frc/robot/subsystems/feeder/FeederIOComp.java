@@ -41,8 +41,8 @@ class FeederIOComp implements FeederIO {
         dyeRotorConfig.Slot1.kP = Constants.PIDConstants.Feeder.kP1;
         dyeRotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         dyeRotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 90;
-        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 90;
+        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 100;
+        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 100;
         dyeRotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         dyeRotorConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.DYE_ROTOR_GEAR_RATIO;
         dyeRotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
