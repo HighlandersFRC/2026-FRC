@@ -253,7 +253,7 @@ class ShooterIOComp implements ShooterIO {
                 // Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
                 double adjustedAngle = angle;
                 if (Math.abs(OI.getOperatorRightX()) > 0.1 || Math.abs(OI.getOperatorRightY()) > 0.3) {
-                        adjustedAngle -= 15.0 * OI.getOperatorRightX();
+                        adjustedAngle -= ((Math.toRadians(15.0)) * OI.getOperatorRightX());
                 }
                 Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
                 turretMotor.setControl(
@@ -271,7 +271,7 @@ class ShooterIOComp implements ShooterIO {
                 // Logger.recordOutput("Shooter/Goal flywheel RPM", rpm);
                 double adjustedRPM = rpm;
                 if (Math.abs(OI.getOperatorLeftY()) > 0.1 || Math.abs(OI.getOperatorLeftX()) > 0.3) {
-                        adjustedRPM -= 150.0 * OI.getOperatorLeftX();
+                        adjustedRPM -= 150.0 * OI.getOperatorLeftY();
                 }
                 Logger.recordOutput("Shooter/Adjusted RPM Setpoint", adjustedRPM);
 

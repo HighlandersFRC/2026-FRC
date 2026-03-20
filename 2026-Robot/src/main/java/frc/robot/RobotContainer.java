@@ -68,12 +68,12 @@ public class RobotContainer {
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
                         put("Slow Mode", () -> new SlowFollower(drive, null, false));
                         put("Shoot", () -> new SequentialCommandGroup(
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.5),
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.67)));
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.75),
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.15)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
                         put("Climb", () -> new SetRobotStateSimpleOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
                         put("ShootMore", () -> new SequentialCommandGroup(
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.0),
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.0),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 7.0)));
                         put("ShootNoJiggle", () -> new SequentialCommandGroup(
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 10.0)));
