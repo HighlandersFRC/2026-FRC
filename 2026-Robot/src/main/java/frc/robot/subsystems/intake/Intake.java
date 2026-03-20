@@ -162,9 +162,9 @@ public class Intake extends SubsystemBase {
 
   public void setJiggle() {
     if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
-        7.0) {
+        5.002) {
       jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 7.0) {
+    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.118) {
       jiggleUp = false;
     }
 
