@@ -332,6 +332,14 @@ public final class Constants {
                         }
                 }
 
+                public static boolean isInOtherAllianceZone(Translation2d robotPosition) {
+                        if (Globals.fieldSide.equals("blue")) {
+                                return HUB_POSE_RED.getX() + BUMP_WIDTH / 2 < robotPosition.getX();
+                        } else {
+                                return robotPosition.getX() < HUB_POSE_BLUE.getX() - BUMP_WIDTH / 2;
+                        }
+                }
+
                 public static boolean isOnBump(Translation2d robotPosition) {
                         boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH / 2;
                         boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH / 2;
@@ -395,67 +403,87 @@ public final class Constants {
                 }
 
                 public static Translation2d getTargetRedLeft(Translation2d robotPose) {
-                        double rx = robotPose.getX();
-                        double ry = robotPose.getY();
-                        double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
-                        double targetY = RED_LEFT_MAX_TARGET_Y
-                                        - normalizedY * (RED_LEFT_MAX_TARGET_Y - RED_LEFT_MIN_TARGET_Y);
-                        double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
-                        double factor = (ry - RED_LEFT_BUMP_MIDPOINT_Y) / 3.0;
-                        factor = Math.max(-1.0, Math.min(1.0, factor));
-                        targetY -= xAdjustment * factor;
-                        targetY = Math.max(RED_LEFT_MIN_TARGET_Y, Math.min(RED_LEFT_MAX_TARGET_Y, targetY));
-                        return new Translation2d(RED_TARGET_X, targetY);
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() + 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = RED_LEFT_MAX_TARGET_Y
+                                                - normalizedY * (RED_LEFT_MAX_TARGET_Y - RED_LEFT_MIN_TARGET_Y);
+                                double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
+                                double factor = (ry - RED_LEFT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY -= xAdjustment * factor;
+                                targetY = Math.max(RED_LEFT_MIN_TARGET_Y, Math.min(RED_LEFT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(RED_TARGET_X, targetY);
+                        }
+
                 }
 
                 public static Translation2d getTargetRedRight(Translation2d robotPose) {
-                        double rx = robotPose.getX();
-                        double ry = robotPose.getY();
-                        double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
-                                        / (Constants.Physical.FIELD_WIDTH * 0.5);
-                        double targetY = (RED_RIGHT_MAX_TARGET_Y
-                                        - normalizedY * (RED_RIGHT_MAX_TARGET_Y - RED_RIGHT_MIN_TARGET_Y));
-                        targetY = RED_RIGHT_BUMP_MIDPOINT_Y + targetY;
-                        double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
-                        double factor = (ry - RED_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
-                        factor = Math.max(-1.0, Math.min(1.0, factor));
-                        targetY -= xAdjustment * factor;
-                        targetY = Math.max(
-                                        RED_RIGHT_MIN_TARGET_Y,
-                                        Math.min(RED_RIGHT_MAX_TARGET_Y, targetY));
-                        return new Translation2d(RED_TARGET_X, targetY);
+
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() + 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
+                                                / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = (RED_RIGHT_MAX_TARGET_Y
+                                                - normalizedY * (RED_RIGHT_MAX_TARGET_Y - RED_RIGHT_MIN_TARGET_Y));
+                                targetY = RED_RIGHT_BUMP_MIDPOINT_Y + targetY;
+                                double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
+                                double factor = (ry - RED_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY -= xAdjustment * factor;
+                                targetY = Math.max(
+                                                RED_RIGHT_MIN_TARGET_Y,
+                                                Math.min(RED_RIGHT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(RED_TARGET_X, targetY);
+                        }
                 }
 
                 public static Translation2d getTargetBlueLeft(Translation2d robotPose) {
-                        double rx = robotPose.getX();
-                        double ry = robotPose.getY();
-                        double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
-                                        / (Constants.Physical.FIELD_WIDTH * 0.5);
-                        double targetY = (BLUE_LEFT_MAX_TARGET_Y
-                                        - normalizedY * (BLUE_LEFT_MAX_TARGET_Y - BLUE_LEFT_MIN_TARGET_Y));
-                        targetY = BLUE_LEFT_BUMP_MIDPOINT_Y + targetY;
-                        double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
-                        double factor = (ry - BLUE_LEFT_BUMP_MIDPOINT_Y) / 3.0;
-                        factor = Math.max(-1.0, Math.min(1.0, factor));
-                        targetY += xAdjustment * factor;
-                        targetY = Math.max(
-                                        BLUE_LEFT_MIN_TARGET_Y,
-                                        Math.min(BLUE_LEFT_MAX_TARGET_Y, targetY));
-                        return new Translation2d(BLUE_TARGET_X, targetY);
+
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() - 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
+                                                / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = (BLUE_LEFT_MAX_TARGET_Y
+                                                - normalizedY * (BLUE_LEFT_MAX_TARGET_Y - BLUE_LEFT_MIN_TARGET_Y));
+                                targetY = BLUE_LEFT_BUMP_MIDPOINT_Y + targetY;
+                                double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
+                                double factor = (ry - BLUE_LEFT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY += xAdjustment * factor;
+                                targetY = Math.max(
+                                                BLUE_LEFT_MIN_TARGET_Y,
+                                                Math.min(BLUE_LEFT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(BLUE_TARGET_X, targetY);
+                        }
                 }
 
                 public static Translation2d getTargetBlueRight(Translation2d robotPose) {
-                        double rx = robotPose.getX();
-                        double ry = robotPose.getY();
-                        double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
-                        double targetY = BLUE_RIGHT_MAX_TARGET_Y
-                                        - normalizedY * (BLUE_RIGHT_MAX_TARGET_Y - BLUE_RIGHT_MIN_TARGET_Y);
-                        double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
-                        double factor = (ry - BLUE_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
-                        factor = Math.max(-1.0, Math.min(1.0, factor));
-                        targetY += xAdjustment * factor;
-                        targetY = Math.max(BLUE_RIGHT_MIN_TARGET_Y, Math.min(BLUE_RIGHT_MAX_TARGET_Y, targetY));
-                        return new Translation2d(BLUE_TARGET_X, targetY);
+
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() - 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = BLUE_RIGHT_MAX_TARGET_Y
+                                                - normalizedY * (BLUE_RIGHT_MAX_TARGET_Y - BLUE_RIGHT_MIN_TARGET_Y);
+                                double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
+                                double factor = (ry - BLUE_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY += xAdjustment * factor;
+                                targetY = Math.max(BLUE_RIGHT_MIN_TARGET_Y, Math.min(BLUE_RIGHT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(BLUE_TARGET_X, targetY);
+                        }
                 }
         }
 

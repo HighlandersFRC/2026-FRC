@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Globals;
+import frc.robot.OI;
 import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
@@ -250,8 +251,14 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void setTurretAngle(double angle) {
                 // Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
+                double adjustedAngle = angle;
+                if (Math.abs(OI.getOperatorRightX()) > 0.1 || Math.abs(OI.getOperatorRightY()) > 0.3) {
+                        adjustedAngle -= 15.0 * OI.getOperatorRightX();
+                }
+                Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
                 turretMotor.setControl(
-                                new DynamicMotionMagicVoltage(Units.radiansToRotations(angle),
+                                new DynamicMotionMagicVoltage(Units.radiansToRotations(
+                                                adjustedAngle),
                                                 turretVelocity,
                                                 turretAcceleration));
                 // Logger.recordOutput("Shooter/goal motor turret degrees Er",
@@ -262,7 +269,13 @@ class ShooterIOComp implements ShooterIO {
         @Override
         public void setFlywheelRPM(double rpm) {
                 // Logger.recordOutput("Shooter/Goal flywheel RPM", rpm);
-                double velocitySetpoint = rpm / 60.0;
+                double adjustedRPM = rpm;
+                if (Math.abs(OI.getOperatorLeftY()) > 0.1 || Math.abs(OI.getOperatorLeftX()) > 0.3) {
+                        adjustedRPM -= 150.0 * OI.getOperatorLeftX();
+                }
+                Logger.recordOutput("Shooter/Adjusted RPM Setpoint", adjustedRPM);
+
+                double velocitySetpoint = adjustedRPM / 60.0;
                 // Logger.recordOutput("Flywheel master setpoint",
                 // flywheelMaster.getClosedLoopReference().getValueAsDouble() * 60.0);
                 // Logger.recordOutput("Flywheel slave setpoint",
