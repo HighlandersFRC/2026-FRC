@@ -293,7 +293,7 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backLeft.getCanCoderPositionRadians()));
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
-                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 3.5 || Math.abs(gyro.getRollDegrees()) > 3.5;
+                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 7.0 || Math.abs(gyro.getRollDegrees()) > 7.0;
                 if (tilted && !onBump) {
                         onBump = true;
                 }
