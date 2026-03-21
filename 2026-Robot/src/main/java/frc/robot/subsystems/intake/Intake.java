@@ -202,6 +202,7 @@ public class Intake extends SubsystemBase {
     // io.getIntakeAcceleration());
     // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake Roller Vel", io.getIntakeRollerVelocity());
+    Logger.recordOutput("Intake Follower Roller Vel", io.getIntakeFollowerRollerVelocity());
     Logger.recordOutput("Intake Roller Temp", io.getIntakeRollerTemp());
     switch (systemState) {
       case UP:
