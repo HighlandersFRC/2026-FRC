@@ -134,7 +134,7 @@ public class DriveIOComp extends DriveIO {
         private boolean onBump = false;
         private int numTimesFlat = 0;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
-        private Debouncer flatDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kFalling);
+        private Debouncer flatDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
 
         public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
                         .createBuffer(2.0);
@@ -293,7 +293,7 @@ public class DriveIOComp extends DriveIO {
                                 new Rotation2d(backLeft.getCanCoderPositionRadians()));
                 swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
                                 new Rotation2d(backRight.getCanCoderPositionRadians()));
-                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 7.0 || Math.abs(gyro.getRollDegrees()) > 7.0;
+                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 || Math.abs(gyro.getRollDegrees()) > 4.1;
                 if (tilted && !onBump) {
                         onBump = true;
                 }
