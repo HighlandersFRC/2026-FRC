@@ -10,6 +10,8 @@ interface FeederIO {
 
     void setDyeRotorTorque(double amps, double maxPercent);
 
+    void setDyeRotorRPM(double rpm);
+
     void updateInputs(FeederState systemState);
 
     double getDyeRotorCurrent();

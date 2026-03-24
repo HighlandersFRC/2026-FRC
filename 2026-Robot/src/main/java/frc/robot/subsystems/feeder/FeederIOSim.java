@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Constants;
 import frc.robot.Globals;
-import frc.robot.OI;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,6 +16,12 @@ class FeederIOSim implements FeederIO {
     @Override
     public void setDyeRotorPercent(double percent) {
         dyeRotorWantedVelocity = percent * Constants.Physical.Feeder.DYE_ROTOR_MAX_SPEED_MPS;
+    }
+
+    @Override
+    public void setDyeRotorRPM(double rpm) {
+        double velocitySetpoint = rpm / 60.0;
+        dyeRotorWantedVelocity = velocitySetpoint;
     }
 
     @Override

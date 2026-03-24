@@ -375,6 +375,14 @@ public class SwerveModule extends SubsystemBase {
     return RPSToMPS(driveMotorToWheelRotations(driveMotor.getClosedLoopReference().getValue()));
   }
 
+  public double getDriveMotorCurrent() {
+    return driveMotor.getStatorCurrent().getValueAsDouble();
+  }
+
+  public double getAngleMotorCurrent() {
+    return angleMotor.getStatorCurrent().getValueAsDouble();
+  }
+
   /**
    * Calculates the angle of the joystick input relative to the positive y-axis.
    * 

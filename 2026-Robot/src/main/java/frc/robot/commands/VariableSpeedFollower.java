@@ -103,13 +103,16 @@ public class VariableSpeedFollower extends AutoFollower {
 
     drive.autoDrive(velocityVector, desiredThetaChange);
     Logger.recordOutput("Auto/pursuing?", true);
-    Logger.recordOutput("Auto/Path Time", path
-        .getJSONObject(getPathPointIndex()).getDouble("time"));
+    // Logger.recordOutput("Auto/Path Time", path
+    // .getJSONObject(getPathPointIndex()).getDouble("time"));
   }
 
   @Override
   public void end(boolean interrupted) {
+    // if (!interrupted) {
     drive.stop();
+    // }
+    Logger.recordOutput("Auto/pursuing?", false);
   }
 
   public void from(int pointIndex, JSONObject pathJSON, int to) {

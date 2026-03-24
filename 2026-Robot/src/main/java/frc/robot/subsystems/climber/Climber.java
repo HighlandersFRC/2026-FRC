@@ -74,16 +74,16 @@ public class Climber extends SubsystemBase {
   }
 
   public void retractClimber() {
-    io.setPower(-120, 0.7);
+    io.setPower(-120, 0.9);
   }
 
   public void idleClimber() {
-    io.setPower(-10.0, 0.1);
+    io.setPower(-5.0, 0.1);
     // io.stop();
   }
 
   public void extendClimber() {
-    io.setPower(120, 0.7);
+    io.setPower(120, 0.9);
   }
 
   public void extendClimberSlow() {
@@ -96,6 +96,10 @@ public class Climber extends SubsystemBase {
 
   public void stallClimber() {
     io.setPower(-120, 0.7);
+  }
+
+  public void holdPosition() {
+    io.setPower(-80, 0.05);
   }
 
   public void setWantedState(ClimberState wantedState) {
@@ -136,8 +140,13 @@ public class Climber extends SubsystemBase {
     switch (systemState) {
       case AUTON_RETRACT: // L1 retract in auto
         if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES) {
-          stopClimber();
-          Logger.recordOutput("Climber/Output", "Stopped Auton Retracting");
+          if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L3_RETRACT_HEIGHT_INCHES + 2.0) {
+            stopClimber();
+            Logger.recordOutput("Climber/Output", "Stopped Auton Retracting");
+          } else {
+            holdPosition();
+            Logger.recordOutput("Climber/Output", "Hold Auton Retracting");
+          }
         } else {
           retractClimber();
           Logger.recordOutput("Climber/Output", "Auton Retracting");
@@ -188,14 +197,16 @@ public class Climber extends SubsystemBase {
               stopClimber();
               Logger.recordOutput("Climber/Output", "Stopped Extending L2");
             } else {
-              // if (getClimberPosition() <
-              // Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES + 3.0) {
-              // retractClimberSlow();
-              // } else {
-              if (!stop) {
-                retractClimber();
+              if (getClimberPosition() < Constants.SetPoints.Climber.CLIMBER_L2_EXTEND_HEIGHT_INCHES + 3.0) {
+
+                if (!stop) {
+                  retractClimberSlow();
+                }
+              } else {
+                if (!stop) {
+                  retractClimber();
+                }
               }
-              // }
               Logger.recordOutput("Climber/Output", "Extending L2");
             }
             break;

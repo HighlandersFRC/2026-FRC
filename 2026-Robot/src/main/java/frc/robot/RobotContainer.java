@@ -56,12 +56,11 @@ public class RobotContainer {
         // Subsystems
         final Peripherals peripherals = new Peripherals();
         final Drive drive = new Drive(peripherals);
-        final Lights lights = new Lights();
         final Shooter shooter = new Shooter();
         final Feeder feeder = new Feeder();
         final Intake intake = new Intake();
         final Climber climber = new Climber();
-        Superstructure superstructure = new Superstructure(drive, lights, shooter, intake, feeder, climber);
+        Superstructure superstructure = new Superstructure(drive, shooter, intake, feeder, climber);
 
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
@@ -69,13 +68,15 @@ public class RobotContainer {
                         put("Full Send", () -> new FullSendFollower(drive, null, false));
                         put("Slow Mode", () -> new SlowFollower(drive, null, false));
                         put("Shoot", () -> new SequentialCommandGroup(
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.5),
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.7)));
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 3.0),
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.15)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
-                        put("Climb", () -> new SetRobotState(superstructure, SuperState.SHOOT));
+                        put("Climb", () -> new SetRobotStateSimpleOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
                         put("ShootMore", () -> new SequentialCommandGroup(
-                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 1.0),
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.0),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 7.0)));
+                        put("ShootNoJiggle", () -> new SequentialCommandGroup(
+                                        new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 10.0)));
                 }
         };
 
@@ -105,7 +106,7 @@ public class RobotContainer {
                                 autoJSONs[i] = new JSONObject(new JSONTokener(scanner));
                                 autoPoints[i] = (JSONArray) autoJSONs[i].getJSONArray("paths").getJSONObject(0)
                                                 .getJSONArray("sampled_points");
-                                autos[i] = new PolarAutoFollower(autoJSONs[i], drive, lights, peripherals, commandMap,
+                                autos[i] = new PolarAutoFollower(autoJSONs[i], drive, peripherals, commandMap,
                                                 conditionMap);
                                 java.util.logging.Logger.getGlobal()
                                                 .info("Loaded Path: " + Constants.Autonomous.paths[i]);
@@ -147,19 +148,22 @@ public class RobotContainer {
                                 OI.driverLTSupplier));
 
                 OI.driverPOVLeft.whileTrue(new SetRobotStatePresetShot(superstructure,
-                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                new ShotSolution(new Rotation2d(Math.toRadians(75.0)), 2450, new Rotation2d(Math.PI),
                                                 0.0, 0.0)));
                 // OI.driverPOVUp.whileTrue(new SetRobotStatePresetShot(superstructure,
-                // new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new
+                // new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 1000, new
                 // Rotation2d(Math.PI),
                 // 0.0, 0.0)));
                 OI.driverPOVRight.whileTrue(new SetRobotStatePresetShot(superstructure,
-                                new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000, new Rotation2d(Math.PI),
+                                new ShotSolution(new Rotation2d(Math.toRadians(76.0)), 2420, new Rotation2d(Math.PI),
                                                 0.0, 0.0)));
 
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
-                OI.driverPOVUp.whileTrue(new SetRobotStateOnce(superstructure, SuperState.AUTO_L3_CLIMB));
+                OI.driverPOVDown.whileTrue(new SetRobotStateOnce(superstructure,
+                                SuperState.AUTO_L3_CLIMB));
+                OI.driverPOVUp.whileTrue(new SetRobotStateOnce(superstructure,
+                                SuperState.AUTO_PREP_CLIMB));
 
                 OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
                 // OI.driverX.whileTrue(new SetRobotStateOnce(superstructure,

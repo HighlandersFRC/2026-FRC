@@ -90,6 +90,7 @@ public class Drive extends SubsystemBase {
     STOP,
     DRIVE_TO_PRE_CLIMB,
     DRIVE_TO_ALIGN_CLIMB,
+    DRIVE_TO_ALIGN_CLIMB_FINISH,
     SNAKE,
   }
 
@@ -404,25 +405,31 @@ public class Drive extends SubsystemBase {
       controllerVector.setJ(-ySpeed);
     }
 
-    boolean xDecreasing = xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
-        .abs(previousSpeeds.vxMetersPerSecond));
-    boolean yDecreasing = yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
-        .abs(previousSpeeds.vyMetersPerSecond));
+    // boolean xDecreasing =
+    // xDebouncer.calculate(Math.abs(currentSpeeds.vxMetersPerSecond) < Math
+    // .abs(previousSpeeds.vxMetersPerSecond));
+    // boolean yDecreasing =
+    // yDebouncer.calculate(Math.abs(currentSpeeds.vyMetersPerSecond) < Math
+    // .abs(previousSpeeds.vyMetersPerSecond));
 
     previousControllerSpeeds = controllerSpeeds;
-    double vx = xLimiter.calculate(controllerVector.getI());
-    double vy = yLimiter.calculate(controllerVector.getJ());
+    // double vx = xLimiter.calculate(controllerVector.getI());
+    // double vy = yLimiter.calculate(controllerVector.getJ());
     if (wantedState == DriveState.DEFAULT_SLOW) {
-      if (!xDecreasing) {
-        controllerVector.setI(vx);
-        xLimiter.reset(vx);
-      }
-      if (!yDecreasing) {
-        controllerVector.setJ(vy);
-        yLimiter.reset(vy);
-      }
+      // if (!xDecreasing) {
+      // controllerVector.setI(vx);
+      // xLimiter.reset(vx);
+      // }
+      // if (!yDecreasing) {
+      // controllerVector.setJ(vy);
+      // yLimiter.reset(vy);
+      // }
       controllerVector = controllerVector.scaled(0.41);
+      controllerVector = controllerVector.cap(0.67);
       turn *= 0.41;
+      if (Math.abs(turn) > Math.PI / 4.0) {
+        turn = Math.PI / 4.0 * Math.copySign(1, turn);
+      }
     }
     io.drive(controllerVector, turn);
   }
@@ -471,6 +478,7 @@ public class Drive extends SubsystemBase {
   private int hitNumberSemiGenerous = 0;
   private int hitNumberGenerous = 0;
   private int hitNumberUltraGenerous = 0;
+  private int hitNumberClimb = 0;
 
   public boolean hitSetPoint(Pose2d pose) {
     double x = pose.getX();
@@ -485,9 +493,29 @@ public class Drive extends SubsystemBase {
     } else {
       hitNumber = 0;
     }
-    Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-        + Math.pow((y - getMt2Pose2dY()), 2)));
+    // Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    // + Math.pow((y - getMt2Pose2dY()), 2)));
     if (hitNumber > 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean hitSetPointClimb(Pose2d pose) {
+    double x = pose.getX();
+    double y = pose.getY();
+    double theta = pose.getRotation().getRadians();
+    if (Math.abs(x - getMt2Pose2dX()) < 0.02 && Math.abs(y - getMt2Pose2dY()) < 0.01690
+        && getAngleDifferenceDegrees(Math.toDegrees(theta),
+            Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
+      hitNumberClimb += 1;
+    } else {
+      hitNumberClimb = 0;
+    }
+    // Logger.recordOutput("error", Math.sqrt(Math.pow((x - getMt2Pose2dX()), 2)
+    // + Math.pow((y - getMt2Pose2dY()), 2)));
+    if (hitNumberClimb > 3) {
       return true;
     } else {
       return false;
@@ -503,7 +531,7 @@ public class Drive extends SubsystemBase {
     // + Math.pow((y - getMt2Pose2dY()), 2)));
     if (Math
         .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.05
+            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.02
         && getAngleDifferenceDegrees(Math.toDegrees(theta),
             Math.toDegrees(getMt2Pose2dAngle())) < 2) {
       hitNumberSemiGenerous += 1;
@@ -558,7 +586,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToPoint(Pose2d targetPoint) {
-    Logger.recordOutput("Drive/Goal X, Y, Theta", targetPoint);
+    // Logger.recordOutput("Drive/Goal X, Y, Theta", targetPoint);
     double x = targetPoint.getX();
     double y = targetPoint.getY();
     double theta = targetPoint.getRotation().getRadians();
@@ -638,9 +666,11 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveOnLine(Vector lineVector, Translation2d pointOnLine, double angrad) {
-    Logger.recordOutput("Drive/Point On Line", new Pose2d(pointOnLine, new Rotation2d()));
-    Logger.recordOutput("Drive/LineVector",
-        new Pose2d(pointOnLine.plus(new Translation2d(lineVector.getI(), lineVector.getJ())), new Rotation2d()));
+    // Logger.recordOutput("Drive/Point On Line", new Pose2d(pointOnLine, new
+    // Rotation2d()));
+    // Logger.recordOutput("Drive/LineVector",
+    // new Pose2d(pointOnLine.plus(new Translation2d(lineVector.getI(),
+    // lineVector.getJ())), new Rotation2d()));
     double oiLY = OI.getDriverLeftY();
     double oiLX = OI.getDriverLeftX();
     double originalX = -(Math.copySign(oiLY * oiLY, oiLY));
@@ -672,7 +702,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void driveToTheta(double theta) {
-    Logger.recordOutput("Drive/Drive Angle Setpoint", theta);
+    // Logger.recordOutput("Drive/Drive Angle Setpoint", theta);
     theta = Constants.standardizeAngleToOtherDegrees(theta, getMt2Pose2d().getRotation().getDegrees());
 
     turningPID.setSetPoint(theta);
@@ -730,13 +760,11 @@ public class Drive extends SubsystemBase {
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
     if (wantedState == DriveState.IDLE_SLOW) {
-      double vx = xLimiter.calculate(vector.getI());
-      double vy = yLimiter.calculate(vector.getJ());
-      if (wantedState == DriveState.DEFAULT_SLOW) {
-        vector.setI(vx);
-        vector.setJ(vy);
-        vector = vector.scaled(0.41);
-        turnRadiansPerSec *= 0.41;
+      vector = vector.scaled(0.41);
+      vector = vector.cap(0.67);
+      turnRadiansPerSec *= 0.41;
+      if (Math.abs(turnRadiansPerSec) > Math.PI / 4.0) {
+        turnRadiansPerSec = Math.PI / 4.0 * Math.copySign(1, turnRadiansPerSec);
       }
     }
     io.drive(vector, turnRadiansPerSec);
@@ -875,12 +903,12 @@ public class Drive extends SubsystemBase {
       finalTheta = -finalTheta;
     }
 
-    // if (Field.isOnBump(getMt2Pose2d().getTranslation())) { // if on the bump,
-    // slow down to maintain control
-    // finalTheta = finalTheta * 0.75;
-    // finalX = finalX * 0.75;
-    // finalY = finalY * 0.75;
-    // }
+    if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
+      // slow down to maintain control
+      finalTheta = finalTheta * 0.75;
+      finalX = finalX * 0.75;
+      finalY = finalY * 0.75;
+    }
 
     Number[] velocityArray = new Number[] {
         finalX,
@@ -900,7 +928,7 @@ public class Drive extends SubsystemBase {
     // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
     // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
-    Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
+    // Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
 
     // Logger.recordOutput("x-vel", xVelNoFF);
     // Logger.recordOutput("y-vel", yVelNoFF);
@@ -910,8 +938,8 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
     // Logger.recordOutput("FF-x-vel", feedForwardX);
     // Logger.recordOutput("FF-y-vel", feedForwardY);
-    Logger.recordOutput("current point idx", currentIndex);
-    Logger.recordOutput("point idx", velocityArray[3].intValue());
+    Logger.recordOutput("Auto/current point idx", currentIndex);
+    // Logger.recordOutput("point idx", velocityArray[3].intValue());
     // Logger.recordOutput("look-ahead", lookaheadRadius);
     // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
     // Rotation2d(targetTheta)));
@@ -944,6 +972,8 @@ public class Drive extends SubsystemBase {
         return DriveState.STOP;
       case DRIVE_TO_ALIGN_CLIMB:
         return DriveState.DRIVE_TO_ALIGN_CLIMB;
+      case DRIVE_TO_ALIGN_CLIMB_FINISH:
+        return DriveState.DRIVE_TO_ALIGN_CLIMB_FINISH;
       case DRIVE_TO_PRE_CLIMB:
         return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
@@ -1014,7 +1044,7 @@ public class Drive extends SubsystemBase {
 
     acceleration = currentSpeeds.minus(previousSpeeds)
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
-    Logger.recordOutput("Drive/Acceleration", acceleration);
+    // Logger.recordOutput("Drive/Acceleration", acceleration);
     ChassisSpeeds futureVelocity = currentSpeeds.plus(acceleration.times(Constants.Physical.Drive.velLookaheadTime));
     futureVelocity.omegaRadiansPerSecond = currentSpeeds.omegaRadiansPerSecond;
     return futureVelocity;
@@ -1044,27 +1074,30 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
-    Logger.recordOutput("Drive/Expected Speed",
-        Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    Logger.recordOutput("Drive/Actual Speed", Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    // Logger.recordOutput("Drive/Expected Speed",
+    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
+    Logger.recordOutput("Drive/Actual Speed",
+        Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    Logger.recordOutput("Testing/Feed Setpoint",
+        new Pose2d(Constants.DynamicPassing.getTarget(getMt2Pose2d().getTranslation()), new Rotation2d()));
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
     }
     switch (systemState) {
       case DEFAULT:
-        if (OI.getPOVDown()) {
-          snakeDrive();
-        } else {
-          teleopDrive();
-        }
+        // if (OI.getPOVDown()) {
+        // snakeDrive();
+        // } else {
+        teleopDrive();
+        // }
         break;
       case DEFAULT_SLOW:
-        if (OI.getPOVDown()) {
-          snakeDrive();
-        } else {
-          teleopDrive();
-        }
+        // if (OI.getPOVDown()) {
+        // snakeDrive();
+        // } else {
+        teleopDrive();
+        // }
         break;
       case IDLE:
 
@@ -1074,7 +1107,8 @@ public class Drive extends SubsystemBase {
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
         // Math.pow(OI.getDriverLeftY(), 2)) < 0.1) {
-        snakeDrive();
+        // snakeDrive();
+        teleopDrive();
         // } else {
         // snakeDrive();
         // }
@@ -1091,6 +1125,9 @@ public class Drive extends SubsystemBase {
         Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
         Logger.recordOutput("climb align", climbAlignSetpoint);
         driveToPoint(climbAlignSetpoint);
+        break;
+      case DRIVE_TO_ALIGN_CLIMB_FINISH:
+        autoRobotCentricDrive(new Vector(0, 0.67), 0.0);
         break;
       default:
         break;

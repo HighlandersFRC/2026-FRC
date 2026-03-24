@@ -77,6 +77,8 @@ public class ShotCalculator {
                 }
         }
 
+        public static int iterations = 9;
+
         // Input: distance to target in meters, Output: hood angle (Rotation2d)
         private final static InterpolatingTreeMap<Double, Rotation2d> hubHoodAngleMap = new InterpolatingTreeMap<>(
                         InverseInterpolator.forDouble(), Rotation2d::interpolate);
@@ -119,6 +121,10 @@ public class ShotCalculator {
                 }
         }
 
+        public static void setIterations(int iterations) {
+                ShotCalculator.iterations = iterations;
+        }
+
         private static ShotSolution calculate(InterpolatingDoubleTreeMap tofMap, InterpolatingDoubleTreeMap flywheelMap,
                         InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap,
                         Pose2d turretPosition, Translation2d targetPosition, ChassisSpeeds robotVelocity) {
@@ -128,10 +134,14 @@ public class ShotCalculator {
                 double vy = robotVelocity.omegaRadiansPerSecond * (Constants.Physical.Shooter.SHOOTER_POSITION.getX());
                 Translation2d tangentialVelocity = new Translation2d(vx, vy).rotateBy(turretPosition.getRotation());
                 Logger.recordOutput("ShotCalculator/TangentialVelocity", tangentialVelocity);
+                Logger.recordOutput("ShotCalculator/TurretPose", turretPosition);
                 Translation2d turretVelocity = new Translation2d(
                                 robotVelocity.vxMetersPerSecond + tangentialVelocity.getX(),
                                 robotVelocity.vyMetersPerSecond + tangentialVelocity.getY());
-                for (int i = 0; i < 20; i++) { // Numerically solve differential equation TODO: find # of iterations
+                for (int i = 0; i < ShotCalculator.iterations; i++) { // Numerically solve differential equation
+                                                                      // TODO:
+                        // find # of
+                        // iterations
                                                // that
                                                // converges best
                         Translation2d predictedTarget = targetPosition.plus(new Translation2d(

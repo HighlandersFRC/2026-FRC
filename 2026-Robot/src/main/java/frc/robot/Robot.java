@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
-import frc.robot.tools.logging.Elastic;
+import frc.robot.tools.logging.ShiftManager;
 
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
@@ -88,15 +88,14 @@ public class Robot extends LoggedRobot {
 
     m_robotContainer.peripherals.init();
     m_robotContainer.drive.init();
-    m_robotContainer.lights.init();
 
-    PortForwarder.add(5800, "orangepi1.local", 5800);
-    PortForwarder.add(5801, "orangepi1.local", 5801);
+    // PortForwarder.add(4000, "10.44.99.40", 5800);
+    PortForwarder.add(4001, "10.44.99.40", 5801);
 
-    PortForwarder.add(5800, "10.44.99.34", 5800);
-    PortForwarder.add(5801, "10.44.99.34", 5801);
-
-    m_robotContainer.lights.clearAnimations();
+    PortForwarder.add(4100, "10.44.99.41", 5800);
+    // PortForwarder.add(4101, "10.44.99.41", 5801);
+    PortForwarder.add(4200, "10.44.99.42", 5800);
+    // PortForwarder.add(4201, "10.44.99.42", 5801);
 
     // m_robotContainer.lights.setFlashYellow();
 
@@ -112,18 +111,23 @@ public class Robot extends LoggedRobot {
         autoPoints[i] = (JSONArray) autoJSONs[i].getJSONArray("paths").getJSONObject(0)
             .getJSONArray("sampled_points");
         autos[i] = new PolarAutoFollower(autoJSONs[i],
-            m_robotContainer.drive, m_robotContainer.lights, m_robotContainer.peripherals, m_robotContainer.commandMap,
+            m_robotContainer.drive, m_robotContainer.peripherals, m_robotContainer.commandMap,
             m_robotContainer.conditionMap);
       } catch (Exception e) {
         System.out.println("ERROR LOADING PATH " + Constants.paths.get(i) + ":" + e);
       }
     }
+    // try {
+    // ShotCalculatorTest.writeSweepCSV();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
   }
 
   @Override
   public void robotPeriodic() {
-    Logger.recordOutput("Physical/FieldSide", Globals.fieldSide);
-    Logger.recordOutput("Physical/Blue Hub", Constants.Field.HUB_POSE_BLUE);
+
+    Logger.recordOutput("Physical/Field Side", Globals.fieldSide);
     if (OI.isRedSide()) {
       Globals.fieldSide = "red";
     } else {
@@ -145,13 +149,13 @@ public class Robot extends LoggedRobot {
       bot.getRoot("Intake", 1.0, Units.inchesToMeters(12.5)).append(intakeLigament2d);
       Logger.recordOutput("Sim/Arm Sim", bot);
     }
-    Logger.recordOutput("Field Side", Globals.fieldSide);
-    Logger.recordOutput("Left or Right", OI.isLeftSide());
+    // Logger.recordOutput("Field Side", Globals.fieldSide);
+    Logger.recordOutput("Left Side?", OI.isLeftSide());
     Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
     Globals.prevTimeSecs = Timer.getFPGATimestamp();
     Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
-    m_robotContainer.lights.periodic();
     m_robotContainer.peripherals.periodic();
+    Logger.recordOutput("Loop Times", Globals.loopPeriodSecs);
     m_logHandler.write();
   }
 
@@ -159,7 +163,6 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     OI.driverController.setRumble(RumbleType.kBothRumble, 0);
     OI.operatorController.setRumble(RumbleType.kBothRumble, 0);
-    m_robotContainer.lights.clearAnimations();
     java.util.logging.Logger.getGlobal().info("Robot Disabled");
   }
 
@@ -189,7 +192,6 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
     m_robotContainer.superstructure.setWantedState(SuperState.DEFAULT);
     m_robotContainer.intake.teleopInit();
-    m_robotContainer.lights.clearAnimations();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -211,6 +213,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
+    ShiftManager.getInstance().update();
 
   }
 

@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
-import frc.robot.subsystems.lights.Lights;
 import frc.robot.tools.wrappers.AutoFollower;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -38,7 +37,7 @@ public class PolarPathFollower extends ParallelCommandGroup {
   JSONArray pathPoints;
   TriggerCommand followerCommand;
 
-  public PolarPathFollower(Drive drive, Lights lights, Peripherals peripherals, JSONObject pathJSON,
+  public PolarPathFollower(Drive drive, Peripherals peripherals, JSONObject pathJSON,
       HashMap<String, Supplier<Command>> commandMap, HashMap<String, BooleanSupplier> conditionMap) {
     this.pathPoints = pathJSON.getJSONArray("sampled_points");
     defaultFollower = new VariableSpeedFollower(drive, pathPoints,
@@ -176,7 +175,8 @@ public class PolarPathFollower extends ParallelCommandGroup {
     if (runner instanceof AutoFollower) {
       Runnable cancelPathFollower = new Runnable() {
         public void run() {
-          int runFrom = getPointIndexFromTime(start);
+          System.out.println("Canceling Path Follower and starting " + runner.getClass().getSimpleName());
+          int runFrom = getPointIndexFromTime(getPathTime());
           int runTo = getPointIndexFromTime(end);
           follower.cancel();
           follower = (AutoFollower) runner;
@@ -185,7 +185,8 @@ public class PolarPathFollower extends ParallelCommandGroup {
       };
       Runnable cancelRunner = new Runnable() {
         public void run() {
-          int runFrom = getPointIndexFromTime(end);
+          System.out.println("Canceling Runner and starting " + defaultFollower.getClass().getSimpleName());
+          int runFrom = getPointIndexFromTime(getPathTime());
           int runTo = pathPoints.length() - 1;
           follower = defaultFollower;
           follower.from(runFrom, pathJSON, runTo);

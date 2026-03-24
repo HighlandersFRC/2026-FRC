@@ -26,8 +26,8 @@ import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
-                public static final int STAGNATE_BOOST = 25;
-                public static final int STAGNATE_THRESHOLD = 8; // Number of cycles of stagnation before ending path
+                public static final int STAGNATE_BOOST = 60;
+                public static final int STAGNATE_THRESHOLD = 9; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
@@ -103,20 +103,29 @@ public final class Constants {
 
                 // 1.437/1.736 4.115
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.398,
-                                4.272),
+                                1.455,
+                                4.121),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
-                                4.272),
+                                4.121),
                                 new Rotation2d(Math.toRadians(-90.0)));
+
+                // public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                // 1.483,
+                // 4.018),
+                // new Rotation2d(Math.toRadians(-90.0)));
+                // public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
+                // 1.736,
+                // 4.018),
+
+                // new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                climbPoseLeftBlueSide.getTranslation().getX(),
-                                climbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
+                                1.455, 3.262),
                                 new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                preClimbPoseLeftBlueSide.getTranslation().getX(),
-                                preClimbPoseLeftBlueSide.getTranslation().getY() - inchesToMeters(33.75)),
+                                1.736,
+                                3.262),
                                 new Rotation2d(Math.toRadians(-90.0)));
 
                 // public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
@@ -175,7 +184,7 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.1905));
+                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.44));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
@@ -265,6 +274,13 @@ public final class Constants {
         }
 
         public static final class Field {
+                public static final double NEUTRAL_ZONE_BUMP_X_POSITION_BLUE = 5.0;
+                public static final double ALLIANCE_ZONE_BUMP_X_POSITION_BLUE = 3.14;
+                public static final double NEUTRAL_ZONE_BUMP_X_POSITION_RED = Constants.Physical.FIELD_LENGTH
+                                - NEUTRAL_ZONE_BUMP_X_POSITION_BLUE;
+                public static final double ALLIANCE_ZONE_BUMP_X_POSITION_RED = Constants.Physical.FIELD_LENGTH
+                                - ALLIANCE_ZONE_BUMP_X_POSITION_BLUE;
+
                 public static final double BLUE_HUB_X = inchesToMeters(182.1);
                 public static final double RED_HUB_X = Constants.Physical.FIELD_LENGTH - BLUE_HUB_X;
                 public static final double HUB_Y = Constants.Physical.FIELD_WIDTH / 2;
@@ -272,6 +288,7 @@ public final class Constants {
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
+                public static final double BUMP_WIDTH_GENEROUS = inchesToMeters(67.41);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
                                 13.0, 2.35);
@@ -315,15 +332,159 @@ public final class Constants {
                         }
                 }
 
+                public static boolean isInOtherAllianceZone(Translation2d robotPosition) {
+                        if (Globals.fieldSide.equals("blue")) {
+                                return HUB_POSE_RED.getX() + BUMP_WIDTH / 2 < robotPosition.getX();
+                        } else {
+                                return robotPosition.getX() < HUB_POSE_BLUE.getX() - BUMP_WIDTH / 2;
+                        }
+                }
+
                 public static boolean isOnBump(Translation2d robotPosition) {
                         boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH / 2;
                         boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH / 2;
                         return onBlueBump || onRedBump;
                 }
 
+                public static boolean isNearBump(Translation2d robotPosition) {
+                        boolean onBlueBump = Math.abs(robotPosition.getX() - HUB_POSE_BLUE.getX()) < BUMP_WIDTH_GENEROUS
+                                        / 2;
+                        boolean onRedBump = Math.abs(robotPosition.getX() - HUB_POSE_RED.getX()) < BUMP_WIDTH_GENEROUS
+                                        / 2;
+                        return onBlueBump || onRedBump;
+                }
+
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
                 public static final double FEED_RADIUS = inchesToMeters(33.39);
                 public static final double BALL_WIDTH = 0.15;
+        }
+
+        public class DynamicPassing { // chatgpt ahh code for dynamic passing
+
+                private static final double RED_TARGET_X = 13.67;
+
+                private static final double RED_LEFT_MIN_TARGET_Y = 1.5;
+                private static final double RED_LEFT_MAX_TARGET_Y = 2.5;
+                private static final double RED_LEFT_BUMP_MIDPOINT_Y = 2.0;
+
+                private static final double RED_RIGHT_MIN_TARGET_Y = Constants.Physical.FIELD_WIDTH
+                                - RED_LEFT_MAX_TARGET_Y;
+                private static final double RED_RIGHT_MAX_TARGET_Y = Constants.Physical.FIELD_WIDTH
+                                - RED_LEFT_MIN_TARGET_Y;
+                private static final double RED_RIGHT_BUMP_MIDPOINT_Y = Constants.Physical.FIELD_WIDTH
+                                - RED_LEFT_BUMP_MIDPOINT_Y;
+
+                private static final double BLUE_TARGET_X = Constants.Physical.FIELD_LENGTH - RED_TARGET_X;
+
+                private static final double BLUE_LEFT_MIN_TARGET_Y = RED_RIGHT_MIN_TARGET_Y;
+                private static final double BLUE_LEFT_MAX_TARGET_Y = RED_RIGHT_MAX_TARGET_Y;
+                private static final double BLUE_LEFT_BUMP_MIDPOINT_Y = RED_RIGHT_BUMP_MIDPOINT_Y;
+
+                private static final double BLUE_RIGHT_MIN_TARGET_Y = RED_LEFT_MIN_TARGET_Y;
+                private static final double BLUE_RIGHT_MAX_TARGET_Y = RED_LEFT_MAX_TARGET_Y;
+                private static final double BLUE_RIGHT_BUMP_MIDPOINT_Y = RED_LEFT_BUMP_MIDPOINT_Y;
+
+                private static final double X_SCALE = 0.09;
+
+                public static Translation2d getTarget(Translation2d robotPose) {
+                        if (Globals.fieldSide.equals("red")) {
+                                if (robotPose.getY() < Constants.Physical.FIELD_WIDTH / 2) {
+                                        return getTargetRedLeft(robotPose);
+                                } else {
+                                        return getTargetRedRight(robotPose);
+                                }
+                        } else {
+                                if (robotPose.getY() > Constants.Physical.FIELD_WIDTH / 2) {
+                                        return getTargetBlueLeft(robotPose);
+                                } else {
+                                        return getTargetBlueRight(robotPose);
+                                }
+                        }
+                }
+
+                public static Translation2d getTargetRedLeft(Translation2d robotPose) {
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() + 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = RED_LEFT_MAX_TARGET_Y
+                                                - normalizedY * (RED_LEFT_MAX_TARGET_Y - RED_LEFT_MIN_TARGET_Y);
+                                double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
+                                double factor = (ry - RED_LEFT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY -= xAdjustment * factor;
+                                targetY = Math.max(RED_LEFT_MIN_TARGET_Y, Math.min(RED_LEFT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(RED_TARGET_X, targetY);
+                        }
+
+                }
+
+                public static Translation2d getTargetRedRight(Translation2d robotPose) {
+
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() + 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
+                                                / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = (RED_RIGHT_MAX_TARGET_Y
+                                                - normalizedY * (RED_RIGHT_MAX_TARGET_Y - RED_RIGHT_MIN_TARGET_Y));
+                                targetY = RED_RIGHT_BUMP_MIDPOINT_Y + targetY;
+                                double xAdjustment = (rx - RED_TARGET_X) * X_SCALE;
+                                double factor = (ry - RED_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY -= xAdjustment * factor;
+                                targetY = Math.max(
+                                                RED_RIGHT_MIN_TARGET_Y,
+                                                Math.min(RED_RIGHT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(RED_TARGET_X, targetY);
+                        }
+                }
+
+                public static Translation2d getTargetBlueLeft(Translation2d robotPose) {
+
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() - 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = (Constants.Physical.FIELD_WIDTH + ry)
+                                                / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = (BLUE_LEFT_MAX_TARGET_Y
+                                                - normalizedY * (BLUE_LEFT_MAX_TARGET_Y - BLUE_LEFT_MIN_TARGET_Y));
+                                targetY = BLUE_LEFT_BUMP_MIDPOINT_Y + targetY;
+                                double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
+                                double factor = (ry - BLUE_LEFT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY += xAdjustment * factor;
+                                targetY = Math.max(
+                                                BLUE_LEFT_MIN_TARGET_Y,
+                                                Math.min(BLUE_LEFT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(BLUE_TARGET_X, targetY);
+                        }
+                }
+
+                public static Translation2d getTargetBlueRight(Translation2d robotPose) {
+
+                        if (Constants.Field.isInOtherAllianceZone(robotPose)) {
+                                return new Translation2d(robotPose.getX() - 8.0, robotPose.getY());
+                        } else {
+                                double rx = robotPose.getX();
+                                double ry = robotPose.getY();
+                                double normalizedY = ry / (Constants.Physical.FIELD_WIDTH * 0.5);
+                                double targetY = BLUE_RIGHT_MAX_TARGET_Y
+                                                - normalizedY * (BLUE_RIGHT_MAX_TARGET_Y - BLUE_RIGHT_MIN_TARGET_Y);
+                                double xAdjustment = (rx - BLUE_TARGET_X) * X_SCALE;
+                                double factor = (ry - BLUE_RIGHT_BUMP_MIDPOINT_Y) / 3.0;
+                                factor = Math.max(-1.0, Math.min(1.0, factor));
+                                targetY += xAdjustment * factor;
+                                targetY = Math.max(BLUE_RIGHT_MIN_TARGET_Y, Math.min(BLUE_RIGHT_MAX_TARGET_Y, targetY));
+                                return new Translation2d(BLUE_TARGET_X, targetY);
+                        }
+                }
         }
 
         // Subsystem setpoint constants
@@ -364,7 +525,8 @@ public final class Constants {
 
                         public static Rotation2d getFutureSetpointEstimate(Rotation2d currentSetpoint,
                                         double driveAngularVelocity, double foresightTime) {
-                                Logger.recordOutput("Shooter/Turret Drive Angular Velocity", driveAngularVelocity);
+                                // Logger.recordOutput("Shooter/Turret Drive Angular Velocity",
+                                // driveAngularVelocity);
                                 double predictedAngle = currentSetpoint.getRadians()
                                                 - driveAngularVelocity * foresightTime;
                                 return new Rotation2d(predictedAngle);
@@ -388,22 +550,27 @@ public final class Constants {
                         private final static double RPM_OFFSET = 0.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
-                        public static final double[][] SHOT_MAP = new double[][] {
-                                        { 1.45, 85, 1690, 1.07 },
-                                        { 1.8, 82, 1850, 1.11 },
-                                        { 2.17, 80.44, 1950, 1.17 },
-                                        { 2.48, 80.44, 2000, 1.32 },
-                                        { 2.76, 80.44, 2150, 1.35 },
-                                        { 3.34, 78, 2250, 1.34 },
-                                        { 3.67, 75, 2300, 1.35 },
-                                        { 3.99, 75, 2400, 1.42 },
-                                        { 4.46, 73, 2400, 1.35 },
-                                        { 4.8, 70, 2400, 1.33 },
-                                        { 5.22, 70, 2550, 1.36 },
-                                        { 5.53, 65, 2550, 1.35 },
-                                        { 6.11, 60, 2700, 1.27 },
-                                        { 6.55, 60, 2800, 1.35 },
-                                        { 6.7, 60, 2900, 1.33 },
+                        public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
+                                        { 1.358, 85, 2100, 0.9 },
+                                        { 1.6, 83, 2100, 1.02 },
+                                        { 1.899, 81, 2180, 1.03 },
+                                        { 2.19, 79, 2200, 0.96 },
+                                        { 2.438, 78, 2250, 1.04 },
+                                        { 2.67, 77, 2325, 1.04 },
+                                        { 2.932, 76, 2420, 1.02 },
+                                        { 3.288, 75, 2450, 1.09 },
+                                        { 3.65, 74, 2525, 1.13 },
+                                        { 3.985, 73, 2600, 1.16 },
+                                        { 4.317, 72, 2675, 1.22 },
+                                        { 4.505, 71, 2725, 1.18 },
+                                        { 4.758, 70, 2775, 1.24 },
+                                        { 4.943, 69, 2825, 1.24 },
+                                        { 5.253, 68, 2900, 1.31 },
+                                        { 5.546, 67, 2950, 1.25 },
+                                        { 5.801, 66, 3025, 1.23 },
+                                        { 6.155, 64, 3100, 1.19 },
+                                        { 6.45, 63, 3275, 1.26 },
+                                        { 6.732, 62, 3425, 1.27 }
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;
@@ -412,21 +579,24 @@ public final class Constants {
                         private final static double FEED_TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] FEED_SHOT_MAP = new double[][] {
-                                        { 1, 60, 700, 0.74 },
-                                        { 1.5, 60, 900, 0.85 },
-                                        { 1.79, 60, 1254, 0.84 },
-                                        { 2.5, 60, 1400, 1.02 },
-                                        { 3.01, 60, 1600, 1.0 },
-                                        { 3.2, 60, 1750, 1.0 },
-                                        { 3.49, 60, 1800, 1.01 },
-                                        { 4.04, 60, 1900, 1.14 },
-                                        { 4.48, 60, 2000, 1.21 },
-                                        { 5.01, 60, 2150, 1.15 },
-                                        { 5.52, 60, 2250, 1.35 },
-                                        { 5.99, 60, 2350, 1.44 },
-                                        { 6.42, 60, 2550, 1.38 },
-                                        { 6.99, 60, 2700, 1.52 },
-                                        { 7.51, 60, 2850, 1.57 },
+                                        { 0.971, 60, 800, 0.64 },
+                                        { 1.5, 60, 1100, 0.8 },
+                                        { 2.01, 60, 1350, 0.86 },
+                                        { 2.51, 60, 1550, 0.89 },
+                                        { 3.01, 60, 1800, 1.01 },
+                                        { 3.48, 60, 2100, 0.94 },
+                                        { 4.01, 60, 2300, 1.28 },
+                                        { 4.67, 60, 2400, 1.35 },
+                                        { 5.06, 60, 2500, 1.36 },
+                                        { 5.51, 60, 2600, 1.43 },
+                                        { 6.11, 60, 2750, 1.47 },
+                                        { 6.49, 60, 2850, 1.47 },
+                                        { 7.02, 60, 3000, 1.38 },
+                                        { 7.43, 60, 3150, 1.50 },
+                                        { 8.01, 60, 3300, 1.52 },
+                                        { 8.51, 58, 3700, 1.53 },
+                                        { 9.0, 55, 4400, 1.44 },
+                                        { 9.49, 55, 4500, 1.51 }
                         };
 
                         static {
@@ -469,7 +639,7 @@ public final class Constants {
                                                                                                   // ground in auto
                                                                                                   // (already latched on
                                                                                                   // L1) // 15.0
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.6; // climber position to get
+                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.8; // climber position to get
                                                                                           // ready to grab L2 (already
                                                                                           // latched on L1) // 0.4
                         public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
@@ -531,11 +701,21 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.6;
+                        public static final double kP0 = 0.3;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.1;
-                        public static final double kS0 = 0.1;
-                        public static final double kV0 = 0.15;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.3;
+                        public static final double kV0 = 0.16;
+                }
+
+                public static final class Feeder {
+                        public static final double kP0 = 2.4;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.0;
+                        public static final double kS0 = 0.4;
+                        public static final double kV0 = 0.5;
+
+                        public static final double kP1 = 9999999.0;
                 }
         }
 
@@ -548,13 +728,13 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-6.19143), inchesToMeters(0.0), inchesToMeters(21.1905));
+                                inchesToMeters(-6.08), inchesToMeters(0.0), inchesToMeters(7.9));
 
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
-                                Math.toRadians(-21.6),
-                                Math.toRadians(0.0));
+                                Math.toRadians(-25.5),
+                                Math.toRadians(3.5));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
                                 LIMELIGHT_ROTATION_RELATIVE_TO_TURRET);
@@ -599,13 +779,16 @@ public final class Constants {
                         Pose3d robotToCam = robotToTurret.transformBy(new Transform3d(
                                         Translation3d.kZero, new Rotation3d(turretAngle))).transformBy(turretToCam);
 
-                        Logger.recordOutput("Constants/Vision/RobotToCam/X", Units.metersToInches(robotToCam.getX()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/Y", Units.metersToInches(robotToCam.getY()));
-                        Logger.recordOutput("Constants/Vision/RobotToCam/Z", Units.metersToInches(robotToCam.getZ()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/X",
+                                        Units.metersToInches(robotToCam.getX()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/Y",
+                                        -Units.metersToInches(robotToCam.getY()));
+                        Logger.recordOutput("Constants/Vision/RobotToCam/Z",
+                                        Units.metersToInches(robotToCam.getZ()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/RX",
                                         Math.toDegrees(robotToCam.getRotation().getX()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/RY",
-                                        Math.toDegrees(robotToCam.getRotation().getY()));
+                                        -Math.toDegrees(robotToCam.getRotation().getY()));
                         Logger.recordOutput("Constants/Vision/RobotToCam/RZ",
                                         Math.toDegrees(robotToCam.getRotation().getZ()));
 
@@ -724,7 +907,7 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = 3.0;
+                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 / 18.0);
                 }
 
                 public static final class Climber {
@@ -771,7 +954,8 @@ public final class Constants {
 
                 // Intake
                 public static final int INTAKE_PIVOT_MOTOR_ID = 13;
-                public static final int INTAKE_ROLLER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_MASTER_MOTOR_ID = 14;
+                public static final int INTAKE_ROLLER_FOLLOWER_MOTOR_ID = 16;
 
                 // Feeder
                 public static final int DYE_ROTOR_MOTOR_ID = 15;

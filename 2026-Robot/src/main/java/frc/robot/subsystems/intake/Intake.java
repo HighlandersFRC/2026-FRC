@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void teleopInit() {
-    setWantedState(IntakeState.ZERO);
+    setWantedState(IntakeState.UP);
   }
 
   public double getIntakePosition() {
@@ -54,6 +54,7 @@ public class Intake extends SubsystemBase {
 
   public enum IntakeState {
     INTAKING,
+    OUTAKE,
     DYNAMIC_INTAKING,
     UP,
     DOWN,
@@ -88,6 +89,9 @@ public class Intake extends SubsystemBase {
     if (OI.driverRT.getAsBoolean()) {
       return IntakeState.DYNAMIC_INTAKING;
     }
+    if (OI.driverA.getAsBoolean()) {
+      return IntakeState.OUTAKE;
+    }
     switch (wantedState) {
       case UP:
         return IntakeState.UP;
@@ -95,6 +99,8 @@ public class Intake extends SubsystemBase {
         return IntakeState.DOWN;
       case INTAKING:
         return IntakeState.INTAKING;
+      case OUTAKE:
+        return IntakeState.OUTAKE;
       case DYNAMIC_INTAKING:
         if (!OI.driverRT.getAsBoolean() && DriverStation.isTeleopEnabled()) {
           return IntakeState.DOWN;
@@ -121,7 +127,7 @@ public class Intake extends SubsystemBase {
     if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 2.0) {
       setPivotTorque(-5, 0.3);
     } else {
-      setPivotTorque(-60, 1.0);
+      setPivotTorque(-40, 1.0);
     }
   }
 
@@ -156,16 +162,16 @@ public class Intake extends SubsystemBase {
 
   public void setJiggle() {
     if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
-        10.0) {
+        5.002) {
       jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.0) {
+    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.118) {
       jiggleUp = false;
     }
 
     if (jiggleUp) {
-      setPivotTorque(-45, 0.3);
+      setPivotTorque(-40, 0.5);
     } else {
-      setPivotTorque(30, 0.3);
+      setPivotTorque(30, 0.5);
     }
 
     // if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
@@ -185,15 +191,18 @@ public class Intake extends SubsystemBase {
     }
     Logger.recordOutput("Intake/Intake State", systemState);
     Logger.recordOutput("States/Intake State", systemState);
-    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
+    // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake/Intake Position", getIntakePosition());
 
     Logger.recordOutput("Intake/Intake Velocity", io.getIntakeVelocity());
     Logger.recordOutput("Intake/Intake Pivot Current", io.getIntakeCurrent());
-    Logger.recordOutput("Intake/Intake Roller Current", io.getIntakeRollerCurrent());
-    Logger.recordOutput("Intake/Intake Acceleration", io.getIntakeAcceleration());
-    Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
+    Logger.recordOutput("Intake/Intake Roller Current",
+        io.getIntakeRollerCurrent());
+    // Logger.recordOutput("Intake/Intake Acceleration",
+    // io.getIntakeAcceleration());
+    // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake Roller Vel", io.getIntakeRollerVelocity());
+    Logger.recordOutput("Intake Follower Roller Vel", io.getIntakeFollowerRollerVelocity());
     Logger.recordOutput("Intake Roller Temp", io.getIntakeRollerTemp());
     switch (systemState) {
       case UP:
@@ -206,11 +215,16 @@ public class Intake extends SubsystemBase {
         break;
       case INTAKING:
         setIntakeDown();
-        setRollerPercent(0.50);
+        setRollerPercent(0.9);
+        break;
+      case OUTAKE:
+        setIntakeDown();
+        setRollerPercent(-0.9);
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
-        setRollerTorque(80, dynamicIntakeSpeed);
+        // setRollerTorque(80, dynamicIntakeSpeed);
+        setRollerPercent(0.9);
         break;
       case JIGGLE:
         setJiggle();

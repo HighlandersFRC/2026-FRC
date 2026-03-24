@@ -20,6 +20,8 @@ interface IntakeIO {
 
     public double getIntakeRollerVelocity();
 
+    public double getIntakeFollowerRollerVelocity();
+
     public double getIntakeRollerTemp();
 
     public double getIntakeCurrent();
