@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
+import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.TunableNumber;
 
 class FeederIOComp implements FeederIO {
@@ -19,6 +20,8 @@ class FeederIOComp implements FeederIO {
             Constants.CANInfo.CANBUS_NAME);
 
     private final VelocityDutyCycle dyeRotorControl = new VelocityDutyCycle(0.0);
+
+    private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
     // private TunableNumber feederP = new TunableNumber("Feeder Position kP",
     // Constants.PIDConstants.Feeder.kP0);
@@ -82,6 +85,8 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void updateInputs(FeederState systemState) {
+        batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor", dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
+
         // Logger.recordOutput("Feeder/Dye Rotor Torque",
         // dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 

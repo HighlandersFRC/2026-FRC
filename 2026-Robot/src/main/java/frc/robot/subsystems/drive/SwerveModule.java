@@ -379,8 +379,16 @@ public class SwerveModule extends SubsystemBase {
     return driveMotor.getStatorCurrent().getValueAsDouble();
   }
 
+  public double getDriveMotorSupplyCurrent() {
+    return driveMotor.getSupplyCurrent().getValueAsDouble();
+  }
+
   public double getAngleMotorCurrent() {
     return angleMotor.getStatorCurrent().getValueAsDouble();
+  }
+
+  public double getAngleMotorSupplyCurrent() {
+    return angleMotor.getSupplyCurrent().getValueAsDouble();
   }
 
   /**

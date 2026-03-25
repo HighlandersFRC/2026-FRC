@@ -20,17 +20,22 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
+import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.ShiftManager;
+import frc.robot.tools.wrappers.BatteryIOInputs;
 
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
+  final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+  private final BatteryIOInputs batteryInputs = new BatteryIOInputs();
 
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
 
@@ -157,6 +162,15 @@ public class Robot extends LoggedRobot {
     m_robotContainer.peripherals.periodic();
     Logger.recordOutput("Loop Times", Globals.loopPeriodSecs);
     m_logHandler.write();
+
+  batteryInputs.batteryVoltage = RobotController.getBatteryVoltage();
+  batteryInputs.rioCurrent = RobotController.getInputCurrent();
+  Logger.processInputs("BatteryLogger", batteryInputs);
+  batteryLogger.setBatteryVoltage(batteryInputs.batteryVoltage);
+  batteryLogger.setRioCurrent(batteryInputs.rioCurrent);
+
+  batteryLogger.periodicAfterScheduler();
+
   }
 
   @Override

@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
@@ -378,6 +379,7 @@ class ShooterIOComp implements ShooterIO {
         private int initLoops;
         private ArrayList<Double> firstTurretAngles = new ArrayList<>();
         private int numberSkips;
+        private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
         @Override
         public void updateInputs() {
@@ -386,6 +388,17 @@ class ShooterIOComp implements ShooterIO {
                 // Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 Globals.turretVelocity = filterTurret.lastValue();
+
+                batteryLogger.reportCurrentUsage("Shooter Flywheel/Master",
+                                flywheelMaster.getSupplyCurrent().getValueAsDouble());
+                batteryLogger.reportCurrentUsage("Shooter Flywheel/Follower",
+                                flywheelFollower.getSupplyCurrent().getValueAsDouble());
+
+                batteryLogger.reportCurrentUsage("Shooter Hood Motor", hoodMotor.getSupplyCurrent().getValueAsDouble());
+
+                batteryLogger.reportCurrentUsage("Shooter/Turret Motor",
+                                turretMotor.getSupplyCurrent().getValueAsDouble());
+
                 if (initializingTurret) {
                         initLoops++;
                         firstTurretAngles.add(getRelativeTurretAngleRadians());

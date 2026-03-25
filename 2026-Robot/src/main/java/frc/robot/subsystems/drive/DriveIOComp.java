@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import frc.robot.tools.logging.BatteryLogger;
+
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -66,6 +68,8 @@ public class DriveIOComp extends DriveIO {
         private final CANcoder backRightCanCoder = new CANcoder(Constants.CANInfo.BACK_RIGHT_MODULE_CANCODER_ID,
                         Constants.CANInfo.CANBUS_NAME);
         private final Gyro gyro = new Gyro();
+
+        private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
         // creates all 4 modules
         private final SwerveModule frontRight = new SwerveModule(1, frontRightAngleMotor, frontRightDriveMotor,
@@ -628,6 +632,16 @@ public class DriveIOComp extends DriveIO {
         void update(DriveState currentState) {
                 updateOdometryFusedArray(currentState);
                 getChassisSpeeds();
+
+                batteryLogger.reportCurrentUsage("Drive/FrontRight", frontRight.getDriveMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/FrontRightTurn", frontRight.getAngleMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/FrontLeft", frontLeft.getDriveMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/FrontLeftTurn", frontLeft.getAngleMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/BackRight", backRight.getDriveMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/BackRightTurn", backRight.getAngleMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/BackLeft", backLeft.getDriveMotorSupplyCurrent());
+                batteryLogger.reportCurrentUsage("Drive/BackLeftTurn", backLeft.getAngleMotorSupplyCurrent());
+
                 Logger.recordOutput("Swerve/Front Right Drive Current", frontRight.getDriveMotorCurrent());
                 Logger.recordOutput("Swerve/Front Left Drive Current", frontLeft.getDriveMotorCurrent());
                 Logger.recordOutput("Swerve/Back Right Drive Current", backRight.getDriveMotorCurrent());
