@@ -159,6 +159,12 @@ public final class Constants {
                         public static final double xDebounceLimit = 0.2;
                         public static final double yDebounceLimit = 0.2;
                         public static final double velLookaheadTime = 0.03;
+                        public static final double LOW_CURRENT_LIMIT = 40;
+                        public static final double NORMAL_CURRENT_LIMIT = 80;
+                        public static final double LOW_DRIVE_CURRENT_LIMIT = 40;
+                        public static final double LOW_TURN_CURRENT_LIMIT = 40;
+                        public static final double NORMAL_DRIVE_CURRENT_LIMIT = 80;
+                        public static final double NORMAL_TURN_CURRENT_LIMIT = 70;
                 }
 
                 public static final class Intake {

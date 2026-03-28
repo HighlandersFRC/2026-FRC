@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.drive;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
@@ -109,6 +111,8 @@ public class SwerveModule extends SubsystemBase {
 
     angleMotorConfig.TorqueCurrent.PeakForwardTorqueCurrent = 70;
     angleMotorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -70;
+    angleMotorConfig.CurrentLimits.StatorCurrentLimit = 70;
+    angleMotorConfig.CurrentLimits.SupplyCurrentLimit = 70;
 
     angleMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -162,12 +166,21 @@ public class SwerveModule extends SubsystemBase {
     // velocityTorqueFOCRequestDriveMotorStop.Slot = 1;
   }
 
-  public void setDriveCurrentLimits(double supply, double stator) {
+  public void setAngleCurrentLimits(double limit) {
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = stator;
-    currentLimitsConfigs.SupplyCurrentLimit = supply;
+    currentLimitsConfigs.StatorCurrentLimit = limit;
+    currentLimitsConfigs.SupplyCurrentLimit = limit;
+    angleMotor.getConfigurator().apply(currentLimitsConfigs);
+  }
+
+  public void setDriveCurrentLimits(double limit) {
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+    currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.StatorCurrentLimit = limit;
+    currentLimitsConfigs.SupplyCurrentLimit = limit;
     driveMotor.getConfigurator().apply(currentLimitsConfigs);
   }
 
@@ -505,6 +518,8 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Logger.recordOutput("Drive/Drive Current Limit", driveMotor.getForwardLimit().getValueAsDouble());
+    Logger.recordOutput("Drive/Angle Current Limit", angleMotor.getForwardLimit().getValueAsDouble());
     // if(driveMotor.getDeviceID() == 1 && driveMotor.getSupplyVoltage().getValue()
     // != 0.0 && angleMotor.getDeviceID() == 2 &&
     // angleMotor.getSupplyVoltage().getValue() != 0.0){

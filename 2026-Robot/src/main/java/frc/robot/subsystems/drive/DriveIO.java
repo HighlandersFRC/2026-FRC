@@ -15,8 +15,6 @@ abstract class DriveIO {
 
     abstract void setWheelsStraight();
 
-    protected abstract void setCurrentLimits(int supply, int stator);
-
     protected abstract void setPosition(Pose2d pose);
 
     protected abstract Pose2d getPosition();
@@ -34,4 +32,8 @@ abstract class DriveIO {
     protected abstract ChassisSpeeds getWantedChassisSpeeds();
 
     protected abstract boolean getFlat();
+
+    protected abstract void setDriveCurrentLimits(double limit);
+
+    protected abstract void setAngleCurrentLimits(double limit);
 }
