@@ -516,7 +516,7 @@ public class Superstructure extends SubsystemBase {
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
-      drive.setWantedState(DriveState.DEFAULT);
+      drive.setWantedState(DriveState.DEFAULT_SLOWISH);
     }
   }
 
@@ -537,7 +537,7 @@ public class Superstructure extends SubsystemBase {
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
-      drive.setWantedState(DriveState.DEFAULT);
+      drive.setWantedState(DriveState.DEFAULT_SLOWISH);
     }
   }
 
