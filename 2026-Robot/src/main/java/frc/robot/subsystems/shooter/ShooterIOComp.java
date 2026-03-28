@@ -439,6 +439,15 @@ class ShooterIOComp implements ShooterIO {
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
                 Logger.recordOutput("Shooter/Turret Error Degrees",
                                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
+
+                Logger.recordOutput("Online/Hood Motor Online", hoodMotor.isConnected());
+                Logger.recordOutput("Online/Turret Motor Online", turretMotor.isConnected());
+                Logger.recordOutput("Online/Flywheel Master Motor Online", flywheelMaster.isConnected());
+                Logger.recordOutput("Online/Flywheel Follower Motor Online", flywheelFollower.isConnected());
+
+                Logger.recordOutput("Online/Encoder One Online", encoderOne.isConnected());
+                Logger.recordOutput("Online/Encoder Two Online", encoderTwo.isConnected());
+
                 // if (turretP.changed() || turretI.changed() || turretD.changed() ||
                 // turretS.changed() || turretV.changed()) {
                 // System.out.println("Updating Turret PID Constants");
