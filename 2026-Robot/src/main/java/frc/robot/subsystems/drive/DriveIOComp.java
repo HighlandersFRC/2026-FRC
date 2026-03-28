@@ -660,6 +660,22 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
 
+                Logger.recordOutput("Online/Front Right Drive Online", frontRightDriveMotor.isConnected());
+                Logger.recordOutput("Online/Front Left Drive Online", frontLeftDriveMotor.isConnected());
+                Logger.recordOutput("Online/Back Right Drive Online", backRightDriveMotor.isConnected());
+                Logger.recordOutput("Online/Back Left Drive Online", backLeftDriveMotor.isConnected());
+
+                Logger.recordOutput("Online/Front Right Angle Online", frontRightAngleMotor.isConnected());
+                Logger.recordOutput("Online/Front Left Angle Online", frontLeftAngleMotor.isConnected());
+                Logger.recordOutput("Online/Back Right Angle Online", backRightAngleMotor.isConnected());
+                Logger.recordOutput("Online/Back Left Angle Online", backLeftAngleMotor.isConnected());
+
+                Logger.recordOutput("Online/Front Right CanCoder Online", frontRightCanCoder.isConnected());
+                Logger.recordOutput("Online/Front Left CanCoder Online", frontLeftCanCoder.isConnected());
+                Logger.recordOutput("Online/Back Right CanCoder Online", backRightCanCoder.isConnected());
+                Logger.recordOutput("Online/Back Left CanCoder Online", backLeftCanCoder.isConnected());
+
+                Logger.recordOutput("Pigeon Online", gyro.isOnline());
         }
 
         @Override

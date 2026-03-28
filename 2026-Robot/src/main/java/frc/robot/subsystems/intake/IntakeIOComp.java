@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -89,6 +91,10 @@ class IntakeIOComp implements IntakeIO {
                                 rollerMotorMaster.getSupplyCurrent().getValueAsDouble());
                 batteryLogger.reportCurrentUsage("Intake Roller/ Follower",
                                 rollerMotorFollower.getSupplyCurrent().getValueAsDouble());
+
+                Logger.recordOutput("Online/Intake Roller Master Online", rollerMotorMaster.isConnected());
+                Logger.recordOutput("Online/Intake Roller Follower Online", rollerMotorFollower.isConnected());
+                Logger.recordOutput("Online/Intake Pivot Online", pivotMotor.isConnected());
         }
 
         @Override

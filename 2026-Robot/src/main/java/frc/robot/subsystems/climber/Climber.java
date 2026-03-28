@@ -125,6 +125,7 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
+    io.update();
     if (systemState != handleStateTransition() && handleStateTransition() == ClimberState.L3_CLIMBING) {
       l3State = L3ClimberState.L1EXTEND;
       manualProg = 0;
