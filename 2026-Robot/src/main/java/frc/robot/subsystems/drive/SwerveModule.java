@@ -142,8 +142,8 @@ public class SwerveModule extends SubsystemBase {
     driveMotorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -120;
     driveMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveMotorConfig.CurrentLimits.StatorCurrentLimit = 120;
-    driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    driveMotorConfig.CurrentLimits.StatorCurrentLimit = 60;
+    driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 60;
 
     driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
