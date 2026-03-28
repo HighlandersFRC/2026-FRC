@@ -117,7 +117,7 @@ class ShooterIOComp implements ShooterIO {
                 hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
                 hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
                 hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
-                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
                 hoodConfig.Feedback.FeedbackRemoteSensorID = Constants.CANInfo.HOOD_CANCODER_ID;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
@@ -447,7 +447,8 @@ class ShooterIOComp implements ShooterIO {
 
                 Logger.recordOutput("Online/Encoder One Online", encoderOne.isConnected());
                 Logger.recordOutput("Online/Encoder Two Online", encoderTwo.isConnected());
-
+                Logger.recordOutput("Online/Hood CanCoder",
+                                !hoodMotor.getFault_RemoteSensorDataInvalid().getValue());
                 // if (turretP.changed() || turretI.changed() || turretD.changed() ||
                 // turretS.changed() || turretV.changed()) {
                 // System.out.println("Updating Turret PID Constants");
