@@ -734,7 +734,7 @@ public final class Constants {
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
                                 Math.toRadians(0.0),
                                 Math.toRadians(-25.5),
-                                Math.toRadians(3.5));
+                                Math.toRadians(0.0));
 
                 public static final Transform3d turretToLimelight = new Transform3d(LIMELIGHT_TO_TURRET_OFFSET,
                                 LIMELIGHT_ROTATION_RELATIVE_TO_TURRET);
