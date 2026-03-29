@@ -85,6 +85,7 @@ public class Drive extends SubsystemBase {
   public enum DriveState {
     DEFAULT,
     DEFAULT_SLOW,
+    DEFAULT_SLOWISH,
     IDLE,
     IDLE_SLOW,
     STOP,
@@ -154,7 +155,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void teleopInit() {
-    io.setCurrentLimits(80, 80);
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
   }
 
   /**
@@ -230,7 +231,7 @@ public class Drive extends SubsystemBase {
       firstPointAngle = -firstPointAngle;
     }
     Pose2d firstPose2d = new Pose2d(new Translation2d(firstPointX, firstPointY), new Rotation2d(firstPointAngle));
-    io.setCurrentLimits(60, 120);
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
     io.setPosition(firstPose2d);
 
   }
@@ -427,6 +428,22 @@ public class Drive extends SubsystemBase {
       controllerVector = controllerVector.scaled(0.41);
       controllerVector = controllerVector.cap(0.67);
       turn *= 0.41;
+      if (Math.abs(turn) > Math.PI / 4.0) {
+        turn = Math.PI / 4.0 * Math.copySign(1, turn);
+      }
+    }
+    if (wantedState == DriveState.DEFAULT_SLOWISH) {
+      // if (!xDecreasing) {
+      // controllerVector.setI(vx);
+      // xLimiter.reset(vx);
+      // }
+      // if (!yDecreasing) {
+      // controllerVector.setJ(vy);
+      // yLimiter.reset(vy);
+      // }
+      controllerVector = controllerVector.scaled(0.9);
+      controllerVector = controllerVector.cap(0.8);
+      // turn *= 0.67;
       if (Math.abs(turn) > Math.PI / 4.0) {
         turn = Math.PI / 4.0 * Math.copySign(1, turn);
       }
@@ -964,6 +981,8 @@ public class Drive extends SubsystemBase {
         return DriveState.DEFAULT;
       case DEFAULT_SLOW:
         return DriveState.DEFAULT_SLOW;
+      case DEFAULT_SLOWISH:
+        return DriveState.DEFAULT_SLOWISH;
       case IDLE:
         return DriveState.IDLE;
       case IDLE_SLOW:
@@ -1054,6 +1073,16 @@ public class Drive extends SubsystemBase {
     return io.getFlat();
   }
 
+  public void lowerCurrentLimits() {
+    io.setDriveCurrentLimits(Constants.Physical.Drive.LOW_DRIVE_CURRENT_LIMIT);
+    io.setAngleCurrentLimits(Constants.Physical.Drive.LOW_TURN_CURRENT_LIMIT);
+  }
+
+  public void resetCurrentLimits() {
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
+    io.setAngleCurrentLimits(Constants.Physical.Drive.NORMAL_TURN_CURRENT_LIMIT);
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putData("Field", field);
@@ -1071,6 +1100,7 @@ public class Drive extends SubsystemBase {
     if (newState != systemState) {
       systemState = newState;
     }
+
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
@@ -1093,6 +1123,13 @@ public class Drive extends SubsystemBase {
         // }
         break;
       case DEFAULT_SLOW:
+        // if (OI.getPOVDown()) {
+        // snakeDrive();
+        // } else {
+        teleopDrive();
+        // }
+        break;
+      case DEFAULT_SLOWISH:
         // if (OI.getPOVDown()) {
         // snakeDrive();
         // } else {

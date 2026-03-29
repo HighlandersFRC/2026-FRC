@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void teleopInit() {
-    setWantedState(IntakeState.UP);
+    setWantedState(IntakeState.ZERO);
   }
 
   public double getIntakePosition() {

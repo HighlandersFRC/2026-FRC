@@ -38,10 +38,6 @@ public class DriveIOSim extends DriveIO {
     }
 
     @Override
-    protected void setCurrentLimits(int supply, int stator) {
-    }
-
-    @Override
     protected void setPosition(Pose2d pose) {
         positionVector = new Vector(pose.getX(), pose.getY());
         angle = pose.getRotation().getRadians();
@@ -76,6 +72,16 @@ public class DriveIOSim extends DriveIO {
                 velocityVector.getI(),
                 velocityVector.getJ(),
                 angularVelocity);
+    }
+
+    @Override
+    protected void setDriveCurrentLimits(double limit) {
+        // Implementation for setting drive current limit in simulation
+    }
+
+    @Override
+    protected void setAngleCurrentLimits(double limit) {
+        // Implementation for setting angle current limit in simulation
     }
 
     @Override

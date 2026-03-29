@@ -182,6 +182,22 @@ public class DriveIOComp extends DriveIO {
         }
 
         @Override
+        protected void setDriveCurrentLimits(double limit) {
+                frontRight.setDriveCurrentLimits(limit);
+                frontLeft.setDriveCurrentLimits(limit);
+                backLeft.setDriveCurrentLimits(limit);
+                backRight.setDriveCurrentLimits(limit);
+        }
+
+        @Override
+        protected void setAngleCurrentLimits(double limit) {
+                frontRight.setAngleCurrentLimits(limit);
+                frontLeft.setAngleCurrentLimits(limit);
+                backLeft.setAngleCurrentLimits(limit);
+                backRight.setAngleCurrentLimits(limit);
+        }
+
+        @Override
         void zeroIMU() {
                 gyro.setYaw(0.0);
                 SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
@@ -214,15 +230,6 @@ public class DriveIOComp extends DriveIO {
                 backLeft.setWheelPID(0.0, 0.0);
                 backRight.setWheelPID(0.0, 0.0);
                 wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
-        }
-
-        @Override
-        protected void setCurrentLimits(int supply, int stator) {
-                System.out.println("Setting current limit");
-                frontLeft.setDriveCurrentLimits(supply, stator);
-                frontRight.setDriveCurrentLimits(supply, stator);
-                backLeft.setDriveCurrentLimits(supply, stator);
-                backRight.setDriveCurrentLimits(supply, stator);
         }
 
         private boolean notTrenchTag(int tagId) {
