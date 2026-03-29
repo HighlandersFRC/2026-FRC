@@ -15,6 +15,7 @@ import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
+import org.littletonrobotics.junction.Logger;
 
 public class PhoenixOdometryThread extends Thread {
     private final Lock signalsLock = new ReentrantLock();
@@ -92,6 +93,10 @@ public class PhoenixOdometryThread extends Thread {
     public void run() {
         Threads.setCurrentThreadPriority(true, 1);
 
+        // Diagnostics for verifying 250 Hz operation
+        long loopStartTime = System.nanoTime();
+        int loopCount = 0;
+
         while (true) {
             signalsLock.lock();
             try {
@@ -131,6 +136,23 @@ public class PhoenixOdometryThread extends Thread {
                 }
             } finally {
                 Drive.odometryLock.unlock();
+            }
+
+            // Diagnostics: every 250 iterations (1 second at 250 Hz), calculate and log
+            // frequency
+            loopCount++;
+            if (loopCount >= 250) {
+                long currentTime = System.nanoTime();
+                double elapsedSeconds = (currentTime - loopStartTime) / 1e9;
+                double measuredFrequency = loopCount / elapsedSeconds;
+                double periodMs = (elapsedSeconds / loopCount) * 1000;
+
+                // Log to AdvantageKit
+                Logger.recordOutput("Diagnostics/Odometry/FrequencyHz", measuredFrequency);
+                Logger.recordOutput("Diagnostics/Odometry/PeriodMs", periodMs);
+
+                loopStartTime = currentTime;
+                loopCount = 0;
             }
         }
     }
