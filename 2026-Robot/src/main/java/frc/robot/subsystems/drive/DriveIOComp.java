@@ -491,29 +491,33 @@ public class DriveIOComp extends DriveIO {
                                         Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
                                         if (Math.abs(limelightAngVelRelToField) < 0.5) {
                                                 try {
+
                                                         LimelightHelpers.SetRobotOrientation(
                                                                         Constants.Vision.LIMELIGHT_NAME,
                                                                         getPosition().getRotation().getDegrees(),
                                                                         limelightAngVelRelToField,
                                                                         gyro.getPitchDegrees(), 0,
                                                                         -gyro.getRollDegrees(), 0);
-                                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
-                                                                                        Constants.Vision.LIMELIGHT_NAME);
-                                                        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
-                                                                        .getBotPoseEstimate_wpiBlue(
-                                                                                        Constants.Vision.LIMELIGHT_NAME);
-                                                        Logger.recordOutput("Cameras/Limelight Pose MT1", mt1.pose);
 
-                                                        // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
-                                                        // mt2.timestampSeconds);
-                                                        // if (maybeTurretAngle.isPresent()) {
                                                         Constants.Vision.updateLimelightPoseFromTurret(
                                                                         new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
                                                                                         Rotation3d.kZero),
                                                                         Globals.turretAngle,
                                                                         Constants.Vision.turretToLimelight,
                                                                         Constants.Vision.LIMELIGHT_NAME);
+
+                                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
+                                                                                        Constants.Vision.LIMELIGHT_NAME);
+                                                        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
+                                                                        .getBotPoseEstimate_wpiBlue(
+                                                                                        Constants.Vision.LIMELIGHT_NAME);
+                                                        Logger.recordOutput("Cameras/Limelight Pose MT1",
+                                                                        clampToField(mt1.pose));
+
+                                                        // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
+                                                        // mt2.timestampSeconds);
+                                                        // if (maybeTurretAngle.isPresent()) {
 
                                                         boolean doRejectUpdate = false;
                                                         // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) >
@@ -523,6 +527,14 @@ public class DriveIOComp extends DriveIO {
                                                         if (mt2.tagCount == 0) {
                                                                 doRejectUpdate = true;
                                                         }
+
+                                                        if (mt1.tagCount == 1 && mt1.rawFiducials != null
+                                                                        && mt1.rawFiducials.length > 0) {
+                                                                if (mt1.rawFiducials[0].ambiguity > 0.15) {
+                                                                        doRejectUpdate = true;
+                                                                }
+                                                        }
+
                                                         if (!doRejectUpdate) {
                                                                 Logger.recordOutput("Limelight dist to tag",
                                                                                 mt2.avgTagDist);
@@ -533,8 +545,8 @@ public class DriveIOComp extends DriveIO {
                                                                 Logger.recordOutput("Cameras/Limelight Pose",
                                                                                 clampToField(mt2.pose));
                                                                 mt2Odometry.addVisionMeasurement(
-                                                                                clampToField(mt2.pose),
-                                                                                mt2.timestampSeconds,
+                                                                                clampToField(mt1.pose),
+                                                                                mt1.timestampSeconds,
                                                                                 standardDeviation);
                                                                 // }
                                                         } else {
@@ -667,6 +679,22 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
 
+                Logger.recordOutput("Online/Front Right Drive Online", frontRightDriveMotor.isConnected());
+                Logger.recordOutput("Online/Front Left Drive Online", frontLeftDriveMotor.isConnected());
+                Logger.recordOutput("Online/Back Right Drive Online", backRightDriveMotor.isConnected());
+                Logger.recordOutput("Online/Back Left Drive Online", backLeftDriveMotor.isConnected());
+
+                Logger.recordOutput("Online/Front Right Angle Online", frontRightAngleMotor.isConnected());
+                Logger.recordOutput("Online/Front Left Angle Online", frontLeftAngleMotor.isConnected());
+                Logger.recordOutput("Online/Back Right Angle Online", backRightAngleMotor.isConnected());
+                Logger.recordOutput("Online/Back Left Angle Online", backLeftAngleMotor.isConnected());
+
+                Logger.recordOutput("Online/Front Right CanCoder Online", frontRightCanCoder.isConnected());
+                Logger.recordOutput("Online/Front Left CanCoder Online", frontLeftCanCoder.isConnected());
+                Logger.recordOutput("Online/Back Right CanCoder Online", backRightCanCoder.isConnected());
+                Logger.recordOutput("Online/Back Left CanCoder Online", backLeftCanCoder.isConnected());
+
+                Logger.recordOutput("Pigeon Online", gyro.isOnline());
         }
 
         @Override

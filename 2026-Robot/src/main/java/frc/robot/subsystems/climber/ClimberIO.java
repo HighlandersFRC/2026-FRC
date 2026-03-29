@@ -10,4 +10,6 @@ public interface ClimberIO {
     abstract double getSlaveCurrent();
 
     abstract double getMasterCurrent();
+
+    abstract void update();
 }

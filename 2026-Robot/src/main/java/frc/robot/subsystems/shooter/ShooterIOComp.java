@@ -117,7 +117,7 @@ class ShooterIOComp implements ShooterIO {
                 hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
                 hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
                 hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
-                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+                hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
                 hoodConfig.Feedback.FeedbackRemoteSensorID = Constants.CANInfo.HOOD_CANCODER_ID;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
@@ -439,6 +439,16 @@ class ShooterIOComp implements ShooterIO {
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
                 Logger.recordOutput("Shooter/Turret Error Degrees",
                                 turretMotor.getClosedLoopError().getValueAsDouble() * 360.0);
+
+                Logger.recordOutput("Online/Hood Motor Online", hoodMotor.isConnected());
+                Logger.recordOutput("Online/Turret Motor Online", turretMotor.isConnected());
+                Logger.recordOutput("Online/Flywheel Master Motor Online", flywheelMaster.isConnected());
+                Logger.recordOutput("Online/Flywheel Follower Motor Online", flywheelFollower.isConnected());
+
+                Logger.recordOutput("Online/Encoder One Online", encoderOne.isConnected());
+                Logger.recordOutput("Online/Encoder Two Online", encoderTwo.isConnected());
+                Logger.recordOutput("Online/Hood CanCoder",
+                                !hoodMotor.getFault_RemoteSensorDataInvalid().getValue());
                 // if (turretP.changed() || turretI.changed() || turretD.changed() ||
                 // turretS.changed() || turretV.changed()) {
                 // System.out.println("Updating Turret PID Constants");

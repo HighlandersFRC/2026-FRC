@@ -92,4 +92,8 @@ public class Gyro {
         v.setJ(pigeon.getAccelerationY().getValueAsDouble() / Constants.Physical.GRAVITY_ACCEL_MS2);
         return v;
     }
+
+    public boolean isOnline() {
+        return pigeon.isConnected();
+    }
 }
