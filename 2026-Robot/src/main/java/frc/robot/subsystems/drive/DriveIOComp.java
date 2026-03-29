@@ -120,8 +120,10 @@ public class DriveIOComp extends DriveIO {
         // Locations for the swerve drive modules relative to the robot center.
         private Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
         private Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
-        private Translation2d m_backLeftLocation = new Translation2d(-moduleX, moduleY);
-        private Translation2d m_backRightLocation = new Translation2d(-moduleX, -moduleY);
+        private Translation2d m_backLeftLocation = new Translation2d(-Constants.Physical.HEX_MODULE_X_OFFSET,
+                        Constants.Physical.HEX_MODULE_Y_OFFSET);
+        private Translation2d m_backRightLocation = new Translation2d(-Constants.Physical.HEX_MODULE_X_OFFSET,
+                        -Constants.Physical.HEX_MODULE_Y_OFFSET);
 
         private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);

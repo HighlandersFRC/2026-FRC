@@ -96,6 +96,8 @@ public final class Constants {
                 public static final double ROBOT_WIDTH = inchesToMeters(29.5);
                 public static final double MODULE_OFFSET = inchesToMeters(2.625); // Wheel to frame distance TODO: is
                                                                                   // this different for mk5s?
+                public static final double HEX_MODULE_X_OFFSET = inchesToMeters(10.721);
+                public static final double HEX_MODULE_Y_OFFSET = inchesToMeters(6.838);
                 public static final double ROBOT_RADIUS = Math.hypot((ROBOT_LENGTH / 2.0) - MODULE_OFFSET,
                                 (ROBOT_WIDTH / 2.0) - MODULE_OFFSET);
 
