@@ -155,7 +155,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void teleopInit() {
-    io.setDriveCurrentLimits(80);
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
   }
 
   /**
@@ -231,7 +231,7 @@ public class Drive extends SubsystemBase {
       firstPointAngle = -firstPointAngle;
     }
     Pose2d firstPose2d = new Pose2d(new Translation2d(firstPointX, firstPointY), new Rotation2d(firstPointAngle));
-    io.setDriveCurrentLimits(120);
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
     io.setPosition(firstPose2d);
 
   }
