@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import java.util.List;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -23,40 +25,20 @@ public class Peripherals {
   public void init() {
   }
 
-  public PhotonPipelineResult getLeftFrontCamResult() {
-    var result = left_front_cam.getAllUnreadResults();
-    if (!result.isEmpty()) {
-      return result.get(0);
-    } else {
-      return new PhotonPipelineResult();
-    }
+  public List<PhotonPipelineResult> getLeftFrontCamResults() {
+    return left_front_cam.getAllUnreadResults();
   }
 
-  public PhotonPipelineResult getLeftBackCamResult() {
-    var result = left_back_cam.getAllUnreadResults();
-    if (!result.isEmpty()) {
-      return result.get(0);
-    } else {
-      return new PhotonPipelineResult();
-    }
+  public List<PhotonPipelineResult> getLeftBackCamResults() {
+    return left_back_cam.getAllUnreadResults();
   }
 
-  public PhotonPipelineResult getRightFrontCamResult() {
-    var result = right_front_cam.getAllUnreadResults();
-    if (!result.isEmpty()) {
-      return result.get(0);
-    } else {
-      return new PhotonPipelineResult();
-    }
+  public List<PhotonPipelineResult> getRightFrontCamResults() {
+    return right_front_cam.getAllUnreadResults();
   }
 
-  public PhotonPipelineResult getRightBackCamResult() {
-    var result = right_back_cam.getAllUnreadResults();
-    if (!result.isEmpty()) {
-      return result.get(0);
-    } else {
-      return new PhotonPipelineResult();
-    }
+  public List<PhotonPipelineResult> getRightBackCamResults() {
+    return right_back_cam.getAllUnreadResults();
   }
 
   double cameraScreenshotTime = 0.0;
