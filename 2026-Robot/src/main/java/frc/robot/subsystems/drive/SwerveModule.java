@@ -173,6 +173,7 @@ public class SwerveModule extends SubsystemBase {
     currentLimitsConfigs.StatorCurrentLimit = limit;
     currentLimitsConfigs.SupplyCurrentLimit = limit;
     angleMotor.getConfigurator().apply(currentLimitsConfigs);
+    System.out.println("Angle Current Limit: " + limit);
   }
 
   public void setDriveCurrentLimits(double limit) {
@@ -182,6 +183,7 @@ public class SwerveModule extends SubsystemBase {
     currentLimitsConfigs.StatorCurrentLimit = limit;
     currentLimitsConfigs.SupplyCurrentLimit = limit;
     driveMotor.getConfigurator().apply(currentLimitsConfigs);
+    System.out.println("Drive Current Limit: " + limit);
   }
 
   /**
@@ -518,8 +520,6 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Drive/Drive Current Limit", driveMotor.getForwardLimit().getValueAsDouble());
-    Logger.recordOutput("Drive/Angle Current Limit", angleMotor.getForwardLimit().getValueAsDouble());
     // if(driveMotor.getDeviceID() == 1 && driveMotor.getSupplyVoltage().getValue()
     // != 0.0 && angleMotor.getDeviceID() == 2 &&
     // angleMotor.getSupplyVoltage().getValue() != 0.0){
