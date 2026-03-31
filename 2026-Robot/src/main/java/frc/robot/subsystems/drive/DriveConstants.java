@@ -15,6 +15,13 @@ public final class DriveConstants {
             new Translation2d(-moduleX, moduleY),
             new Translation2d(-moduleX, -moduleY)
     };
+    public static final double odometryTranslationDeadbandMeters = 5e-5;
+    public static final double odometryYawDeadbandRadians = Math.toRadians(0.01);
+    public static final double fieldBorderMarginMeters = 0.5;
+    public static final double photonSingleTagAmbiguityThreshold = 0.25;
+    public static final double photonXyStdDevCoefficient = 0.01;
+    public static final double photonThetaStdDevCoefficient = 0.03;
+    public static final double maxLimelightTurretMismatchDegrees = 4.0;
 
     private DriveConstants() {
     }

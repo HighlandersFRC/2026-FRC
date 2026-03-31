@@ -45,13 +45,6 @@ import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.math.Vector;
 
 public class DriveIOComp extends DriveIO {
-        private static final double odometryTranslationDeadbandMeters = 5e-5;
-        private static final double odometryYawDeadbandRadians = Math.toRadians(0.01);
-        private static final double fieldBorderMarginMeters = 0.5;
-        private static final double photonSingleTagAmbiguityThreshold = 0.25;
-        private static final double photonXyStdDevCoefficient = 0.01;
-        private static final double photonThetaStdDevCoefficient = 0.03;
-        private static final double maxLimelightTurretMismatchDegrees = 4.0;
 
         private final TalonFX frontRightDriveMotor = new TalonFX(Constants.CANInfo.FRONT_RIGHT_DRIVE_MOTOR_ID,
                         Constants.CANInfo.CANBUS_NAME);
@@ -269,6 +262,7 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         void zeroIMU() {
+                gyro.setYaw(0.0);
                 setPosition(new Pose2d(getPosition().getTranslation(), Rotation2d.kZero));
         }
 
@@ -659,13 +653,14 @@ public class DriveIOComp extends DriveIO {
                 }
 
                 boolean ambiguousSingleTag = result.getTargets().size() == 1
-                                && result.getBestTarget().getPoseAmbiguity() >= photonSingleTagAmbiguityThreshold;
+                                && result.getBestTarget()
+                                                .getPoseAmbiguity() >= DriveConstants.photonSingleTagAmbiguityThreshold;
                 if (ambiguousSingleTag) {
                         return Optional.empty();
                 }
 
                 Pose2d robotPose = estimate.get().estimatedPose.toPose2d();
-                if (!poseNearField(robotPose)) {
+                if (!poseInField(robotPose)) {
                         return Optional.empty();
                 }
 
@@ -750,12 +745,12 @@ public class DriveIOComp extends DriveIO {
                         Rotation2d measurementTurretAngle = turretAngleBuffer.getSample(mt1.timestampSeconds)
                                         .orElse(currentTurretAngle);
                         if (Math.abs(measurementTurretAngle.minus(currentTurretAngle)
-                                        .getDegrees()) > maxLimelightTurretMismatchDegrees) {
+                                        .getDegrees()) > DriveConstants.maxLimelightTurretMismatchDegrees) {
                                 Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
                                 return;
                         }
 
-                        if (mt1.tagCount == 0 || mt1.avgTagDist > 4.5 || !poseNearField(mt1.pose)) {
+                        if (mt1.tagCount == 0 || mt1.avgTagDist > 4.5 || !poseInField(mt1.pose)) {
                                 Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
                                 return;
                         }
@@ -789,7 +784,8 @@ public class DriveIOComp extends DriveIO {
                                                         - lastAcceptedOdometryPositions[i].distanceMeters));
                 }
                 double yawDelta = Math.abs(yawPosition.minus(lastAcceptedYawPosition).getRadians());
-                return maxModuleDelta > odometryTranslationDeadbandMeters || yawDelta > odometryYawDeadbandRadians;
+                return maxModuleDelta > DriveConstants.odometryTranslationDeadbandMeters
+                                || yawDelta > DriveConstants.odometryYawDeadbandRadians;
         }
 
         private void seedAcceptedOdometryState(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
@@ -842,11 +838,11 @@ public class DriveIOComp extends DriveIO {
                         double averageTagDistance,
                         int tagCount,
                         boolean useVisionRotation) {
-                double xyStdDev = photonXyStdDevCoefficient
+                double xyStdDev = DriveConstants.photonXyStdDevCoefficient
                                 * Math.pow(averageTagDistance, 1.2)
                                 / Math.pow(Math.max(tagCount, 1), 2.0);
                 double thetaStdDev = useVisionRotation
-                                ? photonThetaStdDevCoefficient
+                                ? DriveConstants.photonThetaStdDevCoefficient
                                                 * Math.pow(averageTagDistance, 1.2)
                                                 / Math.pow(Math.max(tagCount, 1), 2.0)
                                 : Double.POSITIVE_INFINITY;
@@ -884,11 +880,13 @@ public class DriveIOComp extends DriveIO {
                 rightBackPhotonPoseEstimator.resetHeadingData(timestamp, heading);
         }
 
-        private boolean poseNearField(Pose2d pose) {
-                return pose.getX() > -fieldBorderMarginMeters
-                                && pose.getX() < Constants.Physical.FIELD_LENGTH + fieldBorderMarginMeters
-                                && pose.getY() > -fieldBorderMarginMeters
-                                && pose.getY() < Constants.Physical.FIELD_WIDTH + fieldBorderMarginMeters;
+        private boolean poseInField(Pose2d pose) {
+                return pose.getX() > Constants.Physical.ROBOT_RADIUS
+                                && pose.getX() < Constants.Physical.FIELD_LENGTH
+                                                - Constants.Physical.ROBOT_RADIUS
+                                && pose.getY() > Constants.Physical.ROBOT_RADIUS
+                                && pose.getY() < Constants.Physical.FIELD_WIDTH
+                                                - Constants.Physical.ROBOT_RADIUS;
         }
 
 }
