@@ -1,5 +1,7 @@
 package frc.robot.subsystems.climber;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -59,5 +61,11 @@ class ClimberIOComp implements ClimberIO {
     public double getPosition() {
         return climberMasterMotor.getPosition().getValueAsDouble()
                 * Constants.Ratios.Climber.CLIMBER_MOTOR_INCHES_PER_ROTATION;
+    }
+
+    @Override
+    public void update() {
+        Logger.recordOutput("Online/Climber Master Online", climberMasterMotor.isConnected());
+        Logger.recordOutput("Online/Climber Slave Online", climberSlaveMotor.isConnected());
     }
 }

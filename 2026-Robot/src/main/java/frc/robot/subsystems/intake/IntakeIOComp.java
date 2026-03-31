@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -63,8 +65,8 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerMasterConfig = new TalonFXConfiguration();
                 rollerMasterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 60;
-                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 60;
+                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 35;
+                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 35;
                 rollerMasterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
@@ -73,8 +75,8 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerFollowerConfig = new TalonFXConfiguration();
                 rollerFollowerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
-                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 60;
+                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 35;
+                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 35;
                 rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);
@@ -89,6 +91,10 @@ class IntakeIOComp implements IntakeIO {
                                 rollerMotorMaster.getSupplyCurrent().getValueAsDouble());
                 batteryLogger.reportCurrentUsage("Intake Roller/ Follower",
                                 rollerMotorFollower.getSupplyCurrent().getValueAsDouble());
+
+                Logger.recordOutput("Online/Intake Roller Master Online", rollerMotorMaster.isConnected());
+                Logger.recordOutput("Online/Intake Roller Follower Online", rollerMotorFollower.isConnected());
+                Logger.recordOutput("Online/Intake Pivot Online", pivotMotor.isConnected());
         }
 
         @Override

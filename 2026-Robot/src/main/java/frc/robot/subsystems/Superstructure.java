@@ -56,6 +56,7 @@ public class Superstructure extends SubsystemBase {
   private ShotSolution presetShotSolution = new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000,
       new Rotation2d(Math.PI),
       0.0, 0.0);
+  private boolean inSlowState = false;
 
   public enum SuperState {
     DEFAULT,
@@ -73,7 +74,7 @@ public class Superstructure extends SubsystemBase {
     MANUAL_SHOOTING,
     PRESET_SHOOT,
     PRESET_SHOOTING,
-    MANUAL_PASS, // TODO: implement ts and passing
+    MANUAL_PASS,
     MANUAL_PASSING,
     MANUAL_CLIMBING,
     MANUAL_EXTEND_CLIMBER,
@@ -515,7 +516,7 @@ public class Superstructure extends SubsystemBase {
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
-      drive.setWantedState(DriveState.DEFAULT);
+      drive.setWantedState(DriveState.DEFAULT_SLOWISH);
     }
   }
 
@@ -536,7 +537,7 @@ public class Superstructure extends SubsystemBase {
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
-      drive.setWantedState(DriveState.DEFAULT);
+      drive.setWantedState(DriveState.DEFAULT_SLOWISH);
     }
   }
 
@@ -794,6 +795,31 @@ public class Superstructure extends SubsystemBase {
     } else if (firstTimeAutoClimb) {
       alignTime = Timer.getFPGATimestamp();
       firstTimeAutoClimb = false;
+    }
+    if (!DriverStation.isAutonomousEnabled()) {
+      if (currentSuperState == SuperState.SHOOT ||
+          currentSuperState == SuperState.SHOOT_NO_JIGGLE ||
+          currentSuperState == SuperState.SHOOTING ||
+          currentSuperState == SuperState.SHOOTING_NO_JIGGLE ||
+          currentSuperState == SuperState.SHOOTING_NO_FEED ||
+          currentSuperState == SuperState.PASS ||
+          currentSuperState == SuperState.PASSING ||
+          currentSuperState == SuperState.MANUAL_SHOOT ||
+          currentSuperState == SuperState.MANUAL_SHOOTING ||
+          currentSuperState == SuperState.PRESET_SHOOT ||
+          currentSuperState == SuperState.PRESET_SHOOTING ||
+          currentSuperState == SuperState.MANUAL_PASS ||
+          currentSuperState == SuperState.MANUAL_PASSING) {
+        if (!inSlowState) {
+          drive.lowerCurrentLimits();
+          inSlowState = true;
+        }
+      } else {
+        if (inSlowState) {
+          drive.resetCurrentLimits();
+          inSlowState = false;
+        }
+      }
     }
 
     if (RobotBase.isSimulation()) {
