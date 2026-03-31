@@ -515,7 +515,7 @@ public class SwerveModule extends SubsystemBase {
 
   public SwerveModuleState getSwerveModuleState(Rotation2d robotYaw) {
     return new SwerveModuleState(getWheelSpeed() * Constants.Physical.WHEEL_CIRCUMFERENCE,
-        new Rotation2d(getWheelPosition()).plus(robotYaw));
+        new Rotation2d(getWheelPosition()));
   }
 
   @Override
