@@ -292,12 +292,19 @@ public class DriveIOComp extends DriveIO {
         }
 
         @Override
-        protected void setCurrentLimits(int supply, int stator) {
-                System.out.println("Setting current limit");
-                frontLeft.setDriveCurrentLimits(supply, stator);
-                frontRight.setDriveCurrentLimits(supply, stator);
-                backLeft.setDriveCurrentLimits(supply, stator);
-                backRight.setDriveCurrentLimits(supply, stator);
+        protected void setDriveCurrentLimits(double limit) {
+                frontRight.setDriveCurrentLimits(limit);
+                frontLeft.setDriveCurrentLimits(limit);
+                backLeft.setDriveCurrentLimits(limit);
+                backRight.setDriveCurrentLimits(limit);
+        }
+
+        @Override
+        protected void setAngleCurrentLimits(double limit) {
+                frontRight.setAngleCurrentLimits(limit);
+                frontLeft.setAngleCurrentLimits(limit);
+                backLeft.setAngleCurrentLimits(limit);
+                backRight.setAngleCurrentLimits(limit);
         }
 
         @Override
@@ -407,6 +414,22 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Swerve/Back Left Angle Current", backLeft.getAngleMotorCurrent());
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
+                Logger.recordOutput("Online/Front Right Drive Online", frontRightDriveMotor.isConnected());
+                Logger.recordOutput("Online/Front Left Drive Online", frontLeftDriveMotor.isConnected());
+                Logger.recordOutput("Online/Back Right Drive Online", backRightDriveMotor.isConnected());
+                Logger.recordOutput("Online/Back Left Drive Online", backLeftDriveMotor.isConnected());
+
+                Logger.recordOutput("Online/Front Right Angle Online", frontRightAngleMotor.isConnected());
+                Logger.recordOutput("Online/Front Left Angle Online", frontLeftAngleMotor.isConnected());
+                Logger.recordOutput("Online/Back Right Angle Online", backRightAngleMotor.isConnected());
+                Logger.recordOutput("Online/Back Left Angle Online", backLeftAngleMotor.isConnected());
+
+                Logger.recordOutput("Online/Front Right CanCoder Online", frontRightCanCoder.isConnected());
+                Logger.recordOutput("Online/Front Left CanCoder Online", frontLeftCanCoder.isConnected());
+                Logger.recordOutput("Online/Back Right CanCoder Online", backRightCanCoder.isConnected());
+                Logger.recordOutput("Online/Back Left CanCoder Online", backLeftCanCoder.isConnected());
+
+                Logger.recordOutput("Pigeon Online", gyro.isOnline());
         }
 
         @Override
