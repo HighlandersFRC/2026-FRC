@@ -18,6 +18,7 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -90,6 +91,8 @@ public class DriveIOComp extends DriveIO {
         private PhotonPoseEstimator leftBackPhotonPoseEstimator;
         private PhotonPoseEstimator rightFrontPhotonPoseEstimator;
         private PhotonPoseEstimator rightBackPhotonPoseEstimator;
+        private AprilTagFieldLayout aprilTagFieldLayout;
+        private int[] allFiducialIds = new int[0];
 
         private final Transform3d leftFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-9.5614), Constants.inchesToMeters(14.2213),
@@ -158,6 +161,35 @@ public class DriveIOComp extends DriveIO {
                         Pose2d pose,
                         double timestamp,
                         Matrix<N3, N1> stdDevs) {
+        }
+
+        private record PredictedFiducial(
+                        int id,
+                        Pose3d pose,
+                        double txDegrees,
+                        double tyDegrees,
+                        double txNormalized,
+                        double tyNormalized,
+                        double distanceMeters,
+                        double score) {
+        }
+
+        private record LimelightTrackingConfig(
+                        boolean focused,
+                        String reason,
+                        int desiredPipeline,
+                        float downscale,
+                        int priorityTagId,
+                        int[] filterIds,
+                        double cropXMin,
+                        double cropXMax,
+                        double cropYMin,
+                        double cropYMax,
+                        Pose3d[] predictedTagPoses,
+                        double[] predictedTagIds,
+                        double[] predictedTagTxDegrees,
+                        double[] predictedTagTyDegrees,
+                        double cropAreaFraction) {
         }
 
         public DriveIOComp(Peripherals peripherals) {
@@ -246,8 +278,9 @@ public class DriveIOComp extends DriveIO {
 
         private void loadFieldLayout() {
                 try {
-                        AprilTagFieldLayout aprilTagFieldLayout = new AprilTagFieldLayout(
+                        aprilTagFieldLayout = new AprilTagFieldLayout(
                                         Filesystem.getDeployDirectory().getPath() + "/" + "2026-rebuilt.json");
+                        allFiducialIds = aprilTagFieldLayout.getTags().stream().mapToInt(tag -> tag.ID).toArray();
                         leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
                                         leftFrontRobotToCam);
                         leftBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, leftBackRobotToCam);
@@ -554,6 +587,8 @@ public class DriveIOComp extends DriveIO {
         }
 
         private void updateVision(DriveState currentState) {
+                updateLimelightTrackingState();
+
                 if (leftFrontPhotonPoseEstimator == null
                                 || leftBackPhotonPoseEstimator == null
                                 || rightFrontPhotonPoseEstimator == null
@@ -700,6 +735,273 @@ public class DriveIOComp extends DriveIO {
                 return estimator.estimateLowestAmbiguityPose(result);
         }
 
+        private void updateLimelightTrackingState() {
+                try {
+                        Rotation2d currentTurretAngle = Globals.turretAngle;
+                        Pose3d limelightRobotPose = Constants.Vision.updateLimelightPoseFromTurret(
+                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION, Rotation3d.kZero),
+                                        currentTurretAngle,
+                                        Constants.Vision.turretToLimelight,
+                                        Constants.Vision.LIMELIGHT_NAME);
+                        Pose3d limelightFieldPose = new Pose3d(getPosition())
+                                        .transformBy(new Transform3d(
+                                                        limelightRobotPose.getTranslation(),
+                                                        limelightRobotPose.getRotation()));
+
+                        double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
+                                        Globals.turretVelocity,
+                                        getChassisSpeeds().omegaRadiansPerSecond);
+                        Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
+                        Logger.recordOutput("Vision/Limelight/AngularVelocity", limelightAngVelRelToField);
+
+                        LimelightTrackingConfig config = buildLimelightTrackingConfig(limelightFieldPose,
+                                        limelightAngVelRelToField);
+
+                        LimelightHelpers.SetRobotOrientation_NoFlush(
+                                        Constants.Vision.LIMELIGHT_NAME,
+                                        getPosition().getRotation().getDegrees(),
+                                        limelightAngVelRelToField,
+                                        gyro.getPitchDegrees(),
+                                        0.0,
+                                        -gyro.getRollDegrees(),
+                                        0.0);
+                        LimelightHelpers.setPipelineIndex(Constants.Vision.LIMELIGHT_NAME, config.desiredPipeline());
+                        LimelightHelpers.setPriorityTagID(Constants.Vision.LIMELIGHT_NAME, config.priorityTagId());
+                        LimelightHelpers.SetFiducialIDFiltersOverride(
+                                        Constants.Vision.LIMELIGHT_NAME,
+                                        config.filterIds().length > 0 ? config.filterIds() : allFiducialIds);
+                        LimelightHelpers.setCropWindow(
+                                        Constants.Vision.LIMELIGHT_NAME,
+                                        config.cropXMin(),
+                                        config.cropXMax(),
+                                        config.cropYMin(),
+                                        config.cropYMax());
+                        LimelightHelpers.SetFiducialDownscalingOverride(
+                                        Constants.Vision.LIMELIGHT_NAME,
+                                        config.downscale());
+                        LimelightHelpers.Flush();
+
+                        logLimelightTrackingConfig(limelightRobotPose, limelightFieldPose, config);
+                } catch (Exception e) {
+                        Logger.recordOutput("Vision/Limelight/SmartCrop/Error", e.getMessage());
+                }
+        }
+
+        private LimelightTrackingConfig buildLimelightTrackingConfig(Pose3d limelightPose, double limelightAngVel) {
+                if (aprilTagFieldLayout == null) {
+                        return createSearchLimelightConfig("NoFieldLayout");
+                }
+                if (!poseInField(limelightPose.toPose2d())) {
+                        return createSearchLimelightConfig("CameraPoseOutOfField");
+                }
+                if (Math.abs(limelightAngVel) >= 0.5) {
+                        return createSearchLimelightConfig("AngularVelocityTooHigh");
+                }
+
+                List<PredictedFiducial> predictedFiducials = predictVisibleLimelightTags(limelightPose);
+                if (predictedFiducials.isEmpty()) {
+                        return createSearchLimelightConfig("NoPredictedTags");
+                }
+
+                double cropXMin = 1.0;
+                double cropXMax = -1.0;
+                double cropYMin = 1.0;
+                double cropYMax = -1.0;
+                Pose3d[] predictedTagPoses = new Pose3d[predictedFiducials.size()];
+                double[] predictedTagIds = new double[predictedFiducials.size()];
+                double[] predictedTagTxDegrees = new double[predictedFiducials.size()];
+                double[] predictedTagTyDegrees = new double[predictedFiducials.size()];
+                int[] filterIds = new int[Math.min(predictedFiducials.size(), Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS)];
+
+                for (int i = 0; i < predictedFiducials.size(); i++) {
+                        PredictedFiducial predictedFiducial = predictedFiducials.get(i);
+                        double tagPadding = MathUtil.clamp(
+                                        Constants.Vision.LIMELIGHT_CROP_BASE_PADDING
+                                                        + Constants.Vision.LIMELIGHT_CROP_CLOSE_TAG_EXTRA_PADDING
+                                                                        / (predictedFiducial.distanceMeters() + 1.0),
+                                        Constants.Vision.LIMELIGHT_CROP_BASE_PADDING,
+                                        0.55);
+                        cropXMin = Math.min(cropXMin, predictedFiducial.txNormalized() - tagPadding);
+                        cropXMax = Math.max(cropXMax, predictedFiducial.txNormalized() + tagPadding);
+                        cropYMin = Math.min(cropYMin, predictedFiducial.tyNormalized() - tagPadding);
+                        cropYMax = Math.max(cropYMax, predictedFiducial.tyNormalized() + tagPadding);
+
+                        predictedTagPoses[i] = predictedFiducial.pose();
+                        predictedTagIds[i] = predictedFiducial.id();
+                        predictedTagTxDegrees[i] = predictedFiducial.txDegrees();
+                        predictedTagTyDegrees[i] = predictedFiducial.tyDegrees();
+                        if (i < filterIds.length) {
+                                filterIds[i] = predictedFiducial.id();
+                        }
+                }
+
+                double cropCenterX = (cropXMin + cropXMax) / 2.0;
+                double cropCenterY = (cropYMin + cropYMax) / 2.0;
+                double cropHalfWidth = Math.max(
+                                (cropXMax - cropXMin) / 2.0,
+                                Constants.Vision.LIMELIGHT_MIN_CROP_SPAN_X / 2.0);
+                double cropHalfHeight = Math.max(
+                                (cropYMax - cropYMin) / 2.0,
+                                Constants.Vision.LIMELIGHT_MIN_CROP_SPAN_Y / 2.0);
+
+                cropCenterX = MathUtil.clamp(cropCenterX, -1.0 + cropHalfWidth, 1.0 - cropHalfWidth);
+                cropCenterY = MathUtil.clamp(cropCenterY, -1.0 + cropHalfHeight, 1.0 - cropHalfHeight);
+                cropXMin = MathUtil.clamp(cropCenterX - cropHalfWidth, -1.0, 1.0);
+                cropXMax = MathUtil.clamp(cropCenterX + cropHalfWidth, -1.0, 1.0);
+                cropYMin = MathUtil.clamp(cropCenterY - cropHalfHeight, -1.0, 1.0);
+                cropYMax = MathUtil.clamp(cropCenterY + cropHalfHeight, -1.0, 1.0);
+
+                double cropAreaFraction = ((cropXMax - cropXMin) * (cropYMax - cropYMin)) / 4.0;
+                float downscale = cropAreaFraction < 0.16
+                                ? Constants.Vision.LIMELIGHT_TIGHT_CROP_DOWNSCALE
+                                : Constants.Vision.LIMELIGHT_TRACKING_DOWNSCALE;
+
+                return new LimelightTrackingConfig(
+                                true,
+                                "Tracking",
+                                Constants.Vision.LIMELIGHT_TRACKING_PIPELINE,
+                                downscale,
+                                predictedFiducials.get(0).id(),
+                                filterIds,
+                                cropXMin,
+                                cropXMax,
+                                cropYMin,
+                                cropYMax,
+                                predictedTagPoses,
+                                predictedTagIds,
+                                predictedTagTxDegrees,
+                                predictedTagTyDegrees,
+                                cropAreaFraction);
+        }
+
+        private List<PredictedFiducial> predictVisibleLimelightTags(Pose3d limelightPose) {
+                List<PredictedFiducial> predictedFiducials = new ArrayList<>();
+                if (aprilTagFieldLayout == null) {
+                        return predictedFiducials;
+                }
+
+                double halfHorizontalFov = Constants.Vision.LIMELIGHT_HORIZONTAL_FOV_DEGREES / 2.0;
+                double halfVerticalFov = Constants.Vision.LIMELIGHT_VERTICAL_FOV_DEGREES / 2.0;
+                for (var tag : aprilTagFieldLayout.getTags()) {
+                        Pose3d tagPose = tag.pose;
+                        Pose3d tagInCameraFrame = tagPose.relativeTo(limelightPose);
+                        double forwardDistance = tagInCameraFrame.getX();
+                        if (forwardDistance <= Constants.Vision.LIMELIGHT_MIN_FORWARD_DISTANCE_METERS) {
+                                continue;
+                        }
+
+                        double lateralDistance = tagInCameraFrame.getY();
+                        double verticalDistance = tagInCameraFrame.getZ();
+                        double distanceMeters = tagInCameraFrame.getTranslation().getNorm();
+                        if (distanceMeters > Constants.Vision.LIMELIGHT_MAX_TRACKING_DISTANCE_METERS) {
+                                continue;
+                        }
+
+                        double txDegrees = Math.toDegrees(Math.atan2(lateralDistance, forwardDistance));
+                        double tyDegrees = Math.toDegrees(Math.atan2(verticalDistance, forwardDistance));
+                        if (Math.abs(txDegrees) > halfHorizontalFov + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES
+                                        || Math.abs(tyDegrees) > halfVerticalFov
+                                                        + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES) {
+                                continue;
+                        }
+
+                        double txNormalized = MathUtil.clamp(txDegrees / halfHorizontalFov, -1.0, 1.0);
+                        // Bias the crop slightly downward so the tag sits nearer the center of the
+                        // crop window instead of hugging the top edge.
+                        double tyNormalized = MathUtil.clamp(
+                                        (tyDegrees / halfVerticalFov) + Constants.Vision.LIMELIGHT_CROP_Y_BIAS,
+                                        -1.0,
+                                        1.0);
+                        double score = distanceMeters
+                                        + 0.015 * Math.abs(txDegrees)
+                                        + 0.01 * Math.abs(tyDegrees);
+
+                        predictedFiducials.add(new PredictedFiducial(
+                                        tag.ID,
+                                        tagPose,
+                                        txDegrees,
+                                        tyDegrees,
+                                        txNormalized,
+                                        tyNormalized,
+                                        distanceMeters,
+                                        score));
+                }
+
+                predictedFiducials.sort(Comparator.comparingDouble(PredictedFiducial::score));
+                if (predictedFiducials.size() > Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS) {
+                        return new ArrayList<>(predictedFiducials.subList(0, Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS));
+                }
+                return predictedFiducials;
+        }
+
+        private LimelightTrackingConfig createSearchLimelightConfig(String reason) {
+                return new LimelightTrackingConfig(
+                                false,
+                                reason,
+                                Constants.Vision.LIMELIGHT_SEARCH_PIPELINE,
+                                Constants.Vision.LIMELIGHT_SEARCH_DOWNSCALE,
+                                0,
+                                allFiducialIds,
+                                -1.0,
+                                1.0,
+                                -1.0,
+                                1.0,
+                                new Pose3d[0],
+                                new double[0],
+                                new double[0],
+                                new double[0],
+                                1.0);
+        }
+
+        private void logLimelightTrackingConfig(Pose3d limelightRobotPose, Pose3d limelightFieldPose,
+                        LimelightTrackingConfig config) {
+                Logger.recordOutput("Vision/Limelight/CameraPoseRobot", limelightRobotPose);
+                Logger.recordOutput("Vision/Limelight/CameraPose", limelightFieldPose);
+                Logger.recordOutput("Vision/Limelight/SmartCrop/Focused", config.focused());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/Reason", config.reason());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/CropWindow",
+                                new double[] {
+                                                config.cropXMin(),
+                                                config.cropXMax(),
+                                                config.cropYMin(),
+                                                config.cropYMax()
+                                });
+                Logger.recordOutput("Vision/Limelight/SmartCrop/CropAreaFraction", config.cropAreaFraction());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/PriorityTagId", config.priorityTagId());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/FilterTagIds",
+                                toDoubleArray(config.filterIds()));
+                Logger.recordOutput("Vision/Limelight/SmartCrop/PredictedTagIds", config.predictedTagIds());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/PredictedTagTxDegrees", config.predictedTagTxDegrees());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/PredictedTagTyDegrees", config.predictedTagTyDegrees());
+                Logger.recordOutput("Vision/Limelight/SmartCrop/PredictedTagPoses", config.predictedTagPoses());
+                Logger.recordOutput("Vision/Limelight/Pipeline/Desired", config.desiredPipeline());
+                Logger.recordOutput("Vision/Limelight/Pipeline/Active",
+                                LimelightHelpers.getCurrentPipelineIndex(Constants.Vision.LIMELIGHT_NAME));
+                Logger.recordOutput("Vision/Limelight/Downscale", config.downscale());
+
+                LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers
+                                .getRawFiducials(Constants.Vision.LIMELIGHT_NAME);
+                double[] rawIds = new double[rawFiducials.length];
+                double[] rawTxDegrees = new double[rawFiducials.length];
+                double[] rawTyDegrees = new double[rawFiducials.length];
+                for (int i = 0; i < rawFiducials.length; i++) {
+                        rawIds[i] = rawFiducials[i].id;
+                        rawTxDegrees[i] = rawFiducials[i].txnc;
+                        rawTyDegrees[i] = rawFiducials[i].tync;
+                }
+                Logger.recordOutput("Vision/Limelight/Raw/Ids", rawIds);
+                Logger.recordOutput("Vision/Limelight/Raw/TxDegrees", rawTxDegrees);
+                Logger.recordOutput("Vision/Limelight/Raw/TyDegrees", rawTyDegrees);
+        }
+
+        private double[] toDoubleArray(int[] values) {
+                double[] converted = new double[values.length];
+                for (int i = 0; i < values.length; i++) {
+                        converted[i] = values[i];
+                }
+                return converted;
+        }
+
         private void updateLimelightObservation(List<PendingVisionObservation> pendingVisionObservations) {
                 double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
                                 Globals.turretVelocity,
@@ -711,21 +1013,6 @@ public class DriveIOComp extends DriveIO {
 
                 try {
                         Rotation2d currentTurretAngle = Globals.turretAngle;
-                        Constants.Vision.updateLimelightPoseFromTurret(
-                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION, Rotation3d.kZero),
-                                        currentTurretAngle,
-                                        Constants.Vision.turretToLimelight,
-                                        Constants.Vision.LIMELIGHT_NAME);
-
-                        LimelightHelpers.SetRobotOrientation(
-                                        Constants.Vision.LIMELIGHT_NAME,
-                                        getPosition().getRotation().getDegrees(),
-                                        limelightAngVelRelToField,
-                                        gyro.getPitchDegrees(),
-                                        0.0,
-                                        -gyro.getRollDegrees(),
-                                        0.0);
-
                         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
                                         .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
                         LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
