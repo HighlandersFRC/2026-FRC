@@ -111,6 +111,10 @@ public class RobotState {
         rotationBuffer.clear();
     }
 
+    public void syncWheelPositions(SwerveModulePosition[] wheelPositions) {
+        lastWheelPositions = copyWheelPositions(wheelPositions);
+    }
+
     public void addOdometryObservation(OdometryObservation observation) {
         double tiltScale = 1.0;
         if (observation.pitch().isPresent() && observation.roll().isPresent()) {
@@ -163,37 +167,40 @@ public class RobotState {
             return;
         }
 
-        Transform2d sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose);
-        Transform2d odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
-        Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+    Transform2d sampleToOdometryTransform = new Transform2d(sample.get(),
+            odometryPose);
+    Transform2d odometryToSampleTransform = new Transform2d(odometryPose,
+            sample.get());
+    Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
 
-        double[] r = new double[3];
-        for (int i = 0; i < 3; i++) {
-            r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
+    double[] r = new double[3];
+    for (int i = 0; i < 3; i++) {
+        r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
+    }
+
+    Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
+    for (int row = 0; row < 3; row++) {
+        double stdDev = qStdDevs.get(row, 0);
+        if (stdDev == 0.0) {
+            visionK.set(row, row, 0.0);
+        } else {
+            visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
         }
+    }
 
-        Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
-        for (int row = 0; row < 3; row++) {
-            double stdDev = qStdDevs.get(row, 0);
-            if (stdDev == 0.0) {
-                visionK.set(row, row, 0.0);
-            } else {
-                visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
-            }
-        }
+    Transform2d transform = new Transform2d(estimateAtTime,
+            observation.visionPose().toPose2d());
+    Matrix<N3, N1> kTimesTransform = visionK.times(VecBuilder.fill(
+            transform.getX(),
+            transform.getY(),
+            transform.getRotation().getRadians()));
 
-        Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose().toPose2d());
-        Matrix<N3, N1> kTimesTransform = visionK.times(VecBuilder.fill(
-                transform.getX(),
-                transform.getY(),
-                transform.getRotation().getRadians()));
+    Transform2d scaledTransform = new Transform2d(
+            kTimesTransform.get(0, 0),
+            kTimesTransform.get(1, 0),
+            Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
 
-        Transform2d scaledTransform = new Transform2d(
-                kTimesTransform.get(0, 0),
-                kTimesTransform.get(1, 0),
-                Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
-
-        estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
+    estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
     }
 
     public Optional<Pose2d> getEstimatedPoseAtTimestamp(double timestamp) {

@@ -782,13 +782,8 @@ public class DriveIOComp extends DriveIO {
 
                 double skiddingRatio = getCurrentSkiddingRatio();
 
-                // Ignore sample if heavily skidding (threshold > 1.5)
                 if (!Double.isInfinite(skiddingRatio) && !Double.isNaN(skiddingRatio) && skiddingRatio > 1.5) {
-                        // Keep baseline in sync while skidding so we do not apply a large
-                        // accumulated jump when traction returns.
                         seedAcceptedOdometryState(wheelPositions, yawPosition);
-                        // Also sync RobotState's wheel baseline so the next accepted sample
-                        // does not integrate skipped skid distance as real motion.
                         RobotState.getInstance().syncWheelPositions(wheelPositions);
                         return false;
                 }
