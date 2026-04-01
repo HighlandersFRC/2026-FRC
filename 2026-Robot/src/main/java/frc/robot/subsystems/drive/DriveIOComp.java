@@ -26,11 +26,13 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
@@ -388,6 +390,8 @@ public class DriveIOComp extends DriveIO {
                 updateOdometry();
                 updateMeasuredChassisSpeeds();
                 updateVision(currentState);
+
+                Logger.recordOutput("Drive/SkiddingRatio", getCurrentSkiddingRatio());
 
                 batteryLogger.reportCurrentUsage("Drive/FrontRight", frontRight.getDriveMotorSupplyCurrent());
                 batteryLogger.reportCurrentUsage("Drive/FrontRightTurn", frontRight.getAngleMotorSupplyCurrent());
@@ -776,6 +780,19 @@ public class DriveIOComp extends DriveIO {
                         return true;
                 }
 
+                double skiddingRatio = getCurrentSkiddingRatio();
+
+                // Ignore sample if heavily skidding (threshold > 1.5)
+                if (!Double.isInfinite(skiddingRatio) && !Double.isNaN(skiddingRatio) && skiddingRatio > 1.5) {
+                        // Keep baseline in sync while skidding so we do not apply a large
+                        // accumulated jump when traction returns.
+                        seedAcceptedOdometryState(wheelPositions, yawPosition);
+                        // Also sync RobotState's wheel baseline so the next accepted sample
+                        // does not integrate skipped skid distance as real motion.
+                        RobotState.getInstance().syncWheelPositions(wheelPositions);
+                        return false;
+                }
+
                 double maxModuleDelta = 0.0;
                 for (int i = 0; i < wheelPositions.length; i++) {
                         maxModuleDelta = Math.max(
@@ -786,6 +803,16 @@ public class DriveIOComp extends DriveIO {
                 double yawDelta = Math.abs(yawPosition.minus(lastAcceptedYawPosition).getRadians());
                 return maxModuleDelta > DriveConstants.odometryTranslationDeadbandMeters
                                 || yawDelta > DriveConstants.odometryYawDeadbandRadians;
+        }
+
+        private double getCurrentSkiddingRatio() {
+                Rotation2d currentYaw = getYaw();
+                return getSkiddingRatio(new SwerveModuleState[] {
+                                frontLeft.getSwerveModuleState(currentYaw),
+                                frontRight.getSwerveModuleState(currentYaw),
+                                backLeft.getSwerveModuleState(currentYaw),
+                                backRight.getSwerveModuleState(currentYaw)
+                }, kinematics);
         }
 
         private void seedAcceptedOdometryState(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
@@ -889,4 +916,42 @@ public class DriveIOComp extends DriveIO {
                                                 - Constants.Physical.ROBOT_RADIUS;
         }
 
+        public static double getSkiddingRatio(SwerveModuleState[] swerveStatesMeasured,
+                        SwerveDriveKinematics swerveDriveKinematics) {
+                final double angularVelocityOmegaMeasured = swerveDriveKinematics
+                                .toChassisSpeeds(swerveStatesMeasured).omegaRadiansPerSecond;
+                final SwerveModuleState[] swerveStatesRotationalPart = swerveDriveKinematics
+                                .toSwerveModuleStates(new ChassisSpeeds(0, 0, angularVelocityOmegaMeasured));
+                final double[] swerveStatesTranslationalPartMagnitudes = new double[swerveStatesMeasured.length];
+
+                for (int i = 0; i < swerveStatesMeasured.length; i++) {
+                        final Translation2d swerveStateMeasuredAsVector = convertSwerveStateToVelocityVector(
+                                        swerveStatesMeasured[i]),
+                                        swerveStatesRotationalPartAsVector = convertSwerveStateToVelocityVector(
+                                                        swerveStatesRotationalPart[i]),
+                                        swerveStatesTranslationalPartAsVector = swerveStateMeasuredAsVector
+                                                        .minus(swerveStatesRotationalPartAsVector);
+                        swerveStatesTranslationalPartMagnitudes[i] = swerveStatesTranslationalPartAsVector.getNorm();
+                }
+
+                double maximumTranslationalSpeed = 0, minimumTranslationalSpeed = Double.POSITIVE_INFINITY;
+                for (double translationalSpeed : swerveStatesTranslationalPartMagnitudes) {
+                        maximumTranslationalSpeed = Math.max(maximumTranslationalSpeed, translationalSpeed);
+                        minimumTranslationalSpeed = Math.min(minimumTranslationalSpeed, translationalSpeed);
+                }
+
+                if (maximumTranslationalSpeed < 0.1) {
+                        return 1.0;
+                }
+
+                if (minimumTranslationalSpeed < 1e-3) {
+                        return Double.POSITIVE_INFINITY;
+                }
+
+                return maximumTranslationalSpeed / minimumTranslationalSpeed;
+        }
+
+        private static Translation2d convertSwerveStateToVelocityVector(SwerveModuleState swerveModuleState) {
+                return new Translation2d(swerveModuleState.speedMetersPerSecond, swerveModuleState.angle);
+        }
 }
