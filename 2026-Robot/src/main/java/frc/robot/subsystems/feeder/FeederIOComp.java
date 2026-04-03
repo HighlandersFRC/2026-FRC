@@ -1,5 +1,7 @@
 package frc.robot.subsystems.feeder;
 
+import static edu.wpi.first.units.Units.Newton;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -19,9 +21,13 @@ class FeederIOComp implements FeederIO {
     private final TalonFX dyeRotorMotor = new TalonFX(Constants.CANInfo.DYE_ROTOR_MOTOR_ID,
             Constants.CANInfo.CANBUS_NAME);
 
+    private final TalonFX rollerMotor = new TalonFX(Constants.CANInfo.ROLLER_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
+
     private final VelocityDutyCycle dyeRotorControl = new VelocityDutyCycle(0.0);
 
     private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+
+    private final TorqueCurrentFOC rollerControl = new TorqueCurrentFOC(0.0);
 
     // private TunableNumber feederP = new TunableNumber("Feeder Position kP",
     // Constants.PIDConstants.Feeder.kP0);
@@ -117,6 +123,7 @@ class FeederIOComp implements FeederIO {
     @Override
     public void setDyeRotorTorque(double amps, double maxPercent) {
         dyeRotorMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+        rollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
     @Override

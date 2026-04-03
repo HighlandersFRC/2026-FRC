@@ -965,6 +965,7 @@ public final class Constants {
 
                 // Feeder
                 public static final int DYE_ROTOR_MOTOR_ID = 15;
+                public static final int ROLLER_MOTOR_ID = 21;
 
                 // Climber
                 public static final int CLIMBER_MASTER_MOTOR_ID = 19;

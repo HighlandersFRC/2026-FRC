@@ -86,14 +86,14 @@ public class Feeder extends SubsystemBase {
     // }
     switch (systemState) {
       case FEED:
-        // setDyeRotorTorque(80, 0.8);
-        setDyeRotorRPM(140.0);
+        setDyeRotorTorque(80, 0.8);
+        // setDyeRotorRPM(140.0);
         // setDyeRotorPercent(1.0);
         break;
       case REVERSE:
-        // setDyeRotorTorque(-80, 0.4);
+        setDyeRotorTorque(-80, 0.4);
         // setDyeRotorPercent(-0.4);
-        setDyeRotorRPM(-60.0);
+        // setDyeRotorRPM(-60.0);
         break;
       case DEFAULT:
         // setDyeRotorTorque(-30, 0.1);

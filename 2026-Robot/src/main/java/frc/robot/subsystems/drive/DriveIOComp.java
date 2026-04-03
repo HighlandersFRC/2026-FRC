@@ -90,28 +90,28 @@ public class DriveIOComp extends DriveIO {
         // **********************************
 
         Transform3d leftFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.5614), Constants.inchesToMeters(14.2213),
+                        new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
                                         Constants.inchesToMeters(
-                                                        24.1563)),
-                        new Rotation3d(Math.toRadians(-0.5), Math.toRadians(-8.0), Math.toRadians(75)));
+                                                        25.29)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
 
-        Transform3d leftBackRobotToCam = new Transform3d( // front reef cam on swerve module
-                        new Translation3d(Constants.inchesToMeters(-11.4675),
-                                        Constants.inchesToMeters(13.5008),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.0),
+        Transform3d leftBackRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(-14.206),
+                                        Constants.inchesToMeters(7.265),
+                                        Constants.inchesToMeters(23.765)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
                                         Math.toRadians(145.0)));
 
         Transform3d rightFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.8347), Constants.inchesToMeters(-14.7105),
-                                        Constants.inchesToMeters(13.9669)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0), Math.toRadians(275.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
+                                        Constants.inchesToMeters(25.433)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
 
         Transform3d rightBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-11.4424), Constants.inchesToMeters(11.4633),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(1.7), Math.toRadians(-11.0),
-                                        Math.toRadians(215.0)));
+                        new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
+                                        Constants.inchesToMeters(24.557)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
+                                        Math.toRadians(210.0)));
 
         // xy position of module based on robot width and distance from edge of robot
         private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;
@@ -140,7 +140,7 @@ public class DriveIOComp extends DriveIO {
         private boolean onBump = false;
         private int numTimesFlat = 0;
         Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
-        private Debouncer flatDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
+        private Debouncer flatDebouncer = new Debouncer(0.2, Debouncer.DebounceType.kFalling);
 
         public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
                         .createBuffer(2.0);
@@ -377,7 +377,6 @@ public class DriveIOComp extends DriveIO {
                 // rightFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
                 // rightBackPhotonPoseEstimator.addHeadingData(time, robotRotation);
                 // leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
-
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
                         if (!onBump && !tiltedFiltered) {
                                 var rightFrontResult = peripherals.getRightFrontCamResult();
