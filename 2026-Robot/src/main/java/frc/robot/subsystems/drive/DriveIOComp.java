@@ -811,7 +811,8 @@ public class DriveIOComp extends DriveIO {
                 double[] predictedTagIds = new double[predictedFiducials.size()];
                 double[] predictedTagTxDegrees = new double[predictedFiducials.size()];
                 double[] predictedTagTyDegrees = new double[predictedFiducials.size()];
-                int[] filterIds = new int[Math.min(predictedFiducials.size(), Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS)];
+                int[] filterIds = new int[Math.min(predictedFiducials.size(),
+                                Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS)];
 
                 for (int i = 0; i < predictedFiducials.size(); i++) {
                         PredictedFiducial predictedFiducial = predictedFiducials.get(i);
@@ -899,19 +900,15 @@ public class DriveIOComp extends DriveIO {
 
                         double txDegrees = Math.toDegrees(Math.atan2(lateralDistance, forwardDistance));
                         double tyDegrees = Math.toDegrees(Math.atan2(verticalDistance, forwardDistance));
-                        if (Math.abs(txDegrees) > halfHorizontalFov + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES
+                        if (Math.abs(txDegrees) > halfHorizontalFov
+                                        + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES
                                         || Math.abs(tyDegrees) > halfVerticalFov
                                                         + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES) {
                                 continue;
                         }
 
                         double txNormalized = MathUtil.clamp(txDegrees / halfHorizontalFov, -1.0, 1.0);
-                        // Bias the crop slightly downward so the tag sits nearer the center of the
-                        // crop window instead of hugging the top edge.
-                        double tyNormalized = MathUtil.clamp(
-                                        (tyDegrees / halfVerticalFov) + Constants.Vision.LIMELIGHT_CROP_Y_BIAS,
-                                        -1.0,
-                                        1.0);
+                        double tyNormalized = MathUtil.clamp(tyDegrees / halfVerticalFov, -1.0, 1.0);
                         double score = distanceMeters
                                         + 0.015 * Math.abs(txDegrees)
                                         + 0.01 * Math.abs(tyDegrees);
@@ -929,7 +926,8 @@ public class DriveIOComp extends DriveIO {
 
                 predictedFiducials.sort(Comparator.comparingDouble(PredictedFiducial::score));
                 if (predictedFiducials.size() > Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS) {
-                        return new ArrayList<>(predictedFiducials.subList(0, Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS));
+                        return new ArrayList<>(
+                                        predictedFiducials.subList(0, Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS));
                 }
                 return predictedFiducials;
         }
