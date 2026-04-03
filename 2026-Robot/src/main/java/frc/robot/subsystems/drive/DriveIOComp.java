@@ -908,12 +908,7 @@ public class DriveIOComp extends DriveIO {
                         }
 
                         double txNormalized = MathUtil.clamp(txDegrees / halfHorizontalFov, -1.0, 1.0);
-                        // Bias the crop slightly downward so the tag sits nearer the center of the
-                        // crop window instead of hugging the top edge.
-                        double tyNormalized = MathUtil.clamp(
-                                        (tyDegrees / halfVerticalFov) + Constants.Vision.LIMELIGHT_CROP_Y_BIAS,
-                                        -1.0,
-                                        1.0);
+                        double tyNormalized = MathUtil.clamp(tyDegrees / halfVerticalFov, -1.0, 1.0);
                         double score = distanceMeters
                                         + 0.015 * Math.abs(txDegrees)
                                         + 0.01 * Math.abs(tyDegrees);

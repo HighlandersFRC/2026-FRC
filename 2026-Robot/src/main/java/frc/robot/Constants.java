@@ -361,6 +361,12 @@ public final class Constants {
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
                 public static final double FEED_RADIUS = inchesToMeters(33.39);
                 public static final double BALL_WIDTH = 0.15;
+
+                public static Pose2d clampToField(Pose2d pose) {
+                        double clampedX = Math.max(0.0, Math.min(Constants.Physical.FIELD_LENGTH, pose.getX()));
+                        double clampedY = Math.max(0.0, Math.min(Constants.Physical.FIELD_WIDTH, pose.getY()));
+                        return new Pose2d(clampedX, clampedY, pose.getRotation());
+                }
         }
 
         public class DynamicPassing { // chatgpt ahh code for dynamic passing
