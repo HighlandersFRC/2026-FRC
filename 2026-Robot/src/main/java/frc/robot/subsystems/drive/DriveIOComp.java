@@ -811,7 +811,8 @@ public class DriveIOComp extends DriveIO {
                 double[] predictedTagIds = new double[predictedFiducials.size()];
                 double[] predictedTagTxDegrees = new double[predictedFiducials.size()];
                 double[] predictedTagTyDegrees = new double[predictedFiducials.size()];
-                int[] filterIds = new int[Math.min(predictedFiducials.size(), Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS)];
+                int[] filterIds = new int[Math.min(predictedFiducials.size(),
+                                Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS)];
 
                 for (int i = 0; i < predictedFiducials.size(); i++) {
                         PredictedFiducial predictedFiducial = predictedFiducials.get(i);
@@ -899,7 +900,8 @@ public class DriveIOComp extends DriveIO {
 
                         double txDegrees = Math.toDegrees(Math.atan2(lateralDistance, forwardDistance));
                         double tyDegrees = Math.toDegrees(Math.atan2(verticalDistance, forwardDistance));
-                        if (Math.abs(txDegrees) > halfHorizontalFov + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES
+                        if (Math.abs(txDegrees) > halfHorizontalFov
+                                        + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES
                                         || Math.abs(tyDegrees) > halfVerticalFov
                                                         + Constants.Vision.LIMELIGHT_PREDICTION_MARGIN_DEGREES) {
                                 continue;
@@ -929,7 +931,8 @@ public class DriveIOComp extends DriveIO {
 
                 predictedFiducials.sort(Comparator.comparingDouble(PredictedFiducial::score));
                 if (predictedFiducials.size() > Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS) {
-                        return new ArrayList<>(predictedFiducials.subList(0, Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS));
+                        return new ArrayList<>(
+                                        predictedFiducials.subList(0, Constants.Vision.LIMELIGHT_MAX_FILTER_TAGS));
                 }
                 return predictedFiducials;
         }
@@ -1168,6 +1171,7 @@ public class DriveIOComp extends DriveIO {
         }
 
         private boolean poseInField(Pose2d pose) {
+
                 return pose.getX() > Constants.Physical.ROBOT_RADIUS
                                 && pose.getX() < Constants.Physical.FIELD_LENGTH
                                                 - Constants.Physical.ROBOT_RADIUS
