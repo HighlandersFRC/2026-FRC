@@ -8,7 +8,11 @@ interface FeederIO {
 
     double getDyeRotorRPM();
 
+    double getRollerRPM();
+
     void setDyeRotorTorque(double amps, double maxPercent);
+
+    void setRollerTorque(double amps, double maxPercent);
 
     void setDyeRotorRPM(double rpm);
 

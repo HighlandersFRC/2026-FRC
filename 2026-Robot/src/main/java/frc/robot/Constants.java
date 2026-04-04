@@ -195,8 +195,12 @@ public final class Constants {
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
+                        // public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        // public static final double TURRET_PULLEY_0_TOOTH_COUNT = 132;
+                        // public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
+                        // public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
                         public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
-                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 132;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
                         public static final double SHOT_DEBOUNCE_S = 0.08;
@@ -519,8 +523,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(360.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(90.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(270.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(270.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -916,7 +920,10 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 / 18.0);
+                        // public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 /
+                        // 18.0);
+                        public static final double DYE_ROTOR_GEAR_RATIO = 52.0; // hex bot
+                        public static final double ROLLER_GEAR_RATIO = 2.25; // hex bot
                 }
 
                 public static final class Climber {

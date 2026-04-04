@@ -187,24 +187,26 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.CurrentLimits.StatorCurrentLimit = 67;
                 turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+                turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
                 turretMotor.getConfigurator().apply(turretConfig);
-                turretMotor.setNeutralMode(NeutralModeValue.Brake);
+                turretMotor.setNeutralMode(NeutralModeValue.Coast);
 
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.212646484375; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.273681640625; // TODO: Try calculating offset from
                                                                               // previous zero
-                                                                              // data
+                                                                              // data -0.9306640625
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.004150390625;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.9306640625;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
                 turretMotor.setPosition(Units.radiansToRotations(getRelativeTurretAngleRadians()));
+                // turretMotor.setPosition(0.0);
         }
 
         @Override
@@ -218,7 +220,7 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void zeroTurretToEncoder() {
-                turretMotor.setPosition(Units.radiansToRotations(getRelativeTurretAngleRadians()));
+                // turretMotor.setPosition(Units.radiansToRotations(getRelativeTurretAngleRadians()));
         }
 
         @Override
@@ -251,20 +253,17 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void setTurretAngle(double angle) {
-                // Logger.recordOutput("Shooter/Goal turret degrees", Math.toDegrees(angle));
-                double adjustedAngle = angle;
-                if (Math.abs(OI.getOperatorRightX()) > 0.1 || Math.abs(OI.getOperatorRightY()) > 0.3) {
-                        adjustedAngle -= ((Math.toRadians(15.0)) * OI.getOperatorRightX());
-                }
-                Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
-                turretMotor.setControl(
-                                new DynamicMotionMagicVoltage(Units.radiansToRotations(
-                                                adjustedAngle),
-                                                turretVelocity,
-                                                turretAcceleration));
-                // Logger.recordOutput("Shooter/goal motor turret degrees Er",
-                // Units.rotationsToDegrees(turretMotor.getClosedLoopError().getValueAsDouble()));
-
+                // double adjustedAngle = angle;
+                // if (Math.abs(OI.getOperatorRightX()) > 0.1 ||
+                // Math.abs(OI.getOperatorRightY()) > 0.3) {
+                // adjustedAngle -= ((Math.toRadians(15.0)) * OI.getOperatorRightX());
+                // }
+                // Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
+                // turretMotor.setControl(
+                // new DynamicMotionMagicVoltage(Units.radiansToRotations(
+                // adjustedAngle),
+                // turretVelocity,
+                // turretAcceleration));
         }
 
         @Override
@@ -289,8 +288,10 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public double getRelativeTurretAngleRadians() {
-                double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
-                double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                // double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                // double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
 
                 double k1 = Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT
                                 / Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT;
@@ -417,7 +418,7 @@ class ShooterIOComp implements ShooterIO {
                                 initLoops = 0;
                                 firstTurretAngles.sort(null);
                                 double median = firstTurretAngles.get(firstTurretAngles.size() / 2);
-                                turretMotor.setPosition(Units.radiansToRotations(median));
+                                // turretMotor.setPosition(Units.radiansToRotations(median));
                                 System.out.println(
                                                 "Motor Zeroed succesfully at " + Math.toDegrees(median) + " degrees");
                                 System.out.println("List: " + firstTurretAngles.toString());

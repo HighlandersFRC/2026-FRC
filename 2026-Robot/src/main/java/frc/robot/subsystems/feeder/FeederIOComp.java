@@ -57,6 +57,17 @@ class FeederIOComp implements FeederIO {
         dyeRotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         dyeRotorMotor.getConfigurator().apply(dyeRotorConfig);
         dyeRotorMotor.setNeutralMode(NeutralModeValue.Brake);
+
+        TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
+        rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        rollerConfig.CurrentLimits.StatorCurrentLimit = 100;
+        rollerConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        rollerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        rollerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.ROLLER_GEAR_RATIO;
+        rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        rollerMotor.getConfigurator().apply(rollerConfig);
+        rollerMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     @Override
@@ -85,6 +96,13 @@ class FeederIOComp implements FeederIO {
     @Override
     public double getDyeRotorRPM() {
         return dyeRotorMotor.getVelocity()
+                .getValueAsDouble()
+                * 60.0;
+    }
+
+    @Override
+    public double getRollerRPM() {
+        return rollerMotor.getVelocity()
                 .getValueAsDouble()
                 * 60.0;
     }
@@ -123,6 +141,10 @@ class FeederIOComp implements FeederIO {
     @Override
     public void setDyeRotorTorque(double amps, double maxPercent) {
         dyeRotorMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+    }
+
+    @Override
+    public void setRollerTorque(double amps, double maxPercent) {
         rollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
