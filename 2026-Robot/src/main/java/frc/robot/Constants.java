@@ -900,7 +900,10 @@ public final class Constants {
                         public static final double HOOD_GEAR_RATIO = (36.0 / 12.0) * (48.0 / 16.0) * (300.0 / 16.0);
                         public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
                                         / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
-                        public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 / 15.0);
+                        // public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 /
+                        // 15.0); // old jester
+                        public static final double TURRET_GEAR_RATIO = (60.0 / 9.0) * (132.0 / 15.0); // hex bot
+
                         // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
                         // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
                         // public static final double TURRET_GEAR_RATIO = 43.112;
