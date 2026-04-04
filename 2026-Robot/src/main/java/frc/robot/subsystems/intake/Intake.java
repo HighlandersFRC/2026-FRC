@@ -18,6 +18,7 @@ public class Intake extends SubsystemBase {
   private boolean jiggleUp = true;
   private double timeZeroed = Timer.getFPGATimestamp();
   private boolean firstTimeZeroed = true;
+  private double flipJiggleTime = Timer.getFPGATimestamp();
 
   public Intake() {
     if (RobotBase.isReal()) {
@@ -161,30 +162,36 @@ public class Intake extends SubsystemBase {
   }
 
   public void setJiggle() {
-    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
-        5.002) {
-      jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.118) {
-      jiggleUp = false;
-    }
+    // if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
+    // 5.002) {
+    // jiggleUp = true;
+    // } else if (getIntakePosition() <
+    // Constants.SetPoints.Intake.INTAKE_UP_POSITION + 17.18) {
+    // jiggleUp = false;
+    // }
 
     if (jiggleUp) {
-      setPivotTorque(-40, 0.5);
+      setPivotTorque(-50, 1.0);
     } else {
       setPivotTorque(30, 0.5);
     }
+  }
 
-    // if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
-    // setPivotTorque(-5, 0.1);
-    // } else {
-    // setPivotTorque(-45, 0.6);
-    // }
-
+  public void calcJiggle() {
+    if (Timer.getFPGATimestamp() - flipJiggleTime > 0.3) {
+      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 17.18) {
+        jiggleUp = false;
+      } else {
+        jiggleUp = !jiggleUp;
+      }
+      flipJiggleTime = Timer.getFPGATimestamp();
+    }
   }
 
   @Override
   public void periodic() {
     io.updateInputs(systemState);
+    calcJiggle();
     systemState = handleStateTransition();
     if (systemState != IntakeState.ZERO) {
       firstTimeZeroed = true;
