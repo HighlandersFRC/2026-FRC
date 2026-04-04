@@ -682,11 +682,11 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         // Position PID
-                        public static final double kP0 = 140.0;
+                        public static final double kP0 = 300.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.3;
-                        public static final double kV0 = 0.0;
+                        public static final double kS0 = 1.0;
+                        public static final double kV0 = 1.0;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;

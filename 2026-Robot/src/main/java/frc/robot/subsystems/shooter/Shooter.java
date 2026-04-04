@@ -98,7 +98,7 @@ public class Shooter extends SubsystemBase {
     // wantedShotSolution.turretAngle.getDegrees());
     if (wantedShotSolution.robotVelocity.isPresent()) {
       Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
-          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
+          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.225);
       // Logger.recordOutput("Shooter/Predicted Turret Angle",
       // prediction.getDegrees());
       setTurretAngle(prediction);
@@ -116,20 +116,10 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.hoodAngle)
             .getRadians());
     double turretAngleError;
-    if (wantedShotSolution.robotVelocity.isPresent()) {
-      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
-          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
-      turretAngleError = Math.abs(
-          getRobotRelativeTurretAngle()
-              .minus(prediction)
-              .getRadians());
-    } else {
-      turretAngleError = Math.abs(
-          getRobotRelativeTurretAngle()
-              .minus(wantedShotSolution.turretAngle)
-              .getRadians());
-
-    }
+    turretAngleError = Math.abs(
+        getRobotRelativeTurretAngle()
+            .minus(wantedShotSolution.turretAngle)
+            .getRadians());
 
     double turretPrecisionRequired = Math
         .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);

@@ -42,23 +42,21 @@ class ShooterIOComp implements ShooterIO {
 
         private LinearFilter filterTurret = LinearFilter.movingAverage(10);
 
-        // private TunableNumber turretP = new TunableNumber("Turret Position kP",
-        // Constants.PIDConstants.Turret.kP0);
-        // private TunableNumber turretI = new TunableNumber("Turret Position kI",
-        // Constants.PIDConstants.Turret.kI0);
-        // private TunableNumber turretD = new TunableNumber("Turret Position kD",
-        // Constants.PIDConstants.Turret.kD0);
-        // private TunableNumber turretS = new TunableNumber("Turret Position kS",
-        // Constants.PIDConstants.Turret.kS0);
-        // private TunableNumber turretV = new TunableNumber("Turret Position kV",
-        // Constants.PIDConstants.Turret.kV0);
-        // private TunableNumber turretVelocity = new TunableNumber("Turret Position
-        // Velocity", 3.0);
-        // private TunableNumber turretAcceleration = new TunableNumber("Turret Position
-        // Acceleration", 10.0);
+        private TunableNumber turretP = new TunableNumber("Turret Position kP",
+                        Constants.PIDConstants.Turret.kP0);
+        private TunableNumber turretI = new TunableNumber("Turret Position kI",
+                        Constants.PIDConstants.Turret.kI0);
+        private TunableNumber turretD = new TunableNumber("Turret Position kD",
+                        Constants.PIDConstants.Turret.kD0);
+        private TunableNumber turretS = new TunableNumber("Turret Position kS",
+                        Constants.PIDConstants.Turret.kS0);
+        private TunableNumber turretV = new TunableNumber("Turret Position kV",
+                        Constants.PIDConstants.Turret.kV0);
+        private TunableNumber turretVelocity = new TunableNumber("Turret Position Velocity", 10.0);
+        private TunableNumber turretAcceleration = new TunableNumber("Turret Position Acceleration", 15.0);
 
-        private double turretVelocity = 3.0;
-        private double turretAcceleration = 10.0;
+        // private double turretVelocity = 3.0;
+        // private double turretAcceleration = 10.0;
         // private TunableNumber hoodP = new TunableNumber("Hood Position kP",
         // Constants.PIDConstants.Hood.kP0);
         // private TunableNumber hoodI = new TunableNumber("Hood Position kI",
@@ -180,8 +178,8 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.Slot0.kD = Constants.PIDConstants.Turret.kD0;
                 turretConfig.Slot0.kS = Constants.PIDConstants.Turret.kS0;
                 turretConfig.Slot0.kV = Constants.PIDConstants.Turret.kV0;
-                turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration;
-                turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
+                turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
+                turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
                 turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
                 turretConfig.Feedback.RotorToSensorRatio = 1.0;
                 turretConfig.CurrentLimits.StatorCurrentLimit = 67;
@@ -258,12 +256,12 @@ class ShooterIOComp implements ShooterIO {
                                 Math.abs(OI.getOperatorRightY()) > 0.3) {
                         adjustedAngle -= ((Math.toRadians(15.0)) * OI.getOperatorRightX());
                 }
-                Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
+                Logger.recordOutput("Shooter/Adjusted Turret Setpoint", Math.toDegrees(adjustedAngle));
                 turretMotor.setControl(
                                 new DynamicMotionMagicVoltage(Units.radiansToRotations(
                                                 adjustedAngle),
-                                                turretVelocity,
-                                                turretAcceleration));
+                                                turretVelocity.get(),
+                                                turretAcceleration.get()));
         }
 
         @Override
@@ -450,26 +448,26 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Online/Encoder Two Online", encoderTwo.isConnected());
                 Logger.recordOutput("Online/Hood CanCoder",
                                 !hoodMotor.getFault_RemoteSensorDataInvalid().getValue());
-                // if (turretP.changed() || turretI.changed() || turretD.changed() ||
-                // turretS.changed() || turretV.changed()) {
-                // System.out.println("Updating Turret PID Constants");
-                // TalonFXConfiguration turretConfig = new TalonFXConfiguration();
-                // turretConfig.Slot0.kP = turretP.get();
-                // turretConfig.Slot0.kI = turretI.get();
-                // turretConfig.Slot0.kD = turretD.get();
-                // turretConfig.Slot0.kS = turretS.get();
-                // turretConfig.Slot0.kV = turretV.get();
-                // turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration;
-                // turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
-                // turretConfig.Feedback.SensorToMechanismRatio =
-                // Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
-                // turretConfig.Feedback.RotorToSensorRatio = 1.0;
-                // turretConfig.CurrentLimits.StatorCurrentLimit = 67;
-                // turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
-                // turretConfig.Feedback.FeedbackSensorSource =
-                // FeedbackSensorSourceValue.RotorSensor;
-                // turretMotor.getConfigurator().apply(turretConfig);
-                // }
+                if (turretP.changed() || turretI.changed() || turretD.changed() ||
+                                turretS.changed() || turretV.changed()) {
+                        System.out.println("Updating Turret PID Constants");
+                        TalonFXConfiguration turretConfig = new TalonFXConfiguration();
+                        turretConfig.Slot0.kP = turretP.get();
+                        turretConfig.Slot0.kI = turretI.get();
+                        turretConfig.Slot0.kD = turretD.get();
+                        turretConfig.Slot0.kS = turretS.get();
+                        turretConfig.Slot0.kV = turretV.get();
+                        turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
+                        turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
+                        turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
+                        turretConfig.Feedback.RotorToSensorRatio = 1.0;
+                        turretConfig.CurrentLimits.StatorCurrentLimit = 67;
+                        turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
+                        turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+                        turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+                        turretMotor.getConfigurator().apply(turretConfig);
+                }
                 // if (hoodP.changed() || hoodI.changed() || hoodD.changed() || hoodS.changed()
                 // || hoodG.changed()) {
                 // System.out.println("Updating Hood PID Constants");
