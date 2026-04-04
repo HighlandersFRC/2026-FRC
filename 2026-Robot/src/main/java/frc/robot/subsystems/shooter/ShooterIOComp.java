@@ -253,17 +253,17 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public void setTurretAngle(double angle) {
-                // double adjustedAngle = angle;
-                // if (Math.abs(OI.getOperatorRightX()) > 0.1 ||
-                // Math.abs(OI.getOperatorRightY()) > 0.3) {
-                // adjustedAngle -= ((Math.toRadians(15.0)) * OI.getOperatorRightX());
-                // }
-                // Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
-                // turretMotor.setControl(
-                // new DynamicMotionMagicVoltage(Units.radiansToRotations(
-                // adjustedAngle),
-                // turretVelocity,
-                // turretAcceleration));
+                double adjustedAngle = angle;
+                if (Math.abs(OI.getOperatorRightX()) > 0.1 ||
+                                Math.abs(OI.getOperatorRightY()) > 0.3) {
+                        adjustedAngle -= ((Math.toRadians(15.0)) * OI.getOperatorRightX());
+                }
+                Logger.recordOutput("Shooter/Adjusted Turret Setpoint", adjustedAngle);
+                turretMotor.setControl(
+                                new DynamicMotionMagicVoltage(Units.radiansToRotations(
+                                                adjustedAngle),
+                                                turretVelocity,
+                                                turretAcceleration));
         }
 
         @Override
