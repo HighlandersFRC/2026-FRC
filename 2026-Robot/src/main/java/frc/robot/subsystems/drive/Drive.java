@@ -426,10 +426,10 @@ public class Drive extends SubsystemBase {
       // yLimiter.reset(vy);
       // }
       controllerVector = controllerVector.scaled(0.41);
-      controllerVector = controllerVector.cap(1.476);
+      controllerVector = controllerVector.cap(0.67);
       turn *= 0.41;
-      if (Math.abs(turn) > Math.PI / 2.0) {
-        turn = Math.PI / 2.0 * Math.copySign(1, turn);
+      if (Math.abs(turn) > Math.PI / 4.0) {
+        turn = Math.PI / 4.0 * Math.copySign(1, turn);
       }
     }
     if (wantedState == DriveState.DEFAULT_SLOWISH) {

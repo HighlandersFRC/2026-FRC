@@ -90,8 +90,8 @@ public class Feeder extends SubsystemBase {
     // }
     switch (systemState) {
       case FEED:
-        setDyeRotorRPM(90.0);
-        setRollerTorque(100, 0.8);
+        setDyeRotorRPM(67.0);
+        setRollerTorque(100, 1.0);
         // setDyeRotorPercent(1.0);
         break;
       case REVERSE:
@@ -114,5 +114,6 @@ public class Feeder extends SubsystemBase {
     Logger.recordOutput("States/Feeder State", systemState);
     Logger.recordOutput("Feeder/Dye Rotor Current", io.getDyeRotorCurrent());
     Logger.recordOutput("Feeder/Dye Rotor RPM", io.getDyeRotorRPM());
+    Logger.recordOutput("Feeder/Roller RPM", io.getRollerRPM());
   }
 }
