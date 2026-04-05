@@ -1,5 +1,8 @@
 package frc.robot.subsystems.drive;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.littletonrobotics.junction.Logger;
@@ -19,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.RobotState;
 import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
 import frc.robot.tools.math.Vector;
@@ -26,6 +30,7 @@ import frc.robot.tools.math.Vector;
 // **Zero Wheels with the bolt head showing on the left when the front side(battery) is facing down/away from you**
 
 public class Drive extends SubsystemBase {
+  static final Lock odometryLock = new ReentrantLock();
 
   private DriveIO io;
   private Peripherals peripherals;
@@ -270,7 +275,7 @@ public class Drive extends SubsystemBase {
   }
 
   public Pose2d getMt2Pose2d() {
-    return io.getPosition();
+    return RobotState.getInstance().getEstimatedPose();
   }
 
   /**
@@ -1003,7 +1008,7 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean isOnBlueSide() {
-    return io.getPosition().getX() < Constants.Physical.FIELD_LENGTH / 2.0;
+    return getMt2Pose2d().getX() < Constants.Physical.FIELD_LENGTH / 2.0;
   }
 
   Field2d field = new Field2d();
@@ -1059,7 +1064,9 @@ public class Drive extends SubsystemBase {
   public ChassisSpeeds getFutureVelocity() {
 
     previousSpeeds = currentSpeeds;
-    currentSpeeds = getChassisSpeeds();
+    currentSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+        getChassisSpeeds(),
+        getMt2Pose2d().getRotation());
 
     acceleration = currentSpeeds.minus(previousSpeeds)
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
@@ -1088,6 +1095,8 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putData("Field", field);
     field.setRobotPose(getMt2Pose2d());
     io.update(systemState);
+    RobotState.getInstance().setRobotVelocity(getChassisSpeeds());
+    RobotState.getInstance().setRobotSetpointVelocity(io.getWantedChassisSpeeds());
 
     // if (robotCentric) {
     // Logger.recordOutput("Drive/Driving Mode", "Robot Centric");

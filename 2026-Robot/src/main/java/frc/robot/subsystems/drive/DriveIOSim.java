@@ -5,8 +5,13 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Globals;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive.DriveState;
 import frc.robot.tools.math.Vector;
 
@@ -17,10 +22,12 @@ public class DriveIOSim extends DriveIO {
     private double angle = 0; // radians
     private double angularVelocity = 0; // radians per second
     private double wantedAngularVelocity = 0; // radians per second squared
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.moduleTranslations);
+    private final double[] moduleDistances = new double[4];
 
     @Override
     void zeroIMU() {
-        angle = 0;
+        setPosition(new Pose2d(getPosition().getTranslation(), Rotation2d.kZero));
     }
 
     @Override
@@ -41,6 +48,12 @@ public class DriveIOSim extends DriveIO {
     protected void setPosition(Pose2d pose) {
         positionVector = new Vector(pose.getX(), pose.getY());
         angle = pose.getRotation().getRadians();
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(getChassisSpeeds());
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[moduleStates.length];
+        for (int i = 0; i < moduleStates.length; i++) {
+            modulePositions[i] = new SwerveModulePosition(moduleDistances[i], moduleStates[i].angle);
+        }
+        RobotState.getInstance().resetPose(pose, modulePositions);
     }
 
     @Override
@@ -94,6 +107,20 @@ public class DriveIOSim extends DriveIO {
         angularVelocity = expectedSpeeds.omegaRadiansPerSecond;
         positionVector = positionVector.add(velocityVector.scaled(Globals.loopPeriodSecs));
         angle += angularVelocity * Globals.loopPeriodSecs;
+
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(getChassisSpeeds());
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[moduleStates.length];
+        for (int i = 0; i < moduleStates.length; i++) {
+            moduleDistances[i] += moduleStates[i].speedMetersPerSecond * Globals.loopPeriodSecs;
+            modulePositions[i] = new SwerveModulePosition(moduleDistances[i], moduleStates[i].angle);
+        }
+
+        RobotState.getInstance().addOdometryObservation(new RobotState.OdometryObservation(
+                Timer.getFPGATimestamp(),
+                modulePositions,
+                java.util.Optional.empty(),
+                java.util.Optional.empty(),
+                java.util.Optional.of(new Rotation2d(angle))));
     }
 
     @Override
