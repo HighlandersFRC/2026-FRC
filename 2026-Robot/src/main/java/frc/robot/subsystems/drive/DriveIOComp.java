@@ -1,30 +1,31 @@
 package frc.robot.subsystems.drive;
 
-import frc.robot.tools.logging.BatteryLogger;
-
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -32,16 +33,19 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.LimelightHelpers;
-import frc.robot.OI;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive.DriveState;
+import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.math.Vector;
 
 public class DriveIOComp extends DriveIO {
+
         private final TalonFX frontRightDriveMotor = new TalonFX(Constants.CANInfo.FRONT_RIGHT_DRIVE_MOTOR_ID,
                         Constants.CANInfo.CANBUS_NAME);
         private final TalonFX frontRightAngleMotor = new TalonFX(Constants.CANInfo.FRONT_RIGHT_ANGLE_MOTOR_ID,
@@ -71,7 +75,6 @@ public class DriveIOComp extends DriveIO {
 
         private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
-        // creates all 4 modules
         private final SwerveModule frontRight = new SwerveModule(1, frontRightAngleMotor, frontRightDriveMotor,
                         frontRightCanCoder);
         private final SwerveModule frontLeft = new SwerveModule(2, frontLeftAngleMotor, frontLeftDriveMotor,
@@ -80,107 +83,206 @@ public class DriveIOComp extends DriveIO {
                         backLeftCanCoder);
         private final SwerveModule backRight = new SwerveModule(4, backRightAngleMotor, backRightDriveMotor,
                         backRightCanCoder);
-        PhotonPoseEstimator leftFrontPhotonPoseEstimator;
-        PhotonPoseEstimator leftBackPhotonPoseEstimator;
-        PhotonPoseEstimator rightFrontPhotonPoseEstimator;
-        PhotonPoseEstimator rightBackPhotonPoseEstimator;
-        AprilTagFieldLayout aprilTagFieldLayout;
 
-        // *********************NOTE THE PITCH IS POSITIVE DOWNWARDS
-        // **********************************
+        private final Peripherals peripherals;
 
-        Transform3d leftFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
-                                        Constants.inchesToMeters(
-                                                        25.29)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
+        private PhotonPoseEstimator leftFrontPhotonPoseEstimator;
+        private PhotonPoseEstimator leftBackPhotonPoseEstimator;
+        private PhotonPoseEstimator rightFrontPhotonPoseEstimator;
+        private PhotonPoseEstimator rightBackPhotonPoseEstimator;
 
-        Transform3d leftBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-14.206),
-                                        Constants.inchesToMeters(7.265),
-                                        Constants.inchesToMeters(23.765)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
-                                        Math.toRadians(145.0)));
+        private final Transform3d leftFrontRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(-9.5614), Constants.inchesToMeters(14.2213),
+                                        Constants.inchesToMeters(24.1563)),
+                        new Rotation3d(Math.toRadians(-0.5), Math.toRadians(-8.0), Math.toRadians(75.0)));
 
-        Transform3d rightFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
-                                        Constants.inchesToMeters(25.433)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
+        private final Transform3d leftBackRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(-11.4675), Constants.inchesToMeters(13.5008),
+                                        Constants.inchesToMeters(24.1563)),
+                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.0), Math.toRadians(145.0)));
 
-        Transform3d rightBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
-                                        Constants.inchesToMeters(24.557)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
-                                        Math.toRadians(210.0)));
+        private final Transform3d rightFrontRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(-9.8347), Constants.inchesToMeters(-14.7105),
+                                        Constants.inchesToMeters(13.9669)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0), Math.toRadians(275.0)));
 
-        // xy position of module based on robot width and distance from edge of robot
-        private final double moduleX = ((Constants.Physical.ROBOT_LENGTH) / 2) - Constants.Physical.MODULE_OFFSET;
-        private final double moduleY = ((Constants.Physical.ROBOT_WIDTH) / 2) - Constants.Physical.MODULE_OFFSET;
+        private final Transform3d rightBackRobotToCam = new Transform3d(
+                        new Translation3d(Constants.inchesToMeters(-11.4424), Constants.inchesToMeters(11.4633),
+                                        Constants.inchesToMeters(24.1563)),
+                        new Rotation3d(Math.toRadians(1.7), Math.toRadians(-11.0), Math.toRadians(215.0)));
 
-        // Locations for the swerve drive modules relative to the robot center.
-        private Translation2d m_frontLeftLocation = new Translation2d(moduleX, moduleY);
-        private Translation2d m_frontRightLocation = new Translation2d(moduleX, -moduleY);
-        private Translation2d m_backLeftLocation = new Translation2d(-Constants.Physical.HEX_MODULE_X_OFFSET,
-                        Constants.Physical.HEX_MODULE_Y_OFFSET);
-        private Translation2d m_backRightLocation = new Translation2d(-Constants.Physical.HEX_MODULE_X_OFFSET,
-                        -Constants.Physical.HEX_MODULE_Y_OFFSET);
-
-        private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
-                        m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
-
-        private SwerveDrivePoseEstimator mt2Odometry;
-        @SuppressWarnings("unused")
-        private Peripherals peripherals;
-        private LinearFilter filterX = LinearFilter.movingAverage(10);
-        private LinearFilter filterY = LinearFilter.movingAverage(10);
-        private LinearFilter filterOmega = LinearFilter.movingAverage(10);
-
-        private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
-
-        private boolean onBump = false;
-        private int numTimesFlat = 0;
-        Matrix<N3, N1> standardDeviation = new Matrix<>(Nat.N3(), Nat.N1());
-        private Debouncer flatDebouncer = new Debouncer(0.2, Debouncer.DebounceType.kFalling);
-
-        public static TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
+        private final LinearFilter filterX = LinearFilter.movingAverage(10);
+        private final LinearFilter filterY = LinearFilter.movingAverage(10);
+        private final LinearFilter filterOmega = LinearFilter.movingAverage(10);
+        private final TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
                         .createBuffer(2.0);
+        private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.moduleTranslations);
+
+        private final StatusSignal<Angle> frontLeftDrivePositionSignal;
+        private final StatusSignal<Angle> frontRightDrivePositionSignal;
+        private final StatusSignal<Angle> backLeftDrivePositionSignal;
+        private final StatusSignal<Angle> backRightDrivePositionSignal;
+        private final StatusSignal<Angle> frontLeftTurnPositionSignal;
+        private final StatusSignal<Angle> frontRightTurnPositionSignal;
+        private final StatusSignal<Angle> backLeftTurnPositionSignal;
+        private final StatusSignal<Angle> backRightTurnPositionSignal;
+        private final StatusSignal<Angle> yawSignal;
+        private final StatusSignal<Angle> pitchSignal;
+        private final StatusSignal<Angle> rollSignal;
+
+        private final Queue<Double> timestampQueue;
+        private final Queue<Double> frontLeftDrivePositionQueue;
+        private final Queue<Double> frontRightDrivePositionQueue;
+        private final Queue<Double> backLeftDrivePositionQueue;
+        private final Queue<Double> backRightDrivePositionQueue;
+        private final Queue<Double> frontLeftTurnPositionQueue;
+        private final Queue<Double> frontRightTurnPositionQueue;
+        private final Queue<Double> backLeftTurnPositionQueue;
+        private final Queue<Double> backRightTurnPositionQueue;
+        private final Queue<Double> yawPositionQueue;
+        private final Queue<Double> pitchPositionQueue;
+        private final Queue<Double> rollPositionQueue;
+
+        private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds();
+        private SwerveModulePosition[] lastAcceptedOdometryPositions = new SwerveModulePosition[] {
+                        new SwerveModulePosition(),
+                        new SwerveModulePosition(),
+                        new SwerveModulePosition(),
+                        new SwerveModulePosition()
+        };
+        private Rotation2d lastAcceptedYawPosition = Rotation2d.kZero;
+        private boolean hasAcceptedOdometrySample = false;
+
+        private record PendingVisionObservation(
+                        String logKey,
+                        Pose2d pose,
+                        double timestamp,
+                        Matrix<N3, N1> stdDevs) {
+        }
 
         public DriveIOComp(Peripherals peripherals) {
+                this.peripherals = peripherals;
 
                 frontRight.init();
                 frontLeft.init();
                 backRight.init();
                 backLeft.init();
                 gyro.init();
-                this.peripherals = peripherals;
-                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
-                swerveModulePositions[0] = new SwerveModulePosition(0,
-                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[1] = new SwerveModulePosition(0,
-                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                swerveModulePositions[2] = new SwerveModulePosition(0,
-                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[3] = new SwerveModulePosition(0,
-                                new Rotation2d(backRight.getCanCoderPositionRadians()));
 
-                Pose2d m_pose = new Pose2d();
-                mt2Odometry = new SwerveDrivePoseEstimator(m_kinematics,
-                                getYaw(), swerveModulePositions, m_pose);
+                frontLeftDrivePositionSignal = frontLeftDriveMotor.getPosition();
+                frontRightDrivePositionSignal = frontRightDriveMotor.getPosition();
+                backLeftDrivePositionSignal = backLeftDriveMotor.getPosition();
+                backRightDrivePositionSignal = backRightDriveMotor.getPosition();
+
+                frontLeftTurnPositionSignal = frontLeftAngleMotor.getPosition();
+                frontRightTurnPositionSignal = frontRightAngleMotor.getPosition();
+                backLeftTurnPositionSignal = backLeftAngleMotor.getPosition();
+                backRightTurnPositionSignal = backRightAngleMotor.getPosition();
+
+                yawSignal = gyro.getPigeon().getYaw();
+                pitchSignal = gyro.getPigeon().getPitch();
+                rollSignal = gyro.getPigeon().getRoll();
+
+                BaseStatusSignal.setUpdateFrequencyForAll(
+                                DriveConstants.odometryFrequency,
+                                frontLeftDrivePositionSignal,
+                                frontRightDrivePositionSignal,
+                                backLeftDrivePositionSignal,
+                                backRightDrivePositionSignal,
+                                frontLeftTurnPositionSignal,
+                                frontRightTurnPositionSignal,
+                                backLeftTurnPositionSignal,
+                                backRightTurnPositionSignal,
+                                yawSignal,
+                                pitchSignal,
+                                rollSignal);
+
+                frontLeftDrivePositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(frontLeftDriveMotor.getPosition().clone());
+                frontRightDrivePositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(frontRightDriveMotor.getPosition().clone());
+                backLeftDrivePositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(backLeftDriveMotor.getPosition().clone());
+                backRightDrivePositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(backRightDriveMotor.getPosition().clone());
+
+                frontLeftTurnPositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(frontLeftAngleMotor.getPosition().clone());
+                frontRightTurnPositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(frontRightAngleMotor.getPosition().clone());
+                backLeftTurnPositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(backLeftAngleMotor.getPosition().clone());
+                backRightTurnPositionQueue = PhoenixOdometryThread.getInstance()
+                                .registerSignal(backRightAngleMotor.getPosition().clone());
+
+                timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+                yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(gyro.getPigeon().getYaw());
+                pitchPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(gyro.getPigeon().getPitch());
+                rollPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(gyro.getPigeon().getRoll());
+
                 try {
-                        aprilTagFieldLayout = new AprilTagFieldLayout(
-                                        Filesystem.getDeployDirectory().getPath() + "/"
-                                                        + "2026-rebuilt.json");
+                        ParentDevice.optimizeBusUtilizationForAll(
+                                        frontRightDriveMotor,
+                                        frontRightAngleMotor,
+                                        frontRightCanCoder,
+                                        frontLeftDriveMotor,
+                                        frontLeftAngleMotor,
+                                        frontLeftCanCoder,
+                                        backLeftDriveMotor,
+                                        backLeftAngleMotor,
+                                        backLeftCanCoder,
+                                        backRightDriveMotor,
+                                        backRightAngleMotor,
+                                        backRightCanCoder,
+                                        gyro.getPigeon());
+                } catch (Exception e) {
+                        Logger.recordOutput("Drive/OdometryOptimizeError", e.getMessage());
+                }
+
+                loadFieldLayout();
+                resetPhotonHeadingData(Timer.getFPGATimestamp(), getYaw());
+                PhoenixOdometryThread.getInstance().start();
+        }
+
+        private void loadFieldLayout() {
+                try {
+                        AprilTagFieldLayout aprilTagFieldLayout = new AprilTagFieldLayout(
+                                        Filesystem.getDeployDirectory().getPath() + "/" + "2026-rebuilt.json");
+                        leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+                                        leftFrontRobotToCam);
+                        leftBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, leftBackRobotToCam);
+                        rightFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+                                        rightFrontRobotToCam);
+                        rightBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+                                        rightBackRobotToCam);
                 } catch (Exception e) {
                         java.util.logging.Logger.getGlobal().warning("error with april tag: " + e.getMessage());
                 }
-                leftFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                leftFrontRobotToCam);
-                leftBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                leftBackRobotToCam);
-                rightFrontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                rightFrontRobotToCam);
-                rightBackPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-                                rightBackRobotToCam);
+        }
+
+        @Override
+        void zeroIMU() {
+                gyro.setYaw(0.0);
+                setPosition(new Pose2d(getPosition().getTranslation(), Rotation2d.kZero));
+        }
+
+        @Override
+        void setYaw(double degrees) {
+                gyro.setYaw(degrees);
+        }
+
+        @Override
+        Rotation2d getYaw() {
+                return gyro.getYaw();
+        }
+
+        @Override
+        void setWheelsStraight() {
+                frontRight.setWheelPID(0.0, 0.0);
+                frontLeft.setWheelPID(0.0, 0.0);
+                backLeft.setWheelPID(0.0, 0.0);
+                backRight.setWheelPID(0.0, 0.0);
+                wantedChassisSpeeds = new ChassisSpeeds();
         }
 
         @Override
@@ -200,402 +302,40 @@ public class DriveIOComp extends DriveIO {
         }
 
         @Override
-        void zeroIMU() {
-                gyro.setYaw(0.0);
-                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
-                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
-                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
-                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
-                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
-                                new Rotation2d(backRight.getCanCoderPositionRadians()));
-                mt2Odometry.resetPosition(new Rotation2d(), swerveModulePositions,
-                                mt2Odometry.getEstimatedPosition());
-        }
-
-        @Override
-        void setYaw(double degrees) {
-                gyro.setYaw(degrees);
-        }
-
-        @Override
-        Rotation2d getYaw() {
-                return gyro.getYaw();
-        }
-
-        @Override
-        void setWheelsStraight() {
-                frontRight.setWheelPID(0.0, 0.0);
-                frontLeft.setWheelPID(0.0, 0.0);
-                backLeft.setWheelPID(0.0, 0.0);
-                backRight.setWheelPID(0.0, 0.0);
-                wantedChassisSpeeds = new ChassisSpeeds(0, 0, 0);
-        }
-
-        private boolean notTrenchTag(int tagId) {
-                return tagId != 1 &&
-                                tagId != 12 &&
-                                tagId != 22 &&
-                                tagId != 23 &&
-                                tagId != 7 &&
-                                tagId != 6 &&
-                                tagId != 17 &&
-                                tagId != 28;
-        }
-
-        @Override
         protected void setPosition(Pose2d pose) {
-                setYaw(pose.getRotation().getDegrees());
-                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
-                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
-                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
-                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
-                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
-                                new Rotation2d(backRight.getCanCoderPositionRadians()));
-                mt2Odometry.resetPosition(pose.getRotation(), swerveModulePositions,
-                                pose);
-        }
-
-        private boolean poseInField(Pose2d pose) {
-                return pose.getX() > 0 && pose.getX() < Constants.Physical.FIELD_LENGTH
-                                && pose.getY() > 0 && pose.getY() < Constants.Physical.FIELD_WIDTH;
-        }
-
-        private Pose2d clampToField(Pose2d pose) {
-                if (pose.getX() > (Constants.Physical.FIELD_LENGTH - Constants.Physical.ROBOT_RADIUS)) {
-                        pose = new Pose2d(Constants.Physical.FIELD_LENGTH - Constants.Physical.ROBOT_RADIUS,
-                                        pose.getY(), pose.getRotation());
-                } else if (pose.getX() < (Constants.Physical.ROBOT_RADIUS)) {
-                        pose = new Pose2d(Constants.Physical.ROBOT_RADIUS,
-                                        pose.getY(), pose.getRotation());
+                Drive.odometryLock.lock();
+                try {
+                        clearOdometryQueues();
+                        BaseStatusSignal.refreshAll(
+                                        frontLeftDrivePositionSignal,
+                                        frontRightDrivePositionSignal,
+                                        backLeftDrivePositionSignal,
+                                        backRightDrivePositionSignal,
+                                        frontLeftTurnPositionSignal,
+                                        frontRightTurnPositionSignal,
+                                        backLeftTurnPositionSignal,
+                                        backRightTurnPositionSignal);
+                        SwerveModulePosition[] currentWheelPositions = getCurrentWheelPositions(
+                                        frontLeftDrivePositionSignal.getValueAsDouble(),
+                                        frontRightDrivePositionSignal.getValueAsDouble(),
+                                        backLeftDrivePositionSignal.getValueAsDouble(),
+                                        backRightDrivePositionSignal.getValueAsDouble(),
+                                        Rotation2d.fromRotations(frontLeftTurnPositionSignal.getValueAsDouble()),
+                                        Rotation2d.fromRotations(frontRightTurnPositionSignal.getValueAsDouble()),
+                                        Rotation2d.fromRotations(backLeftTurnPositionSignal.getValueAsDouble()),
+                                        Rotation2d.fromRotations(backRightTurnPositionSignal.getValueAsDouble()));
+                        setYaw(pose.getRotation().getDegrees());
+                        RobotState.getInstance().resetPose(pose, currentWheelPositions);
+                        seedAcceptedOdometryState(currentWheelPositions, pose.getRotation());
+                        resetPhotonHeadingData(Timer.getFPGATimestamp(), pose.getRotation());
+                } finally {
+                        Drive.odometryLock.unlock();
                 }
-
-                if (pose.getY() > (Constants.Physical.FIELD_WIDTH - Constants.Physical.ROBOT_RADIUS)) {
-                        pose = new Pose2d(pose.getX(),
-                                        Constants.Physical.FIELD_WIDTH
-                                                        - Constants.Physical.ROBOT_RADIUS,
-                                        pose.getRotation());
-                } else if (pose.getY() < (Constants.Physical.ROBOT_RADIUS)) {
-                        pose = new Pose2d(pose.getX(),
-                                        Constants.Physical.ROBOT_RADIUS, pose.getRotation());
-                }
-
-                return pose;
-        }
-
-        /**
-         * Updates the fused odometry array with current robot position and orientation
-         * information.
-         * Calculates the robot's position and orientation using swerve module positions
-         * and the gyro angle.
-         * Updates the current X, Y, and theta values, as well as previous values and
-         * time differences.
-         */
-        private void updateOdometryFusedArray(DriveState currentState) {
-                SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
-                swerveModulePositions[0] = new SwerveModulePosition(frontLeft.getModuleDistance(),
-                                new Rotation2d(frontLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[1] = new SwerveModulePosition(frontRight.getModuleDistance(),
-                                new Rotation2d(frontRight.getCanCoderPositionRadians()));
-                swerveModulePositions[2] = new SwerveModulePosition(backLeft.getModuleDistance(),
-                                new Rotation2d(backLeft.getCanCoderPositionRadians()));
-                swerveModulePositions[3] = new SwerveModulePosition(backRight.getModuleDistance(),
-                                new Rotation2d(backRight.getCanCoderPositionRadians()));
-                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 || Math.abs(gyro.getRollDegrees()) > 4.1;
-                if (tilted && !onBump) {
-                        onBump = true;
-                }
-
-                boolean tiltedFiltered = flatDebouncer.calculate(tilted);
-
-                if (!onBump && !tiltedFiltered) {
-                        mt2Odometry.update(getYaw(), swerveModulePositions);
-                }
-
-                // Logger.recordOutput("Testing/num times flat", numTimesFlat);
-                // if (!tiltedFiltered && onBump) {
-                // onBump = false;
-                // double vx = getChassisSpeeds().vxMetersPerSecond;
-                // double direction = Math.signum(vx);
-                // Pose2d currentPose = mt2Odometry.getEstimatedPosition();
-                // // Logger.recordOutput("Testing/Current pose on bump",
-                // // currentPose.getTranslation());
-                // Translation2d bump = new Translation2d(
-                // direction * Constants.Field.BUMP_LENGTH, 0.0);
-                // // Logger.recordOutput("Testing/Bump translation", bump);
-                // Pose2d correctedPose = new Pose2d(currentPose.getTranslation().plus(bump),
-                // getYaw());
-                // // Logger.recordOutput("Testing/Corrected pose", correctedPose);
-
-                // setPosition(correctedPose);
-                // }
-                // Logger.recordOutput("Testing/on bump", onBump);
-                if (!tiltedFiltered && onBump) {
-                        onBump = false;
-
-                        Pose2d currentPose = mt2Odometry.getEstimatedPosition();
-                        double x = currentPose.getX();
-                        double y = currentPose.getY();
-                        double vx = getChassisSpeeds().vxMetersPerSecond;
-                        double direction = Math.signum(vx);
-
-                        boolean onBlueSide = x < Constants.Physical.FIELD_LENGTH / 2.0;
-
-                        double correctedX;
-
-                        if (onBlueSide) {
-                                if (direction == 1) {
-                                        correctedX = Constants.Field.NEUTRAL_ZONE_BUMP_X_POSITION_BLUE;
-                                } else {
-                                        correctedX = Constants.Field.ALLIANCE_ZONE_BUMP_X_POSITION_BLUE;
-                                }
-                        } else {
-                                if (direction == 1) {
-                                        correctedX = Constants.Field.ALLIANCE_ZONE_BUMP_X_POSITION_RED;
-                                } else {
-                                        correctedX = Constants.Field.NEUTRAL_ZONE_BUMP_X_POSITION_RED;
-                                }
-                        }
-
-                        Pose2d correctedPose = new Pose2d(
-                                        new Translation2d(correctedX, y),
-                                        getYaw());
-
-                        setPosition(correctedPose);
-                }
-
-                addTurretObservation(Timer.getTimestamp(), Globals.turretAngle);
-
-                // Rotation2d robotRotation = new
-                // Rotation2d(Math.toRadians(gyro.getYawDegrees()));
-                // double time = Timer.getFPGATimestamp();
-                // rightFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
-                // rightBackPhotonPoseEstimator.addHeadingData(time, robotRotation);
-                // leftFrontPhotonPoseEstimator.addHeadingData(time, robotRotation);
-                if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) < 2.4) {
-                        if (!onBump && !tiltedFiltered) {
-                                var rightFrontResult = peripherals.getRightFrontCamResult();
-                                Optional<EstimatedRobotPose> rightFrontMultiTagResult = rightFrontPhotonPoseEstimator
-                                                .estimateCoprocMultiTagPose(rightFrontResult);
-                                if (rightFrontMultiTagResult.isPresent()) {
-                                        if (rightFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                        // && notTrenchTag(rightFrontResult.getBestTarget().fiducialId)
-                                        ) {
-                                                standardDeviation.set(0, 0, 1.0);
-                                                standardDeviation.set(1, 0, 1.0);
-                                                standardDeviation.set(2, 0, 0.7);
-                                                Pose2d robotPose = rightFrontMultiTagResult.get().estimatedPose
-                                                                .toPose2d();
-                                                if (poseInField(robotPose)) {
-                                                        Logger.recordOutput("Cameras/Right Front Pose",
-                                                                        clampToField(robotPose));
-                                                        mt2Odometry.addVisionMeasurement(clampToField(robotPose),
-                                                                        rightFrontResult.getTimestampSeconds(),
-                                                                        standardDeviation);
-                                                } else {
-                                                        Logger.recordOutput("Cameras/Right Front Pose",
-                                                                        new Pose2d());
-                                                }
-                                        }
-                                }
-                                if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB
-                                                && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
-                                        var rightBackResult = peripherals.getRightBackCamResult();
-                                        Optional<EstimatedRobotPose> rightBackMultiTagResult = rightBackPhotonPoseEstimator
-                                                        .estimateCoprocMultiTagPose(rightBackResult);
-                                        if (rightBackMultiTagResult.isPresent()) {
-                                                if (rightBackResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                // && notTrenchTag(rightBackResult
-                                                // .getBestTarget().fiducialId)
-                                                ) {
-                                                        standardDeviation.set(0, 0, 1.0);
-                                                        standardDeviation.set(1, 0, 1.0);
-                                                        standardDeviation.set(2, 0, 0.9);
-                                                        Pose2d robotPose = rightBackMultiTagResult.get().estimatedPose
-                                                                        .toPose2d();
-                                                        if (poseInField(robotPose)) {
-                                                                Logger.recordOutput("Cameras/Right Back Pose",
-                                                                                clampToField(robotPose));
-                                                                mt2Odometry.addVisionMeasurement(
-                                                                                clampToField(robotPose),
-                                                                                rightFrontResult.getTimestampSeconds(),
-                                                                                standardDeviation);
-                                                        } else {
-                                                                Logger.recordOutput("Cameras/Right Back Pose",
-                                                                                new Pose2d());
-                                                        }
-                                                }
-                                        }
-                                        var leftBackResult = peripherals.getLeftBackCamResult();
-                                        Optional<EstimatedRobotPose> leftBackMultiTagResult = leftBackPhotonPoseEstimator
-                                                        .estimateCoprocMultiTagPose(leftBackResult);
-                                        if (leftBackMultiTagResult.isPresent()) {
-                                                if (leftBackResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                // && notTrenchTag(leftBackResult
-                                                // .getBestTarget().fiducialId)
-                                                ) {
-                                                        standardDeviation.set(0, 0, 1.3);
-                                                        standardDeviation.set(1, 0, 1.3);
-                                                        standardDeviation.set(2, 0, 0.9);
-                                                        Pose2d robotPose = leftBackMultiTagResult.get().estimatedPose
-                                                                        .toPose2d();
-                                                        if (poseInField(robotPose)) {
-                                                                Logger.recordOutput("Cameras/Left Back Pose",
-                                                                                clampToField(robotPose));
-                                                                mt2Odometry.addVisionMeasurement(
-                                                                                clampToField(robotPose),
-                                                                                leftBackResult.getTimestampSeconds(),
-                                                                                standardDeviation);
-                                                        } else {
-                                                                Logger.recordOutput("Cameras/Left Back Pose",
-                                                                                new Pose2d());
-                                                        }
-                                                }
-                                        }
-
-                                        var leftFrontResult = peripherals.getLeftFrontCamResult();
-                                        Optional<EstimatedRobotPose> leftFrontMultiTagResult = leftFrontPhotonPoseEstimator
-                                                        .estimateCoprocMultiTagPose(leftFrontResult);
-                                        if (leftFrontMultiTagResult.isPresent()) {
-                                                if (leftFrontResult.getBestTarget().getPoseAmbiguity() < 0.3
-                                                // && notTrenchTag(leftFrontResult
-                                                // .getBestTarget().fiducialId)
-                                                ) {
-                                                        standardDeviation.set(0, 0, 1.0);
-                                                        standardDeviation.set(1, 0, 1.0);
-                                                        standardDeviation.set(2, 0, 0.9);
-                                                        Pose2d robotPose = leftFrontMultiTagResult.get().estimatedPose
-                                                                        .toPose2d();
-                                                        if (poseInField(robotPose)) {
-                                                                Logger.recordOutput("Cameras/Left Front Pose",
-                                                                                clampToField(robotPose));
-                                                                mt2Odometry.addVisionMeasurement(
-                                                                                clampToField(robotPose),
-                                                                                leftFrontResult.getTimestampSeconds(),
-                                                                                standardDeviation);
-                                                        } else {
-                                                                Logger.recordOutput("Cameras/Left Front Pose",
-                                                                                new Pose2d());
-                                                        }
-                                                }
-                                        }
-
-                                        double limelightAngVelRelToField = Constants.Vision
-                                                        .getLimelightAngVelRelToField(
-                                                                        Globals.turretVelocity,
-                                                                        getChassisSpeeds().omegaRadiansPerSecond);
-                                        Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
-                                        if (Math.abs(limelightAngVelRelToField) < 0.5) {
-                                                try {
-
-                                                        LimelightHelpers.SetRobotOrientation(
-                                                                        Constants.Vision.LIMELIGHT_NAME,
-                                                                        getPosition().getRotation().getDegrees(),
-                                                                        limelightAngVelRelToField,
-                                                                        gyro.getPitchDegrees(), 0,
-                                                                        -gyro.getRollDegrees(), 0);
-
-                                                        Constants.Vision.updateLimelightPoseFromTurret(
-                                                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION,
-                                                                                        Rotation3d.kZero),
-                                                                        Globals.turretAngle,
-                                                                        Constants.Vision.turretToLimelight,
-                                                                        Constants.Vision.LIMELIGHT_NAME);
-
-                                                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                                                                        .getBotPoseEstimate_wpiBlue_MegaTag2(
-                                                                                        Constants.Vision.LIMELIGHT_NAME);
-                                                        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
-                                                                        .getBotPoseEstimate_wpiBlue(
-                                                                                        Constants.Vision.LIMELIGHT_NAME);
-                                                        Logger.recordOutput("Cameras/Limelight Pose MT1",
-                                                                        clampToField(mt1.pose));
-
-                                                        // Optional<Rotation2d> maybeTurretAngle = getTurretAngle(
-                                                        // mt2.timestampSeconds);
-                                                        // if (maybeTurretAngle.isPresent()) {
-
-                                                        boolean doRejectUpdate = false;
-                                                        // if (Math.abs(gyro.getAngularVelocityZDeviceDegPerSec()) >
-                                                        // 360) {
-                                                        // doRejectUpdate = true;
-                                                        // }
-                                                        if (mt2.tagCount == 0) {
-                                                                doRejectUpdate = true;
-                                                        }
-
-                                                        if (mt1.tagCount == 1 && mt1.rawFiducials != null
-                                                                        && mt1.rawFiducials.length > 0) {
-                                                                if (mt1.rawFiducials[0].ambiguity > 0.15) {
-                                                                        doRejectUpdate = true;
-                                                                }
-                                                        }
-
-                                                        if (!doRejectUpdate) {
-                                                                Logger.recordOutput("Limelight dist to tag",
-                                                                                mt2.avgTagDist);
-                                                                standardDeviation.set(0, 0, 2.1);
-                                                                standardDeviation.set(1, 0, 2.1);
-                                                                standardDeviation.set(2, 0, 5.0);
-                                                                // if (mt2.avgTagDist < 4.5) {
-                                                                Logger.recordOutput("Cameras/Limelight Pose",
-                                                                                clampToField(mt2.pose));
-                                                                mt2Odometry.addVisionMeasurement(
-                                                                                clampToField(mt1.pose),
-                                                                                mt1.timestampSeconds,
-                                                                                standardDeviation);
-                                                                // }
-                                                        } else {
-                                                                Logger.recordOutput("Cameras/Limelight Pose",
-                                                                                new Pose2d());
-                                                        }
-                                                        // } else {
-                                                        // System.out.println("Turret angle not found for timestamp: "
-                                                        // + mt2.timestampSeconds);
-                                                        // }
-                                                } catch (Exception e) {
-                                                        System.out.println(e);
-                                                }
-                                        }
-                                }
-                        }
-
-                }
-
-                // Module states
-                var frontLeftState = frontLeft.getSwerveModuleState(gyro.getYaw());
-                var frontRightState = frontRight.getSwerveModuleState(gyro.getYaw());
-                var backLeftState = backLeft.getSwerveModuleState(gyro.getYaw());
-                var backRightState = backRight.getSwerveModuleState(gyro.getYaw());
-                // Convert to chassis speeds
-                ChassisSpeeds robotSpeeds = m_kinematics.toChassisSpeeds(
-                                frontLeftState, frontRightState, backLeftState, backRightState);
-                filterX.calculate(robotSpeeds.vxMetersPerSecond);
-                filterY.calculate(robotSpeeds.vyMetersPerSecond);
-                filterOmega.calculate(Math.toRadians(gyro.getAngularVelocityZWorldDegPerSec()));
-
-        }
-
-        public Optional<Rotation2d> getTurretAngle(double timestamp) {
-                return turretAngleBuffer.getSample(timestamp);
-        }
-
-        public void addTurretObservation(double timestamp, Rotation2d turretAngle) {
-                turretAngleBuffer.addSample(timestamp, turretAngle);
         }
 
         @Override
         protected Pose2d getPosition() {
-                // double x = mt2Odometry.getEstimatedPosition().getX();
-                // double y = mt2Odometry.getEstimatedPosition().getY();
-                // Rotation2d heading = gyro.getYaw();
-                // return new Pose2d(x, y, heading);
-                return mt2Odometry.getEstimatedPosition();
+                return RobotState.getInstance().getEstimatedPose();
         }
 
         @Override
@@ -614,10 +354,10 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected void driveRobotCentric(Vector velocityVector, double turnRadiansPerSec) {
-                frontLeft.drive(velocityVector, turnRadiansPerSec, 0);
-                frontRight.drive(velocityVector, turnRadiansPerSec, 0);
-                backLeft.drive(velocityVector, turnRadiansPerSec, 0);
-                backRight.drive(velocityVector, turnRadiansPerSec, 0);
+                frontLeft.drive(velocityVector, turnRadiansPerSec, 0.0);
+                frontRight.drive(velocityVector, turnRadiansPerSec, 0.0);
+                backLeft.drive(velocityVector, turnRadiansPerSec, 0.0);
+                backRight.drive(velocityVector, turnRadiansPerSec, 0.0);
                 wantedChassisSpeeds = new ChassisSpeeds(
                                 velocityVector.getI(),
                                 velocityVector.getJ(),
@@ -639,19 +379,15 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected ChassisSpeeds getChassisSpeeds() {
-                ChassisSpeeds avg = new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(),
-                                filterOmega.lastValue());
-                // Logger.recordOutput("Drive/RobotVelocities/X", avg.vxMetersPerSecond);
-                // Logger.recordOutput("Drive/RobotVelocities/Y", avg.vyMetersPerSecond);
-                // Logger.recordOutput("Drive/RobotVelocities/Omega",
-                // avg.omegaRadiansPerSecond);
-                return avg;
+                return new ChassisSpeeds(filterX.lastValue(), filterY.lastValue(), filterOmega.lastValue());
         }
 
         @Override
         void update(DriveState currentState) {
-                updateOdometryFusedArray(currentState);
-                getChassisSpeeds();
+                addTurretObservation(Timer.getFPGATimestamp(), Globals.turretAngle);
+                updateOdometry();
+                updateMeasuredChassisSpeeds();
+                updateVision(currentState);
 
                 batteryLogger.reportCurrentUsage("Drive/FrontRight", frontRight.getDriveMotorSupplyCurrent());
                 batteryLogger.reportCurrentUsage("Drive/FrontRightTurn", frontRight.getAngleMotorSupplyCurrent());
@@ -670,16 +406,8 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Swerve/Front Left Angle Current", frontLeft.getAngleMotorCurrent());
                 Logger.recordOutput("Swerve/Back Right Angle Current", backRight.getAngleMotorCurrent());
                 Logger.recordOutput("Swerve/Back Left Angle Current", backLeft.getAngleMotorCurrent());
-                // Logger.recordOutput("Robot/turret velocity filtered",
-                // Globals.turretVelocity);
-                // Logger.recordOutput("Robot/limelight ang vel rel to turret",
-                // Constants.Vision.getLimelightAngVelRelToField(Globals.turretVelocity,
-                // getChassisSpeeds().omegaRadiansPerSecond));
-                // Logger.recordOutput("Robot/chassis speeds ang vel",
-                // getChassisSpeeds().omegaRadiansPerSecond);
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
-
                 Logger.recordOutput("Online/Front Right Drive Online", frontRightDriveMotor.isConnected());
                 Logger.recordOutput("Online/Front Left Drive Online", frontLeftDriveMotor.isConnected());
                 Logger.recordOutput("Online/Back Right Drive Online", backRightDriveMotor.isConnected());
@@ -707,4 +435,458 @@ public class DriveIOComp extends DriveIO {
         protected boolean getFlat() {
                 return Math.abs(gyro.getPitchDegrees()) < 3.5 && Math.abs(gyro.getRollDegrees()) < 3.5;
         }
+
+        private void clearOdometryQueues() {
+                timestampQueue.clear();
+                frontLeftDrivePositionQueue.clear();
+                frontRightDrivePositionQueue.clear();
+                backLeftDrivePositionQueue.clear();
+                backRightDrivePositionQueue.clear();
+                frontLeftTurnPositionQueue.clear();
+                frontRightTurnPositionQueue.clear();
+                backLeftTurnPositionQueue.clear();
+                backRightTurnPositionQueue.clear();
+                yawPositionQueue.clear();
+                pitchPositionQueue.clear();
+                rollPositionQueue.clear();
+        }
+
+        private void updateOdometry() {
+                double[] timestamps;
+                double[] frontLeftDrivePositions;
+                double[] frontRightDrivePositions;
+                double[] backLeftDrivePositions;
+                double[] backRightDrivePositions;
+                Rotation2d[] frontLeftTurnPositions;
+                Rotation2d[] frontRightTurnPositions;
+                Rotation2d[] backLeftTurnPositions;
+                Rotation2d[] backRightTurnPositions;
+                Rotation2d[] yawPositions;
+                Rotation2d[] pitchPositions;
+                Rotation2d[] rollPositions;
+
+                Drive.odometryLock.lock();
+                try {
+                        timestamps = timestampQueue.stream().mapToDouble(Double::doubleValue).toArray();
+                        frontLeftDrivePositions = frontLeftDrivePositionQueue.stream().mapToDouble(Double::doubleValue)
+                                        .toArray();
+                        frontRightDrivePositions = frontRightDrivePositionQueue.stream()
+                                        .mapToDouble(Double::doubleValue).toArray();
+                        backLeftDrivePositions = backLeftDrivePositionQueue.stream().mapToDouble(Double::doubleValue)
+                                        .toArray();
+                        backRightDrivePositions = backRightDrivePositionQueue.stream().mapToDouble(Double::doubleValue)
+                                        .toArray();
+
+                        frontLeftTurnPositions = frontLeftTurnPositionQueue.stream().map(Rotation2d::fromRotations)
+                                        .toArray(Rotation2d[]::new);
+                        frontRightTurnPositions = frontRightTurnPositionQueue.stream().map(Rotation2d::fromRotations)
+                                        .toArray(Rotation2d[]::new);
+                        backLeftTurnPositions = backLeftTurnPositionQueue.stream().map(Rotation2d::fromRotations)
+                                        .toArray(Rotation2d[]::new);
+                        backRightTurnPositions = backRightTurnPositionQueue.stream().map(Rotation2d::fromRotations)
+                                        .toArray(Rotation2d[]::new);
+
+                        yawPositions = yawPositionQueue.stream().map(Rotation2d::fromDegrees)
+                                        .toArray(Rotation2d[]::new);
+                        pitchPositions = pitchPositionQueue.stream().map(Rotation2d::fromDegrees)
+                                        .toArray(Rotation2d[]::new);
+                        rollPositions = rollPositionQueue.stream().map(Rotation2d::fromDegrees)
+                                        .toArray(Rotation2d[]::new);
+
+                        clearOdometryQueues();
+                } finally {
+                        Drive.odometryLock.unlock();
+                }
+
+                int sampleCount = timestamps.length;
+                sampleCount = Math.min(sampleCount, frontLeftDrivePositions.length);
+                sampleCount = Math.min(sampleCount, frontRightDrivePositions.length);
+                sampleCount = Math.min(sampleCount, backLeftDrivePositions.length);
+                sampleCount = Math.min(sampleCount, backRightDrivePositions.length);
+                sampleCount = Math.min(sampleCount, frontLeftTurnPositions.length);
+                sampleCount = Math.min(sampleCount, frontRightTurnPositions.length);
+                sampleCount = Math.min(sampleCount, backLeftTurnPositions.length);
+                sampleCount = Math.min(sampleCount, backRightTurnPositions.length);
+                sampleCount = Math.min(sampleCount, yawPositions.length);
+                sampleCount = Math.min(sampleCount, pitchPositions.length);
+                sampleCount = Math.min(sampleCount, rollPositions.length);
+                int acceptedSamples = 0;
+
+                for (int i = 0; i < sampleCount; i++) {
+                        SwerveModulePosition[] wheelPositions = getCurrentWheelPositions(
+                                        frontLeftDrivePositions[i],
+                                        frontRightDrivePositions[i],
+                                        backLeftDrivePositions[i],
+                                        backRightDrivePositions[i],
+                                        frontLeftTurnPositions[i],
+                                        frontRightTurnPositions[i],
+                                        backLeftTurnPositions[i],
+                                        backRightTurnPositions[i]);
+                        Rotation2d yawPosition = yawPositions[i];
+                        if (!shouldAcceptOdometrySample(wheelPositions, yawPosition)) {
+                                continue;
+                        }
+
+                        RobotState.getInstance().addOdometryObservation(new RobotState.OdometryObservation(
+                                        timestamps[i],
+                                        wheelPositions,
+                                        Optional.of(rollPositions[i]),
+                                        Optional.of(pitchPositions[i]),
+                                        Optional.of(yawPosition)));
+                        seedAcceptedOdometryState(wheelPositions, yawPosition);
+                        acceptedSamples++;
+                }
+
+                Logger.recordOutput("Drive/OdometryQueuedSamples", sampleCount);
+                Logger.recordOutput("Drive/OdometryAcceptedSamples", acceptedSamples);
+        }
+
+        private void updateMeasuredChassisSpeeds() {
+                ChassisSpeeds robotSpeeds = kinematics.toChassisSpeeds(
+                                frontLeft.getSwerveModuleState(getYaw()),
+                                frontRight.getSwerveModuleState(getYaw()),
+                                backLeft.getSwerveModuleState(getYaw()),
+                                backRight.getSwerveModuleState(getYaw()));
+
+                filterX.calculate(robotSpeeds.vxMetersPerSecond);
+                filterY.calculate(robotSpeeds.vyMetersPerSecond);
+                filterOmega.calculate(Math.toRadians(gyro.getAngularVelocityZWorldDegPerSec()));
+        }
+
+        private void updateVision(DriveState currentState) {
+                if (leftFrontPhotonPoseEstimator == null
+                                || leftBackPhotonPoseEstimator == null
+                                || rightFrontPhotonPoseEstimator == null
+                                || rightBackPhotonPoseEstimator == null) {
+                        return;
+                }
+
+                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 || Math.abs(gyro.getRollDegrees()) > 4.1;
+                if (tilted) {
+                        return;
+                }
+
+                if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) >= 2.4) {
+                        return;
+                }
+
+                addPhotonHeadingData(Timer.getFPGATimestamp(), RobotState.getInstance().getRotation());
+
+                List<PendingVisionObservation> pendingVisionObservations = new ArrayList<>();
+                List<Pose2d> acceptedPhotonPoses = new ArrayList<>();
+
+                processPhotonResults(
+                                "Cameras/Right Front Pose",
+                                peripherals.getRightFrontCamResults(),
+                                rightFrontPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
+
+                if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
+                        processPhotonResults(
+                                        "Cameras/Right Back Pose",
+                                        peripherals.getRightBackCamResults(),
+                                        rightBackPhotonPoseEstimator,
+                                        pendingVisionObservations,
+                                        acceptedPhotonPoses);
+
+                        processPhotonResults(
+                                        "Cameras/Left Back Pose",
+                                        peripherals.getLeftBackCamResults(),
+                                        leftBackPhotonPoseEstimator,
+                                        pendingVisionObservations,
+                                        acceptedPhotonPoses);
+
+                        processPhotonResults(
+                                        "Cameras/Left Front Pose",
+                                        peripherals.getLeftFrontCamResults(),
+                                        leftFrontPhotonPoseEstimator,
+                                        pendingVisionObservations,
+                                        acceptedPhotonPoses);
+
+                        updateLimelightObservation(pendingVisionObservations);
+                }
+
+                pendingVisionObservations.stream()
+                                .sorted(Comparator.comparingDouble(PendingVisionObservation::timestamp))
+                                .forEach(observation -> RobotState.getInstance().addVisionObservation(
+                                                new RobotState.VisionObservation(
+                                                                observation.timestamp(),
+                                                                new Pose3d(observation.pose()),
+                                                                observation.stdDevs())));
+
+                Logger.recordOutput("Cameras/Photon Accepted Poses", acceptedPhotonPoses.toArray(Pose2d[]::new));
+                Logger.recordOutput("Cameras/Vision Observation Count", pendingVisionObservations.size());
+        }
+
+        private void processPhotonResults(
+                        String logKey,
+                        List<PhotonPipelineResult> results,
+                        PhotonPoseEstimator estimator,
+                        List<PendingVisionObservation> pendingVisionObservations,
+                        List<Pose2d> acceptedPhotonPoses) {
+                Pose2d loggedPose = new Pose2d();
+                for (PhotonPipelineResult result : results) {
+                        Optional<PendingVisionObservation> observation = createPhotonObservation(logKey, estimator,
+                                        result);
+                        if (observation.isPresent()) {
+                                pendingVisionObservations.add(observation.get());
+                                acceptedPhotonPoses.add(observation.get().pose());
+                                loggedPose = observation.get().pose();
+                        }
+                }
+                Logger.recordOutput(logKey, loggedPose);
+                Logger.recordOutput(logKey + "/UnreadResults", results.size());
+        }
+
+        private Optional<PendingVisionObservation> createPhotonObservation(
+                        String logKey,
+                        PhotonPoseEstimator estimator,
+                        PhotonPipelineResult result) {
+                if (!result.hasTargets() || result.getTimestampSeconds() <= 0.0) {
+                        return Optional.empty();
+                }
+
+                Optional<EstimatedRobotPose> estimate = estimatePhotonPose(estimator, result);
+                if (estimate.isEmpty()) {
+                        return Optional.empty();
+                }
+
+                boolean ambiguousSingleTag = result.getTargets().size() == 1
+                                && result.getBestTarget()
+                                                .getPoseAmbiguity() >= DriveConstants.photonSingleTagAmbiguityThreshold;
+                if (ambiguousSingleTag) {
+                        return Optional.empty();
+                }
+
+                Pose2d robotPose = estimate.get().estimatedPose.toPose2d();
+                if (!poseInField(robotPose)) {
+                        return Optional.empty();
+                }
+
+                Logger.recordOutput(logKey + "/LatencySecs", Timer.getFPGATimestamp() - result.getTimestampSeconds());
+                return Optional.of(
+                                new PendingVisionObservation(
+                                                logKey,
+                                                robotPose,
+                                                result.getTimestampSeconds(),
+                                                createPhotonVisionStdDevs(
+                                                                getAverageTagDistanceMeters(result),
+                                                                result.getTargets().size(),
+                                                                estimate.get().strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR)));
+        }
+
+        private Optional<EstimatedRobotPose> estimatePhotonPose(PhotonPoseEstimator estimator,
+                        PhotonPipelineResult result) {
+                Optional<EstimatedRobotPose> estimate = estimator.estimateCoprocMultiTagPose(result);
+                if (estimate.isPresent()) {
+                        return estimate;
+                }
+
+                estimate = estimator.estimatePnpDistanceTrigSolvePose(result);
+                if (estimate.isPresent()) {
+                        return estimate;
+                }
+
+                Optional<Pose2d> referencePose = RobotState.getInstance()
+                                .getEstimatedPoseAtTimestamp(result.getTimestampSeconds());
+                if (referencePose.isPresent()) {
+                        estimate = estimator.estimateClosestToReferencePose(result, new Pose3d(referencePose.get()));
+                        if (estimate.isPresent()) {
+                                return estimate;
+                        }
+                }
+
+                return estimator.estimateLowestAmbiguityPose(result);
+        }
+
+        private void updateLimelightObservation(List<PendingVisionObservation> pendingVisionObservations) {
+                double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
+                                Globals.turretVelocity,
+                                getChassisSpeeds().omegaRadiansPerSecond);
+                Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
+                if (Math.abs(limelightAngVelRelToField) >= 0.5) {
+                        return;
+                }
+
+                try {
+                        Rotation2d currentTurretAngle = Globals.turretAngle;
+                        Constants.Vision.updateLimelightPoseFromTurret(
+                                        new Pose3d(Constants.Physical.Shooter.SHOOTER_POSITION, Rotation3d.kZero),
+                                        currentTurretAngle,
+                                        Constants.Vision.turretToLimelight,
+                                        Constants.Vision.LIMELIGHT_NAME);
+
+                        LimelightHelpers.SetRobotOrientation(
+                                        Constants.Vision.LIMELIGHT_NAME,
+                                        getPosition().getRotation().getDegrees(),
+                                        limelightAngVelRelToField,
+                                        gyro.getPitchDegrees(),
+                                        0.0,
+                                        -gyro.getRollDegrees(),
+                                        0.0);
+
+                        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                                        .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
+                        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
+                                        .getBotPoseEstimate_wpiBlue(Constants.Vision.LIMELIGHT_NAME);
+                        Logger.recordOutput("Cameras/Limelight Pose MT1", mt1 != null ? mt1.pose : new Pose2d());
+
+                        if (mt1 == null) {
+                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                return;
+                        }
+
+                        if (mt1.timestampSeconds <= 0.0) {
+                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                return;
+                        }
+
+                        Rotation2d measurementTurretAngle = turretAngleBuffer.getSample(mt1.timestampSeconds)
+                                        .orElse(currentTurretAngle);
+                        if (Math.abs(measurementTurretAngle.minus(currentTurretAngle)
+                                        .getDegrees()) > DriveConstants.maxLimelightTurretMismatchDegrees) {
+                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                return;
+                        }
+
+                        if (mt1.tagCount == 0 || mt1.avgTagDist > 4.5 || !poseInField(mt1.pose)) {
+                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                return;
+                        }
+
+                        Logger.recordOutput("Limelight dist to tag", mt1.avgTagDist);
+                        Logger.recordOutput("Cameras/Limelight Pose", mt1.pose);
+                        pendingVisionObservations.add(new PendingVisionObservation(
+                                        "Cameras/Limelight Pose",
+                                        mt1.pose,
+                                        mt1.timestampSeconds,
+                                        createVisionStdDevs(mt1.avgTagDist, mt1.tagCount, 2.0)));
+                } catch (Exception e) {
+                        System.out.println(e);
+                }
+        }
+
+        private void addTurretObservation(double timestamp, Rotation2d turretAngle) {
+                turretAngleBuffer.addSample(timestamp, turretAngle);
+        }
+
+        private boolean shouldAcceptOdometrySample(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
+                if (!hasAcceptedOdometrySample) {
+                        return true;
+                }
+
+                double maxModuleDelta = 0.0;
+                for (int i = 0; i < wheelPositions.length; i++) {
+                        maxModuleDelta = Math.max(
+                                        maxModuleDelta,
+                                        Math.abs(wheelPositions[i].distanceMeters
+                                                        - lastAcceptedOdometryPositions[i].distanceMeters));
+                }
+                double yawDelta = Math.abs(yawPosition.minus(lastAcceptedYawPosition).getRadians());
+                return maxModuleDelta > DriveConstants.odometryTranslationDeadbandMeters
+                                || yawDelta > DriveConstants.odometryYawDeadbandRadians;
+        }
+
+        private void seedAcceptedOdometryState(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
+                for (int i = 0; i < wheelPositions.length; i++) {
+                        lastAcceptedOdometryPositions[i] = new SwerveModulePosition(wheelPositions[i].distanceMeters,
+                                        wheelPositions[i].angle);
+                }
+                lastAcceptedYawPosition = yawPosition;
+                hasAcceptedOdometrySample = true;
+        }
+
+        private double driveMotorRotationsToMeters(double motorRotations) {
+                double wheelRotations = motorRotations / Constants.Ratios.Drive.DRIVE_GEAR_RATIO;
+                return wheelRotations / Constants.Physical.WHEEL_ROTATION_PER_METER;
+        }
+
+        private SwerveModulePosition[] getCurrentWheelPositions(
+                        double frontLeftDrivePosition,
+                        double frontRightDrivePosition,
+                        double backLeftDrivePosition,
+                        double backRightDrivePosition,
+                        Rotation2d frontLeftTurnPosition,
+                        Rotation2d frontRightTurnPosition,
+                        Rotation2d backLeftTurnPosition,
+                        Rotation2d backRightTurnPosition) {
+                return new SwerveModulePosition[] {
+                                new SwerveModulePosition(
+                                                driveMotorRotationsToMeters(frontLeftDrivePosition),
+                                                frontLeftTurnPosition),
+                                new SwerveModulePosition(
+                                                driveMotorRotationsToMeters(frontRightDrivePosition),
+                                                frontRightTurnPosition),
+                                new SwerveModulePosition(
+                                                driveMotorRotationsToMeters(backLeftDrivePosition),
+                                                backLeftTurnPosition),
+                                new SwerveModulePosition(
+                                                driveMotorRotationsToMeters(backRightDrivePosition),
+                                                backRightTurnPosition)
+                };
+        }
+
+        private double getAverageTagDistanceMeters(PhotonPipelineResult result) {
+                return result.getTargets().stream()
+                                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                                .average()
+                                .orElse(Double.POSITIVE_INFINITY);
+        }
+
+        private Matrix<N3, N1> createPhotonVisionStdDevs(
+                        double averageTagDistance,
+                        int tagCount,
+                        boolean useVisionRotation) {
+                double xyStdDev = DriveConstants.photonXyStdDevCoefficient
+                                * Math.pow(averageTagDistance, 1.2)
+                                / Math.pow(Math.max(tagCount, 1), 2.0);
+                double thetaStdDev = useVisionRotation
+                                ? DriveConstants.photonThetaStdDevCoefficient
+                                                * Math.pow(averageTagDistance, 1.2)
+                                                / Math.pow(Math.max(tagCount, 1), 2.0)
+                                : Double.POSITIVE_INFINITY;
+                Logger.recordOutput("Vision/Photon Std Dev XY", xyStdDev);
+                Logger.recordOutput("Vision/Photon Std Dev Theta", thetaStdDev);
+                return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
+        }
+
+        private Matrix<N3, N1> createVisionStdDevs(double averageTagDistance, int tagCount, double thetaScalar) {
+                double xyStdDev = Constants.Vision.getTagDistStdDevScalar(averageTagDistance)
+                                * Constants.Vision.getNumTagStdDevScalar(tagCount);
+                double thetaStdDev = xyStdDev * thetaScalar;
+                Logger.recordOutput("Vision/Limelight Std Dev XY", xyStdDev);
+                Logger.recordOutput("Vision/Limelight Std Dev Theta", thetaStdDev);
+                return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
+        }
+
+        private void addPhotonHeadingData(double timestamp, Rotation2d heading) {
+                leftFrontPhotonPoseEstimator.addHeadingData(timestamp, heading);
+                leftBackPhotonPoseEstimator.addHeadingData(timestamp, heading);
+                rightFrontPhotonPoseEstimator.addHeadingData(timestamp, heading);
+                rightBackPhotonPoseEstimator.addHeadingData(timestamp, heading);
+        }
+
+        private void resetPhotonHeadingData(double timestamp, Rotation2d heading) {
+                if (leftFrontPhotonPoseEstimator == null
+                                || leftBackPhotonPoseEstimator == null
+                                || rightFrontPhotonPoseEstimator == null
+                                || rightBackPhotonPoseEstimator == null) {
+                        return;
+                }
+                leftFrontPhotonPoseEstimator.resetHeadingData(timestamp, heading);
+                leftBackPhotonPoseEstimator.resetHeadingData(timestamp, heading);
+                rightFrontPhotonPoseEstimator.resetHeadingData(timestamp, heading);
+                rightBackPhotonPoseEstimator.resetHeadingData(timestamp, heading);
+        }
+
+        private boolean poseInField(Pose2d pose) {
+                return pose.getX() > Constants.Physical.ROBOT_RADIUS
+                                && pose.getX() < Constants.Physical.FIELD_LENGTH
+                                                - Constants.Physical.ROBOT_RADIUS
+                                && pose.getY() > Constants.Physical.ROBOT_RADIUS
+                                && pose.getY() < Constants.Physical.FIELD_WIDTH
+                                                - Constants.Physical.ROBOT_RADIUS;
+        }
+
 }
