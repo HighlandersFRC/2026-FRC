@@ -283,17 +283,24 @@ class ShooterIOComp implements ShooterIO {
                 // flywheelMaster.getClosedLoopReference().getValueAsDouble() * 60.0);
                 // Logger.recordOutput("Flywheel slave setpoint",
                 // flywheelFollower.getClosedLoopReference().getValueAsDouble() * 60.0);
-                if (velocitySetpoint - getFlywheelRPM() > 200.0) {
-                        flywheelMaster.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
-                        flywheelFollower.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
-                } else {
-                        flywheelMaster.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-                        flywheelFollower.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-                }
+                // if (adjustedRPM - getFlywheelRPM() > 500.0) {
+                // Logger.recordOutput("Shooter/Shoot Type", "BANG BANG");
+                // // flywheelMaster.setControl(
+                // //
+                // flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
+                // // flywheelFollower.setControl(
+                // //
+                // flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
+                // flywheelMaster.set(1.0);
+                // flywheelFollower.set(1.0);
+
+                // } else {
+                // Logger.recordOutput("Shooter/Shoot Type", "PID");
+                flywheelMaster.setControl(
+                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                flywheelFollower.setControl(
+                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                // }
         }
 
         @Override
