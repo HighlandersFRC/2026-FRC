@@ -155,6 +155,11 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollowerConfig.Slot0.kD = Constants.PIDConstants.Flywheel.kD0;
                 flywheelFollowerConfig.Slot0.kS = Constants.PIDConstants.Flywheel.kS0;
                 flywheelFollowerConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
+                flywheelFollowerConfig.Slot1.kP = Constants.PIDConstants.Flywheel.kP1;
+                flywheelFollowerConfig.Slot1.kI = Constants.PIDConstants.Flywheel.kI1;
+                flywheelFollowerConfig.Slot1.kD = Constants.PIDConstants.Flywheel.kD1;
+                flywheelFollowerConfig.Slot1.kS = Constants.PIDConstants.Flywheel.kS1;
+                flywheelFollowerConfig.Slot1.kV = Constants.PIDConstants.Flywheel.kV1;
                 flywheelFollowerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
                 flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
@@ -278,10 +283,17 @@ class ShooterIOComp implements ShooterIO {
                 // flywheelMaster.getClosedLoopReference().getValueAsDouble() * 60.0);
                 // Logger.recordOutput("Flywheel slave setpoint",
                 // flywheelFollower.getClosedLoopReference().getValueAsDouble() * 60.0);
-                flywheelMaster.setControl(
-                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-                flywheelFollower.setControl(
-                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                if (velocitySetpoint - getFlywheelRPM() > 200.0) {
+                        flywheelMaster.setControl(
+                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
+                        flywheelFollower.setControl(
+                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
+                } else {
+                        flywheelMaster.setControl(
+                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                        flywheelFollower.setControl(
+                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                }
         }
 
         @Override
