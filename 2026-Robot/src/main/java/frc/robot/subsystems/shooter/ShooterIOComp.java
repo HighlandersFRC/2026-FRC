@@ -190,21 +190,21 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.CurrentLimits.StatorCurrentLimit = 67;
                 turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-                turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                turretConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
                 turretMotor.getConfigurator().apply(turretConfig);
                 turretMotor.setNeutralMode(NeutralModeValue.Coast);
 
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.273681640625; // TODO: Try calculating offset from
-                                                                              // previous zero
-                                                                              // data -0.9306640625
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.05029296875; // TODO: Try calculating offset from
+                                                                             // previous zero
+                                                                             // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.9306640625;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.090576171875;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -283,25 +283,32 @@ class ShooterIOComp implements ShooterIO {
                 // flywheelMaster.getClosedLoopReference().getValueAsDouble() * 60.0);
                 // Logger.recordOutput("Flywheel slave setpoint",
                 // flywheelFollower.getClosedLoopReference().getValueAsDouble() * 60.0);
-                if (velocitySetpoint - getFlywheelRPM() > 200.0) {
-                        flywheelMaster.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
-                        flywheelFollower.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
-                } else {
-                        flywheelMaster.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-                        flywheelFollower.setControl(
-                                        flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
-                }
+                // if (adjustedRPM - getFlywheelRPM() > 500.0) {
+                // Logger.recordOutput("Shooter/Shoot Type", "BANG BANG");
+                // // flywheelMaster.setControl(
+                // //
+                // flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
+                // // flywheelFollower.setControl(
+                // //
+                // flywheelControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(true));
+                // flywheelMaster.set(1.0);
+                // flywheelFollower.set(1.0);
+
+                // } else {
+                // Logger.recordOutput("Shooter/Shoot Type", "PID");
+                flywheelMaster.setControl(
+                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                flywheelFollower.setControl(
+                                flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                // }
         }
 
         @Override
         public double getRelativeTurretAngleRadians() {
-                // double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
-                // double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                // double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                // double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
 
                 double k1 = Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT
                                 / Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT;
@@ -339,7 +346,7 @@ class ShooterIOComp implements ShooterIO {
                         }
                 }
 
-                return Units.rotationsToRadians(bestTheta);
+                return -Units.rotationsToRadians(bestTheta);
         }
 
         private double wrap(double x) {
