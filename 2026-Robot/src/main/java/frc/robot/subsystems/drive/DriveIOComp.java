@@ -92,24 +92,27 @@ public class DriveIOComp extends DriveIO {
         private PhotonPoseEstimator rightBackPhotonPoseEstimator;
 
         private final Transform3d leftFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.5614), Constants.inchesToMeters(14.2213),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(-0.5), Math.toRadians(-8.0), Math.toRadians(75.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
+                                        Constants.inchesToMeters(25.29)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
 
         private final Transform3d leftBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-11.4675), Constants.inchesToMeters(13.5008),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.0), Math.toRadians(145.0)));
+                        new Translation3d(Constants.inchesToMeters(-14.206),
+                                        Constants.inchesToMeters(7.265),
+                                        Constants.inchesToMeters(23.765)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
+                                        Math.toRadians(145.0)));
 
         private final Transform3d rightFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.8347), Constants.inchesToMeters(-14.7105),
-                                        Constants.inchesToMeters(13.9669)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0), Math.toRadians(275.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
+                                        Constants.inchesToMeters(25.433)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
 
         private final Transform3d rightBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-11.4424), Constants.inchesToMeters(11.4633),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(1.7), Math.toRadians(-11.0), Math.toRadians(215.0)));
+                        new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
+                                        Constants.inchesToMeters(24.557)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
+                                        Math.toRadians(210.0)));
 
         private final LinearFilter filterX = LinearFilter.movingAverage(10);
         private final LinearFilter filterY = LinearFilter.movingAverage(10);
