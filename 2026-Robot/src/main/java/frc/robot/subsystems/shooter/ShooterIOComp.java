@@ -190,21 +190,21 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.CurrentLimits.StatorCurrentLimit = 67;
                 turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-                turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                turretConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
                 turretMotor.getConfigurator().apply(turretConfig);
                 turretMotor.setNeutralMode(NeutralModeValue.Coast);
 
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.273681640625; // TODO: Try calculating offset from
-                                                                              // previous zero
-                                                                              // data -0.9306640625
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.05029296875; // TODO: Try calculating offset from
+                                                                             // previous zero
+                                                                             // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.9306640625;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.090576171875;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -298,10 +298,10 @@ class ShooterIOComp implements ShooterIO {
 
         @Override
         public double getRelativeTurretAngleRadians() {
-                // double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
-                // double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                // double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                // double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
 
                 double k1 = Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT
                                 / Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT;
@@ -339,7 +339,7 @@ class ShooterIOComp implements ShooterIO {
                         }
                 }
 
-                return Units.rotationsToRadians(bestTheta);
+                return -Units.rotationsToRadians(bestTheta);
         }
 
         private double wrap(double x) {
