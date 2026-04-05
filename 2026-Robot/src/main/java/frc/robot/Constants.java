@@ -26,15 +26,15 @@ import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
-                public static final int STAGNATE_BOOST = 60;
+                public static final int STAGNATE_BOOST = 100;
                 public static final int STAGNATE_THRESHOLD = 9; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
-                public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.04; // Lookahead at 1m/s scaled by wanted
-                                                                                 // velocity
+                public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.1; // Lookahead at 1m/s scaled by wanted
+                                                                                // velocity
                 public static final double FULL_SEND_LOOKAHEAD = 0.6741;
-                public static final double MIN_LOOKAHEAD_DISTANCE = 0.05; // Lookahead distance at 0m/s
+                public static final double MIN_LOOKAHEAD_DISTANCE = 0.18; // Lookahead distance at 0m/s
                 // Path follower will end if within this radius of the final point
                 public static final double AUTONOMOUS_END_ACCURACY = 0.40;
                 public static final double ACCURATE_FOLLOWER_AUTONOMOUS_END_ACCURACY = 0.05;

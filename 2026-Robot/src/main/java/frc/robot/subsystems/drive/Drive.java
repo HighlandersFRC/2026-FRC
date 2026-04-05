@@ -44,7 +44,7 @@ public class Drive extends SubsystemBase {
   private double kYI = kXI;
   private double kYD = kXD;
 
-  private double kThetaP = 2.90;
+  private double kThetaP = 1.00;
   private double kThetaI = 0.00;
   private double kThetaD = 2.00;
 
@@ -938,38 +938,37 @@ public class Drive extends SubsystemBase {
         finalTheta,
         targetIndex,
     };
-    // double linearVelMag = Math.hypot(
-    // targetPoint.getDouble("x_velocity") /
-    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
-    // targetPoint.getDouble("y_velocity") /
-    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
-    // double targetVelMag = Math.hypot(linearVelMag,
-    // targetPoint.getDouble("angular_velocity") /
-    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
-    // double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
-    // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
-    // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
+    double linearVelMag = Math.hypot(
+        targetPoint.getDouble("x_velocity") /
+            Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
+        targetPoint.getDouble("y_velocity") /
+            Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
+    double targetVelMag = Math.hypot(linearVelMag,
+        targetPoint.getDouble("angular_velocity") /
+            Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
+    double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
+        : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
+            + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
-    // Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
+    Logger.recordOutput("Auto/Wanted Speed", Math.hypot(finalX, finalY));
 
-    // Logger.recordOutput("x-vel", xVelNoFF);
-    // Logger.recordOutput("y-vel", yVelNoFF);
-    // Logger.recordOutput("theta-vel", thetaVelNoFF);
-    // Logger.recordOutput("wanted-theta-vel",
-    // targetPoint.getDouble("angular_velocity"));
-    // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
-    // Logger.recordOutput("FF-x-vel", feedForwardX);
-    // Logger.recordOutput("FF-y-vel", feedForwardY);
+    Logger.recordOutput("Auto/x-vel", xVelNoFF);
+    Logger.recordOutput("Auto/y-vel", yVelNoFF);
+    Logger.recordOutput("Auto/theta-vel", thetaVelNoFF);
+    Logger.recordOutput("Auto/wanted-theta-vel",
+        targetPoint.getDouble("angular_velocity"));
+    Logger.recordOutput("Auto/FF-theta-vel", feedForwardTheta);
+    Logger.recordOutput("Auto/FF-x-vel", feedForwardX);
+    Logger.recordOutput("Auto/FF-y-vel", feedForwardY);
     Logger.recordOutput("Auto/current point idx", currentIndex);
-    // Logger.recordOutput("point idx", velocityArray[3].intValue());
-    // Logger.recordOutput("look-ahead", lookaheadRadius);
-    // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
-    // Rotation2d(targetTheta)));
-    // Logger.recordOutput("Velocity Array",
-    // new double[] { finalX, -finalY, finalTheta });
-    // Logger.recordOutput("dx", targetX - currentX);
-    // Logger.recordOutput("dy", targetY - currentY);
-    // Logger.recordOutput("dtheta", targetTheta - currentTheta);
+    Logger.recordOutput("Auto/point idx", velocityArray[3].intValue());
+    Logger.recordOutput("Auto/look-ahead", lookaheadRadius);
+    Logger.recordOutput("Auto/target-point", new Pose2d(targetX, targetY, new Rotation2d(targetTheta)));
+    Logger.recordOutput("Auto/Velocity Array",
+        new double[] { finalX, -finalY, finalTheta });
+    Logger.recordOutput("Auto/dx", targetX - currentX);
+    Logger.recordOutput("Auto/dy", targetY - currentY);
+    Logger.recordOutput("Auto/dtheta", targetTheta - currentTheta);
     return velocityArray;
   }
 
