@@ -3,6 +3,8 @@ package frc.robot;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -24,8 +26,7 @@ import frc.robot.subsystems.drive.DriveConstants;
 
 public class RobotState {
     private static final double poseBufferSizeSec = 2.0;
-    private static final Matrix<N3, N1> odometryStateStdDevs =
-            new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.002));
+    private static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.002));
 
     private static RobotState instance;
 
@@ -36,13 +37,12 @@ public class RobotState {
         return instance;
     }
 
-    private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
-            TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
-    private final TimeInterpolatableBuffer<Rotation3d> rotationBuffer =
-            TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
+    private final TimeInterpolatableBuffer<Pose2d> poseBuffer = TimeInterpolatableBuffer
+            .createBuffer(poseBufferSizeSec);
+    private final TimeInterpolatableBuffer<Rotation3d> rotationBuffer = TimeInterpolatableBuffer
+            .createBuffer(poseBufferSizeSec);
     private final Matrix<N3, N1> qStdDevs = new Matrix<>(Nat.N3(), Nat.N1());
-    private final SwerveDriveKinematics kinematics =
-            new SwerveDriveKinematics(DriveConstants.moduleTranslations);
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.moduleTranslations);
 
     private Pose2d odometryPose = Pose2d.kZero;
     private Pose2d estimatedPose = Pose2d.kZero;
@@ -99,11 +99,22 @@ public class RobotState {
     }
 
     public void resetPose(Pose2d pose) {
-        resetPose(pose, lastWheelPositions);
+        resetPose(pose, lastWheelPositions, Optional.empty());
     }
 
     public void resetPose(Pose2d pose, SwerveModulePosition[] wheelPositions) {
-        gyroOffset = pose.getRotation().minus(odometryPose.getRotation().minus(gyroOffset));
+        resetPose(pose, wheelPositions, Optional.empty());
+    }
+
+    public void resetPose(Pose2d pose, SwerveModulePosition[] wheelPositions, Optional<Rotation2d> yawMeasurement) {
+        if (yawMeasurement.isPresent()) {
+            Logger.recordOutput("Auto/firstyaw", yawMeasurement.get().getDegrees());
+            Logger.recordOutput("Auto/Robostatefirstpose", pose);
+            gyroOffset = pose.getRotation().minus(yawMeasurement.get());
+        } else {
+            System.out.println("WARNING: Resetting pose without yaw measurement, gyro offset may be inaccurate");
+            gyroOffset = pose.getRotation().minus(odometryPose.getRotation().minus(gyroOffset));
+        }
         estimatedPose = pose;
         odometryPose = pose;
         lastWheelPositions = copyWheelPositions(wheelPositions);
@@ -222,8 +233,7 @@ public class RobotState {
     private SwerveModulePosition[] copyWheelPositions(SwerveModulePosition[] wheelPositions) {
         SwerveModulePosition[] copiedPositions = new SwerveModulePosition[wheelPositions.length];
         for (int i = 0; i < wheelPositions.length; i++) {
-            copiedPositions[i] =
-                    new SwerveModulePosition(wheelPositions[i].distanceMeters, wheelPositions[i].angle);
+            copiedPositions[i] = new SwerveModulePosition(wheelPositions[i].distanceMeters, wheelPositions[i].angle);
         }
         return copiedPositions;
     }

@@ -306,6 +306,7 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected void setPosition(Pose2d pose) {
+                Logger.recordOutput("Auto/FirstPose", pose);
                 Drive.odometryLock.lock();
                 try {
                         clearOdometryQueues();
@@ -328,7 +329,8 @@ public class DriveIOComp extends DriveIO {
                                         Rotation2d.fromRotations(backLeftTurnPositionSignal.getValueAsDouble()),
                                         Rotation2d.fromRotations(backRightTurnPositionSignal.getValueAsDouble()));
                         setYaw(pose.getRotation().getDegrees());
-                        RobotState.getInstance().resetPose(pose, currentWheelPositions);
+                        RobotState.getInstance().resetPose(pose, currentWheelPositions,
+                                        Optional.of(pose.getRotation()));
                         seedAcceptedOdometryState(currentWheelPositions, pose.getRotation());
                         resetPhotonHeadingData(Timer.getFPGATimestamp(), pose.getRotation());
                 } finally {
