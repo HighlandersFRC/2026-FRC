@@ -862,7 +862,7 @@ public class DriveIOComp extends DriveIO {
                 double thetaStdDev = xyStdDev * thetaScalar;
                 Logger.recordOutput("Vision/Limelight Std Dev XY", xyStdDev);
                 Logger.recordOutput("Vision/Limelight Std Dev Theta", thetaStdDev);
-                return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
+                return VecBuilder.fill(xyStdDev / 2.0, xyStdDev / 2.0, thetaStdDev);
         }
 
         private void addPhotonHeadingData(double timestamp, Rotation2d heading) {
