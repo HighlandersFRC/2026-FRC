@@ -67,7 +67,7 @@ class IntakeIOComp implements IntakeIO {
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
                 rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 35;
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 35;
-                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
                 rollerMotorMaster.setNeutralMode(NeutralModeValue.Coast);
@@ -77,7 +77,7 @@ class IntakeIOComp implements IntakeIO {
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
                 rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 35;
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 35;
-                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);
                 rollerMotorFollower.setNeutralMode(NeutralModeValue.Coast);
