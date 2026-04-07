@@ -706,11 +706,13 @@ public class DriveIOComp extends DriveIO {
         }
 
         private void updateLimelightObservation(List<PendingVisionObservation> pendingVisionObservations) {
+                double maxAcceptedLimelightAngularVelocityRadPerSec = 0.5;
+                double limelightAngularVelocityStdDevScalarCoefficient = 2;
                 double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
                                 Globals.turretVelocity,
                                 getChassisSpeeds().omegaRadiansPerSecond);
                 Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
-                if (Math.abs(limelightAngVelRelToField) >= 0.5) {
+                if (Math.abs(limelightAngVelRelToField) >= maxAcceptedLimelightAngularVelocityRadPerSec) {
                         return;
                 }
 
@@ -766,7 +768,9 @@ public class DriveIOComp extends DriveIO {
                                         "Cameras/Limelight Pose",
                                         mt1.pose,
                                         mt1.timestampSeconds,
-                                        createVisionStdDevs(mt1.avgTagDist, mt1.tagCount, 2.0)));
+                                        createVisionStdDevs(mt1.avgTagDist, mt1.tagCount, 2.0,
+                                                        limelightAngVelRelToField,
+                                                        limelightAngularVelocityStdDevScalarCoefficient)));
                 } catch (Exception e) {
                         System.out.println(e);
                 }
@@ -856,13 +860,28 @@ public class DriveIOComp extends DriveIO {
                 return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
         }
 
-        private Matrix<N3, N1> createVisionStdDevs(double averageTagDistance, int tagCount, double thetaScalar) {
-                double xyStdDev = Constants.Vision.getTagDistStdDevScalar(averageTagDistance)
-                                * Constants.Vision.getNumTagStdDevScalar(tagCount);
-                double thetaStdDev = xyStdDev * thetaScalar;
+        private Matrix<N3, N1> createVisionStdDevs(
+                        double averageTagDistance,
+                        int tagCount,
+                        double thetaScalar,
+                        double limelightAngVelRelToField,
+                        double limelightAngularVelocityStdDevScalarCoefficient) {
+                double angularVelocityStdDevScalar = 1.0
+                                + limelightAngularVelocityStdDevScalarCoefficient
+                                                * Math.abs(limelightAngVelRelToField);
+                double xyStdDev = DriveConstants.photonXyStdDevCoefficient
+                                * Math.pow(averageTagDistance, 1.2)
+                                / Math.pow(Math.max(tagCount, 1), 2.0)
+                                * angularVelocityStdDevScalar;
+                double thetaStdDev = DriveConstants.photonThetaStdDevCoefficient
+                                * Math.pow(averageTagDistance, 1.2)
+                                / Math.pow(Math.max(tagCount, 1), 2.0)
+                                * angularVelocityStdDevScalar
+                                * thetaScalar;
+                Logger.recordOutput("Vision/Limelight Ang Vel Std Dev Scalar", angularVelocityStdDevScalar);
                 Logger.recordOutput("Vision/Limelight Std Dev XY", xyStdDev);
                 Logger.recordOutput("Vision/Limelight Std Dev Theta", thetaStdDev);
-                return VecBuilder.fill(xyStdDev / 2.0, xyStdDev / 2.0, thetaStdDev);
+                return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
         }
 
         private void addPhotonHeadingData(double timestamp, Rotation2d heading) {
