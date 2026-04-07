@@ -111,6 +111,7 @@ class FeederIOComp implements FeederIO {
     public void updateInputs(FeederState systemState) {
         batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor", dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Online/Dye Rotor Online", dyeRotorMotor.isConnected());
+        Logger.recordOutput("Online/Dye Roller Online", rollerMotor.isConnected());
         // Logger.recordOutput("Feeder/Dye Rotor Torque",
         // dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 
