@@ -108,6 +108,16 @@ class FeederIOComp implements FeederIO {
     }
 
     @Override
+    public double getRollerStatorCurrent() {
+        return rollerMotor.getStatorCurrent().getValueAsDouble();
+    }
+
+    @Override
+    public double getRollerSupplyCurrent() {
+        return rollerMotor.getSupplyCurrent().getValueAsDouble();
+    }
+
+    @Override
     public void updateInputs(FeederState systemState) {
         batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor", dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Online/Dye Rotor Online", dyeRotorMotor.isConnected());

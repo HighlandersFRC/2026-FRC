@@ -73,6 +73,16 @@ class FeederIOSim implements FeederIO {
     }
 
     @Override
+    public double getRollerStatorCurrent() {
+        return 0.0;
+    }
+
+    @Override
+    public double getRollerSupplyCurrent() {
+        return 0.0;
+    }
+
+    @Override
     public void setDyeRotorTorque(double amps, double maxPercent) {
         double pct;
         if (amps > 0.0) {

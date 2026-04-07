@@ -273,7 +273,7 @@ public class Superstructure extends SubsystemBase {
         rotatedShotSolution);
 
     // Feeder
-    feeder.setWantedState(FeederState.REVERSE);
+    feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
@@ -293,7 +293,7 @@ public class Superstructure extends SubsystemBase {
         rotatedShotSolution);
 
     // Feeder
-    feeder.setWantedState(FeederState.REVERSE);
+    feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.INTAKING, drive.getChassisSpeeds());
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
@@ -548,8 +548,6 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.DEFAULT);
     shooter.setWantedState(ShooterState.IDLE);
   }
-
-
 
   public void PARTY() {
   }
