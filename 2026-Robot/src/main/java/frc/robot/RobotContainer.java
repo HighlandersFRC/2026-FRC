@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ClimbLevelManual;
 import frc.robot.commands.ContinuousConditionalCommand;
 import frc.robot.commands.DoNothing;
 import frc.robot.commands.FullSendFollower;
@@ -33,7 +32,6 @@ import frc.robot.commands.ZeroAngleMidMatch;
 import frc.robot.commands.ZeroTurretMidMatch;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperState;
-import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Peripherals;
 import frc.robot.subsystems.feeder.Feeder;
@@ -59,8 +57,7 @@ public class RobotContainer {
         final Shooter shooter = new Shooter();
         final Feeder feeder = new Feeder();
         final Intake intake = new Intake();
-        final Climber climber = new Climber();
-        Superstructure superstructure = new Superstructure(drive, shooter, intake, feeder, climber);
+        Superstructure superstructure = new Superstructure(drive, shooter, intake, feeder);
 
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
@@ -71,7 +68,7 @@ public class RobotContainer {
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 3.0),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 2.15)));
                         put("Intake", () -> new SetRobotState(superstructure, SuperState.INTAKING));
-                        put("Climb", () -> new SetRobotStateSimpleOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
+                        put("Climb", () -> new SetRobotStateSimpleOnce(superstructure, SuperState.SHOOT));
                         put("ShootMore", () -> new SequentialCommandGroup(
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT_NO_JIGGLE, 2.0),
                                         new SetRobotStateTimeout(superstructure, SuperState.SHOOT, 7.0)));
@@ -160,18 +157,10 @@ public class RobotContainer {
 
                 OI.driverViewButton.whileTrue(new ZeroAngleMidMatch(drive));
                 OI.driverMenuButton.whileTrue(new ZeroTurretMidMatch(shooter));
-                OI.driverPOVDown.whileTrue(new SetRobotStateOnce(superstructure,
-                                SuperState.AUTO_L3_CLIMB));
-                OI.driverPOVUp.whileTrue(new SetRobotStateOnce(superstructure,
-                                SuperState.AUTO_PREP_CLIMB));
-
                 OI.driverMenuButton.whileTrue(new SetRobotStateSimpleOnce(superstructure, SuperState.ZERO));
                 // OI.driverX.whileTrue(new SetRobotStateOnce(superstructure,
                 // SuperState.MANUAL_SHOOT));
-                OI.driverX.onTrue(new ClimbLevelManual(climber));
-                OI.driverRB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_CLIMBING));
-                OI.driverLB.whileTrue(new SetRobotState(superstructure, SuperState.MANUAL_EXTEND_CLIMBER));
-                OI.driverY.whileTrue(new SetRobotStateOnce(superstructure, SuperState.AUTO_PREP_CLIMB));
+
                 // Operator
 
         }
