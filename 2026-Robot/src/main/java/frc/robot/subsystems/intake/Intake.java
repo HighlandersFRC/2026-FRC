@@ -14,7 +14,6 @@ import frc.robot.OI;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
-  private double dynamicIntakeSpeed;
   private boolean jiggleUp = true;
   private double timeZeroed = Timer.getFPGATimestamp();
   private boolean firstTimeZeroed = true;
@@ -73,17 +72,6 @@ public class Intake extends SubsystemBase {
 
   public void setWantedState(IntakeState wantedState) {
     this.wantedState = wantedState;
-  }
-
-  public void setWantedState(IntakeState wantedState, ChassisSpeeds robotSpeed) {
-    this.wantedState = wantedState;
-    this.dynamicIntakeSpeed = 5.0 * Math.hypot(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond)
-        / Constants.Physical.TOP_SPEED + 0.2;
-    if (this.dynamicIntakeSpeed < 0.4) {
-      this.dynamicIntakeSpeed = 0.4;
-    } else if (this.dynamicIntakeSpeed > 1.0) {
-      this.dynamicIntakeSpeed = 1.0;
-    }
   }
 
   private IntakeState handleStateTransition() {
@@ -171,7 +159,7 @@ public class Intake extends SubsystemBase {
     // }
 
     if (jiggleUp) {
-      setPivotTorque(-80, 1.0);
+      setPivotTorque(-50, 1.0);
     } else {
       setPivotTorque(30, 0.5);
     }
@@ -179,7 +167,7 @@ public class Intake extends SubsystemBase {
 
   public void calcJiggle() {
     if (Timer.getFPGATimestamp() - flipJiggleTime > 0.3) {
-      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 14.0) {
+      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.50) {
         jiggleUp = false;
       } else {
         jiggleUp = !jiggleUp;

@@ -61,6 +61,7 @@ public class Superstructure extends SubsystemBase {
     SHOOT,
     SHOOT_NO_JIGGLE,
     INTAKING,
+    INTAKING_NO_SLOW,
     SHOOTING,
     SHOOTING_NO_JIGGLE,
     SHOOTING_NO_FEED,
@@ -73,6 +74,7 @@ public class Superstructure extends SubsystemBase {
     PRESET_SHOOTING,
     MANUAL_PASS,
     MANUAL_PASSING,
+    INTAKE_UP,
   }
 
   private SuperState wantedSuperState = SuperState.IDLE;
@@ -146,6 +148,12 @@ public class Superstructure extends SubsystemBase {
         break;
       case INTAKING:
         handleIntakeingState();
+        break;
+      case INTAKING_NO_SLOW:
+        handleIntakingNoSlowState();
+        break;
+      case INTAKE_UP:
+        handleIntakeUpState();
         break;
       case ZERO:
         handleZeroState();
@@ -234,6 +242,12 @@ public class Superstructure extends SubsystemBase {
       case INTAKING:
         currentSuperState = SuperState.INTAKING;
         break;
+      case INTAKING_NO_SLOW:
+        currentSuperState = SuperState.INTAKING_NO_SLOW;
+        break;
+      case INTAKE_UP:
+        currentSuperState = SuperState.INTAKE_UP;
+        break;
       case SHOOTING:
         currentSuperState = SuperState.SHOOTING;
         break;
@@ -274,7 +288,7 @@ public class Superstructure extends SubsystemBase {
 
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.JIGGLE);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -294,7 +308,7 @@ public class Superstructure extends SubsystemBase {
 
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.INTAKING, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.INTAKING);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -325,7 +339,7 @@ public class Superstructure extends SubsystemBase {
       trajectoryVelocity
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
-    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.JIGGLE);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -356,7 +370,7 @@ public class Superstructure extends SubsystemBase {
       trajectoryVelocity
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
-    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.DOWN);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -387,7 +401,7 @@ public class Superstructure extends SubsystemBase {
       trajectoryVelocity
           .add(new Translation3d(initialVelocity.getX(), initialVelocity.getY(), initialVelocity.getZ()));
     }
-    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.DOWN);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -399,7 +413,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         presetShotSolution);
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.JIGGLE);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -411,7 +425,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         presetShotSolution);
     feeder.setWantedState(FeederState.FEED);
-    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.JIGGLE);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE_SLOW);
     } else {
@@ -432,7 +446,7 @@ public class Superstructure extends SubsystemBase {
         rotatedShotSolution);
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.DOWN);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
@@ -453,7 +467,7 @@ public class Superstructure extends SubsystemBase {
     // Feeder
     feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
 
-    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.JIGGLE);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
@@ -464,7 +478,7 @@ public class Superstructure extends SubsystemBase {
   public void handleDefaultState() {
     drive.setWantedState(DriveState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
-    // intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    // intake.setWantedState(IntakeState.DOWN);
     shooter.setWantedState(ShooterState.DEFAULT);
   }
 
@@ -496,7 +510,7 @@ public class Superstructure extends SubsystemBase {
         shotSolution);
     feeder.setWantedState(FeederState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
-    intake.setWantedState(IntakeState.DYNAMIC_INTAKING, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.DYNAMIC_INTAKING);
   }
 
   public void handleManualShootingState() { // TODO: not actual manual shooting
@@ -521,13 +535,25 @@ public class Superstructure extends SubsystemBase {
         shotSolution);
     feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
-    intake.setWantedState(IntakeState.JIGGLE, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.JIGGLE);
   }
 
   public void handleIntakeingState() {
     shooter.setWantedState(ShooterState.DEFAULT);
-    intake.setWantedState(IntakeState.DYNAMIC_INTAKING, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.DYNAMIC_INTAKING);
     feeder.setWantedState(FeederState.DEFAULT);
+    if (DriverStation.isAutonomous()) {
+      drive.setWantedState(DriveState.IDLE_SLOWISH);
+    } else {
+      drive.setWantedState(DriveState.DEFAULT);
+    }
+  }
+
+  public void handleIntakingNoSlowState() {
+    shooter.setWantedState(ShooterState.DEFAULT);
+    intake.setWantedState(IntakeState.DYNAMIC_INTAKING);
+    feeder.setWantedState(FeederState.DEFAULT);
+    drive.setWantedState(DriveState.DEFAULT);
     if (DriverStation.isAutonomous()) {
       drive.setWantedState(DriveState.IDLE);
     } else {
@@ -535,16 +561,20 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
+  public void handleIntakeUpState() {
+    intake.setWantedState(IntakeState.UP);
+  }
+
   public void handleIdleState() {
     drive.setWantedState(DriveState.IDLE);
     shooter.setWantedState(ShooterState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
-    intake.setWantedState(IntakeState.DOWN, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.DOWN);
   }
 
   public void handleZeroState() {
     drive.setWantedState(DriveState.DEFAULT);
-    intake.setWantedState(IntakeState.ZERO, drive.getChassisSpeeds());
+    intake.setWantedState(IntakeState.ZERO);
     feeder.setWantedState(FeederState.DEFAULT);
     shooter.setWantedState(ShooterState.IDLE);
   }

@@ -342,6 +342,11 @@ public final class Constants {
                         }
                 }
 
+                public static boolean isNearMiddle(Translation2d robotPosition) {
+                        return robotPosition.getX() < 10.0
+                                        && robotPosition.getX() > Constants.Physical.FIELD_LENGTH - 10.0;
+                }
+
                 public static boolean isInOtherAllianceZone(Translation2d robotPosition) {
                         if (Globals.fieldSide.equals("blue")) {
                                 return HUB_POSE_RED.getX() + BUMP_WIDTH / 2 < robotPosition.getX();

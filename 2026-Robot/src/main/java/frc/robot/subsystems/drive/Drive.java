@@ -93,6 +93,7 @@ public class Drive extends SubsystemBase {
     DEFAULT_SLOWISH,
     IDLE,
     IDLE_SLOW,
+    IDLE_SLOWISH,
     STOP,
     DRIVE_TO_PRE_CLIMB,
     DRIVE_TO_ALIGN_CLIMB,
@@ -788,8 +789,22 @@ public class Drive extends SubsystemBase {
       if (Math.abs(turnRadiansPerSec) > Math.PI / 4.0) {
         turnRadiansPerSec = Math.PI / 4.0 * Math.copySign(1, turnRadiansPerSec);
       }
+    } else if (wantedState == DriveState.IDLE_SLOWISH
+        && Constants.Field.isNearMiddle(getMt2Pose2d().getTranslation()) && !isComingBack()) {
+      vector = vector.scaled(0.9);
+      vector = vector.cap(1.0);
+      // turnRadiansPerSec *= 0.67;
+      turnRadiansPerSec *= 0.9;
+      System.out.println("Slowing down for middle");
     }
     io.drive(vector, turnRadiansPerSec);
+  }
+
+  private boolean isComingBack() {
+    if (Globals.fieldSide.equals("red")) {
+      return getChassisSpeeds().vxMetersPerSecond > 0;
+    }
+    return getChassisSpeeds().vxMetersPerSecond < 0;
   }
 
   /**
@@ -927,8 +942,8 @@ public class Drive extends SubsystemBase {
 
     if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
       // slow down to maintain control
-      finalY = Math.copySign(Math.min(Math.abs(finalY), 2.0), finalY);
-      finalX = Math.copySign(Math.min(Math.abs(finalX), 2.0), finalX);
+      finalY = Math.copySign(Math.min(Math.abs(finalY), 2.5), finalY);
+      finalX = Math.copySign(Math.min(Math.abs(finalX), 2.5), finalX);
     }
 
     Number[] velocityArray = new Number[] {
@@ -990,6 +1005,8 @@ public class Drive extends SubsystemBase {
         return DriveState.IDLE;
       case IDLE_SLOW:
         return DriveState.IDLE_SLOW;
+      case IDLE_SLOWISH:
+        return DriveState.IDLE_SLOWISH;
       case STOP:
         return DriveState.STOP;
       case DRIVE_TO_ALIGN_CLIMB:
@@ -1147,6 +1164,8 @@ public class Drive extends SubsystemBase {
 
         break;
       case IDLE_SLOW:
+        break;
+      case IDLE_SLOWISH:
         break;
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +
