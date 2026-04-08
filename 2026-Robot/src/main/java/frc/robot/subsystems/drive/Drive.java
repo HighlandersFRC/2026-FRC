@@ -802,9 +802,9 @@ public class Drive extends SubsystemBase {
 
   private boolean isComingBack() {
     if (Globals.fieldSide.equals("red")) {
-      return getChassisSpeeds().vxMetersPerSecond > 0;
+      return getChassisSpeeds().vxMetersPerSecond < 0;
     }
-    return getChassisSpeeds().vxMetersPerSecond < 0;
+    return getChassisSpeeds().vxMetersPerSecond > 0;
   }
 
   /**
