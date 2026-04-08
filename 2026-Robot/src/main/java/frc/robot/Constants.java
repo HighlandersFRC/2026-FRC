@@ -190,7 +190,7 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.44));
+                                        inchesToMeters(-0.356), inchesToMeters(0.017), inchesToMeters(21.44));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
