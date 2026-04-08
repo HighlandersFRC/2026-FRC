@@ -927,9 +927,8 @@ public class Drive extends SubsystemBase {
 
     if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
       // slow down to maintain control
-      finalTheta = finalTheta * 0.6;
-      finalX = finalX * 0.6;
-      finalY = finalY * 0.6;
+      finalY = Math.copySign(Math.min(Math.abs(finalY), 2.0), finalY);
+      finalX = Math.copySign(Math.min(Math.abs(finalX), 2.0), finalX);
     }
 
     Number[] velocityArray = new Number[] {
