@@ -873,11 +873,7 @@ public class DriveIOComp extends DriveIO {
                                 * Math.pow(averageTagDistance, 1.2)
                                 / Math.pow(Math.max(tagCount, 1), 2.0)
                                 * angularVelocityStdDevScalar;
-                double thetaStdDev = DriveConstants.photonThetaStdDevCoefficient
-                                * Math.pow(averageTagDistance, 1.2)
-                                / Math.pow(Math.max(tagCount, 1), 2.0)
-                                * angularVelocityStdDevScalar
-                                * thetaScalar;
+                double thetaStdDev = Double.POSITIVE_INFINITY;
                 Logger.recordOutput("Vision/Limelight Ang Vel Std Dev Scalar", angularVelocityStdDevScalar);
                 Logger.recordOutput("Vision/Limelight Std Dev XY", xyStdDev);
                 Logger.recordOutput("Vision/Limelight Std Dev Theta", thetaStdDev);
