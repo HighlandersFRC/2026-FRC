@@ -208,7 +208,7 @@ class ShooterIOComp implements ShooterIO {
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
-                turretMotor.setPosition(Units.radiansToRotations(getRelativeTurretAngleRadians()));
+                turretMotor.setPosition(Units.radiansToRotations(_getRelativeTurretAngleRadians()));
                 // turretMotor.setPosition(0.0);
         }
 
@@ -303,8 +303,7 @@ class ShooterIOComp implements ShooterIO {
                 // }
         }
 
-        @Override
-        public double getRelativeTurretAngleRadians() {
+        private double _getRelativeTurretAngleRadians() {
                 double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
                 double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
                 // double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
@@ -347,6 +346,11 @@ class ShooterIOComp implements ShooterIO {
                 }
 
                 return -Units.rotationsToRadians(bestTheta);
+        }
+
+        @Override
+        public double getRelativeTurretAngleRadians() {
+                return Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
         }
 
         private double wrap(double x) {
@@ -419,7 +423,7 @@ class ShooterIOComp implements ShooterIO {
 
                 if (initializingTurret) {
                         initLoops++;
-                        firstTurretAngles.add(getRelativeTurretAngleRadians());
+                        firstTurretAngles.add(_getRelativeTurretAngleRadians());
                         if (firstTurretAngles.size() > 1) {
                                 double tempError = firstTurretAngles.get(firstTurretAngles.size() - 2)
                                                 - firstTurretAngles.get(firstTurretAngles.size() - 1);
@@ -452,7 +456,7 @@ class ShooterIOComp implements ShooterIO {
                 // firstTurretAngles.toString());
                 // Logger.recordOutput("Testing/numberSkips", numberSkips);
                 Logger.recordOutput("Shooter/Relative Turret Angle",
-                                Math.toDegrees(getRelativeTurretAngleRadians()));
+                                Math.toDegrees(_getRelativeTurretAngleRadians()));
                 Logger.recordOutput("Shooter/Motor Turret Angle",
                                 Units.rotationsToDegrees(turretMotor.getPosition().getValueAsDouble()));
                 Logger.recordOutput("Shooter/Turret Error Degrees",
