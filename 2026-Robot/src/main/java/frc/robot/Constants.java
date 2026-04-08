@@ -7,12 +7,14 @@ package frc.robot;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.apache.commons.math3.analysis.function.Constant;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -103,15 +105,18 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
+                public static final Transform2d CAD_OFFSET_METERS = new Transform2d(Constants.inchesToMeters(-3.04), 0,
+                                new Rotation2d(0));
+
                 // 1.437/1.736 4.115
                 public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.455,
                                 4.121),
-                                new Rotation2d(Math.toRadians(-90.0)));
+                                new Rotation2d(Math.toRadians(-90.0))).plus(CAD_OFFSET_METERS);
                 public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
                                 1.736,
                                 4.121),
-                                new Rotation2d(Math.toRadians(-90.0)));
+                                new Rotation2d(Math.toRadians(-90.0))).plus(CAD_OFFSET_METERS);
 
                 // public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
                 // 1.483,
@@ -124,11 +129,11 @@ public final class Constants {
                 // new Rotation2d(Math.toRadians(-90.0)));
                 public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 1.455, 3.262),
-                                new Rotation2d(Math.toRadians(-90.0)));
+                                new Rotation2d(Math.toRadians(-90.0))).plus(CAD_OFFSET_METERS);
                 public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
                                 1.736,
                                 3.262),
-                                new Rotation2d(Math.toRadians(-90.0)));
+                                new Rotation2d(Math.toRadians(-90.0))).plus(CAD_OFFSET_METERS);
 
                 // public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
                 // 14.94, 3.94), new Rotation2d(Math.PI / 2));
@@ -190,7 +195,9 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.44));
+                                        inchesToMeters(-0.356), inchesToMeters(0.017), inchesToMeters(21.44))
+                                        .plus(new Translation3d(Constants.Physical.CAD_OFFSET_METERS.getX(),
+                                                        Constants.Physical.CAD_OFFSET_METERS.getY(), 0));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /

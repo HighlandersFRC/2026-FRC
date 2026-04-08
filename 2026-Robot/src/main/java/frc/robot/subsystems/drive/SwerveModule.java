@@ -77,19 +77,26 @@ public class SwerveModule extends SubsystemBase {
     double length = Constants.Physical.ROBOT_LENGTH / 2, width = Constants.Physical.ROBOT_WIDTH / 2, angle;
     length -= Constants.Physical.MODULE_OFFSET;
     width -= Constants.Physical.MODULE_OFFSET;
+
+    double cadOffsetX = Constants.Physical.CAD_OFFSET_METERS.getX();
+    double cadOffsetY = Constants.Physical.CAD_OFFSET_METERS.getY();
+
     switch (moduleNumber) {
       case 1:
-        angle = (Math.atan2(-length, width)) - Math.PI;
+        angle = (Math.atan2(-length + cadOffsetX, width + cadOffsetY)) - Math.PI;
         break;
       case 2:
-        angle = Math.atan2(length, width);
+        angle = Math.atan2(length + cadOffsetX, width + cadOffsetY);
         break;
       case 3:
-        angle = Math.PI + Math.atan2(Constants.Physical.HEX_MODULE_X_OFFSET, -Constants.Physical.HEX_MODULE_Y_OFFSET);
+        angle = Math.PI
+            + Math.atan2(Constants.Physical.HEX_MODULE_X_OFFSET + cadOffsetX,
+                -Constants.Physical.HEX_MODULE_Y_OFFSET + cadOffsetY);
         break;
       case 4:
         angle = (2 * Math.PI)
-            + (Math.atan2(-Constants.Physical.HEX_MODULE_X_OFFSET, -Constants.Physical.HEX_MODULE_Y_OFFSET));
+            + (Math.atan2(-Constants.Physical.HEX_MODULE_X_OFFSET + cadOffsetX,
+                -Constants.Physical.HEX_MODULE_Y_OFFSET + cadOffsetY));
         break;
       default:
         angle = 1;

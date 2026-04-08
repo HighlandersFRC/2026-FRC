@@ -94,25 +94,29 @@ public class DriveIOComp extends DriveIO {
         private final Transform3d leftFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
                                         Constants.inchesToMeters(25.29)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)))
+                        .plus(new Transform3d(Constants.Physical.CAD_OFFSET_METERS));
 
         private final Transform3d leftBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-14.206),
                                         Constants.inchesToMeters(7.265),
                                         Constants.inchesToMeters(23.765)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
-                                        Math.toRadians(145.0)));
+                                        Math.toRadians(145.0)))
+                        .plus(new Transform3d(Constants.Physical.CAD_OFFSET_METERS));
 
         private final Transform3d rightFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
                                         Constants.inchesToMeters(25.433)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)))
+                        .plus(new Transform3d(Constants.Physical.CAD_OFFSET_METERS));
 
         private final Transform3d rightBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
                                         Constants.inchesToMeters(24.557)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
-                                        Math.toRadians(210.0)));
+                                        Math.toRadians(210.0)))
+                        .plus(new Transform3d(Constants.Physical.CAD_OFFSET_METERS));
 
         private final LinearFilter filterX = LinearFilter.movingAverage(10);
         private final LinearFilter filterY = LinearFilter.movingAverage(10);
