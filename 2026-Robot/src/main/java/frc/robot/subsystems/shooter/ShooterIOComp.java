@@ -197,14 +197,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.05029296875; // TODO: Try calculating offset from
-                                                                             // previous zero
-                                                                             // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.051513671875; // TODO: Try calculating offset from
+                                                                              // previous zero
+                                                                              // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.090576171875;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.106201171875;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -420,35 +420,6 @@ class ShooterIOComp implements ShooterIO {
 
                 batteryLogger.reportCurrentUsage("Shooter/Turret Motor",
                                 turretMotor.getSupplyCurrent().getValueAsDouble());
-
-                if (initializingTurret) {
-                        initLoops++;
-                        firstTurretAngles.add(_getRelativeTurretAngleRadians());
-                        if (firstTurretAngles.size() > 1) {
-                                double tempError = firstTurretAngles.get(firstTurretAngles.size() - 2)
-                                                - firstTurretAngles.get(firstTurretAngles.size() - 1);
-                                if (tempError > Math.toRadians(10.0)) {
-                                        numberSkips++;
-                                }
-                        }
-                }
-
-                if (initializingTurret && initLoops > 10) {
-                        if (numberSkips < 4) {
-                                initializingTurret = false;
-                                initLoops = 0;
-                                firstTurretAngles.sort(null);
-                                double median = firstTurretAngles.get(firstTurretAngles.size() / 2);
-                                // turretMotor.setPosition(Units.radiansToRotations(median));
-                                System.out.println(
-                                                "Motor Zeroed succesfully at " + Math.toDegrees(median) + " degrees");
-                                System.out.println("List: " + firstTurretAngles.toString());
-                        } else {
-                                initLoops = 0;
-                                numberSkips = 0;
-                                firstTurretAngles.clear();
-                        }
-                }
 
                 // Logger.recordOutput("Testing/initializingTurret", initializingTurret);
                 // Logger.recordOutput("Testing/initLoops", initLoops);

@@ -51,8 +51,8 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.MotionMagic.MotionMagicCruiseVelocity = this.intakeCruiseVelocity;
                 intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                intakeConfig.CurrentLimits.StatorCurrentLimit = 40;
-                intakeConfig.CurrentLimits.SupplyCurrentLimit = 40;
+                intakeConfig.CurrentLimits.StatorCurrentLimit = 80;
+                intakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
