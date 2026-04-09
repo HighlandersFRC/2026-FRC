@@ -438,7 +438,9 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected boolean getFlat() {
-                return Math.abs(gyro.getPitchDegrees()) < 3.5 && Math.abs(gyro.getRollDegrees()) < 3.5;
+                return true;
+                // Math.abs(gyro.getPitchDegrees()) < 3.5 && Math.abs(gyro.getRollDegrees()) <
+                // 3.5;
         }
 
         private void clearOdometryQueues() {
@@ -566,10 +568,11 @@ public class DriveIOComp extends DriveIO {
                         return;
                 }
 
-                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 || Math.abs(gyro.getRollDegrees()) > 4.1;
-                if (tilted) {
-                        return;
-                }
+                // boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 ||
+                // Math.abs(gyro.getRollDegrees()) > 4.1;
+                // if (tilted) {
+                // return;
+                // }
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) >= 2.4) {
                         return;

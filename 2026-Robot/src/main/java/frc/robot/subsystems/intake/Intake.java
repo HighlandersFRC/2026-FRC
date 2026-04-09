@@ -78,7 +78,7 @@ public class Intake extends SubsystemBase {
     if (OI.driverRT.getAsBoolean()) {
       return IntakeState.DYNAMIC_INTAKING;
     }
-    if (OI.driverA.getAsBoolean()) {
+    if (OI.driverRB.getAsBoolean()) {
       return IntakeState.OUTAKE;
     }
     switch (wantedState) {

@@ -40,7 +40,7 @@ public class Feeder extends SubsystemBase {
   }
 
   private FeederState handleStateTransition() {
-    if (OI.getOperatorLB()) {
+    if (OI.getDriverA()) {
       return FeederState.REVERSE;
     } else if (OI.getOperatorRB()) {
       return FeederState.FEED;
