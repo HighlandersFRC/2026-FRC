@@ -135,8 +135,8 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
                 flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
-                flywheelConfig.CurrentLimits.StatorCurrentLimit = 60;
-                flywheelConfig.CurrentLimits.SupplyCurrentLimit = 60;
+                flywheelConfig.CurrentLimits.StatorCurrentLimit = 67;
+                flywheelConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 flywheelConfig.Voltage.PeakForwardVoltage = 32.0;
                 flywheelConfig.Voltage.PeakReverseVoltage = 0.0;
                 flywheelConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
@@ -162,8 +162,8 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollowerConfig.Slot1.kV = Constants.PIDConstants.Flywheel.kV1;
                 flywheelFollowerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
-                flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
-                flywheelFollowerConfig.CurrentLimits.SupplyCurrentLimit = 60;
+                flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 67;
+                flywheelFollowerConfig.CurrentLimits.SupplyCurrentLimit = 67;
                 flywheelFollowerConfig.Voltage.PeakForwardVoltage = 32.0;
                 flywheelFollowerConfig.Voltage.PeakReverseVoltage = 0.0;
                 flywheelFollowerConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;

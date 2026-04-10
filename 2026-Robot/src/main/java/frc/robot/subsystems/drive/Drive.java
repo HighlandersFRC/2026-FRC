@@ -450,8 +450,8 @@ public class Drive extends SubsystemBase {
       controllerVector = controllerVector.scaled(0.95);
       controllerVector = controllerVector.cap(3.0);
       // turn *= 0.67;
-      if (Math.abs(turn) > Math.PI / 4.0) {
-        turn = Math.PI / 4.0 * Math.copySign(1, turn);
+      if (Math.abs(turn) > Math.PI / 2.5) {
+        turn = Math.PI / 2.5 * Math.copySign(1, turn);
       }
     }
     io.drive(controllerVector, turn);
