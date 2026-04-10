@@ -91,7 +91,7 @@ public class PhoenixOdometryThread extends Thread {
 
     @Override
     public void run() {
-        Threads.setCurrentThreadPriority(true, 1);
+        Threads.setCurrentThreadPriority(false, 1);
 
         // Diagnostics for verifying 250 Hz operation
         long loopStartTime = System.nanoTime();

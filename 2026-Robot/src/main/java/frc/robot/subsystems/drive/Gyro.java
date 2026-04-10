@@ -7,11 +7,12 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
+import frc.robot.Constants.Physical;
 import frc.robot.tools.math.Vector;
 
 public class Gyro {
-    private final Pigeon2 pigeon = new Pigeon2(0, "rio");
-    private final Pigeon2 pigeon2 = new Pigeon2(1, "rio");
+    private final Pigeon2 pigeon = new Pigeon2(0, Constants.CANInfo.CANBUS_NAME);
+    private final Pigeon2 pigeon2 = new Pigeon2(1, Constants.CANInfo.CANBUS_NAME);
 
     private final Pigeon2Configuration pigeonConfig = new Pigeon2Configuration();
     private final Pigeon2Configuration pigeon2Config = new Pigeon2Configuration();
