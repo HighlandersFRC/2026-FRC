@@ -8,22 +8,24 @@ import frc.robot.Constants;
 import frc.robot.tools.math.Vector;
 
 public class Gyro {
-    private final Pigeon2 pigeon = new Pigeon2(0, "Canivore");
+    private final Pigeon2 pigeon = new Pigeon2(0, "rio");
 
     private final Pigeon2Configuration pigeonConfig = new Pigeon2Configuration();
 
     private double pitchOffset = 0.0;
+    private double rollOffset = 0.0;
 
     public void init() {
         // Set the mount pose configuration for the IMU // IN CORRECT ORDER NOW
-        pigeonConfig.MountPose.MountPoseYaw = 99.96426391601562;
-        pigeonConfig.MountPose.MountPosePitch = -0.4955747425556183;
-        pigeonConfig.MountPose.MountPoseRoll = 178.5750274658203;
+        pigeonConfig.MountPose.MountPoseYaw = -81.34595489501953;
+        pigeonConfig.MountPose.MountPosePitch = -0.17589950561523438;
+        pigeonConfig.MountPose.MountPoseRoll = -179.90602111816406;
 
         pigeon.getConfigurator().apply(pigeonConfig);
 
         zeroYaw();
         setPitchOffsetDegrees(getPitchDegrees());
+        setRollOffsetDegrees(getRollDegrees());
     }
 
     public void zeroYaw() {
@@ -83,11 +85,15 @@ public class Gyro {
     }
 
     public double getRollDegrees() {
-        return pigeon.getRoll().getValueAsDouble();
+        return pigeon.getRoll().getValueAsDouble() - rollOffset;
     }
 
     public void setPitchOffsetDegrees(double offsetDeg) {
         pitchOffset = offsetDeg;
+    }
+
+    public void setRollOffsetDegrees(double offsetDeg) {
+        rollOffset = offsetDeg;
     }
 
     public Vector getLinearAccelGVector() {

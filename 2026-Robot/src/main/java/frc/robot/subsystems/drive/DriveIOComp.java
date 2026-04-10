@@ -266,6 +266,8 @@ public class DriveIOComp extends DriveIO {
         @Override
         void zeroIMU() {
                 gyro.setYaw(0.0);
+                gyro.setPitchOffsetDegrees(gyro.getPitchDegrees());
+                gyro.setRollOffsetDegrees(gyro.getRollDegrees());
                 setPosition(new Pose2d(getPosition().getTranslation(), Rotation2d.kZero));
         }
 
