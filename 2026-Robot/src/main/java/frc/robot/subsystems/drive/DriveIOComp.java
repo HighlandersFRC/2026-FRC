@@ -415,6 +415,14 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Swerve/Back Left Angle Current", backLeft.getAngleMotorCurrent());
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
+
+                Logger.recordOutput("Robot/gyro1yaw", gyro.getPigeon1Yaw());
+                Logger.recordOutput("Robot/gyro2yaw", gyro.getPigeon2Yaw());
+                Logger.recordOutput("Robot/gyro1roll", gyro.getPigeon1Roll());
+                Logger.recordOutput("Robot/gyro2roll", gyro.getPigeon2Roll());
+                Logger.recordOutput("Robot/gyro1pitch", gyro.getPigeon1Pitch());
+                Logger.recordOutput("Robot/gyro2pitch", gyro.getPigeon2Pitch());
+
                 Logger.recordOutput("Online/Front Right Drive Online", frontRightDriveMotor.isConnected());
                 Logger.recordOutput("Online/Front Left Drive Online", frontLeftDriveMotor.isConnected());
                 Logger.recordOutput("Online/Back Right Drive Online", backRightDriveMotor.isConnected());
@@ -431,6 +439,7 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Online/Back Left CanCoder Online", backLeftCanCoder.isConnected());
 
                 Logger.recordOutput("Pigeon Online", gyro.isOnline());
+                Logger.recordOutput("Pigeon2 Online", gyro.is2Online());
         }
 
         @Override

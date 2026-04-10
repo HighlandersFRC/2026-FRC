@@ -432,7 +432,7 @@ public class Drive extends SubsystemBase {
       // yLimiter.reset(vy);
       // }
       controllerVector = controllerVector.scaled(0.41);
-      controllerVector = controllerVector.cap(0.67);
+      controllerVector = controllerVector.cap(1.25);
       turn *= 0.41;
       if (Math.abs(turn) > Math.PI / 4.0) {
         turn = Math.PI / 4.0 * Math.copySign(1, turn);
@@ -448,7 +448,7 @@ public class Drive extends SubsystemBase {
       // yLimiter.reset(vy);
       // }
       controllerVector = controllerVector.scaled(0.95);
-      controllerVector = controllerVector.cap(2.5);
+      controllerVector = controllerVector.cap(3.0);
       // turn *= 0.67;
       if (Math.abs(turn) > Math.PI / 4.0) {
         turn = Math.PI / 4.0 * Math.copySign(1, turn);
