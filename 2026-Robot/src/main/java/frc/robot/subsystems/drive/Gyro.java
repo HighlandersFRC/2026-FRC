@@ -27,9 +27,9 @@ public class Gyro {
 
         pigeon.getConfigurator().apply(pigeonConfig);
 
-        pigeon2Config.MountPose.MountPoseYaw = -82.46958923339844;
-        pigeon2Config.MountPose.MountPosePitch = 17.953596115112305;
-        pigeon2Config.MountPose.MountPoseRoll = -179.22665405273438;
+        pigeon2Config.MountPose.MountPoseYaw = 92.46392059326172;
+        pigeon2Config.MountPose.MountPosePitch = 0.3513249158859253;
+        pigeon2Config.MountPose.MountPoseRoll = 179.95584106445312;
 
         pigeon2.getConfigurator().apply(pigeon2Config);
 
