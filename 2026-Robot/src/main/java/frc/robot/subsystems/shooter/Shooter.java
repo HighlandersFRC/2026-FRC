@@ -133,7 +133,8 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Turret Error", turretAngleError);
     Logger.recordOutput("Shooter/Turret Precision Required",
         turretPrecisionRequired);
-    Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
+    Logger.recordOutput("Shooter/Flywheel RPM Error", getFlywheelRPM()
+        - wantedShotSolution.flywheelRPM);
     Logger.recordOutput("Shooter/Flywheel RPM Precision Required",
         Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
