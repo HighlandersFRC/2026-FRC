@@ -65,8 +65,8 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerMasterConfig = new TalonFXConfiguration();
                 rollerMasterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 35;
-                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 35;
+                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 50;
+                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 50;
                 rollerMasterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
@@ -75,8 +75,8 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerFollowerConfig = new TalonFXConfiguration();
                 rollerFollowerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 35;
-                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 35;
+                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 50;
+                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 50;
                 rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);

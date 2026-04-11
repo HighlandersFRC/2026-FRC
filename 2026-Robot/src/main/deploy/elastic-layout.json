@@ -731,7 +731,7 @@
             "title": "Hood Motor Online",
             "x": 1280.0,
             "y": 384.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {

@@ -251,6 +251,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setFlywheelRPM(double rpm) {
+    Logger.recordOutput("Shooter/Flywheel RPM Setpoint", rpm);
     io.setFlywheelRPM(rpm);
   }
 

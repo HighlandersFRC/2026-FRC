@@ -792,7 +792,7 @@ public class Drive extends SubsystemBase {
     } else if (wantedState == DriveState.IDLE_SLOWISH
         && Constants.Field.isNearMiddle(getMt2Pose2d().getTranslation()) && !isComingBack()) {
       vector = vector.scaled(0.9);
-      vector = vector.cap(1.0);
+      vector = vector.cap(1.5);
       // turnRadiansPerSec *= 0.67;
       turnRadiansPerSec *= 0.9;
       System.out.println("Slowing down for middle");
@@ -942,8 +942,8 @@ public class Drive extends SubsystemBase {
 
     if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
       // slow down to maintain control
-      finalY = Math.copySign(Math.min(Math.abs(finalY), 2.5), finalY);
-      finalX = Math.copySign(Math.min(Math.abs(finalX), 2.5), finalX);
+      finalY = Math.copySign(Math.min(Math.abs(finalY), 3.41), finalY);
+      finalX = Math.copySign(Math.min(Math.abs(finalX), 3.41), finalX);
     }
 
     Number[] velocityArray = new Number[] {

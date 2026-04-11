@@ -449,9 +449,7 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected boolean getFlat() {
-                return true;
-                // Math.abs(gyro.getPitchDegrees()) < 3.5 && Math.abs(gyro.getRollDegrees()) <
-                // 3.5;
+                return Math.abs(gyro.getPitchDegrees()) < 3.5 && Math.abs(gyro.getRollDegrees()) < 3.5;
         }
 
         private void clearOdometryQueues() {
