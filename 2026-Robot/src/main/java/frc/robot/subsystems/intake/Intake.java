@@ -157,9 +157,13 @@ public class Intake extends SubsystemBase {
     // Constants.SetPoints.Intake.INTAKE_UP_POSITION + 17.18) {
     // jiggleUp = false;
     // }
-
     if (jiggleUp) {
-      setPivotTorque(-50, 1.0);
+
+      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.50) {
+        setPivotTorque(30, 0.3);
+      } else {
+        setPivotTorque(-45, 0.6);
+      }
     } else {
       setPivotTorque(30, 0.5);
     }
@@ -167,11 +171,12 @@ public class Intake extends SubsystemBase {
 
   public void calcJiggle() {
     if (Timer.getFPGATimestamp() - flipJiggleTime > 0.3) {
-      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.50) {
-        jiggleUp = false;
-      } else {
-        jiggleUp = !jiggleUp;
-      }
+      // if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION +
+      // 15.50) {
+      // jiggleUp = false;
+      // } else {
+      jiggleUp = !jiggleUp;
+      // }
       flipJiggleTime = Timer.getFPGATimestamp();
     }
   }

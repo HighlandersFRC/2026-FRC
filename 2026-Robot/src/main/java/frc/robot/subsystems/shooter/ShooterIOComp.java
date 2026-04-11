@@ -274,7 +274,7 @@ class ShooterIOComp implements ShooterIO {
                 // Logger.recordOutput("Shooter/Goal flywheel RPM", rpm);
                 double adjustedRPM = rpm;
                 if (Math.abs(OI.getOperatorLeftY()) > 0.1 || Math.abs(OI.getOperatorLeftX()) > 0.3) {
-                        adjustedRPM -= 150.0 * OI.getOperatorLeftY();
+                        adjustedRPM -= 200.0 * OI.getOperatorLeftY();
                 }
                 Logger.recordOutput("Shooter/Adjusted RPM Setpoint", adjustedRPM);
 
