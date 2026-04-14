@@ -122,7 +122,11 @@ public class Intake extends SubsystemBase {
 
   public void setIntakeDown() {
     if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 10.0) {
-      setPivotTorque(5, 0.3);
+      if (DriverStation.isAutonomousEnabled()) {
+        setPivotTorque(40, 1.0);
+      } else {
+        setPivotTorque(5, 0.3);
+      }
     } else {
       setPivotTorque(40, 1.0);
     }
@@ -216,7 +220,7 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         setIntakeDown();
         // setRollerPercent(0.9);
-        setRollerTorque(80, 0.6);
+        setRollerTorque(80, 0.75);
 
         break;
       case OUTAKE:
@@ -225,7 +229,7 @@ public class Intake extends SubsystemBase {
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
-        setRollerTorque(80, 0.6);
+        setRollerTorque(80, 0.75);
         // setRollerPercent(0.9);
         break;
       case JIGGLE:

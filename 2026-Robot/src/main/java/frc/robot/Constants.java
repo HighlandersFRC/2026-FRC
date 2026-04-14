@@ -562,7 +562,7 @@ public final class Constants {
                 public static class Shooter {
                         private final static double DISTANCE_OFFSET = 0.0;
                         private final static double ANGLE_OFFSET = 0.0;
-                        private final static double RPM_OFFSET = 15.0;
+                        private final static double RPM_OFFSET = 35.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
