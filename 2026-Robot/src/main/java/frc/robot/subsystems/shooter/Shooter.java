@@ -98,7 +98,7 @@ public class Shooter extends SubsystemBase {
     // wantedShotSolution.turretAngle.getDegrees());
     if (wantedShotSolution.robotVelocity.isPresent()) {
       Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
-          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
+          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.225);
       // Logger.recordOutput("Shooter/Predicted Turret Angle",
       // prediction.getDegrees());
       setTurretAngle(prediction);
@@ -116,20 +116,10 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.hoodAngle)
             .getRadians());
     double turretAngleError;
-    if (wantedShotSolution.robotVelocity.isPresent()) {
-      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
-          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.1);
-      turretAngleError = Math.abs(
-          getRobotRelativeTurretAngle()
-              .minus(prediction)
-              .getRadians());
-    } else {
-      turretAngleError = Math.abs(
-          getRobotRelativeTurretAngle()
-              .minus(wantedShotSolution.turretAngle)
-              .getRadians());
-
-    }
+    turretAngleError = Math.abs(
+        getRobotRelativeTurretAngle()
+            .minus(wantedShotSolution.turretAngle)
+            .getRadians());
 
     double turretPrecisionRequired = Math
         .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
@@ -143,7 +133,8 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/Turret Error", turretAngleError);
     Logger.recordOutput("Shooter/Turret Precision Required",
         turretPrecisionRequired);
-    Logger.recordOutput("Shooter/Flywheel RPM Error", flywheelRPMError);
+    Logger.recordOutput("Shooter/Flywheel RPM Error", getFlywheelRPM()
+        - wantedShotSolution.flywheelRPM);
     Logger.recordOutput("Shooter/Flywheel RPM Precision Required",
         Constants.SetPoints.Flywheel.FLYWHEEL_RPM_PRECISION);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_PRECISION
@@ -260,6 +251,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setFlywheelRPM(double rpm) {
+    Logger.recordOutput("Shooter/Flywheel RPM Setpoint", rpm);
     io.setFlywheelRPM(rpm);
   }
 

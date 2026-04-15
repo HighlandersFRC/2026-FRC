@@ -1,5 +1,8 @@
 package frc.robot.subsystems.drive;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.littletonrobotics.junction.Logger;
@@ -19,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.RobotState;
 import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
 import frc.robot.tools.math.Vector;
@@ -26,6 +30,7 @@ import frc.robot.tools.math.Vector;
 // **Zero Wheels with the bolt head showing on the left when the front side(battery) is facing down/away from you**
 
 public class Drive extends SubsystemBase {
+  static final Lock odometryLock = new ReentrantLock();
 
   private DriveIO io;
   private Peripherals peripherals;
@@ -39,7 +44,7 @@ public class Drive extends SubsystemBase {
   private double kYI = kXI;
   private double kYD = kXD;
 
-  private double kThetaP = 2.90;
+  private double kThetaP = 1.00;
   private double kThetaI = 0.00;
   private double kThetaD = 2.00;
 
@@ -85,8 +90,10 @@ public class Drive extends SubsystemBase {
   public enum DriveState {
     DEFAULT,
     DEFAULT_SLOW,
+    DEFAULT_SLOWISH,
     IDLE,
     IDLE_SLOW,
+    IDLE_SLOWISH,
     STOP,
     DRIVE_TO_PRE_CLIMB,
     DRIVE_TO_ALIGN_CLIMB,
@@ -154,7 +161,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void teleopInit() {
-    io.setCurrentLimits(80, 80);
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
   }
 
   /**
@@ -230,7 +237,7 @@ public class Drive extends SubsystemBase {
       firstPointAngle = -firstPointAngle;
     }
     Pose2d firstPose2d = new Pose2d(new Translation2d(firstPointX, firstPointY), new Rotation2d(firstPointAngle));
-    io.setCurrentLimits(60, 120);
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
     io.setPosition(firstPose2d);
 
   }
@@ -269,7 +276,7 @@ public class Drive extends SubsystemBase {
   }
 
   public Pose2d getMt2Pose2d() {
-    return io.getPosition();
+    return RobotState.getInstance().getEstimatedPose();
   }
 
   /**
@@ -425,10 +432,26 @@ public class Drive extends SubsystemBase {
       // yLimiter.reset(vy);
       // }
       controllerVector = controllerVector.scaled(0.41);
-      controllerVector = controllerVector.cap(0.67);
+      controllerVector = controllerVector.cap(0.9);
       turn *= 0.41;
       if (Math.abs(turn) > Math.PI / 4.0) {
         turn = Math.PI / 4.0 * Math.copySign(1, turn);
+      }
+    }
+    if (wantedState == DriveState.DEFAULT_SLOWISH) {
+      // if (!xDecreasing) {
+      // controllerVector.setI(vx);
+      // xLimiter.reset(vx);
+      // }
+      // if (!yDecreasing) {
+      // controllerVector.setJ(vy);
+      // yLimiter.reset(vy);
+      // }
+      controllerVector = controllerVector.scaled(0.95);
+      controllerVector = controllerVector.cap(3.0);
+      // turn *= 0.67;
+      if (Math.abs(turn) > Math.PI / 2.5) {
+        turn = Math.PI / 2.5 * Math.copySign(1, turn);
       }
     }
     io.drive(controllerVector, turn);
@@ -766,8 +789,22 @@ public class Drive extends SubsystemBase {
       if (Math.abs(turnRadiansPerSec) > Math.PI / 4.0) {
         turnRadiansPerSec = Math.PI / 4.0 * Math.copySign(1, turnRadiansPerSec);
       }
+    } else if (wantedState == DriveState.IDLE_SLOWISH
+        && Constants.Field.isNearMiddle(getMt2Pose2d().getTranslation()) && !isComingBack()) {
+      vector = vector.scaled(0.9);
+      vector = vector.cap(1.5);
+      // turnRadiansPerSec *= 0.67;
+      turnRadiansPerSec *= 0.9;
+      System.out.println("Slowing down for middle");
     }
     io.drive(vector, turnRadiansPerSec);
+  }
+
+  private boolean isComingBack() {
+    if (Globals.fieldSide.equals("red")) {
+      return getChassisSpeeds().vxMetersPerSecond < 0;
+    }
+    return getChassisSpeeds().vxMetersPerSecond > 0;
   }
 
   /**
@@ -905,9 +942,8 @@ public class Drive extends SubsystemBase {
 
     if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
       // slow down to maintain control
-      finalTheta = finalTheta * 0.75;
-      finalX = finalX * 0.75;
-      finalY = finalY * 0.75;
+      finalY = Math.copySign(Math.min(Math.abs(finalY), 3.41), finalY);
+      finalX = Math.copySign(Math.min(Math.abs(finalX), 3.41), finalX);
     }
 
     Number[] velocityArray = new Number[] {
@@ -916,38 +952,37 @@ public class Drive extends SubsystemBase {
         finalTheta,
         targetIndex,
     };
-    // double linearVelMag = Math.hypot(
-    // targetPoint.getDouble("x_velocity") /
-    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
-    // targetPoint.getDouble("y_velocity") /
-    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
-    // double targetVelMag = Math.hypot(linearVelMag,
-    // targetPoint.getDouble("angular_velocity") /
-    // Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
-    // double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
-    // : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
-    // + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
+    double linearVelMag = Math.hypot(
+        targetPoint.getDouble("x_velocity") /
+            Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS,
+        targetPoint.getDouble("y_velocity") /
+            Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_LINEAR_RADIUS);
+    double targetVelMag = Math.hypot(linearVelMag,
+        targetPoint.getDouble("angular_velocity") /
+            Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_ANGULAR_RADIUS);
+    double lookaheadRadius = fullSend ? Constants.Autonomous.FULL_SEND_LOOKAHEAD
+        : Constants.Autonomous.AUTONOMOUS_LOOKAHEAD_DISTANCE * targetVelMag
+            + Constants.Autonomous.MIN_LOOKAHEAD_DISTANCE;
 
-    // Logger.recordOutput("Wanted Speed", Math.hypot(finalX, finalY));
+    Logger.recordOutput("Auto/Wanted Speed", Math.hypot(finalX, finalY));
 
-    // Logger.recordOutput("x-vel", xVelNoFF);
-    // Logger.recordOutput("y-vel", yVelNoFF);
-    // Logger.recordOutput("theta-vel", thetaVelNoFF);
-    // Logger.recordOutput("wanted-theta-vel",
-    // targetPoint.getDouble("angular_velocity"));
-    // Logger.recordOutput("FF-theta-vel", feedForwardTheta);
-    // Logger.recordOutput("FF-x-vel", feedForwardX);
-    // Logger.recordOutput("FF-y-vel", feedForwardY);
+    Logger.recordOutput("Auto/x-vel", xVelNoFF);
+    Logger.recordOutput("Auto/y-vel", yVelNoFF);
+    Logger.recordOutput("Auto/theta-vel", thetaVelNoFF);
+    Logger.recordOutput("Auto/wanted-theta-vel",
+        targetPoint.getDouble("angular_velocity"));
+    Logger.recordOutput("Auto/FF-theta-vel", feedForwardTheta);
+    Logger.recordOutput("Auto/FF-x-vel", feedForwardX);
+    Logger.recordOutput("Auto/FF-y-vel", feedForwardY);
     Logger.recordOutput("Auto/current point idx", currentIndex);
-    // Logger.recordOutput("point idx", velocityArray[3].intValue());
-    // Logger.recordOutput("look-ahead", lookaheadRadius);
-    // Logger.recordOutput("target-point", new Pose2d(targetX, targetY, new
-    // Rotation2d(targetTheta)));
-    // Logger.recordOutput("Velocity Array",
-    // new double[] { finalX, -finalY, finalTheta });
-    // Logger.recordOutput("dx", targetX - currentX);
-    // Logger.recordOutput("dy", targetY - currentY);
-    // Logger.recordOutput("dtheta", targetTheta - currentTheta);
+    Logger.recordOutput("Auto/point idx", velocityArray[3].intValue());
+    Logger.recordOutput("Auto/look-ahead", lookaheadRadius);
+    Logger.recordOutput("Auto/target-point", new Pose2d(targetX, targetY, new Rotation2d(targetTheta)));
+    Logger.recordOutput("Auto/Velocity Array",
+        new double[] { finalX, -finalY, finalTheta });
+    Logger.recordOutput("Auto/dx", targetX - currentX);
+    Logger.recordOutput("Auto/dy", targetY - currentY);
+    Logger.recordOutput("Auto/dtheta", targetTheta - currentTheta);
     return velocityArray;
   }
 
@@ -964,10 +999,14 @@ public class Drive extends SubsystemBase {
         return DriveState.DEFAULT;
       case DEFAULT_SLOW:
         return DriveState.DEFAULT_SLOW;
+      case DEFAULT_SLOWISH:
+        return DriveState.DEFAULT_SLOWISH;
       case IDLE:
         return DriveState.IDLE;
       case IDLE_SLOW:
         return DriveState.IDLE_SLOW;
+      case IDLE_SLOWISH:
+        return DriveState.IDLE_SLOWISH;
       case STOP:
         return DriveState.STOP;
       case DRIVE_TO_ALIGN_CLIMB:
@@ -984,7 +1023,7 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean isOnBlueSide() {
-    return io.getPosition().getX() < Constants.Physical.FIELD_LENGTH / 2.0;
+    return getMt2Pose2d().getX() < Constants.Physical.FIELD_LENGTH / 2.0;
   }
 
   Field2d field = new Field2d();
@@ -1040,7 +1079,9 @@ public class Drive extends SubsystemBase {
   public ChassisSpeeds getFutureVelocity() {
 
     previousSpeeds = currentSpeeds;
-    currentSpeeds = getChassisSpeeds();
+    currentSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+        getChassisSpeeds(),
+        getMt2Pose2d().getRotation());
 
     acceleration = currentSpeeds.minus(previousSpeeds)
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
@@ -1054,11 +1095,23 @@ public class Drive extends SubsystemBase {
     return io.getFlat();
   }
 
+  public void lowerCurrentLimits() {
+    io.setDriveCurrentLimits(Constants.Physical.Drive.LOW_DRIVE_CURRENT_LIMIT);
+    io.setAngleCurrentLimits(Constants.Physical.Drive.LOW_TURN_CURRENT_LIMIT);
+  }
+
+  public void resetCurrentLimits() {
+    io.setDriveCurrentLimits(Constants.Physical.Drive.NORMAL_DRIVE_CURRENT_LIMIT);
+    io.setAngleCurrentLimits(Constants.Physical.Drive.NORMAL_TURN_CURRENT_LIMIT);
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putData("Field", field);
     field.setRobotPose(getMt2Pose2d());
     io.update(systemState);
+    RobotState.getInstance().setRobotVelocity(getChassisSpeeds());
+    RobotState.getInstance().setRobotSetpointVelocity(io.getWantedChassisSpeeds());
 
     // if (robotCentric) {
     // Logger.recordOutput("Drive/Driving Mode", "Robot Centric");
@@ -1071,6 +1124,7 @@ public class Drive extends SubsystemBase {
     if (newState != systemState) {
       systemState = newState;
     }
+
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
@@ -1099,10 +1153,19 @@ public class Drive extends SubsystemBase {
         teleopDrive();
         // }
         break;
+      case DEFAULT_SLOWISH:
+        // if (OI.getPOVDown()) {
+        // snakeDrive();
+        // } else {
+        teleopDrive();
+        // }
+        break;
       case IDLE:
 
         break;
       case IDLE_SLOW:
+        break;
+      case IDLE_SLOWISH:
         break;
       case SNAKE:
         // if (Math.sqrt(Math.pow(OI.getDriverLeftX(), 2) +

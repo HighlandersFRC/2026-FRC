@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.drive;
 
+import org.apache.commons.math3.analysis.function.Constant;
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
@@ -74,7 +77,6 @@ public class SwerveModule extends SubsystemBase {
     double length = Constants.Physical.ROBOT_LENGTH / 2, width = Constants.Physical.ROBOT_WIDTH / 2, angle;
     length -= Constants.Physical.MODULE_OFFSET;
     width -= Constants.Physical.MODULE_OFFSET;
-
     switch (moduleNumber) {
       case 1:
         angle = (Math.atan2(-length, width)) - Math.PI;
@@ -83,10 +85,11 @@ public class SwerveModule extends SubsystemBase {
         angle = Math.atan2(length, width);
         break;
       case 3:
-        angle = Math.PI + Math.atan2(length, -width);
+        angle = Math.PI + Math.atan2(Constants.Physical.HEX_MODULE_X_OFFSET, -Constants.Physical.HEX_MODULE_Y_OFFSET);
         break;
       case 4:
-        angle = (2 * Math.PI) + (Math.atan2(-length, -width));
+        angle = (2 * Math.PI)
+            + (Math.atan2(-Constants.Physical.HEX_MODULE_X_OFFSET, -Constants.Physical.HEX_MODULE_Y_OFFSET));
         break;
       default:
         angle = 1;
@@ -109,6 +112,8 @@ public class SwerveModule extends SubsystemBase {
 
     angleMotorConfig.TorqueCurrent.PeakForwardTorqueCurrent = 70;
     angleMotorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -70;
+    angleMotorConfig.CurrentLimits.StatorCurrentLimit = 70;
+    angleMotorConfig.CurrentLimits.SupplyCurrentLimit = 70;
 
     angleMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -162,13 +167,24 @@ public class SwerveModule extends SubsystemBase {
     // velocityTorqueFOCRequestDriveMotorStop.Slot = 1;
   }
 
-  public void setDriveCurrentLimits(double supply, double stator) {
+  public void setAngleCurrentLimits(double limit) {
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = stator;
-    currentLimitsConfigs.SupplyCurrentLimit = supply;
+    currentLimitsConfigs.StatorCurrentLimit = limit;
+    currentLimitsConfigs.SupplyCurrentLimit = limit;
+    angleMotor.getConfigurator().apply(currentLimitsConfigs);
+    System.out.println("Angle Current Limit: " + limit);
+  }
+
+  public void setDriveCurrentLimits(double limit) {
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+    currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.StatorCurrentLimit = limit;
+    currentLimitsConfigs.SupplyCurrentLimit = limit;
     driveMotor.getConfigurator().apply(currentLimitsConfigs);
+    System.out.println("Drive Current Limit: " + limit);
   }
 
   /**
@@ -379,8 +395,16 @@ public class SwerveModule extends SubsystemBase {
     return driveMotor.getStatorCurrent().getValueAsDouble();
   }
 
+  public double getDriveMotorSupplyCurrent() {
+    return driveMotor.getSupplyCurrent().getValueAsDouble();
+  }
+
   public double getAngleMotorCurrent() {
     return angleMotor.getStatorCurrent().getValueAsDouble();
+  }
+
+  public double getAngleMotorSupplyCurrent() {
+    return angleMotor.getSupplyCurrent().getValueAsDouble();
   }
 
   /**
@@ -492,7 +516,7 @@ public class SwerveModule extends SubsystemBase {
 
   public SwerveModuleState getSwerveModuleState(Rotation2d robotYaw) {
     return new SwerveModuleState(getWheelSpeed() * Constants.Physical.WHEEL_CIRCUMFERENCE,
-        new Rotation2d(getWheelPosition()).plus(robotYaw));
+        new Rotation2d(getWheelPosition()));
   }
 
   @Override

@@ -20,17 +20,22 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
+import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.ShiftManager;
+import frc.robot.tools.wrappers.BatteryIOInputs;
 
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
+  final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+  private final BatteryIOInputs batteryInputs = new BatteryIOInputs();
 
   private AdvantageKitMultiLevelLogHandler m_logHandler = new AdvantageKitMultiLevelLogHandler();
 
@@ -90,12 +95,19 @@ public class Robot extends LoggedRobot {
     m_robotContainer.drive.init();
 
     // PortForwarder.add(4000, "10.44.99.40", 5800);
-    PortForwarder.add(4001, "10.44.99.40", 5801);
+    PortForwarder.add(4001, "10.99.99.40", 5801);
 
-    PortForwarder.add(4100, "10.44.99.41", 5800);
+    PortForwarder.add(4100, "10.99.99.41", 5800);
     // PortForwarder.add(4101, "10.44.99.41", 5801);
-    PortForwarder.add(4200, "10.44.99.42", 5800);
+    PortForwarder.add(4200, "10.99.99.42", 5800);
     // PortForwarder.add(4201, "10.44.99.42", 5801);
+    PortForwarder.add(1182, "10.99.99.42", 1182);
+    PortForwarder.add(1182, "10.99.99.41", 1182);
+    PortForwarder.add(5800, "10.99.99.40", 5800);
+    PortForwarder.add(5805, "10.99.99.40", 5805);
+
+    PortForwarder.add(1184, "10.99.99.42", 1184);
+    PortForwarder.add(1184, "10.99.99.41", 1184);
 
     // m_robotContainer.lights.setFlashYellow();
 
@@ -157,6 +169,15 @@ public class Robot extends LoggedRobot {
     m_robotContainer.peripherals.periodic();
     Logger.recordOutput("Loop Times", Globals.loopPeriodSecs);
     m_logHandler.write();
+
+  batteryInputs.batteryVoltage = RobotController.getBatteryVoltage();
+  batteryInputs.rioCurrent = RobotController.getInputCurrent();
+  Logger.processInputs("BatteryLogger", batteryInputs);
+  batteryLogger.setBatteryVoltage(batteryInputs.batteryVoltage);
+  batteryLogger.setRioCurrent(batteryInputs.rioCurrent);
+
+  batteryLogger.periodicAfterScheduler();
+
   }
 
   @Override

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -11,6 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.Intake.IntakeState;
+import frc.robot.tools.logging.BatteryLogger;
 
 class IntakeIOComp implements IntakeIO {
         private final TalonFX pivotMotor = new TalonFX(Constants.CANInfo.INTAKE_PIVOT_MOTOR_ID,
@@ -30,6 +33,8 @@ class IntakeIOComp implements IntakeIO {
 
         private final double intakeProfileScalarFactor = 1;
 
+        private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+
         public IntakeIOComp() {
                 TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
                 intakeConfig.Slot0.kP = 100.0;
@@ -46,8 +51,8 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.MotionMagic.MotionMagicCruiseVelocity = this.intakeCruiseVelocity;
                 intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                intakeConfig.CurrentLimits.StatorCurrentLimit = 40;
-                intakeConfig.CurrentLimits.SupplyCurrentLimit = 40;
+                intakeConfig.CurrentLimits.StatorCurrentLimit = 80;
+                intakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
@@ -62,7 +67,7 @@ class IntakeIOComp implements IntakeIO {
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
                 rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 60;
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 60;
-                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
                 rollerMotorMaster.setNeutralMode(NeutralModeValue.Coast);
@@ -72,7 +77,7 @@ class IntakeIOComp implements IntakeIO {
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
                 rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 60;
-                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);
                 rollerMotorFollower.setNeutralMode(NeutralModeValue.Coast);
@@ -80,6 +85,16 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void updateInputs(IntakeState systemState) {
+                batteryLogger.reportCurrentUsage("Intake Pivot Motor",
+                                pivotMotor.getSupplyCurrent().getValueAsDouble());
+                batteryLogger.reportCurrentUsage("Intake Roller/ Master",
+                                rollerMotorMaster.getSupplyCurrent().getValueAsDouble());
+                batteryLogger.reportCurrentUsage("Intake Roller/ Follower",
+                                rollerMotorFollower.getSupplyCurrent().getValueAsDouble());
+
+                Logger.recordOutput("Online/Intake Roller Master Online", rollerMotorMaster.isConnected());
+                Logger.recordOutput("Online/Intake Roller Follower Online", rollerMotorFollower.isConnected());
+                Logger.recordOutput("Online/Intake Pivot Online", pivotMotor.isConnected());
         }
 
         @Override
