@@ -51,8 +51,8 @@ class IntakeIOComp implements IntakeIO {
                 intakeConfig.MotionMagic.MotionMagicCruiseVelocity = this.intakeCruiseVelocity;
                 intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                intakeConfig.CurrentLimits.StatorCurrentLimit = 40;
-                intakeConfig.CurrentLimits.SupplyCurrentLimit = 40;
+                intakeConfig.CurrentLimits.StatorCurrentLimit = 80;
+                intakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
                 intakeConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
                 intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
                 intakeConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Intake.INTAKE_PIVOT_GEAR_RATIO;
@@ -65,9 +65,9 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerMasterConfig = new TalonFXConfiguration();
                 rollerMasterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerMasterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 35;
-                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 35;
-                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                rollerMasterConfig.CurrentLimits.StatorCurrentLimit = 60;
+                rollerMasterConfig.CurrentLimits.SupplyCurrentLimit = 60;
+                rollerMasterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
                 rollerMotorMaster.getConfigurator().apply(rollerMasterConfig);
                 rollerMotorMaster.setNeutralMode(NeutralModeValue.Coast);
@@ -75,9 +75,9 @@ class IntakeIOComp implements IntakeIO {
                 TalonFXConfiguration rollerFollowerConfig = new TalonFXConfiguration();
                 rollerFollowerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
                 rollerFollowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 35;
-                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 35;
-                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                rollerFollowerConfig.CurrentLimits.StatorCurrentLimit = 60;
+                rollerFollowerConfig.CurrentLimits.SupplyCurrentLimit = 60;
+                rollerFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
                 rollerMotorFollower.getConfigurator().apply(rollerFollowerConfig);
                 rollerMotorFollower.setNeutralMode(NeutralModeValue.Coast);

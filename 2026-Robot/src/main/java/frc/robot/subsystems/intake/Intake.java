@@ -14,10 +14,10 @@ import frc.robot.OI;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
-  private double dynamicIntakeSpeed;
   private boolean jiggleUp = true;
   private double timeZeroed = Timer.getFPGATimestamp();
   private boolean firstTimeZeroed = true;
+  private double flipJiggleTime = Timer.getFPGATimestamp();
 
   public Intake() {
     if (RobotBase.isReal()) {
@@ -74,22 +74,11 @@ public class Intake extends SubsystemBase {
     this.wantedState = wantedState;
   }
 
-  public void setWantedState(IntakeState wantedState, ChassisSpeeds robotSpeed) {
-    this.wantedState = wantedState;
-    this.dynamicIntakeSpeed = 5.0 * Math.hypot(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond)
-        / Constants.Physical.TOP_SPEED + 0.2;
-    if (this.dynamicIntakeSpeed < 0.4) {
-      this.dynamicIntakeSpeed = 0.4;
-    } else if (this.dynamicIntakeSpeed > 1.0) {
-      this.dynamicIntakeSpeed = 1.0;
-    }
-  }
-
   private IntakeState handleStateTransition() {
     if (OI.driverRT.getAsBoolean()) {
       return IntakeState.DYNAMIC_INTAKING;
     }
-    if (OI.driverA.getAsBoolean()) {
+    if (OI.driverRB.getAsBoolean()) {
       return IntakeState.OUTAKE;
     }
     switch (wantedState) {
@@ -133,7 +122,11 @@ public class Intake extends SubsystemBase {
 
   public void setIntakeDown() {
     if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION - 10.0) {
-      setPivotTorque(5, 0.3);
+      if (DriverStation.isAutonomousEnabled()) {
+        setPivotTorque(40, 1.0);
+      } else {
+        setPivotTorque(5, 0.3);
+      }
     } else {
       setPivotTorque(40, 1.0);
     }
@@ -161,30 +154,41 @@ public class Intake extends SubsystemBase {
   }
 
   public void setJiggle() {
-    if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
-        5.002) {
-      jiggleUp = true;
-    } else if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.118) {
-      jiggleUp = false;
-    }
-
+    // if (getIntakePosition() > Constants.SetPoints.Intake.INTAKE_DOWN_POSITION -
+    // 5.002) {
+    // jiggleUp = true;
+    // } else if (getIntakePosition() <
+    // Constants.SetPoints.Intake.INTAKE_UP_POSITION + 17.18) {
+    // jiggleUp = false;
+    // }
     if (jiggleUp) {
-      setPivotTorque(-40, 0.5);
+
+      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.50) {
+        setPivotTorque(30, 0.3);
+      } else {
+        setPivotTorque(-45, 0.6);
+      }
     } else {
       setPivotTorque(30, 0.5);
     }
+  }
 
-    // if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_SHOOT_POSITION) {
-    // setPivotTorque(-5, 0.1);
-    // } else {
-    // setPivotTorque(-45, 0.6);
-    // }
-
+  public void calcJiggle() {
+    if (Timer.getFPGATimestamp() - flipJiggleTime > 0.3) {
+      // if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION +
+      // 15.50) {
+      // jiggleUp = false;
+      // } else {
+      jiggleUp = !jiggleUp;
+      // }
+      flipJiggleTime = Timer.getFPGATimestamp();
+    }
   }
 
   @Override
   public void periodic() {
     io.updateInputs(systemState);
+    calcJiggle();
     systemState = handleStateTransition();
     if (systemState != IntakeState.ZERO) {
       firstTimeZeroed = true;
@@ -215,7 +219,9 @@ public class Intake extends SubsystemBase {
         break;
       case INTAKING:
         setIntakeDown();
-        setRollerPercent(0.9);
+        // setRollerPercent(0.9);
+        setRollerTorque(80, 0.75);
+
         break;
       case OUTAKE:
         setIntakeDown();
@@ -223,8 +229,8 @@ public class Intake extends SubsystemBase {
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
-        // setRollerTorque(80, dynamicIntakeSpeed);
-        setRollerPercent(0.9);
+        setRollerTorque(80, 0.75);
+        // setRollerPercent(0.9);
         break;
       case JIGGLE:
         setJiggle();

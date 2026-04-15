@@ -26,15 +26,15 @@ import frc.robot.tools.math.Vector;
 
 public final class Constants {
         public static final class Autonomous {
-                public static final int STAGNATE_BOOST = 60;
+                public static final int STAGNATE_BOOST = 100;
                 public static final int STAGNATE_THRESHOLD = 9; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
-                public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.04; // Lookahead at 1m/s scaled by wanted
-                                                                                 // velocity
+                public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.1; // Lookahead at 1m/s scaled by wanted
+                                                                                // velocity
                 public static final double FULL_SEND_LOOKAHEAD = 0.6741;
-                public static final double MIN_LOOKAHEAD_DISTANCE = 0.05; // Lookahead distance at 0m/s
+                public static final double MIN_LOOKAHEAD_DISTANCE = 0.18; // Lookahead distance at 0m/s
                 // Path follower will end if within this radius of the final point
                 public static final double AUTONOMOUS_END_ACCURACY = 0.40;
                 public static final double ACCURATE_FOLLOWER_AUTONOMOUS_END_ACCURACY = 0.05;
@@ -96,6 +96,8 @@ public final class Constants {
                 public static final double ROBOT_WIDTH = inchesToMeters(29.5);
                 public static final double MODULE_OFFSET = inchesToMeters(2.625); // Wheel to frame distance TODO: is
                                                                                   // this different for mk5s?
+                public static final double HEX_MODULE_X_OFFSET = inchesToMeters(10.721);
+                public static final double HEX_MODULE_Y_OFFSET = inchesToMeters(6.838);
                 public static final double ROBOT_RADIUS = Math.hypot((ROBOT_LENGTH / 2.0) - MODULE_OFFSET,
                                 (ROBOT_WIDTH / 2.0) - MODULE_OFFSET);
 
@@ -159,8 +161,8 @@ public final class Constants {
                         public static final double xDebounceLimit = 0.2;
                         public static final double yDebounceLimit = 0.2;
                         public static final double velLookaheadTime = 0.03;
-                        public static final double LOW_DRIVE_CURRENT_LIMIT = 30;
-                        public static final double LOW_TURN_CURRENT_LIMIT = 30;
+                        public static final double LOW_DRIVE_CURRENT_LIMIT = 40;
+                        public static final double LOW_TURN_CURRENT_LIMIT = 40;
                         public static final double NORMAL_DRIVE_CURRENT_LIMIT = 60;
                         public static final double NORMAL_TURN_CURRENT_LIMIT = 60;
                 }
@@ -188,13 +190,17 @@ public final class Constants {
                         public static final int HOOD_MOTOR_COUNT = 1;
                         public static final double HOOD_MOI = 1 / 1684800; // kg*m^2
                         public static final Translation3d SHOOTER_POSITION = new Translation3d(
-                                        inchesToMeters(0.0), inchesToMeters(1.75), inchesToMeters(21.44));
+                                        inchesToMeters(-0.356), inchesToMeters(0.017), inchesToMeters(21.44));
                         public static final double HOOD_ACCELERATION_RAD_S = degreesToRadians(100);
                         public static final double HOOD_MAX_SPEED_RAD_S = degreesToRadians(30);
                         public static final double HOOD_FRICTION_COEFFICIENT = HOOD_ACCELERATION_RAD_S /
                                         HOOD_MAX_SPEED_RAD_S;
+                        // public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
+                        // public static final double TURRET_PULLEY_0_TOOTH_COUNT = 132;
+                        // public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
+                        // public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
                         public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
-                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 134;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 132;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
                         public static final double SHOT_DEBOUNCE_S = 0.08;
@@ -334,6 +340,11 @@ public final class Constants {
                         } else {
                                 return robotPosition.getX() < HUB_POSE_BLUE.getX() - BUMP_WIDTH / 2;
                         }
+                }
+
+                public static boolean isNearMiddle(Translation2d robotPosition) {
+                        return robotPosition.getX() < 10.0
+                                        && robotPosition.getX() > Constants.Physical.FIELD_LENGTH - 10.0;
                 }
 
                 public static boolean isInOtherAllianceZone(Translation2d robotPosition) {
@@ -517,8 +528,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(360.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(90.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(270.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(270.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -551,7 +562,7 @@ public final class Constants {
                 public static class Shooter {
                         private final static double DISTANCE_OFFSET = 0.0;
                         private final static double ANGLE_OFFSET = 0.0;
-                        private final static double RPM_OFFSET = 0.0;
+                        private final static double RPM_OFFSET = 35.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
@@ -676,11 +687,11 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         // Position PID
-                        public static final double kP0 = 140.0;
+                        public static final double kP0 = 300.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.3;
-                        public static final double kV0 = 0.0;
+                        public static final double kS0 = 1.0;
+                        public static final double kV0 = 1.0;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;
@@ -705,11 +716,17 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.3;
+                        public static final double kP0 = 0.5;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
+                        public static final double kD0 = 0.1;
                         public static final double kS0 = 0.3;
                         public static final double kV0 = 0.16;
+
+                        public static final double kP1 = 99999999.67;
+                        public static final double kI1 = 0.0;
+                        public static final double kD1 = 0.0;
+                        public static final double kS1 = 99999999.41;
+                        public static final double kV1 = 0.0;
                 }
 
                 public static final class Feeder {
@@ -898,7 +915,10 @@ public final class Constants {
                         public static final double HOOD_GEAR_RATIO = (36.0 / 12.0) * (48.0 / 16.0) * (300.0 / 16.0);
                         public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
                                         / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
-                        public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 / 15.0);
+                        // public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 /
+                        // 15.0); // old jester
+                        public static final double TURRET_GEAR_RATIO = (60.0 / 9.0) * (132.0 / 15.0); // hex bot
+
                         // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
                         // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
                         // public static final double TURRET_GEAR_RATIO = 43.112;
@@ -911,7 +931,10 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 / 18.0);
+                        // public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 /
+                        // 18.0);
+                        public static final double DYE_ROTOR_GEAR_RATIO = 52.0; // hex bot
+                        public static final double ROLLER_GEAR_RATIO = 2.25; // hex bot
                 }
 
                 public static final class Climber {
@@ -963,6 +986,7 @@ public final class Constants {
 
                 // Feeder
                 public static final int DYE_ROTOR_MOTOR_ID = 15;
+                public static final int ROLLER_MOTOR_ID = 21;
 
                 // Climber
                 public static final int CLIMBER_MASTER_MOTOR_ID = 19;
