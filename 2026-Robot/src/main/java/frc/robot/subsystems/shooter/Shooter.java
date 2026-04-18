@@ -161,6 +161,9 @@ public class Shooter extends SubsystemBase {
       whyBad += "and ready ";
     }
     Logger.recordOutput("Shooter/Why Bad Shooting", whyBad);
+    if (turretAngleError > Math.toRadians(15.0)) {
+      return false;
+    }
     return debouncedReady;
   }
 
@@ -218,6 +221,9 @@ public class Shooter extends SubsystemBase {
       whyBad += "and ready ";
     }
     Logger.recordOutput("Shooter/Why Bad Passing", whyBad);
+    if (turretAngleError > Math.toRadians(15.0)) {
+      return false;
+    }
     return debouncedReady;
   }
 
