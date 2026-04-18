@@ -692,8 +692,8 @@ public final class Constants {
                         public static final double kP0 = 300.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
-                        public static final double kS0 = 1.0;
-                        public static final double kV0 = 1.0;
+                        public static final double kS0 = 0.5;
+                        public static final double kV0 = 1.2;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;

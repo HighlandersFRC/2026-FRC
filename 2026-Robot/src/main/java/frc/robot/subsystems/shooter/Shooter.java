@@ -55,6 +55,7 @@ public class Shooter extends SubsystemBase {
 
   private TunableNumber turretLookAhead = new TunableNumber("Shooter/Turret Lookahead Time",
       Constants.PIDConstants.Turret.TURRET_LOOKAHEAD_TIME);
+
   public Shooter() {
     if (RobotBase.isReal()) {
       this.io = new ShooterIOComp();
@@ -134,8 +135,7 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.turretAngle)
             .getRadians());
 
-    double turretPrecisionRequired =
-        Math.atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) /
+    double turretPrecisionRequired = Math.atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) /
         wantedShotSolution.distanceToTarget);
 
     double flywheelRPMError = Math
@@ -236,7 +236,7 @@ public class Shooter extends SubsystemBase {
       whyBad += "and ready ";
     }
     Logger.recordOutput("Shooter/Why Bad Passing", whyBad);
-    if (turretAngleError > Math.toRadians(15.0)) {
+    if (turretAngleError > Math.toRadians(120.0)) {
       return false;
     }
     return debouncedReady;
