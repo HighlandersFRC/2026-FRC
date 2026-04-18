@@ -298,7 +298,7 @@ public final class Constants {
                 public static final Translation3d HUB_POSE_BLUE = new Translation3d(BLUE_HUB_X, HUB_Y, HUB_Z);
                 public static final Translation3d HUB_POSE_RED = new Translation3d(RED_HUB_X, HUB_Y, HUB_Z);
                 public static final double BUMP_WIDTH = inchesToMeters(44.4);
-                public static final double BUMP_WIDTH_GENEROUS = inchesToMeters(67.41);
+                public static final double BUMP_WIDTH_GENEROUS = inchesToMeters(90.68);
 
                 public static final Translation2d RED_LEFT_FEED_POSE = new Translation2d(
                                 13.0, 2.35);
@@ -566,12 +566,12 @@ public final class Constants {
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
-                                        { 1.358, 85, 2100, 0.9 },
-                                        { 1.6, 83, 2100, 1.02 },
-                                        { 1.899, 81, 2180, 1.03 },
-                                        { 2.19, 79, 2200, 0.96 },
-                                        { 2.438, 78, 2250, 1.04 },
-                                        { 2.67, 77, 2325, 1.04 },
+                                        { 1.358, 85, 2150, 0.9 },
+                                        { 1.6, 83, 2150, 1.02 },
+                                        { 1.899, 81, 2230, 1.03 },
+                                        { 2.19, 79, 2240, 0.96 },
+                                        { 2.438, 78, 2280, 1.04 },
+                                        { 2.67, 77, 2350, 1.04 },
                                         { 2.932, 76, 2420, 1.02 },
                                         { 3.288, 75, 2450, 1.09 },
                                         { 3.65, 74, 2525, 1.13 },

@@ -927,8 +927,14 @@ public class Drive extends SubsystemBase {
     double feedForwardY = targetPoint.getDouble("y_velocity") * f;
     double feedForwardTheta = -targetPoint.getDouble("angular_velocity") * f * 0.1;
 
+    double magnitude = Math.hypot(targetPoint.getDouble("x_velocity"), targetPoint.getDouble("y_velocity"));
+
     double finalX = xVelNoFF + feedForwardX;
     double finalY = yVelNoFF + feedForwardY;
+    double directionMagnitude = Math.hypot(finalX, finalY);
+    finalX = finalX / directionMagnitude * magnitude;
+    finalY = finalY / directionMagnitude * magnitude;
+
     double finalTheta = (thetaVelNoFF + feedForwardTheta) * 1.25;
     if (Globals.fieldSide == "blue") {
       finalX = -finalX;
@@ -942,8 +948,10 @@ public class Drive extends SubsystemBase {
 
     if (Field.isNearBump(getMt2Pose2d().getTranslation())) { // if on the bump,
       // slow down to maintain control
-      finalY = Math.copySign(Math.min(Math.abs(finalY), 3.41), finalY);
-      finalX = Math.copySign(Math.min(Math.abs(finalX), 3.41), finalX);
+      double mag = Math.hypot(finalX, finalY);
+      double ratio = 3.25 / mag;
+      finalX *= ratio;
+      finalY *= ratio;
     }
 
     Number[] velocityArray = new Number[] {
