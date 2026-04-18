@@ -80,16 +80,18 @@ class ShooterIOComp implements ShooterIO {
                         hoodCruiseVelocity,
                         hoodAcceleration);
 
-        // private TunableNumber flywheelP = new TunableNumber("Flywheel Position kP",
-        // Constants.PIDConstants.Flywheel.kP0);
-        // private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI",
-        // Constants.PIDConstants.Flywheel.kI0);
-        // private TunableNumber flywheelD = new TunableNumber("Flywheel Position kD",
-        // Constants.PIDConstants.Flywheel.kD0);
-        // private TunableNumber flywheelS = new TunableNumber("Flywheel Position kS",
-        // Constants.PIDConstants.Flywheel.kS0);
-        // private TunableNumber flywheelV = new TunableNumber("Flywheel Position kV",
-        // Constants.PIDConstants.Flywheel.kV0);
+        private TunableNumber flywheelP = new TunableNumber("Flywheel Position kP",
+                        Constants.PIDConstants.Flywheel.kP0);
+        private TunableNumber flywheelI = new TunableNumber("Flywheel Position kI",
+                        Constants.PIDConstants.Flywheel.kI0);
+        private TunableNumber flywheelD = new TunableNumber("Flywheel Position kD",
+                        Constants.PIDConstants.Flywheel.kD0);
+        private TunableNumber flywheelS = new TunableNumber("Flywheel Position kS",
+                        Constants.PIDConstants.Flywheel.kS0);
+        private TunableNumber flywheelV = new TunableNumber("Flywheel Position kV",
+                        Constants.PIDConstants.Flywheel.kV0);
+        private TunableNumber flyWheelA = new TunableNumber("Flywheel Position kA",
+                        Constants.PIDConstants.Flywheel.kA0);
         // private TunableNumber flywheelVelocity = new TunableNumber("Flywheel Position
         // Velocity", 2.0);
         // private TunableNumber flywheelAcceleration = new TunableNumber("Flywheel
@@ -133,6 +135,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.Slot0.kD = Constants.PIDConstants.Flywheel.kD0;
                 flywheelConfig.Slot0.kS = Constants.PIDConstants.Flywheel.kS0;
                 flywheelConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
+                flywheelConfig.Slot0.kA = Constants.PIDConstants.Flywheel.kA0;
                 flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
                 flywheelConfig.CurrentLimits.StatorCurrentLimit = 70;
@@ -155,6 +158,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollowerConfig.Slot0.kD = Constants.PIDConstants.Flywheel.kD0;
                 flywheelFollowerConfig.Slot0.kS = Constants.PIDConstants.Flywheel.kS0;
                 flywheelFollowerConfig.Slot0.kV = Constants.PIDConstants.Flywheel.kV0;
+                flywheelFollowerConfig.Slot0.kA = Constants.PIDConstants.Flywheel.kA0;
                 flywheelFollowerConfig.Slot1.kP = Constants.PIDConstants.Flywheel.kP1;
                 flywheelFollowerConfig.Slot1.kI = Constants.PIDConstants.Flywheel.kI1;
                 flywheelFollowerConfig.Slot1.kD = Constants.PIDConstants.Flywheel.kD1;
@@ -485,58 +489,56 @@ class ShooterIOComp implements ShooterIO {
 
                 // hoodMotor.getConfigurator().apply(hoodConfig);
                 // }
-                // if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() ||
-                // flywheelS.changed() || flywheelV
-                // .changed()) {
-                // System.out.println("Updating Flywheel PID Constants");
-                // TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
-                // flywheelConfig.Slot0.kP = flywheelP.get();
-                // flywheelConfig.Slot0.kI = flywheelI.get();
-                // flywheelConfig.Slot0.kD = flywheelD.get();
-                // flywheelConfig.Slot0.kS = flywheelS.get();
-                // flywheelConfig.Slot0.kV = flywheelV.get();
-                // flywheelConfig.Feedback.SensorToMechanismRatio =
-                // Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
-                // flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
-                // flywheelConfig.CurrentLimits.StatorCurrentLimit = 70;
-                // flywheelConfig.CurrentLimits.SupplyCurrentLimit = 70;
-                // flywheelConfig.Voltage.PeakForwardVoltage = 32.0;
-                // flywheelConfig.Voltage.PeakReverseVoltage = 0.0;
-                // flywheelConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
-                // flywheelConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
-                // flywheelConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
-                // flywheelConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
-                // flywheelConfig.Feedback.FeedbackSensorSource =
-                // FeedbackSensorSourceValue.RotorSensor;
-                // flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-                // // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
-                // flywheelMaster.getConfigurator().apply(flywheelConfig);
-                // flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
+                if (flywheelP.changed() || flywheelI.changed() || flywheelD.changed() ||
+                                flywheelS.changed() || flywheelV
+                                                .changed()
+                                || flyWheelA.changed()) {
+                        System.out.println("Updating Flywheel PID Constants");
+                        TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
+                        flywheelConfig.Slot0.kP = flywheelP.get();
+                        flywheelConfig.Slot0.kI = flywheelI.get();
+                        flywheelConfig.Slot0.kD = flywheelD.get();
+                        flywheelConfig.Slot0.kS = flywheelS.get();
+                        flywheelConfig.Slot0.kV = flywheelV.get();
+                        flywheelConfig.Slot0.kA = flyWheelA.get();
+                        flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
+                        flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
+                        flywheelConfig.CurrentLimits.StatorCurrentLimit = 70;
+                        flywheelConfig.CurrentLimits.SupplyCurrentLimit = 70;
+                        flywheelConfig.Voltage.PeakForwardVoltage = 32.0;
+                        flywheelConfig.Voltage.PeakReverseVoltage = 0.0;
+                        flywheelConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
+                        flywheelConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+                        flywheelConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
+                        flywheelConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
+                        flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+                        flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                        // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+                        flywheelMaster.getConfigurator().apply(flywheelConfig);
+                        flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
 
-                // TalonFXConfiguration flywheelFollowerConfig = new TalonFXConfiguration();
-                // flywheelFollowerConfig.Slot0.kP = flywheelP.get();
-                // flywheelFollowerConfig.Slot0.kI = flywheelI.get();
-                // flywheelFollowerConfig.Slot0.kD = flywheelD.get();
-                // flywheelFollowerConfig.Slot0.kS = flywheelS.get();
-                // flywheelFollowerConfig.Slot0.kV = flywheelV.get();
-                // flywheelFollowerConfig.Feedback.SensorToMechanismRatio =
-                // Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
-                // flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
-                // flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 70;
-                // flywheelFollowerConfig.CurrentLimits.SupplyCurrentLimit = 70;
-                // flywheelFollowerConfig.Voltage.PeakForwardVoltage = 32.0;
-                // flywheelFollowerConfig.Voltage.PeakReverseVoltage = 0.0;
-                // flywheelFollowerConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
-                // flywheelFollowerConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
-                // flywheelFollowerConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
-                // flywheelFollowerConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
-                // flywheelFollowerConfig.Feedback.FeedbackSensorSource =
-                // FeedbackSensorSourceValue.RotorSensor;
-                // flywheelFollowerConfig.MotorOutput.Inverted =
-                // InvertedValue.CounterClockwise_Positive;
-                // // flywheelFollowerConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
-                // flywheelFollower.getConfigurator().apply(flywheelFollowerConfig);
-                // flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
-                // }
+                        TalonFXConfiguration flywheelFollowerConfig = new TalonFXConfiguration();
+                        flywheelFollowerConfig.Slot0.kP = flywheelP.get();
+                        flywheelFollowerConfig.Slot0.kI = flywheelI.get();
+                        flywheelFollowerConfig.Slot0.kD = flywheelD.get();
+                        flywheelFollowerConfig.Slot0.kS = flywheelS.get();
+                        flywheelFollowerConfig.Slot0.kV = flywheelV.get();
+                        flywheelFollowerConfig.Slot0.kA = flyWheelA.get();
+                        flywheelFollowerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
+                        flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
+                        flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 70;
+                        flywheelFollowerConfig.CurrentLimits.SupplyCurrentLimit = 70;
+                        flywheelFollowerConfig.Voltage.PeakForwardVoltage = 32.0;
+                        flywheelFollowerConfig.Voltage.PeakReverseVoltage = 0.0;
+                        flywheelFollowerConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
+                        flywheelFollowerConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+                        flywheelFollowerConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
+                        flywheelFollowerConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
+                        flywheelFollowerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+                        flywheelFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                        // flywheelFollowerConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+                        flywheelFollower.getConfigurator().apply(flywheelFollowerConfig);
+                        flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
+                }
         }
 }

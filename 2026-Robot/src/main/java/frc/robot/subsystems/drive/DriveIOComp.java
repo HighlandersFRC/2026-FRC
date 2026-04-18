@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -45,6 +46,7 @@ import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.math.Vector;
 
 public class DriveIOComp extends DriveIO {
+        private final Set<Integer> filteredPhotonTagIds = Set.of(15, 16, 31, 32);
 
         private final TalonFX frontRightDriveMotor = new TalonFX(Constants.CANInfo.FRONT_RIGHT_DRIVE_MOTOR_ID,
                         Constants.CANInfo.CANBUS_NAME);
@@ -663,6 +665,12 @@ public class DriveIOComp extends DriveIO {
                 if (!result.hasTargets() || result.getTimestampSeconds() <= 0.0) {
                         return Optional.empty();
                 }
+                int[] seenTagIds = getPhotonTagIds(result);
+                Logger.recordOutput(logKey + "/SeenTagIds", seenTagIds);
+                if (containsFilteredPhotonTag(seenTagIds)) {
+                        Logger.recordOutput(logKey + "/RejectedTagIds", seenTagIds);
+                        return Optional.empty();
+                }
 
                 Optional<EstimatedRobotPose> estimate = estimatePhotonPose(estimator, result);
                 if (estimate.isEmpty()) {
@@ -691,6 +699,24 @@ public class DriveIOComp extends DriveIO {
                                                                 getAverageTagDistanceMeters(result),
                                                                 result.getTargets().size(),
                                                                 estimate.get().strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR)));
+        }
+
+        private int[] getPhotonTagIds(PhotonPipelineResult result) {
+                return result.getTargets().stream()
+                                .mapToInt(target -> target.getFiducialId())
+                                .filter(id -> id > 0)
+                                .distinct()
+                                .sorted()
+                                .toArray();
+        }
+
+        private boolean containsFilteredPhotonTag(int[] seenTagIds) {
+                for (int tagId : seenTagIds) {
+                        if (filteredPhotonTagIds.contains(tagId)) {
+                                return true;
+                        }
+                }
+                return false;
         }
 
         private Optional<EstimatedRobotPose> estimatePhotonPose(PhotonPoseEstimator estimator,
