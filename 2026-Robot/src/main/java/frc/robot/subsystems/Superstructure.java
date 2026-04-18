@@ -592,7 +592,7 @@ public class Superstructure extends SubsystemBase {
     Rotation2d turret = Constants.Field.getHubPose().toTranslation2d().minus(drive.getMt2Pose2d().getTranslation())
         .getAngle();
     turret = turret.minus(drive.getMt2Pose2d().getRotation());
-    shooter.passIdleTurretAngleToIdle(turret);
+    shooter.passIdleTurretAngleToIdle(turret, drive.getRobotAngularVelocity());
 
     currentSuperState = handleStateTransitions();
 

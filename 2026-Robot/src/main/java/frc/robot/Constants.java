@@ -686,6 +686,8 @@ public final class Constants {
         // PID constants
         public static final class PIDConstants {
                 public static final class Turret {
+                        public static double TURRET_LOOKAHEAD_TIME = 0.1;
+
                         // Position PID
                         public static final double kP0 = 300.0;
                         public static final double kI0 = 0.0;
@@ -718,9 +720,10 @@ public final class Constants {
                 public static final class Flywheel {
                         public static final double kP0 = 0.5;
                         public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.1;
+                        public static final double kD0 = 0.0;
                         public static final double kS0 = 0.3;
                         public static final double kV0 = 0.16;
+                        public static final double kA0 = 6.2;
 
                         public static final double kP1 = 99999999.67;
                         public static final double kI1 = 0.0;
