@@ -115,8 +115,8 @@ class ShooterIOComp implements ShooterIO {
                                 .radiansToRotations(Constants.Physical.Shooter.HOOD_MAX_SPEED_RAD_S);
                 hoodConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
                 hoodConfig.Feedback.RotorToSensorRatio = Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
-                hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
-                hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
+                hoodConfig.CurrentLimits.StatorCurrentLimit = 10;
+                hoodConfig.CurrentLimits.SupplyCurrentLimit = 10;
                 hoodConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
                 hoodConfig.Feedback.FeedbackRemoteSensorID = Constants.CANInfo.HOOD_CANCODER_ID;
                 hoodConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -481,8 +481,8 @@ class ShooterIOComp implements ShooterIO {
                 // Constants.Ratios.Shooter.HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO;
                 // hoodConfig.Feedback.RotorToSensorRatio =
                 // Constants.Ratios.Shooter.HOOD_MOTOR_TO_ENCODER_GEAR_RATIO;
-                // hoodConfig.CurrentLimits.StatorCurrentLimit = 67;
-                // hoodConfig.CurrentLimits.SupplyCurrentLimit = 67;
+                // hoodConfig.CurrentLimits.StatorCurrentLimit = 10;
+                // hoodConfig.CurrentLimits.SupplyCurrentLimit = 10;
                 // hoodConfig.Feedback.FeedbackSensorSource =
                 // FeedbackSensorSourceValue.RemoteCANcoder;
                 // hoodConfig.Feedback.FeedbackRemoteSensorID =
