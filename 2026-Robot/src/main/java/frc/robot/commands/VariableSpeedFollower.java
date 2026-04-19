@@ -93,6 +93,10 @@ public class VariableSpeedFollower extends AutoFollower {
       velocityVector.setI(desiredVelocityArray[0].doubleValue() * 2);
       velocityVector.setJ(desiredVelocityArray[1].doubleValue() * 2);
       desiredThetaChange = desiredVelocityArray[2].doubleValue() * 2;
+    } else if (currentPathPointIndex < 100) {
+      velocityVector.setI(desiredVelocityArray[0].doubleValue() * 2);
+      velocityVector.setJ(desiredVelocityArray[1].doubleValue() * 2);
+      desiredThetaChange = desiredVelocityArray[2].doubleValue() * 2;
     } else {
       velocityVector.setI(desiredVelocityArray[0].doubleValue());
       velocityVector.setJ(desiredVelocityArray[1].doubleValue());
