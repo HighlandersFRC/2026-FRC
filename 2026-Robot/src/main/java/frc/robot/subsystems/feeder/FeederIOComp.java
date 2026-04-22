@@ -22,6 +22,8 @@ class FeederIOComp implements FeederIO {
             Constants.CANInfo.CANBUS_NAME);
 
     private final TalonFX rollerMotor = new TalonFX(Constants.CANInfo.ROLLER_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
+    private final TalonFX secondRollerMotor = new TalonFX(Constants.CANInfo.ROLLER_MOTOR_SECOND_ID,
+            Constants.CANInfo.CANBUS_NAME);
 
     private final VelocityDutyCycle dyeRotorControl = new VelocityDutyCycle(0.0);
 
@@ -67,7 +69,9 @@ class FeederIOComp implements FeederIO {
         rollerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.ROLLER_GEAR_RATIO;
         rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         rollerMotor.getConfigurator().apply(rollerConfig);
+        secondRollerMotor.getConfigurator().apply(rollerConfig);
         rollerMotor.setNeutralMode(NeutralModeValue.Coast);
+        secondRollerMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     @Override
@@ -82,14 +86,14 @@ class FeederIOComp implements FeederIO {
         double velocitySetpoint = rpm / 60.0;
 
         // Logger.recordOutput("Feeder RPM error", rpm - getDyeRotorRPM());
-        if (rpm - getDyeRotorRPM() < 10.0) {
-            dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(false));
-            useSlot0 = true;
-        } else {
-            dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(false));
-            // dyeRotorMotor.set(1.0);
-            useSlot0 = false;
-        }
+        // if (rpm - getDyeRotorRPM() < 10.0) {
+        dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(false));
+        // useSlot0 = true;
+        // } else {
+        // dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(false));
+        // // dyeRotorMotor.set(1.0);
+        // useSlot0 = false;
+        // }
         // Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
     }
 
@@ -158,6 +162,7 @@ class FeederIOComp implements FeederIO {
     @Override
     public void setRollerTorque(double amps, double maxPercent) {
         rollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+        secondRollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
     }
 
     @Override

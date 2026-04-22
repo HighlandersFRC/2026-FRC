@@ -147,7 +147,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
                 flywheelConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
                 flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-                flywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                flywheelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
                 // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 flywheelMaster.getConfigurator().apply(flywheelConfig);
                 flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
@@ -175,7 +175,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollowerConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
                 flywheelFollowerConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
                 flywheelFollowerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-                flywheelFollowerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                flywheelFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
                 // flywheelFollowerConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 flywheelFollower.getConfigurator().apply(flywheelFollowerConfig);
                 flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
@@ -187,28 +187,28 @@ class ShooterIOComp implements ShooterIO {
                 turretConfig.Slot0.kD = Constants.PIDConstants.Turret.kD0;
                 turretConfig.Slot0.kS = Constants.PIDConstants.Turret.kS0;
                 turretConfig.Slot0.kV = Constants.PIDConstants.Turret.kV0;
-                turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get();
-                turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get();
+                turretConfig.MotionMagic.MotionMagicAcceleration = turretAcceleration.get() / 2;
+                turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretVelocity.get() / 2;
                 turretConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.TURRET_GEAR_RATIO;
                 turretConfig.Feedback.RotorToSensorRatio = 1.0;
-                turretConfig.CurrentLimits.StatorCurrentLimit = 67;
-                turretConfig.CurrentLimits.SupplyCurrentLimit = 67;
+                turretConfig.CurrentLimits.StatorCurrentLimit = 15;
+                turretConfig.CurrentLimits.SupplyCurrentLimit = 15;
                 turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-                turretConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
                 turretMotor.getConfigurator().apply(turretConfig);
                 turretMotor.setNeutralMode(NeutralModeValue.Coast);
 
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.051513671875; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.122314453125; // TODO: Try calculating offset from
                                                                               // previous zero
                                                                               // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.106201171875;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.94970703125;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -308,10 +308,10 @@ class ShooterIOComp implements ShooterIO {
         }
 
         private double _getRelativeTurretAngleRadians() {
-                double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
-                double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                // double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
-                // double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                // double aMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
+                // double bMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                double aMeas = encoderTwo.getAbsolutePosition().getValueAsDouble();
+                double bMeas = encoderOne.getAbsolutePosition().getValueAsDouble();
 
                 double k1 = Constants.Physical.Shooter.TURRET_PULLEY_0_TOOTH_COUNT
                                 / Constants.Physical.Shooter.TURRET_PULLEY_1_TOOTH_COUNT;
@@ -349,7 +349,7 @@ class ShooterIOComp implements ShooterIO {
                         }
                 }
 
-                return -Units.rotationsToRadians(bestTheta);
+                return Units.rotationsToRadians(bestTheta);
         }
 
         @Override

@@ -200,7 +200,7 @@ public final class Constants {
                         // public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
                         // public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
                         public static final double TURRET_PULLEY_1_TOOTH_COUNT = 15;
-                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 132;
+                        public static final double TURRET_PULLEY_0_TOOTH_COUNT = 211;
                         public static final double TURRET_GEAR_2_TOOTH_COUNT = 31;
                         public static final double TURRET_GEAR_1_TOOTH_COUNT = 60;
                         public static final double SHOT_DEBOUNCE_S = 0.08;
@@ -528,8 +528,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(270.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(270.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(80.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(260.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -913,14 +913,14 @@ public final class Constants {
                 }
 
                 public static final class Shooter {
-                        public static final double FLYWHEEL_GEAR_RATIO = 18.0 / 14.0; // 14 on motor
+                        public static final double FLYWHEEL_GEAR_RATIO = 20.0 / 12.0; // 14 on motor
                         public static final double HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO = 48.0 / 20.0; // encoder on 20
                         public static final double HOOD_GEAR_RATIO = (36.0 / 12.0) * (48.0 / 16.0) * (300.0 / 16.0);
                         public static final double HOOD_MOTOR_TO_ENCODER_GEAR_RATIO = HOOD_GEAR_RATIO
                                         / HOOD_ENCODER_TO_MECHANISM_GEAR_RATIO; // old shooter
                         // public static final double TURRET_GEAR_RATIO = (60.0 / 12.0) * (134.0 /
                         // 15.0); // old jester
-                        public static final double TURRET_GEAR_RATIO = (60.0 / 9.0) * (132.0 / 15.0); // hex bot
+                        public static final double TURRET_GEAR_RATIO = (60.0 / 9.0) * (211.0 / 15.0); // hex bot
 
                         // public static final double TURRET_GEAR_RATIO = 6812.0 / 180.0;
                         // public static final double TURRET_GEAR_RATIO = 40.23809523809523;
@@ -936,8 +936,9 @@ public final class Constants {
                 public static final class Feeder {
                         // public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 /
                         // 18.0);
-                        public static final double DYE_ROTOR_GEAR_RATIO = 52.0; // hex bot
-                        public static final double ROLLER_GEAR_RATIO = 2.25; // hex bot
+                        public static final double DYE_ROTOR_GEAR_RATIO = (28.0 / 12.0) * (48.0 / 18.0)
+                                        / (150.0 / 18.0); // hex bot
+                        public static final double ROLLER_GEAR_RATIO = (24.0 / 16.0) * (32.0 / 24.0); // hex bot
                 }
 
                 public static final class Climber {
@@ -990,10 +991,7 @@ public final class Constants {
                 // Feeder
                 public static final int DYE_ROTOR_MOTOR_ID = 15;
                 public static final int ROLLER_MOTOR_ID = 21;
-
-                // Climber
-                public static final int CLIMBER_MASTER_MOTOR_ID = 19;
-                public static final int CLIMBER_SLAVE_MOTOR_ID = 20;
+                public static final int ROLLER_MOTOR_SECOND_ID = 22;
         }
 
         // Misc. controller values
