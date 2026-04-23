@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.RobotState;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
@@ -216,6 +217,22 @@ class ShooterIOComp implements ShooterIO {
 
                 turretMotor.setPosition(Units.radiansToRotations(_getRelativeTurretAngleRadians()));
                 // turretMotor.setPosition(0.0);
+        }
+
+        public double getTurretHubVelocityFieldCentric() {
+                double x = RobotState.getInstance().getEstimatedPose().getX();
+                double y = RobotState.getInstance().getEstimatedPose().getY();
+                double dx = RobotState.getInstance().getFieldVelocity().vxMetersPerSecond;
+                double dy = RobotState.getInstance().getFieldVelocity().vyMetersPerSecond;
+                return ((x * dy) + (y * dx)) / ((x * x) + (y * y)); // might be negative idk
+        }
+
+        public double getTurretAngularVelocity() {
+                return -RobotState.getInstance().getFieldVelocity().omegaRadiansPerSecond;
+        }
+
+        public double getADjustedTurretFeedForward() {
+                return getTurretAngularVelocity() + getTurretHubVelocityFieldCentric();
         }
 
         @Override
