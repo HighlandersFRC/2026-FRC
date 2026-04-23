@@ -529,7 +529,7 @@ public final class Constants {
 
                 public static class Turret {
                         public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(80.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(260.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(360.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -686,14 +686,15 @@ public final class Constants {
         // PID constants
         public static final class PIDConstants {
                 public static final class Turret {
-                        public static double TURRET_LOOKAHEAD_TIME = 0.1;
+                        public static double TURRET_LOOKAHEAD_TIME = 0.05;
 
                         // Position PID
                         public static final double kP0 = 300.0;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
                         public static final double kS0 = 0.5;
-                        public static final double kV0 = 1.2;
+                        public static final double kV0 = 1.8;
+                        public static final double kA0 = 0.0;
 
                         // Motor Velocity PID
                         public static final double kP1 = 8.0;
@@ -733,11 +734,11 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double kP0 = 2.4;
+                        public static final double kP0 = 3.4;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
                         public static final double kS0 = 0.4;
-                        public static final double kV0 = 0.5;
+                        public static final double kV0 = 0.8;
 
                         public static final double kP1 = 9999999.0;
                 }
@@ -752,7 +753,7 @@ public final class Constants {
                 // radians
 
                 public static final Translation3d LIMELIGHT_TO_TURRET_OFFSET = new Translation3d(
-                                inchesToMeters(-6.08), inchesToMeters(0.0), inchesToMeters(7.9));
+                                inchesToMeters(-4.375), inchesToMeters(0.0), inchesToMeters(7.31));
 
                 // inchesToMeters(-6.75), inchesToMeters(0.0), inchesToMeters(27.75 - 17.8125));
                 public static final Rotation3d LIMELIGHT_ROTATION_RELATIVE_TO_TURRET = new Rotation3d(
@@ -937,7 +938,7 @@ public final class Constants {
                         // public static final double DYE_ROTOR_GEAR_RATIO = (48.0 / 12.0) * (130.0 /
                         // 18.0);
                         public static final double DYE_ROTOR_GEAR_RATIO = (28.0 / 12.0) * (48.0 / 18.0)
-                                        / (150.0 / 18.0); // hex bot
+                                        * (150.0 / 18.0); // hex bot
                         public static final double ROLLER_GEAR_RATIO = (24.0 / 16.0) * (32.0 / 24.0); // hex bot
                 }
 

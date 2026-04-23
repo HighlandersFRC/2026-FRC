@@ -86,15 +86,15 @@ class FeederIOComp implements FeederIO {
         double velocitySetpoint = rpm / 60.0;
 
         // Logger.recordOutput("Feeder RPM error", rpm - getDyeRotorRPM());
-        // if (rpm - getDyeRotorRPM() < 10.0) {
-        dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(false));
-        // useSlot0 = true;
-        // } else {
-        // dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(false));
-        // // dyeRotorMotor.set(1.0);
-        // useSlot0 = false;
-        // }
-        // Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
+        if (rpm - getDyeRotorRPM() < 10.0) {
+            dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(false));
+            useSlot0 = true;
+        } else {
+            dyeRotorMotor.setControl(dyeRotorControl.withVelocity(velocitySetpoint).withSlot(1).withEnableFOC(false));
+            // dyeRotorMotor.set(1.0);
+            useSlot0 = false;
+        }
+        Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
     }
 
     @Override
@@ -125,8 +125,11 @@ class FeederIOComp implements FeederIO {
     public void updateInputs(FeederState systemState) {
         batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor", dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
         batteryLogger.reportCurrentUsage("DyeRotor/Roller", rollerMotor.getSupplyCurrent().getValueAsDouble());
+        batteryLogger.reportCurrentUsage("DyeRotor/Second Roller",
+                secondRollerMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Online/Dye Rotor Online", dyeRotorMotor.isConnected());
         Logger.recordOutput("Online/Dye Roller Online", rollerMotor.isConnected());
+        Logger.recordOutput("Online/Dye Roller Second Motor Online", secondRollerMotor.isConnected());
         // Logger.recordOutput("Feeder/Dye Rotor Torque",
         // dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 

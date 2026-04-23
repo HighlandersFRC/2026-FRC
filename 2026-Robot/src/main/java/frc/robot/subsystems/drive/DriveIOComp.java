@@ -95,24 +95,24 @@ public class DriveIOComp extends DriveIO {
 
         private final Transform3d leftFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
-                                        Constants.inchesToMeters(25.29)),
+                                        Constants.inchesToMeters(23.79)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
 
         private final Transform3d leftBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-14.206),
                                         Constants.inchesToMeters(7.265),
-                                        Constants.inchesToMeters(23.765)),
+                                        Constants.inchesToMeters(22.265)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
                                         Math.toRadians(145.0)));
 
         private final Transform3d rightFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
-                                        Constants.inchesToMeters(25.433)),
+                                        Constants.inchesToMeters(23.933)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
 
         private final Transform3d rightBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
-                                        Constants.inchesToMeters(24.557)),
+                                        Constants.inchesToMeters(23.057)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
                                         Math.toRadians(210.0)));
 
