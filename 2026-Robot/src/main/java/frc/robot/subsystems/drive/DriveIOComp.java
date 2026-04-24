@@ -446,7 +446,8 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected ChassisSpeeds getWantedChassisSpeeds() {
-                return wantedChassisSpeeds;
+                return new ChassisSpeeds(wantedChassisSpeeds.vxMetersPerSecond, wantedChassisSpeeds.vyMetersPerSecond,
+                                -2.5 * wantedChassisSpeeds.omegaRadiansPerSecond);
         }
 
         @Override

@@ -25,6 +25,7 @@ import frc.robot.OI;
 import frc.robot.RobotState;
 import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
+import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.Vector;
 
 // **Zero Wheels with the bolt head showing on the left when the front side(battery) is facing down/away from you**
@@ -103,6 +104,7 @@ public class Drive extends SubsystemBase {
 
   private DriveState wantedState = DriveState.IDLE;
   private DriveState systemState = DriveState.IDLE;
+  private TunableNumber driveFutureExtimateTime = new TunableNumber("Drive/Future Estimate Time", 1.0);
 
   /**
    * Creates a new instance of the Swerve Drive subsystem.
@@ -823,6 +825,9 @@ public class Drive extends SubsystemBase {
     ChassisSpeeds expected = Constants.Simulation.getExpectedDriveSpeeds(secondsInFuture,
         getChassisSpeeds(),
         io.getWantedChassisSpeeds());
+    if (Math.abs(expected.omegaRadiansPerSecond) < 0.1) {
+      expected.omegaRadiansPerSecond = 0;
+    }
     return expected;
   }
 
@@ -1136,12 +1141,13 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("States/Drive State", systemState);
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
-    // Logger.recordOutput("Drive/Expected Speed",
-    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    Logger.recordOutput("Drive/Actual Speed",
-        Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
+    Logger.recordOutput("Drive/Expected Speed", getPredictedDriveVelocityFromSim(driveFutureExtimateTime.get()));
+    Logger.recordOutput("Drive/Actual Speed", getChassisSpeeds());
+    Logger.recordOutput("Drive/Kinematic Expected Speed",
+        getFutureVelocity());
     Logger.recordOutput("Testing/Feed Setpoint",
         new Pose2d(Constants.DynamicPassing.getTarget(getMt2Pose2d().getTranslation()), new Rotation2d()));
+    Logger.recordOutput("Drive/Wanted Velocity", io.getWantedChassisSpeeds());
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;

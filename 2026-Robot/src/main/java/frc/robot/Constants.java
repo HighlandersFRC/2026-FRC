@@ -231,9 +231,8 @@ public final class Constants {
                 public static final double SIM_MAX_ACCELERATION = 12.0; // meters per second
                 public static final double SIM_FRICTION_COEFFICIENT = SIM_MAX_ACCELERATION
                                 / (SIM_TOP_SPEED * SIM_TOP_SPEED) * 0.4499;
-                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 10.0 * SIM_FRICTION_COEFFICIENT;
-                public static final double SIM_MAX_ANGULAR_ACCELERATION = SIM_MAX_ACCELERATION
-                                / Constants.Physical.ROBOT_RADIUS;
+                public static final double SIM_BRAKE_FRICTION_COEFFICIENT = 5.0 * SIM_FRICTION_COEFFICIENT;
+                public static final double SIM_MAX_ANGULAR_ACCELERATION = 0.67;
 
                 public static ChassisSpeeds getExpectedDriveSpeeds(double simTime, ChassisSpeeds current,
                                 ChassisSpeeds wanted) {
@@ -273,6 +272,21 @@ public final class Constants {
                                         velocityVector = velocityVector.scaled(
                                                         SIM_TOP_SPEED / velocityVector.magnitude());
                                 }
+                                // apply angular friction/braking analogous to the linear friction above
+                                double angularFriction;
+                                if (Math.abs(wantedAngularVelocity) < SIM_BRAKE_MODE_THRESHOLD) {
+                                        // braking friction: stronger, tends to bring angular velocity toward zero
+                                        angularFriction = Math.signum(angularVelocity)
+                                                        * -SIM_BRAKE_FRICTION_COEFFICIENT;
+                                } else {
+                                        // velocity-dependent friction (quadratic style, scaled by linear top speed to
+                                        // keep units reasonable)
+                                        angularFriction = -Math.signum(angularVelocity)
+                                                        * Math.pow(Math.abs(angularVelocity), 2)
+                                                        * (SIM_FRICTION_COEFFICIENT / (SIM_TOP_SPEED * SIM_TOP_SPEED));
+                                }
+                                // integrate angular friction as an angular acceleration (rad/s^2)
+                                angularVelocity += angularFriction * dt;
                                 double angularAcceleration = Math.signum(wantedAngularVelocity - angularVelocity)
                                                 * SIM_MAX_ANGULAR_ACCELERATION;
                                 angularVelocity += angularAcceleration * dt;
