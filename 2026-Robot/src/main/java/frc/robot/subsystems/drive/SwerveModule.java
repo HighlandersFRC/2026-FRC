@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.drive;
 
+import org.apache.commons.math3.analysis.function.Constant;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -76,7 +77,6 @@ public class SwerveModule extends SubsystemBase {
     double length = Constants.Physical.ROBOT_LENGTH / 2, width = Constants.Physical.ROBOT_WIDTH / 2, angle;
     length -= Constants.Physical.MODULE_OFFSET;
     width -= Constants.Physical.MODULE_OFFSET;
-
     switch (moduleNumber) {
       case 1:
         angle = (Math.atan2(-length, width)) - Math.PI;
@@ -85,10 +85,11 @@ public class SwerveModule extends SubsystemBase {
         angle = Math.atan2(length, width);
         break;
       case 3:
-        angle = Math.PI + Math.atan2(length, -width);
+        angle = Math.PI + Math.atan2(Constants.Physical.HEX_MODULE_X_OFFSET, -Constants.Physical.HEX_MODULE_Y_OFFSET);
         break;
       case 4:
-        angle = (2 * Math.PI) + (Math.atan2(-length, -width));
+        angle = (2 * Math.PI)
+            + (Math.atan2(-Constants.Physical.HEX_MODULE_X_OFFSET, -Constants.Physical.HEX_MODULE_Y_OFFSET));
         break;
       default:
         angle = 1;

@@ -238,7 +238,7 @@
             "title": "Left Back Cam Online",
             "x": 0.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -253,9 +253,9 @@
           },
           {
             "title": "Left Front Cam Online",
-            "x": 256.0,
+            "x": 128.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -270,9 +270,9 @@
           },
           {
             "title": "Right Back Cam Online",
-            "x": 512.0,
+            "x": 256.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -287,9 +287,9 @@
           },
           {
             "title": "Right Front Cam Online",
-            "x": 768.0,
+            "x": 384.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -304,9 +304,9 @@
           },
           {
             "title": "Limelight Online",
-            "x": 1024.0,
+            "x": 512.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -321,8 +321,8 @@
           },
           {
             "title": "Pigeon Online",
-            "x": 1024.0,
-            "y": 128.0,
+            "x": 0.0,
+            "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -338,7 +338,7 @@
           },
           {
             "title": "Back Left Angle Online",
-            "x": 0.0,
+            "x": 512.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
@@ -355,9 +355,9 @@
           },
           {
             "title": "Back Left CanCoder Online",
-            "x": 0.0,
-            "y": 384.0,
-            "width": 256.0,
+            "x": 256.0,
+            "y": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -372,8 +372,8 @@
           },
           {
             "title": "Back Left Drive Online",
-            "x": 0.0,
-            "y": 512.0,
+            "x": 1024.0,
+            "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -389,26 +389,9 @@
           },
           {
             "title": "Back Right CanCoder Online",
-            "x": 256.0,
+            "x": 384.0,
             "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Online/Back Right CanCoder Online",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Back Right CanCoder Online",
-            "x": 256.0,
-            "y": 384.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -423,8 +406,8 @@
           },
           {
             "title": "Back Right Drive Online",
-            "x": 256.0,
-            "y": 512.0,
+            "x": 1280.0,
+            "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -441,7 +424,7 @@
           {
             "title": "Front Left Angle Online",
             "x": 512.0,
-            "y": 256.0,
+            "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -457,9 +440,9 @@
           },
           {
             "title": "Front Left CanCoder Online",
-            "x": 512.0,
-            "y": 384.0,
-            "width": 256.0,
+            "x": 256.0,
+            "y": 128.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -474,8 +457,8 @@
           },
           {
             "title": "Front Left Drive Online",
-            "x": 512.0,
-            "y": 512.0,
+            "x": 1024.0,
+            "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -492,7 +475,7 @@
           {
             "title": "Front Right Angle Online",
             "x": 768.0,
-            "y": 256.0,
+            "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -508,9 +491,9 @@
           },
           {
             "title": "Front Right CanCoder Online",
-            "x": 768.0,
-            "y": 384.0,
-            "width": 256.0,
+            "x": 384.0,
+            "y": 128.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -525,8 +508,8 @@
           },
           {
             "title": "Front Right Drive Online",
-            "x": 768.0,
-            "y": 512.0,
+            "x": 1280.0,
+            "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -542,8 +525,8 @@
           },
           {
             "title": "Dye Rotor Online",
-            "x": 768.0,
-            "y": 128.0,
+            "x": 0.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -561,7 +544,7 @@
             "title": "Encoder One Online",
             "x": 0.0,
             "y": 128.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -576,9 +559,9 @@
           },
           {
             "title": "Encoder Two Online",
-            "x": 256.0,
+            "x": 128.0,
             "y": 128.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -593,8 +576,8 @@
           },
           {
             "title": "Flywheel Follower Motor Online",
-            "x": 1024.0,
-            "y": 384.0,
+            "x": 1280.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -611,7 +594,7 @@
           {
             "title": "Flywheel Master Motor Online",
             "x": 1024.0,
-            "y": 512.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -627,8 +610,8 @@
           },
           {
             "title": "Turret Motor Online",
-            "x": 1024.0,
-            "y": 256.0,
+            "x": 768.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -644,9 +627,9 @@
           },
           {
             "title": "Hood CanCoder Online",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 256.0,
+            "x": 640.0,
+            "y": 0.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -657,6 +640,214 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "Back Right Angle Online",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Online/Back Right Angle Online",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Intake Pivot Online",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Online/Intake Pivot Online",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Intake Roller Follower Online",
+            "x": 512.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Online/Intake Roller Follower Online",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Intake Roller Master Online",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Online/Intake Roller Master Online",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Dye Roller Online",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Online/Dye Roller Online",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Hood Motor Online",
+            "x": 1280.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Online/Hood Motor Online",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Turret Tuning",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Turret Position Acceleration",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position Acceleration",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Turret Position kD",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position kD",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Turret Position kI",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position kI",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Turret Position kP",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position kP",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Turret Position Velocity",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position Velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Turret Position kS",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position kS",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Turret Position kV",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Turret Position kV",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]

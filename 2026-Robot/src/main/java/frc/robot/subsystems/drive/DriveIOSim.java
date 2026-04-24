@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -53,7 +55,7 @@ public class DriveIOSim extends DriveIO {
         for (int i = 0; i < moduleStates.length; i++) {
             modulePositions[i] = new SwerveModulePosition(moduleDistances[i], moduleStates[i].angle);
         }
-        RobotState.getInstance().resetPose(pose, modulePositions);
+        RobotState.getInstance().resetPose(pose, modulePositions, Optional.of(new Rotation2d(angle)));
     }
 
     @Override

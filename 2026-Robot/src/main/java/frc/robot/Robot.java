@@ -95,19 +95,19 @@ public class Robot extends LoggedRobot {
     m_robotContainer.drive.init();
 
     // PortForwarder.add(4000, "10.44.99.40", 5800);
-    PortForwarder.add(4001, "10.44.99.40", 5801);
+    PortForwarder.add(4001, "10.99.99.40", 5801);
 
-    PortForwarder.add(4100, "10.44.99.41", 5800);
+    PortForwarder.add(4100, "10.99.99.41", 5800);
     // PortForwarder.add(4101, "10.44.99.41", 5801);
-    PortForwarder.add(4200, "10.44.99.42", 5800);
+    PortForwarder.add(4200, "10.99.99.42", 5800);
     // PortForwarder.add(4201, "10.44.99.42", 5801);
-    PortForwarder.add(1182, "10.44.99.42", 1182);
-    PortForwarder.add(1182, "10.44.99.41", 1182);
-    PortForwarder.add(5800, "10.44.99.40", 5800);
-    PortForwarder.add(5805, "10.44.99.40", 5805);
+    PortForwarder.add(1182, "10.99.99.42", 1182);
+    PortForwarder.add(1182, "10.99.99.41", 1182);
+    PortForwarder.add(5800, "10.99.99.40", 5800);
+    PortForwarder.add(5805, "10.99.99.40", 5805);
 
-    PortForwarder.add(1184, "10.44.99.42", 1184);
-    PortForwarder.add(1184, "10.44.99.41", 1184);
+    PortForwarder.add(1184, "10.99.99.42", 1184);
+    PortForwarder.add(1184, "10.99.99.41", 1184);
 
     // m_robotContainer.lights.setFlashYellow();
 

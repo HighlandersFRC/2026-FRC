@@ -115,7 +115,7 @@ public class OI {
     }
 
     public static String getSelectedPath() {
-        return auto.getSelected();
+        return auto.getSelected() != null ? auto.getSelected() : "None";
         // return "2climb.polarauto"; for hardcoding auto
     }
 

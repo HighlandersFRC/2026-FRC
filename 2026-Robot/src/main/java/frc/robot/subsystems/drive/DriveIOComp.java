@@ -95,24 +95,27 @@ public class DriveIOComp extends DriveIO {
         private int[] allFiducialIds = new int[0];
 
         private final Transform3d leftFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.5614), Constants.inchesToMeters(14.2213),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(-0.5), Math.toRadians(-8.0), Math.toRadians(75.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
+                                        Constants.inchesToMeters(25.29)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
 
         private final Transform3d leftBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-11.4675), Constants.inchesToMeters(13.5008),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.0), Math.toRadians(145.0)));
+                        new Translation3d(Constants.inchesToMeters(-14.206),
+                                        Constants.inchesToMeters(7.265),
+                                        Constants.inchesToMeters(23.765)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
+                                        Math.toRadians(145.0)));
 
         private final Transform3d rightFrontRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-9.8347), Constants.inchesToMeters(-14.7105),
-                                        Constants.inchesToMeters(13.9669)),
-                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-26.0), Math.toRadians(275.0)));
+                        new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
+                                        Constants.inchesToMeters(25.433)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
 
         private final Transform3d rightBackRobotToCam = new Transform3d(
-                        new Translation3d(Constants.inchesToMeters(-11.4424), Constants.inchesToMeters(11.4633),
-                                        Constants.inchesToMeters(24.1563)),
-                        new Rotation3d(Math.toRadians(1.7), Math.toRadians(-11.0), Math.toRadians(215.0)));
+                        new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
+                                        Constants.inchesToMeters(24.557)),
+                        new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
+                                        Math.toRadians(210.0)));
 
         private final LinearFilter filterX = LinearFilter.movingAverage(10);
         private final LinearFilter filterY = LinearFilter.movingAverage(10);
@@ -296,6 +299,8 @@ public class DriveIOComp extends DriveIO {
         @Override
         void zeroIMU() {
                 gyro.setYaw(0.0);
+                gyro.setPitchOffsetDegrees(gyro.getPitchDegrees());
+                gyro.setRollOffsetDegrees(gyro.getRollDegrees());
                 setPosition(new Pose2d(getPosition().getTranslation(), Rotation2d.kZero));
         }
 
@@ -336,6 +341,7 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected void setPosition(Pose2d pose) {
+                Logger.recordOutput("Auto/FirstPose", pose);
                 Drive.odometryLock.lock();
                 try {
                         clearOdometryQueues();
@@ -358,7 +364,8 @@ public class DriveIOComp extends DriveIO {
                                         Rotation2d.fromRotations(backLeftTurnPositionSignal.getValueAsDouble()),
                                         Rotation2d.fromRotations(backRightTurnPositionSignal.getValueAsDouble()));
                         setYaw(pose.getRotation().getDegrees());
-                        RobotState.getInstance().resetPose(pose, currentWheelPositions);
+                        RobotState.getInstance().resetPose(pose, currentWheelPositions,
+                                        Optional.of(pose.getRotation()));
                         seedAcceptedOdometryState(currentWheelPositions, pose.getRotation());
                         resetPhotonHeadingData(Timer.getFPGATimestamp(), pose.getRotation());
                 } finally {
@@ -441,6 +448,14 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Swerve/Back Left Angle Current", backLeft.getAngleMotorCurrent());
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
+
+                Logger.recordOutput("Robot/gyro1yaw", gyro.getPigeon1Yaw());
+                Logger.recordOutput("Robot/gyro2yaw", gyro.getPigeon2Yaw());
+                Logger.recordOutput("Robot/gyro1roll", gyro.getPigeon1Roll());
+                Logger.recordOutput("Robot/gyro2roll", gyro.getPigeon2Roll());
+                Logger.recordOutput("Robot/gyro1pitch", gyro.getPigeon1Pitch());
+                Logger.recordOutput("Robot/gyro2pitch", gyro.getPigeon2Pitch());
+
                 Logger.recordOutput("Online/Front Right Drive Online", frontRightDriveMotor.isConnected());
                 Logger.recordOutput("Online/Front Left Drive Online", frontLeftDriveMotor.isConnected());
                 Logger.recordOutput("Online/Back Right Drive Online", backRightDriveMotor.isConnected());
@@ -457,6 +472,7 @@ public class DriveIOComp extends DriveIO {
                 Logger.recordOutput("Online/Back Left CanCoder Online", backLeftCanCoder.isConnected());
 
                 Logger.recordOutput("Pigeon Online", gyro.isOnline());
+                Logger.recordOutput("Pigeon2 Online", gyro.is2Online());
         }
 
         @Override
@@ -596,10 +612,11 @@ public class DriveIOComp extends DriveIO {
                         return;
                 }
 
-                boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 || Math.abs(gyro.getRollDegrees()) > 4.1;
-                if (tilted) {
-                        return;
-                }
+                // boolean tilted = Math.abs(gyro.getPitchDegrees()) > 4.1 ||
+                // Math.abs(gyro.getRollDegrees()) > 4.1;
+                // if (tilted) {
+                // return;
+                // }
 
                 if (Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond) >= 2.4) {
                         return;
@@ -1001,11 +1018,13 @@ public class DriveIOComp extends DriveIO {
         }
 
         private void updateLimelightObservation(List<PendingVisionObservation> pendingVisionObservations) {
+                double maxAcceptedLimelightAngularVelocityRadPerSec = 0.5;
+                double limelightAngularVelocityStdDevScalarCoefficient = 2;
                 double limelightAngVelRelToField = Constants.Vision.getLimelightAngVelRelToField(
                                 Globals.turretVelocity,
                                 getChassisSpeeds().omegaRadiansPerSecond);
                 Logger.recordOutput("Limelight Ang Vel", limelightAngVelRelToField);
-                if (Math.abs(limelightAngVelRelToField) >= 0.5) {
+                if (Math.abs(limelightAngVelRelToField) >= maxAcceptedLimelightAngularVelocityRadPerSec) {
                         return;
                 }
 
@@ -1046,7 +1065,9 @@ public class DriveIOComp extends DriveIO {
                                         "Cameras/Limelight Pose",
                                         mt1.pose,
                                         mt1.timestampSeconds,
-                                        createVisionStdDevs(mt1.avgTagDist, mt1.tagCount, 2.0)));
+                                        createVisionStdDevs(mt1.avgTagDist, mt1.tagCount, 2.0,
+                                                        limelightAngVelRelToField,
+                                                        limelightAngularVelocityStdDevScalarCoefficient)));
                 } catch (Exception e) {
                         System.out.println(e);
                 }
@@ -1136,10 +1157,21 @@ public class DriveIOComp extends DriveIO {
                 return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
         }
 
-        private Matrix<N3, N1> createVisionStdDevs(double averageTagDistance, int tagCount, double thetaScalar) {
-                double xyStdDev = Constants.Vision.getTagDistStdDevScalar(averageTagDistance)
-                                * Constants.Vision.getNumTagStdDevScalar(tagCount);
-                double thetaStdDev = xyStdDev * thetaScalar;
+        private Matrix<N3, N1> createVisionStdDevs(
+                        double averageTagDistance,
+                        int tagCount,
+                        double thetaScalar,
+                        double limelightAngVelRelToField,
+                        double limelightAngularVelocityStdDevScalarCoefficient) {
+                double angularVelocityStdDevScalar = 1.0
+                                + limelightAngularVelocityStdDevScalarCoefficient
+                                                * Math.abs(limelightAngVelRelToField);
+                double xyStdDev = DriveConstants.photonXyStdDevCoefficient
+                                * Math.pow(averageTagDistance, 1.2)
+                                / Math.pow(Math.max(tagCount, 1), 2.0)
+                                * angularVelocityStdDevScalar;
+                double thetaStdDev = Double.POSITIVE_INFINITY;
+                Logger.recordOutput("Vision/Limelight Ang Vel Std Dev Scalar", angularVelocityStdDevScalar);
                 Logger.recordOutput("Vision/Limelight Std Dev XY", xyStdDev);
                 Logger.recordOutput("Vision/Limelight Std Dev Theta", thetaStdDev);
                 return VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
