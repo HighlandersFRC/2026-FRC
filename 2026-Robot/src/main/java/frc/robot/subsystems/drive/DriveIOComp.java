@@ -1198,6 +1198,7 @@ public class DriveIOComp extends DriveIO {
         }
 
         private boolean poseInField(Pose2d pose) {
+
                 return pose.getX() > Constants.Physical.ROBOT_RADIUS
                                 && pose.getX() < Constants.Physical.FIELD_LENGTH
                                                 - Constants.Physical.ROBOT_RADIUS
