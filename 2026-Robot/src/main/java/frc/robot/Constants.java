@@ -687,7 +687,7 @@ public final class Constants {
         public static final class PIDConstants {
                 public static final class Turret {
                         public static double TURRET_LOOKAHEAD_TIME = 0.05;
-
+                        public static final double FF_SCALAR = 5.0;
                         // Position PID
                         public static final double kP0 = 300.0;
                         public static final double kI0 = 0.0;

@@ -100,8 +100,8 @@ public class Shooter extends SubsystemBase {
   }
 
   private void normalShoot() {
-    // Logger.recordOutput("Shooter/Wanted Turret Angle",
-    // wantedShotSolution.turretAngle.getDegrees());
+    Logger.recordOutput("Shooter/Wanted Turret Angle",
+        wantedShotSolution.turretAngle.getDegrees());
     setTurretAngle(getPredictedTurretAngle(wantedShotSolution.turretAngle));
     moveHoodToAngle(wantedShotSolution.hoodAngle);
     setFlywheelRPM(wantedShotSolution.flywheelRPM);

@@ -57,7 +57,8 @@ class ShooterIOComp implements ShooterIO {
                         Constants.PIDConstants.Turret.kA0);
         private TunableNumber turretVelocity = new TunableNumber("Turret Position Velocity", 20.0);
         private TunableNumber turretAcceleration = new TunableNumber("Turret Position Acceleration", 25.0);
-
+        private TunableNumber turretFFScalar = new TunableNumber("Turret Feedforward Scalar",
+                        Constants.PIDConstants.Turret.FF_SCALAR);
         // private double turretVelocity = 3.0;
         // private double turretAcceleration = 10.0;
         // private TunableNumber hoodP = new TunableNumber("Hood Position kP",
@@ -219,7 +220,7 @@ class ShooterIOComp implements ShooterIO {
                 // turretMotor.setPosition(0.0);
         }
 
-        public double getTurretHubVelocityFieldCentric() {
+        private double getTurretHubVelocityFieldCentric() {
                 double x = RobotState.getInstance().getEstimatedPose().getX();
                 double y = RobotState.getInstance().getEstimatedPose().getY();
                 double dx = RobotState.getInstance().getFieldVelocity().vxMetersPerSecond;
@@ -227,11 +228,11 @@ class ShooterIOComp implements ShooterIO {
                 return ((x * dy) + (y * dx)) / ((x * x) + (y * y)); // might be negative idk
         }
 
-        public double getTurretAngularVelocity() {
+        private double getTurretAngularVelocity() {
                 return -RobotState.getInstance().getFieldVelocity().omegaRadiansPerSecond;
         }
 
-        public double getADjustedTurretFeedForward() {
+        private double getADjustedTurretFeedForward() {
                 return getTurretAngularVelocity() + getTurretHubVelocityFieldCentric();
         }
 
@@ -289,7 +290,9 @@ class ShooterIOComp implements ShooterIO {
                                 new DynamicMotionMagicVoltage(Units.radiansToRotations(
                                                 adjustedAngle),
                                                 turretVelocity.get(),
-                                                turretAcceleration.get()));
+                                                turretAcceleration.get())
+                                                .withFeedForward(
+                                                                turretFFScalar.get() * getADjustedTurretFeedForward()));
         }
 
         @Override
@@ -433,7 +436,9 @@ class ShooterIOComp implements ShooterIO {
                 // Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 filterTurret.calculate(Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
                 Globals.turretVelocity = filterTurret.lastValue();
-
+                Logger.recordOutput("Shooter/Turret Feedforward", getADjustedTurretFeedForward());
+                Logger.recordOutput("Shooter/Turret FeedForward Translational", getTurretHubVelocityFieldCentric());
+                Logger.recordOutput("Shooter/Turret FeedForward Rotational", getTurretAngularVelocity());
                 batteryLogger.reportCurrentUsage("Shooter Flywheel/Master",
                                 flywheelMaster.getSupplyCurrent().getValueAsDouble());
                 batteryLogger.reportCurrentUsage("Shooter Flywheel/Follower",
