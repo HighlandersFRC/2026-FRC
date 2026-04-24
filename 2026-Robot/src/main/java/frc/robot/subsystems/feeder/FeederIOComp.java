@@ -52,19 +52,19 @@ class FeederIOComp implements FeederIO {
         dyeRotorConfig.Slot1.kP = Constants.PIDConstants.Feeder.kP1;
         dyeRotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         dyeRotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 100;
-        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
         dyeRotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         dyeRotorConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.DYE_ROTOR_GEAR_RATIO;
         dyeRotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         dyeRotorMotor.getConfigurator().apply(dyeRotorConfig);
-        dyeRotorMotor.setNeutralMode(NeutralModeValue.Brake);
+        dyeRotorMotor.setNeutralMode(NeutralModeValue.Coast);
 
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        rollerConfig.CurrentLimits.StatorCurrentLimit = 100;
-        rollerConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        rollerConfig.CurrentLimits.StatorCurrentLimit = 90;
+        rollerConfig.CurrentLimits.SupplyCurrentLimit = 90;
         rollerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         rollerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.ROLLER_GEAR_RATIO;
         rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -166,6 +166,12 @@ class FeederIOComp implements FeederIO {
     public void setRollerTorque(double amps, double maxPercent) {
         rollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
         secondRollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+    }
+
+    @Override
+    public void setRollerPercent(double maxpercent) {
+        rollerMotor.set(maxpercent);
+        secondRollerMotor.set(maxpercent);
     }
 
     @Override

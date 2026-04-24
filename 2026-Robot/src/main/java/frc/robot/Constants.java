@@ -561,8 +561,8 @@ public final class Constants {
 
                 public static class Shooter {
                         private final static double DISTANCE_OFFSET = 0.0;
-                        private final static double ANGLE_OFFSET = 0.0;
-                        private final static double RPM_OFFSET = 10.0;
+                        private final static double ANGLE_OFFSET = -2.0;
+                        private final static double RPM_OFFSET = 100.0;
                         private final static double TOF_OFFSET = 0.0;
                         // Distance in meters, Hood Angle, Flywheel RPM, Time of Flight in seconds
                         public static final double[][] SHOT_MAP = { { 1.372, 85, 1850, 0.82 },
@@ -734,11 +734,11 @@ public final class Constants {
                 }
 
                 public static final class Feeder {
-                        public static final double kP0 = 3.4;
+                        public static final double kP0 = 3.2;
                         public static final double kI0 = 0.0;
                         public static final double kD0 = 0.0;
                         public static final double kS0 = 0.4;
-                        public static final double kV0 = 0.8;
+                        public static final double kV0 = 0.7;
 
                         public static final double kP1 = 9999999.0;
                 }

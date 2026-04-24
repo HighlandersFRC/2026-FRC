@@ -18,6 +18,8 @@ interface FeederIO {
 
     void setRollerTorque(double amps, double maxPercent);
 
+    void setRollerPercent(double maxpercent);
+
     void setDyeRotorRPM(double rpm);
 
     void updateInputs(FeederState systemState);
