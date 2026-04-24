@@ -225,7 +225,7 @@ class ShooterIOComp implements ShooterIO {
                 double y = RobotState.getInstance().getEstimatedPose().getY();
                 double dx = RobotState.getInstance().getFieldVelocity().vxMetersPerSecond;
                 double dy = RobotState.getInstance().getFieldVelocity().vyMetersPerSecond;
-                return ((x * dy) + (y * dx)) / ((x * x) + (y * y)); // might be negative idk
+                return ((x * dy) - (y * dx)) / ((x * x) + (y * y)); // might be negative idk
         }
 
         private double getTurretAngularVelocity() {
