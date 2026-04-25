@@ -35,8 +35,11 @@ class ShooterIOComp implements ShooterIO {
                         Constants.CANInfo.CANBUS_NAME);
         private final TalonFX hoodMotor = new TalonFX(Constants.CANInfo.HOOD_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
 
-        private final VelocityVoltage flywheelControl = new VelocityVoltage(0.0);
-        private final VelocityTorqueCurrentFOC flywheelControl2 = new VelocityTorqueCurrentFOC(0.0);
+        private final VelocityVoltage flywheelControl = new VelocityVoltage(0.0).withUpdateFreqHz(1000)
+                        .withLimitReverseMotion(true);
+        private final VelocityTorqueCurrentFOC flywheelControl2 = new VelocityTorqueCurrentFOC(0.0)
+                        .withUpdateFreqHz(1000)
+                        .withLimitReverseMotion(true);
 
         private final CANcoder encoderOne = new CANcoder(Constants.CANInfo.TURRET_CANCODER_ONE_ID,
                         Constants.CANInfo.CANBUS_NAME);
@@ -166,7 +169,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
                 flywheelConfig.CurrentLimits.StatorCurrentLimit = 70;
                 flywheelConfig.CurrentLimits.SupplyCurrentLimit = 70;
-                flywheelConfig.Voltage.PeakForwardVoltage = 32.0;
+                flywheelConfig.Voltage.PeakForwardVoltage = 12.0;
                 flywheelConfig.Voltage.PeakReverseVoltage = 0.0;
                 flywheelConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
                 flywheelConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
@@ -177,6 +180,7 @@ class ShooterIOComp implements ShooterIO {
                 // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
                 flywheelMaster.getConfigurator().apply(flywheelConfig);
                 flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
+                // flywheelMaster.getVelocity().setUpdateFrequency(100);
 
                 TalonFXConfiguration flywheelFollowerConfig = new TalonFXConfiguration();
                 flywheelFollowerConfig.Slot0.kP = Constants.PIDConstants.Flywheel.kP0;
@@ -195,7 +199,7 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
                 flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 70;
                 flywheelFollowerConfig.CurrentLimits.SupplyCurrentLimit = 70;
-                flywheelFollowerConfig.Voltage.PeakForwardVoltage = 32.0;
+                flywheelFollowerConfig.Voltage.PeakForwardVoltage = 12.0;
                 flywheelFollowerConfig.Voltage.PeakReverseVoltage = 0.0;
                 flywheelFollowerConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
                 flywheelFollowerConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
@@ -228,14 +232,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.935546875; // TODO: Try calculating offset from
-                                                                           // previous zero
-                                                                           // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.36962890625; // TODO: Try calculating offset from
+                                                                             // previous zero
+                                                                             // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.143310546875;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.349609375;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -344,8 +348,11 @@ class ShooterIOComp implements ShooterIO {
 
                 // } else {
                 Logger.recordOutput("Shooter/Shoot Type", "PID");
+
+                Logger.recordOutput("Shooter/Update Hz", flywheelControl2.UpdateFreqHz);
                 // flywheelMaster.setControl(
-                // flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                // flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true)
+                // .withLimitReverseMotion(true));
                 // flywheelFollower.setControl(
                 // flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
 
