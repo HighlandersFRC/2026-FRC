@@ -281,7 +281,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -301,7 +301,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -321,7 +321,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -352,7 +352,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -383,7 +383,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -440,7 +440,7 @@ public class Superstructure extends SubsystemBase {
         new Pose2d(turret.toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.DynamicPassing.getTarget(turret
             .toTranslation2d()),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -460,7 +460,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateFeedShot(
         new Pose2d(turret.toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.DynamicPassing.getTarget(turret.toTranslation2d()),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
