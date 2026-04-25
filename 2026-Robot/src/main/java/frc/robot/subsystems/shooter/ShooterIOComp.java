@@ -205,14 +205,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.151123046875; // TODO: Try calculating offset from
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.747314453125; // TODO: Try calculating offset from
                                                                               // previous zero
                                                                               // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.335205078125;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.207763671875;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -225,7 +225,7 @@ class ShooterIOComp implements ShooterIO {
                 double y = RobotState.getInstance().getEstimatedPose().getY();
                 double dx = RobotState.getInstance().getFieldVelocity().vxMetersPerSecond;
                 double dy = RobotState.getInstance().getFieldVelocity().vyMetersPerSecond;
-                return ((x * dy) - (y * dx)) / ((x * x) + (y * y)); // might be negative idk
+                return ((x * dy) + (y * dx)) / ((x * x) + (y * y)); // might be negative idk
         }
 
         private double getTurretAngularVelocity() {
