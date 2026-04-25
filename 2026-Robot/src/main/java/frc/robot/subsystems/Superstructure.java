@@ -220,7 +220,7 @@ public class Superstructure extends SubsystemBase {
         }
         break;
       case MANUAL_SHOOT:
-        if (OI.driverA.getAsBoolean()) {
+        if (OI.driverY.getAsBoolean()) {
           currentSuperState = SuperState.MANUAL_SHOOTING;
         } else {
           currentSuperState = SuperState.MANUAL_SHOOT;
