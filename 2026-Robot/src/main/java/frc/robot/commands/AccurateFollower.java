@@ -18,6 +18,7 @@ public class AccurateFollower extends AutoFollower {
 
     private Number[] desiredVelocityArray = new Number[4];
     private double desiredThetaChange = 0;
+    private final Vector velocityVector = new Vector();
 
     public double pathStartTime;
 
@@ -75,8 +76,6 @@ public class AccurateFollower extends AutoFollower {
             timesStagnated = 0;
         }
 
-        Vector velocityVector = new Vector();
-
         if (currentPathPointIndex == path.length() - 1) {
             velocityVector.setI(desiredVelocityArray[0].doubleValue() * 6);
             velocityVector.setJ(desiredVelocityArray[1].doubleValue() * 6);
@@ -94,11 +93,7 @@ public class AccurateFollower extends AutoFollower {
 
     @Override
     public void end(boolean interrupted) {
-        Vector velocityVector = new Vector();
-        velocityVector.setI(0);
-        velocityVector.setJ(0);
-        double desiredThetaChange = 0.0;
-        drive.autoDrive(velocityVector, desiredThetaChange);
+        drive.stop();
     }
 
     public void from(int pointIndex, JSONObject pathJSON, int to) {

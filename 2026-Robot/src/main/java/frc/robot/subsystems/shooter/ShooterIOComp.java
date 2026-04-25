@@ -23,7 +23,7 @@ import frc.robot.RobotState;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
-import frc.robot.tools.logging.BatteryLogger;
+// import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.TunableNumber;
 
 class ShooterIOComp implements ShooterIO {
@@ -463,7 +463,7 @@ class ShooterIOComp implements ShooterIO {
         private int initLoops;
         private ArrayList<Double> firstTurretAngles = new ArrayList<>();
         private int numberSkips;
-        private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+        // private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
         @Override
         public void updateInputs() {
@@ -475,15 +475,16 @@ class ShooterIOComp implements ShooterIO {
                 Logger.recordOutput("Shooter/Turret Feedforward", getADjustedTurretFeedForward());
                 Logger.recordOutput("Shooter/Turret FeedForward Translational", getTurretHubVelocityFieldCentric());
                 Logger.recordOutput("Shooter/Turret FeedForward Rotational", getTurretAngularVelocity());
-                batteryLogger.reportCurrentUsage("Shooter Flywheel/Master",
-                                flywheelMaster.getSupplyCurrent().getValueAsDouble());
-                batteryLogger.reportCurrentUsage("Shooter Flywheel/Follower",
-                                flywheelFollower.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Shooter Flywheel/Master",
+                // flywheelMaster.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Shooter Flywheel/Follower",
+                // flywheelFollower.getSupplyCurrent().getValueAsDouble());
 
-                batteryLogger.reportCurrentUsage("Shooter Hood Motor", hoodMotor.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Shooter Hood Motor",
+                // hoodMotor.getSupplyCurrent().getValueAsDouble());
 
-                batteryLogger.reportCurrentUsage("Shooter/Turret Motor",
-                                turretMotor.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Shooter/Turret Motor",
+                // turretMotor.getSupplyCurrent().getValueAsDouble());
 
                 // Logger.recordOutput("Testing/initializingTurret", initializingTurret);
                 // Logger.recordOutput("Testing/initLoops", initLoops);
