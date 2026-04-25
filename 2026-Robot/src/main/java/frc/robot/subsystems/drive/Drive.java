@@ -828,6 +828,7 @@ public class Drive extends SubsystemBase {
     if (Math.abs(expected.omegaRadiansPerSecond) < 0.1) {
       expected.omegaRadiansPerSecond = 0;
     }
+    expected = ChassisSpeeds.fromRobotRelativeSpeeds(expected, getMt2Pose2d().getRotation());
     return expected;
   }
 
@@ -1142,7 +1143,7 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("Drive/Drive State", systemState);
     Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
     Logger.recordOutput("Drive/Expected Speed", getPredictedDriveVelocityFromSim(driveFutureExtimateTime.get()));
-    Logger.recordOutput("Drive/Actual Speed", getChassisSpeeds());
+    Logger.recordOutput("Drive/Actual Speed RC", getChassisSpeeds());
     Logger.recordOutput("Drive/Kinematic Expected Speed",
         getFutureVelocity());
     Logger.recordOutput("Testing/Feed Setpoint",

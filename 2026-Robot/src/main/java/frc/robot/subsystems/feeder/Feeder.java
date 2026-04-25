@@ -94,7 +94,7 @@ public class Feeder extends SubsystemBase {
     // }
     switch (systemState) {
       case FEED:
-        setDyeRotorRPM(85);
+        setDyeRotorRPM(70);
         setRollerTorque(90, 1.0);
         // setDyeRotorPercent(1.0);
         break;
