@@ -163,7 +163,7 @@ public class Intake extends SubsystemBase {
     // }
     if (jiggleUp) {
 
-      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 15.50) {
+      if (getIntakePosition() < Constants.SetPoints.Intake.INTAKE_UP_POSITION + 10.50) {
         setPivotTorque(30, 0.3);
       } else {
         setPivotTorque(-45, 0.6);
