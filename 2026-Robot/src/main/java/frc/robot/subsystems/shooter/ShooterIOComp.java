@@ -319,7 +319,8 @@ class ShooterIOComp implements ShooterIO {
                                                 turretVelocity.get(),
                                                 turretAcceleration.get())
                                                 .withFeedForward(
-                                                                turretFFScalar.get() * getADjustedTurretFeedForward()));
+                                                                turretFFScalar.get() * getADjustedTurretFeedForward())
+                                                .withUpdateFreqHz(1000));
         }
 
         @Override
