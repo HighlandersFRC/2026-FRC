@@ -733,18 +733,26 @@ public final class Constants {
                 }
 
                 public static final class Flywheel {
-                        public static final double kP0 = 0.467;
-                        public static final double kI0 = 0.0;
-                        public static final double kD0 = 0.0;
-                        public static final double kS0 = 0.3;
-                        public static final double kV0 = 0.158;
-                        public static final double kA0 = 25.0;
+                        // public static final double kP0 = 0.467;
+                        // public static final double kI0 = 0.0;
+                        // public static final double kD0 = 0.0;
+                        // public static final double kS0 = 0.3;
+                        // public static final double kV0 = 0.158;
+                        // public static final double kA0 = 25.0;
 
-                        public static final double kP1 = 99999999.67;
+                        public static final double kP0 = 0.6;
+                        public static final double kI0 = 0.0;
+                        public static final double kD0 = 0.1;
+                        public static final double kS0 = 0.5;
+                        public static final double kV0 = 0.16;
+                        public static final double kA0 = 0.0;
+
+                        public static final double kP1 = 6.7;
                         public static final double kI1 = 0.0;
                         public static final double kD1 = 0.0;
-                        public static final double kS1 = 99999999.41;
-                        public static final double kV1 = 0.0;
+                        public static final double kS1 = 5.0;
+                        public static final double kV1 = 0.27;
+                        public static final double kA1 = 0.0;
                 }
 
                 public static final class Feeder {
