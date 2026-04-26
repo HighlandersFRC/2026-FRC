@@ -490,8 +490,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(400.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(2.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(60.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(360.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
