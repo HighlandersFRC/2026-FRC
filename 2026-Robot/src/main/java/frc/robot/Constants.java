@@ -31,8 +31,8 @@ public final class Constants {
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
-                public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.1; // Lookahead at 1m/s scaled by wanted
-                                                                                // velocity
+                public static final double AUTONOMOUS_LOOKAHEAD_DISTANCE = 0.123; // Lookahead at 1m/s scaled by wanted
+                                                                                  // velocity
                 public static final double FULL_SEND_LOOKAHEAD = 0.6741;
                 public static final double MIN_LOOKAHEAD_DISTANCE = 0.18; // Lookahead distance at 0m/s
                 // Path follower will end if within this radius of the final point
@@ -490,8 +490,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(80.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(360.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(400.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(2.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(

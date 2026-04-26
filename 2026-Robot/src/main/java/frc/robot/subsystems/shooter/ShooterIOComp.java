@@ -232,19 +232,19 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.36962890625; // TODO: Try calculating offset from
-                                                                             // previous zero
-                                                                             // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.9033203125; // TODO: Try calculating offset from
+                                                                            // previous zero
+                                                                            // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.349609375;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.82421875;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
-                turretMotor.setPosition(Units.radiansToRotations(_getRelativeTurretAngleRadians()));
-                // turretMotor.setPosition(0.0);
+                // turretMotor.setPosition(Units.radiansToRotations(_getRelativeTurretAngleRadians()));
+                turretMotor.setPosition(0.0);
         }
 
         private double getTurretHubVelocityFieldCentric() {
