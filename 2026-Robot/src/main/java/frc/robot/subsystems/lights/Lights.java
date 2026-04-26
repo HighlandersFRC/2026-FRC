@@ -64,10 +64,7 @@ public class Lights extends SubsystemBase {
     INTAKING,
     PLACING,
     SCORING,
-    FEEDER,
-    CLIMB_DEPLOY,
-    CLIMB_IDLE,
-    CLIMB,
+    FEEDER
   }
 
   public enum ItemState {
@@ -164,12 +161,6 @@ public class Lights extends SubsystemBase {
         return LightsState.SCORING;
       case FEEDER:
         return LightsState.FEEDER;
-      case CLIMB_DEPLOY:
-        return LightsState.CLIMB_DEPLOY;
-      case CLIMB_IDLE:
-        return LightsState.CLIMB_IDLE;
-      case CLIMB:
-        return LightsState.CLIMB;
       default:
         return LightsState.DISABLED;
     }
@@ -287,15 +278,6 @@ public class Lights extends SubsystemBase {
           break;
         case FEEDER:
           setFlashPurple();
-          break;
-        case CLIMB_DEPLOY:
-          setFlashPurple();
-          break;
-        case CLIMB_IDLE:
-          setStrobeGreen();
-          break;
-        case CLIMB:
-          setFlashYellow();
           break;
         default:
           if (OI.autoChooser.isConnected()) {

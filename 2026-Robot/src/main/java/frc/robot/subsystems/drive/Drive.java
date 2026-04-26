@@ -97,9 +97,6 @@ public class Drive extends SubsystemBase {
     IDLE_SLOW,
     IDLE_SLOWISH,
     STOP,
-    DRIVE_TO_PRE_CLIMB,
-    DRIVE_TO_ALIGN_CLIMB,
-    DRIVE_TO_ALIGN_CLIMB_FINISH,
     SNAKE,
   }
 
@@ -981,12 +978,6 @@ public class Drive extends SubsystemBase {
         return DriveState.IDLE_SLOWISH;
       case STOP:
         return DriveState.STOP;
-      case DRIVE_TO_ALIGN_CLIMB:
-        return DriveState.DRIVE_TO_ALIGN_CLIMB;
-      case DRIVE_TO_ALIGN_CLIMB_FINISH:
-        return DriveState.DRIVE_TO_ALIGN_CLIMB_FINISH;
-      case DRIVE_TO_PRE_CLIMB:
-        return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
         return DriveState.SNAKE; // disable this for now
       default:
@@ -999,54 +990,6 @@ public class Drive extends SubsystemBase {
   }
 
   Field2d field = new Field2d();
-
-  public Pose2d getClimbPrepSetpoint() {
-    if (Globals.fieldSide.equals("blue")) {
-      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseRightBlueSide.getTranslation());
-      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseLeftBlueSide.getTranslation());
-      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
-        return Constants.Physical.preClimbPoseRightBlueSide;
-      } else {
-        return Constants.Physical.preClimbPoseLeftBlueSide;
-      }
-    } else {
-      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
-      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
-      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
-        return Constants.Physical.preClimbPoseRightRedSide;
-      } else {
-        return Constants.Physical.preClimbPoseLeftRedSide;
-      }
-    }
-  }
-
-  public Pose2d getClimbAlignSetpoint() {
-    if (Globals.fieldSide.equals("blue")) {
-      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseRightBlueSide.getTranslation());
-      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseLeftBlueSide.getTranslation());
-      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
-        return Constants.Physical.climbPoseRightBlueSide;
-      } else {
-        return Constants.Physical.climbPoseLeftBlueSide;
-      }
-    } else {
-      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
-      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
-      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
-        return Constants.Physical.climbPoseRightRedSide;
-      } else {
-        return Constants.Physical.climbPoseLeftRedSide;
-      }
-    }
-  }
 
   public ChassisSpeeds getFutureVelocity() {
     return getFutureVelocity(getChassisSpeeds(), getMt2Pose2d().getRotation());
@@ -1176,19 +1119,6 @@ public class Drive extends SubsystemBase {
         break;
       case STOP:
         stop();
-        break;
-      case DRIVE_TO_PRE_CLIMB:
-        Pose2d climbPrepSetpoint = getClimbPrepSetpoint();
-        Logger.recordOutput("climb prep", climbPrepSetpoint);
-        driveToPoint(climbPrepSetpoint);
-        break;
-      case DRIVE_TO_ALIGN_CLIMB:
-        Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
-        Logger.recordOutput("climb align", climbAlignSetpoint);
-        driveToPoint(climbAlignSetpoint);
-        break;
-      case DRIVE_TO_ALIGN_CLIMB_FINISH:
-        autoRobotCentricDrive(new Vector(0, 0.67), 0.0);
         break;
       default:
         break;

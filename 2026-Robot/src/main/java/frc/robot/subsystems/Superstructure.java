@@ -38,11 +38,6 @@ public class Superstructure extends SubsystemBase {
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
-  double outakeIdleInitTime = 0;
-  boolean outakeIdleInit = false;
-  boolean firstTimeDefault = true;
-  boolean firstTimeAutoClimb = true;
-  double alignTime = Timer.getFPGATimestamp();
   private SuperState lastState = SuperState.IDLE;
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();

@@ -125,8 +125,6 @@ public class DriveIOComp extends DriveIO {
         private final LinearFilter filterX = LinearFilter.movingAverage(10);
         private final LinearFilter filterY = LinearFilter.movingAverage(10);
         private final LinearFilter filterOmega = LinearFilter.movingAverage(10);
-        private final TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
-                        .createBuffer(2.0);
         private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.moduleTranslations);
 
         private final StatusSignal<Angle> frontLeftDrivePositionSignal;
@@ -416,7 +414,6 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         void update(DriveState currentState) {
-                addTurretObservation(Timer.getFPGATimestamp(), Globals.turretAngle);
                 updateOdometry();
                 updateMeasuredChassisSpeeds();
                 updateVision(currentState);
@@ -592,30 +589,28 @@ public class DriveIOComp extends DriveIO {
                                 pendingVisionObservations,
                                 acceptedPhotonPoses);
 
-                if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
-                        processPhotonResults(
-                                        "Cameras/Right Back Pose",
-                                        peripherals.getRightBackCamResults(),
-                                        rightBackPhotonPoseEstimator,
-                                        pendingVisionObservations,
-                                        acceptedPhotonPoses);
+                processPhotonResults(
+                                "Cameras/Right Back Pose",
+                                peripherals.getRightBackCamResults(),
+                                rightBackPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
 
-                        processPhotonResults(
-                                        "Cameras/Left Back Pose",
-                                        peripherals.getLeftBackCamResults(),
-                                        leftBackPhotonPoseEstimator,
-                                        pendingVisionObservations,
-                                        acceptedPhotonPoses);
+                processPhotonResults(
+                                "Cameras/Left Back Pose",
+                                peripherals.getLeftBackCamResults(),
+                                leftBackPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
 
-                        processPhotonResults(
-                                        "Cameras/Left Front Pose",
-                                        peripherals.getLeftFrontCamResults(),
-                                        leftFrontPhotonPoseEstimator,
-                                        pendingVisionObservations,
-                                        acceptedPhotonPoses);
+                processPhotonResults(
+                                "Cameras/Left Front Pose",
+                                peripherals.getLeftFrontCamResults(),
+                                leftFrontPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
 
-                        updateLimelightObservation(pendingVisionObservations);
-                }
+                updateLimelightObservation(pendingVisionObservations);
 
                 pendingVisionObservations.sort(VISION_OBSERVATION_TIMESTAMP_COMPARATOR);
                 for (PendingVisionObservation observation : pendingVisionObservations) {
@@ -798,14 +793,6 @@ public class DriveIOComp extends DriveIO {
                                 return;
                         }
 
-                        Rotation2d measurementTurretAngle = turretAngleBuffer.getSample(mt1.timestampSeconds)
-                                        .orElse(currentTurretAngle);
-                        if (Math.abs(measurementTurretAngle.minus(currentTurretAngle)
-                                        .getDegrees()) > DriveConstants.maxLimelightTurretMismatchDegrees) {
-                                Logger.recordOutput("Cameras/Limelight Pose", ZERO_POSE);
-                                return;
-                        }
-
                         if (mt1.tagCount == 0 || mt1.avgTagDist > 4.5 || !poseInField(mt1.pose)) {
                                 Logger.recordOutput("Cameras/Limelight Pose", ZERO_POSE);
                                 return;
@@ -823,10 +810,6 @@ public class DriveIOComp extends DriveIO {
                 } catch (Exception e) {
                         System.out.println(e);
                 }
-        }
-
-        private void addTurretObservation(double timestamp, Rotation2d turretAngle) {
-                turretAngleBuffer.addSample(timestamp, turretAngle);
         }
 
         private boolean shouldAcceptOdometrySample(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
