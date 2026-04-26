@@ -13,7 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.Intake.IntakeState;
-import frc.robot.tools.logging.BatteryLogger;
+// import frc.robot.tools.logging.BatteryLogger;
 
 class IntakeIOComp implements IntakeIO {
         private final TalonFX pivotMotor = new TalonFX(Constants.CANInfo.INTAKE_PIVOT_MOTOR_ID,
@@ -33,7 +33,7 @@ class IntakeIOComp implements IntakeIO {
 
         private final double intakeProfileScalarFactor = 1;
 
-        private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+        // private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
         public IntakeIOComp() {
                 TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
@@ -85,12 +85,12 @@ class IntakeIOComp implements IntakeIO {
 
         @Override
         public void updateInputs(IntakeState systemState) {
-                batteryLogger.reportCurrentUsage("Intake Pivot Motor",
-                                pivotMotor.getSupplyCurrent().getValueAsDouble());
-                batteryLogger.reportCurrentUsage("Intake Roller/ Master",
-                                rollerMotorMaster.getSupplyCurrent().getValueAsDouble());
-                batteryLogger.reportCurrentUsage("Intake Roller/ Follower",
-                                rollerMotorFollower.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Intake Pivot Motor",
+                // pivotMotor.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Intake Roller/ Master",
+                // rollerMotorMaster.getSupplyCurrent().getValueAsDouble());
+                // batteryLogger.reportCurrentUsage("Intake Roller/ Follower",
+                // rollerMotorFollower.getSupplyCurrent().getValueAsDouble());
 
                 Logger.recordOutput("Online/Intake Roller Master Online", rollerMotorMaster.isConnected());
                 Logger.recordOutput("Online/Intake Roller Follower Online", rollerMotorFollower.isConnected());

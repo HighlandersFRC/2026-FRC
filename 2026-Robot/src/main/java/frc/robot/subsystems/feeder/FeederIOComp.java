@@ -14,7 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
-import frc.robot.tools.logging.BatteryLogger;
+// import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.TunableNumber;
 
 class FeederIOComp implements FeederIO {
@@ -22,10 +22,12 @@ class FeederIOComp implements FeederIO {
             Constants.CANInfo.CANBUS_NAME);
 
     private final TalonFX rollerMotor = new TalonFX(Constants.CANInfo.ROLLER_MOTOR_ID, Constants.CANInfo.CANBUS_NAME);
+    private final TalonFX secondRollerMotor = new TalonFX(Constants.CANInfo.ROLLER_MOTOR_SECOND_ID,
+            Constants.CANInfo.CANBUS_NAME);
 
     private final VelocityDutyCycle dyeRotorControl = new VelocityDutyCycle(0.0);
 
-    private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+    // private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
     private final TorqueCurrentFOC rollerControl = new TorqueCurrentFOC(0.0);
 
@@ -50,24 +52,26 @@ class FeederIOComp implements FeederIO {
         dyeRotorConfig.Slot1.kP = Constants.PIDConstants.Feeder.kP1;
         dyeRotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         dyeRotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 100;
-        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        dyeRotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        dyeRotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
         dyeRotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         dyeRotorConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.DYE_ROTOR_GEAR_RATIO;
         dyeRotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         dyeRotorMotor.getConfigurator().apply(dyeRotorConfig);
-        dyeRotorMotor.setNeutralMode(NeutralModeValue.Brake);
+        dyeRotorMotor.setNeutralMode(NeutralModeValue.Coast);
 
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        rollerConfig.CurrentLimits.StatorCurrentLimit = 100;
-        rollerConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        rollerConfig.CurrentLimits.StatorCurrentLimit = 90;
+        rollerConfig.CurrentLimits.SupplyCurrentLimit = 90;
         rollerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         rollerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Feeder.ROLLER_GEAR_RATIO;
         rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         rollerMotor.getConfigurator().apply(rollerConfig);
+        secondRollerMotor.getConfigurator().apply(rollerConfig);
         rollerMotor.setNeutralMode(NeutralModeValue.Coast);
+        secondRollerMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     @Override
@@ -90,7 +94,7 @@ class FeederIOComp implements FeederIO {
             // dyeRotorMotor.set(1.0);
             useSlot0 = false;
         }
-        // Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
+        Logger.recordOutput("Feeder/UsingSlot0", useSlot0);
     }
 
     @Override
@@ -119,10 +123,15 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void updateInputs(FeederState systemState) {
-        batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor", dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
-        batteryLogger.reportCurrentUsage("DyeRotor/Roller", rollerMotor.getSupplyCurrent().getValueAsDouble());
+        // batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor",
+        // dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
+        // batteryLogger.reportCurrentUsage("DyeRotor/Roller",
+        // rollerMotor.getSupplyCurrent().getValueAsDouble());
+        // batteryLogger.reportCurrentUsage("DyeRotor/Second Roller",
+        // secondRollerMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Online/Dye Rotor Online", dyeRotorMotor.isConnected());
         Logger.recordOutput("Online/Dye Roller Online", rollerMotor.isConnected());
+        Logger.recordOutput("Online/Dye Roller Second Motor Online", secondRollerMotor.isConnected());
         // Logger.recordOutput("Feeder/Dye Rotor Torque",
         // dyeRotorMotor.getStatorCurrent().getValueAsDouble());
 
@@ -158,6 +167,13 @@ class FeederIOComp implements FeederIO {
     @Override
     public void setRollerTorque(double amps, double maxPercent) {
         rollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+        secondRollerMotor.setControl(new TorqueCurrentFOC(amps).withMaxAbsDutyCycle(maxPercent));
+    }
+
+    @Override
+    public void setRollerPercent(double maxpercent) {
+        rollerMotor.set(maxpercent);
+        secondRollerMotor.set(maxpercent);
     }
 
     @Override

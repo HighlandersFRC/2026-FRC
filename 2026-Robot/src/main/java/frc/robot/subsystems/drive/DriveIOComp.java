@@ -1,10 +1,12 @@
 package frc.robot.subsystems.drive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -46,6 +48,12 @@ import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.math.Vector;
 
 public class DriveIOComp extends DriveIO {
+        private static final int ODOMETRY_QUEUE_CAPACITY = 50;
+        private static final Pose2d ZERO_POSE = Pose2d.kZero;
+        private static final Comparator<PendingVisionObservation> VISION_OBSERVATION_TIMESTAMP_COMPARATOR = Comparator
+                        .comparingDouble(PendingVisionObservation::timestamp);
+
+        private final Set<Integer> filteredPhotonTagIds = Set.of(15, 16, 31, 32);
 
         private final TalonFX frontRightDriveMotor = new TalonFX(Constants.CANInfo.FRONT_RIGHT_DRIVE_MOTOR_ID,
                         Constants.CANInfo.CANBUS_NAME);
@@ -96,32 +104,30 @@ public class DriveIOComp extends DriveIO {
 
         private final Transform3d leftFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-13.3), Constants.inchesToMeters(7.17),
-                                        Constants.inchesToMeters(25.29)),
+                                        Constants.inchesToMeters(23.79)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.8), Math.toRadians(78)));
 
         private final Transform3d leftBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-14.206),
                                         Constants.inchesToMeters(7.265),
-                                        Constants.inchesToMeters(23.765)),
+                                        Constants.inchesToMeters(22.265)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.0),
                                         Math.toRadians(145.0)));
 
         private final Transform3d rightFrontRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-13.672), Constants.inchesToMeters(-7.257),
-                                        Constants.inchesToMeters(25.433)),
+                                        Constants.inchesToMeters(23.933)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-9.9), Math.toRadians(282.0)));
 
         private final Transform3d rightBackRobotToCam = new Transform3d(
                         new Translation3d(Constants.inchesToMeters(-14.213), Constants.inchesToMeters(3.807),
-                                        Constants.inchesToMeters(24.557)),
+                                        Constants.inchesToMeters(23.057)),
                         new Rotation3d(Math.toRadians(0.0), Math.toRadians(-10.0),
                                         Math.toRadians(210.0)));
 
         private final LinearFilter filterX = LinearFilter.movingAverage(10);
         private final LinearFilter filterY = LinearFilter.movingAverage(10);
         private final LinearFilter filterOmega = LinearFilter.movingAverage(10);
-        private final TimeInterpolatableBuffer<Rotation2d> turretAngleBuffer = TimeInterpolatableBuffer
-                        .createBuffer(2.0);
         private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.moduleTranslations);
 
         private final StatusSignal<Angle> frontLeftDrivePositionSignal;
@@ -148,16 +154,28 @@ public class DriveIOComp extends DriveIO {
         private final Queue<Double> yawPositionQueue;
         private final Queue<Double> pitchPositionQueue;
         private final Queue<Double> rollPositionQueue;
-
-        private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds();
-        private SwerveModulePosition[] lastAcceptedOdometryPositions = new SwerveModulePosition[] {
+        private final double[] timestampSamples = new double[ODOMETRY_QUEUE_CAPACITY];
+        private final double[] frontLeftDriveSamples = new double[ODOMETRY_QUEUE_CAPACITY];
+        private final double[] frontRightDriveSamples = new double[ODOMETRY_QUEUE_CAPACITY];
+        private final double[] backLeftDriveSamples = new double[ODOMETRY_QUEUE_CAPACITY];
+        private final double[] backRightDriveSamples = new double[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] frontLeftTurnSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] frontRightTurnSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] backLeftTurnSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] backRightTurnSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] yawSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] pitchSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final Rotation2d[] rollSamples = new Rotation2d[ODOMETRY_QUEUE_CAPACITY];
+        private final SwerveModulePosition[] odometryWheelPositionScratch = new SwerveModulePosition[] {
                         new SwerveModulePosition(),
                         new SwerveModulePosition(),
                         new SwerveModulePosition(),
                         new SwerveModulePosition()
         };
-        private Rotation2d lastAcceptedYawPosition = Rotation2d.kZero;
-        private boolean hasAcceptedOdometrySample = false;
+        private final List<PendingVisionObservation> pendingVisionObservations = new ArrayList<>(16);
+        private final List<Pose2d> acceptedPhotonPoses = new ArrayList<>(16);
+
+        private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds();
 
         private record PendingVisionObservation(
                         String logKey,
@@ -366,7 +384,6 @@ public class DriveIOComp extends DriveIO {
                         setYaw(pose.getRotation().getDegrees());
                         RobotState.getInstance().resetPose(pose, currentWheelPositions,
                                         Optional.of(pose.getRotation()));
-                        seedAcceptedOdometryState(currentWheelPositions, pose.getRotation());
                         resetPhotonHeadingData(Timer.getFPGATimestamp(), pose.getRotation());
                 } finally {
                         Drive.odometryLock.unlock();
@@ -385,10 +402,13 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnVelocity, yaw);
                 backLeft.drive(velocityVector, turnVelocity, yaw);
                 backRight.drive(velocityVector, turnVelocity, yaw);
-                velocityVector = velocityVector.rotate(yaw);
+                double cosYaw = Math.cos(yaw);
+                double sinYaw = Math.sin(yaw);
+                double fieldRelativeX = velocityVector.getI() * cosYaw - velocityVector.getJ() * sinYaw;
+                double fieldRelativeY = velocityVector.getI() * sinYaw + velocityVector.getJ() * cosYaw;
                 wantedChassisSpeeds = new ChassisSpeeds(
-                                velocityVector.getI(),
-                                velocityVector.getJ(),
+                                fieldRelativeX,
+                                fieldRelativeY,
                                 turnVelocity);
         }
 
@@ -410,10 +430,13 @@ public class DriveIOComp extends DriveIO {
                 frontRight.drive(velocityVector, turnRadiansPerSec, camAngle);
                 backLeft.drive(velocityVector, turnRadiansPerSec, camAngle);
                 backRight.drive(velocityVector, turnRadiansPerSec, camAngle);
-                velocityVector = velocityVector.rotate(camAngle);
+                double cosCam = Math.cos(camAngle);
+                double sinCam = Math.sin(camAngle);
+                double fieldRelativeX = velocityVector.getI() * cosCam - velocityVector.getJ() * sinCam;
+                double fieldRelativeY = velocityVector.getI() * sinCam + velocityVector.getJ() * cosCam;
                 wantedChassisSpeeds = new ChassisSpeeds(
-                                velocityVector.getI(),
-                                velocityVector.getJ(),
+                                fieldRelativeX,
+                                fieldRelativeY,
                                 turnRadiansPerSec);
         }
 
@@ -424,28 +447,43 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         void update(DriveState currentState) {
-                addTurretObservation(Timer.getFPGATimestamp(), Globals.turretAngle);
                 updateOdometry();
                 updateMeasuredChassisSpeeds();
                 updateVision(currentState);
 
-                batteryLogger.reportCurrentUsage("Drive/FrontRight", frontRight.getDriveMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/FrontRightTurn", frontRight.getAngleMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/FrontLeft", frontLeft.getDriveMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/FrontLeftTurn", frontLeft.getAngleMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/BackRight", backRight.getDriveMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/BackRightTurn", backRight.getAngleMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/BackLeft", backLeft.getDriveMotorSupplyCurrent());
-                batteryLogger.reportCurrentUsage("Drive/BackLeftTurn", backLeft.getAngleMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/FrontRight",
+                // frontRight.getDriveMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/FrontRightTurn",
+                // frontRight.getAngleMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/FrontLeft",
+                // frontLeft.getDriveMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/FrontLeftTurn",
+                // frontLeft.getAngleMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/BackRight",
+                // backRight.getDriveMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/BackRightTurn",
+                // backRight.getAngleMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/BackLeft",
+                // backLeft.getDriveMotorSupplyCurrent());
+                // batteryLogger.reportCurrentUsage("Drive/BackLeftTurn",
+                // backLeft.getAngleMotorSupplyCurrent());
 
-                Logger.recordOutput("Swerve/Front Right Drive Current", frontRight.getDriveMotorCurrent());
-                Logger.recordOutput("Swerve/Front Left Drive Current", frontLeft.getDriveMotorCurrent());
-                Logger.recordOutput("Swerve/Back Right Drive Current", backRight.getDriveMotorCurrent());
-                Logger.recordOutput("Swerve/Back Left Drive Current", backLeft.getDriveMotorCurrent());
-                Logger.recordOutput("Swerve/Front Right Angle Current", frontRight.getAngleMotorCurrent());
-                Logger.recordOutput("Swerve/Front Left Angle Current", frontLeft.getAngleMotorCurrent());
-                Logger.recordOutput("Swerve/Back Right Angle Current", backRight.getAngleMotorCurrent());
-                Logger.recordOutput("Swerve/Back Left Angle Current", backLeft.getAngleMotorCurrent());
+                Logger.recordOutput("Swerve/Front Right Drive Current",
+                                frontRight.getDriveMotorCurrent());
+                // Logger.recordOutput("Swerve/Front Left Drive Current",
+                // frontLeft.getDriveMotorCurrent());
+                // Logger.recordOutput("Swerve/Back Right Drive Current",
+                // backRight.getDriveMotorCurrent());
+                // Logger.recordOutput("Swerve/Back Left Drive Current",
+                // backLeft.getDriveMotorCurrent());
+                Logger.recordOutput("Swerve/Front Right Angle Current",
+                                frontRight.getAngleMotorCurrent());
+                // Logger.recordOutput("Swerve/Front Left Angle Current",
+                // frontLeft.getAngleMotorCurrent());
+                // Logger.recordOutput("Swerve/Back Right Angle Current",
+                // backRight.getAngleMotorCurrent());
+                // Logger.recordOutput("Swerve/Back Left Angle Current",
+                // backLeft.getAngleMotorCurrent());
                 Logger.recordOutput("Robot/pitch", gyro.getPitchDegrees());
                 Logger.recordOutput("Robot/roll", gyro.getRollDegrees());
 
@@ -477,7 +515,8 @@ public class DriveIOComp extends DriveIO {
 
         @Override
         protected ChassisSpeeds getWantedChassisSpeeds() {
-                return wantedChassisSpeeds;
+                return new ChassisSpeeds(wantedChassisSpeeds.vxMetersPerSecond, wantedChassisSpeeds.vyMetersPerSecond,
+                                -2.5 * wantedChassisSpeeds.omegaRadiansPerSecond);
         }
 
         @Override
@@ -501,88 +540,38 @@ public class DriveIOComp extends DriveIO {
         }
 
         private void updateOdometry() {
-                double[] timestamps;
-                double[] frontLeftDrivePositions;
-                double[] frontRightDrivePositions;
-                double[] backLeftDrivePositions;
-                double[] backRightDrivePositions;
-                Rotation2d[] frontLeftTurnPositions;
-                Rotation2d[] frontRightTurnPositions;
-                Rotation2d[] backLeftTurnPositions;
-                Rotation2d[] backRightTurnPositions;
-                Rotation2d[] yawPositions;
-                Rotation2d[] pitchPositions;
-                Rotation2d[] rollPositions;
-
+                int sampleCount;
                 Drive.odometryLock.lock();
                 try {
-                        timestamps = timestampQueue.stream().mapToDouble(Double::doubleValue).toArray();
-                        frontLeftDrivePositions = frontLeftDrivePositionQueue.stream().mapToDouble(Double::doubleValue)
-                                        .toArray();
-                        frontRightDrivePositions = frontRightDrivePositionQueue.stream()
-                                        .mapToDouble(Double::doubleValue).toArray();
-                        backLeftDrivePositions = backLeftDrivePositionQueue.stream().mapToDouble(Double::doubleValue)
-                                        .toArray();
-                        backRightDrivePositions = backRightDrivePositionQueue.stream().mapToDouble(Double::doubleValue)
-                                        .toArray();
-
-                        frontLeftTurnPositions = frontLeftTurnPositionQueue.stream().map(Rotation2d::fromRotations)
-                                        .toArray(Rotation2d[]::new);
-                        frontRightTurnPositions = frontRightTurnPositionQueue.stream().map(Rotation2d::fromRotations)
-                                        .toArray(Rotation2d[]::new);
-                        backLeftTurnPositions = backLeftTurnPositionQueue.stream().map(Rotation2d::fromRotations)
-                                        .toArray(Rotation2d[]::new);
-                        backRightTurnPositions = backRightTurnPositionQueue.stream().map(Rotation2d::fromRotations)
-                                        .toArray(Rotation2d[]::new);
-
-                        yawPositions = yawPositionQueue.stream().map(Rotation2d::fromDegrees)
-                                        .toArray(Rotation2d[]::new);
-                        pitchPositions = pitchPositionQueue.stream().map(Rotation2d::fromDegrees)
-                                        .toArray(Rotation2d[]::new);
-                        rollPositions = rollPositionQueue.stream().map(Rotation2d::fromDegrees)
-                                        .toArray(Rotation2d[]::new);
-
-                        clearOdometryQueues();
+                        sampleCount = drainOdometryQueuesToSamples();
                 } finally {
                         Drive.odometryLock.unlock();
                 }
 
-                int sampleCount = timestamps.length;
-                sampleCount = Math.min(sampleCount, frontLeftDrivePositions.length);
-                sampleCount = Math.min(sampleCount, frontRightDrivePositions.length);
-                sampleCount = Math.min(sampleCount, backLeftDrivePositions.length);
-                sampleCount = Math.min(sampleCount, backRightDrivePositions.length);
-                sampleCount = Math.min(sampleCount, frontLeftTurnPositions.length);
-                sampleCount = Math.min(sampleCount, frontRightTurnPositions.length);
-                sampleCount = Math.min(sampleCount, backLeftTurnPositions.length);
-                sampleCount = Math.min(sampleCount, backRightTurnPositions.length);
-                sampleCount = Math.min(sampleCount, yawPositions.length);
-                sampleCount = Math.min(sampleCount, pitchPositions.length);
-                sampleCount = Math.min(sampleCount, rollPositions.length);
                 int acceptedSamples = 0;
 
                 for (int i = 0; i < sampleCount; i++) {
-                        SwerveModulePosition[] wheelPositions = getCurrentWheelPositions(
-                                        frontLeftDrivePositions[i],
-                                        frontRightDrivePositions[i],
-                                        backLeftDrivePositions[i],
-                                        backRightDrivePositions[i],
-                                        frontLeftTurnPositions[i],
-                                        frontRightTurnPositions[i],
-                                        backLeftTurnPositions[i],
-                                        backRightTurnPositions[i]);
-                        Rotation2d yawPosition = yawPositions[i];
-                        if (!shouldAcceptOdometrySample(wheelPositions, yawPosition)) {
+                        populateWheelPositions(
+                                        odometryWheelPositionScratch,
+                                        frontLeftDriveSamples[i],
+                                        frontRightDriveSamples[i],
+                                        backLeftDriveSamples[i],
+                                        backRightDriveSamples[i],
+                                        frontLeftTurnSamples[i],
+                                        frontRightTurnSamples[i],
+                                        backLeftTurnSamples[i],
+                                        backRightTurnSamples[i]);
+                        Rotation2d yawPosition = yawSamples[i];
+                        if (!shouldAcceptOdometrySample(odometryWheelPositionScratch, yawPosition)) {
                                 continue;
                         }
 
                         RobotState.getInstance().addOdometryObservation(new RobotState.OdometryObservation(
-                                        timestamps[i],
-                                        wheelPositions,
-                                        Optional.of(rollPositions[i]),
-                                        Optional.of(pitchPositions[i]),
+                                        timestampSamples[i],
+                                        odometryWheelPositionScratch,
+                                        Optional.of(rollSamples[i]),
+                                        Optional.of(pitchSamples[i]),
                                         Optional.of(yawPosition)));
-                        seedAcceptedOdometryState(wheelPositions, yawPosition);
                         acceptedSamples++;
                 }
 
@@ -591,11 +580,12 @@ public class DriveIOComp extends DriveIO {
         }
 
         private void updateMeasuredChassisSpeeds() {
+                Rotation2d yaw = getYaw();
                 ChassisSpeeds robotSpeeds = kinematics.toChassisSpeeds(
-                                frontLeft.getSwerveModuleState(getYaw()),
-                                frontRight.getSwerveModuleState(getYaw()),
-                                backLeft.getSwerveModuleState(getYaw()),
-                                backRight.getSwerveModuleState(getYaw()));
+                                frontLeft.getSwerveModuleState(yaw),
+                                frontRight.getSwerveModuleState(yaw),
+                                backLeft.getSwerveModuleState(yaw),
+                                backRight.getSwerveModuleState(yaw));
 
                 filterX.calculate(robotSpeeds.vxMetersPerSecond);
                 filterY.calculate(robotSpeeds.vyMetersPerSecond);
@@ -624,8 +614,8 @@ public class DriveIOComp extends DriveIO {
 
                 addPhotonHeadingData(Timer.getFPGATimestamp(), RobotState.getInstance().getRotation());
 
-                List<PendingVisionObservation> pendingVisionObservations = new ArrayList<>();
-                List<Pose2d> acceptedPhotonPoses = new ArrayList<>();
+                pendingVisionObservations.clear();
+                acceptedPhotonPoses.clear();
 
                 processPhotonResults(
                                 "Cameras/Right Front Pose",
@@ -634,38 +624,37 @@ public class DriveIOComp extends DriveIO {
                                 pendingVisionObservations,
                                 acceptedPhotonPoses);
 
-                if (currentState != DriveState.DRIVE_TO_ALIGN_CLIMB && currentState != DriveState.DRIVE_TO_PRE_CLIMB) {
-                        processPhotonResults(
-                                        "Cameras/Right Back Pose",
-                                        peripherals.getRightBackCamResults(),
-                                        rightBackPhotonPoseEstimator,
-                                        pendingVisionObservations,
-                                        acceptedPhotonPoses);
+                processPhotonResults(
+                                "Cameras/Right Back Pose",
+                                peripherals.getRightBackCamResults(),
+                                rightBackPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
 
-                        processPhotonResults(
-                                        "Cameras/Left Back Pose",
-                                        peripherals.getLeftBackCamResults(),
-                                        leftBackPhotonPoseEstimator,
-                                        pendingVisionObservations,
-                                        acceptedPhotonPoses);
+                processPhotonResults(
+                                "Cameras/Left Back Pose",
+                                peripherals.getLeftBackCamResults(),
+                                leftBackPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
 
-                        processPhotonResults(
-                                        "Cameras/Left Front Pose",
-                                        peripherals.getLeftFrontCamResults(),
-                                        leftFrontPhotonPoseEstimator,
-                                        pendingVisionObservations,
-                                        acceptedPhotonPoses);
+                processPhotonResults(
+                                "Cameras/Left Front Pose",
+                                peripherals.getLeftFrontCamResults(),
+                                leftFrontPhotonPoseEstimator,
+                                pendingVisionObservations,
+                                acceptedPhotonPoses);
 
-                        updateLimelightObservation(pendingVisionObservations);
+                updateLimelightObservation(pendingVisionObservations);
+
+                pendingVisionObservations.sort(VISION_OBSERVATION_TIMESTAMP_COMPARATOR);
+                for (PendingVisionObservation observation : pendingVisionObservations) {
+                        RobotState.getInstance().addVisionObservation(
+                                        new RobotState.VisionObservation(
+                                                        observation.timestamp(),
+                                                        new Pose3d(observation.pose()),
+                                                        observation.stdDevs()));
                 }
-
-                pendingVisionObservations.stream()
-                                .sorted(Comparator.comparingDouble(PendingVisionObservation::timestamp))
-                                .forEach(observation -> RobotState.getInstance().addVisionObservation(
-                                                new RobotState.VisionObservation(
-                                                                observation.timestamp(),
-                                                                new Pose3d(observation.pose()),
-                                                                observation.stdDevs())));
 
                 Logger.recordOutput("Cameras/Photon Accepted Poses", acceptedPhotonPoses.toArray(Pose2d[]::new));
                 Logger.recordOutput("Cameras/Vision Observation Count", pendingVisionObservations.size());
@@ -677,14 +666,15 @@ public class DriveIOComp extends DriveIO {
                         PhotonPoseEstimator estimator,
                         List<PendingVisionObservation> pendingVisionObservations,
                         List<Pose2d> acceptedPhotonPoses) {
-                Pose2d loggedPose = new Pose2d();
+                Pose2d loggedPose = ZERO_POSE;
                 for (PhotonPipelineResult result : results) {
                         Optional<PendingVisionObservation> observation = createPhotonObservation(logKey, estimator,
                                         result);
                         if (observation.isPresent()) {
-                                pendingVisionObservations.add(observation.get());
-                                acceptedPhotonPoses.add(observation.get().pose());
-                                loggedPose = observation.get().pose();
+                                PendingVisionObservation acceptedObservation = observation.get();
+                                pendingVisionObservations.add(acceptedObservation);
+                                acceptedPhotonPoses.add(acceptedObservation.pose());
+                                loggedPose = acceptedObservation.pose();
                         }
                 }
                 Logger.recordOutput(logKey, loggedPose);
@@ -696,6 +686,12 @@ public class DriveIOComp extends DriveIO {
                         PhotonPoseEstimator estimator,
                         PhotonPipelineResult result) {
                 if (!result.hasTargets() || result.getTimestampSeconds() <= 0.0) {
+                        return Optional.empty();
+                }
+                int[] seenTagIds = getPhotonTagIds(result);
+                Logger.recordOutput(logKey + "/SeenTagIds", seenTagIds);
+                if (containsFilteredPhotonTag(seenTagIds)) {
+                        Logger.recordOutput(logKey + "/RejectedTagIds", seenTagIds);
                         return Optional.empty();
                 }
 
@@ -716,16 +712,54 @@ public class DriveIOComp extends DriveIO {
                         return Optional.empty();
                 }
 
-                Logger.recordOutput(logKey + "/LatencySecs", Timer.getFPGATimestamp() - result.getTimestampSeconds());
+                double timestamp = result.getTimestampSeconds();
+                Logger.recordOutput(logKey + "/LatencySecs", Timer.getFPGATimestamp() - timestamp);
                 return Optional.of(
                                 new PendingVisionObservation(
                                                 logKey,
                                                 robotPose,
-                                                result.getTimestampSeconds(),
+                                                timestamp,
                                                 createPhotonVisionStdDevs(
                                                                 getAverageTagDistanceMeters(result),
                                                                 result.getTargets().size(),
                                                                 estimate.get().strategy == PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR)));
+        }
+
+        private int[] getPhotonTagIds(PhotonPipelineResult result) {
+                int targetCount = result.getTargets().size();
+                if (targetCount == 0) {
+                        return new int[0];
+                }
+                int[] seenTagIds = new int[targetCount];
+                int seenCount = 0;
+                for (int i = 0; i < targetCount; i++) {
+                        int tagId = result.getTargets().get(i).getFiducialId();
+                        if (tagId <= 0) {
+                                continue;
+                        }
+                        boolean duplicate = false;
+                        for (int j = 0; j < seenCount; j++) {
+                                if (seenTagIds[j] == tagId) {
+                                        duplicate = true;
+                                        break;
+                                }
+                        }
+                        if (!duplicate) {
+                                seenTagIds[seenCount] = tagId;
+                                seenCount++;
+                        }
+                }
+                Arrays.sort(seenTagIds, 0, seenCount);
+                return Arrays.copyOf(seenTagIds, seenCount);
+        }
+
+        private boolean containsFilteredPhotonTag(int[] seenTagIds) {
+                for (int tagId : seenTagIds) {
+                        if (filteredPhotonTagIds.contains(tagId)) {
+                                return true;
+                        }
+                }
+                return false;
         }
 
         private Optional<EstimatedRobotPose> estimatePhotonPose(PhotonPoseEstimator estimator,
@@ -1034,28 +1068,20 @@ public class DriveIOComp extends DriveIO {
                                         .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT_NAME);
                         LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
                                         .getBotPoseEstimate_wpiBlue(Constants.Vision.LIMELIGHT_NAME);
-                        Logger.recordOutput("Cameras/Limelight Pose MT1", mt1 != null ? mt1.pose : new Pose2d());
+                        Logger.recordOutput("Cameras/Limelight Pose MT1", mt1 != null ? mt1.pose : ZERO_POSE);
 
                         if (mt1 == null) {
-                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                Logger.recordOutput("Cameras/Limelight Pose", ZERO_POSE);
                                 return;
                         }
 
                         if (mt1.timestampSeconds <= 0.0) {
-                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
-                                return;
-                        }
-
-                        Rotation2d measurementTurretAngle = turretAngleBuffer.getSample(mt1.timestampSeconds)
-                                        .orElse(currentTurretAngle);
-                        if (Math.abs(measurementTurretAngle.minus(currentTurretAngle)
-                                        .getDegrees()) > DriveConstants.maxLimelightTurretMismatchDegrees) {
-                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                Logger.recordOutput("Cameras/Limelight Pose", ZERO_POSE);
                                 return;
                         }
 
                         if (mt1.tagCount == 0 || mt1.avgTagDist > 4.5 || !poseInField(mt1.pose)) {
-                                Logger.recordOutput("Cameras/Limelight Pose", new Pose2d());
+                                Logger.recordOutput("Cameras/Limelight Pose", ZERO_POSE);
                                 return;
                         }
 
@@ -1073,34 +1099,8 @@ public class DriveIOComp extends DriveIO {
                 }
         }
 
-        private void addTurretObservation(double timestamp, Rotation2d turretAngle) {
-                turretAngleBuffer.addSample(timestamp, turretAngle);
-        }
-
         private boolean shouldAcceptOdometrySample(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
-                if (!hasAcceptedOdometrySample) {
-                        return true;
-                }
-
-                double maxModuleDelta = 0.0;
-                for (int i = 0; i < wheelPositions.length; i++) {
-                        maxModuleDelta = Math.max(
-                                        maxModuleDelta,
-                                        Math.abs(wheelPositions[i].distanceMeters
-                                                        - lastAcceptedOdometryPositions[i].distanceMeters));
-                }
-                double yawDelta = Math.abs(yawPosition.minus(lastAcceptedYawPosition).getRadians());
-                return maxModuleDelta > DriveConstants.odometryTranslationDeadbandMeters
-                                || yawDelta > DriveConstants.odometryYawDeadbandRadians;
-        }
-
-        private void seedAcceptedOdometryState(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
-                for (int i = 0; i < wheelPositions.length; i++) {
-                        lastAcceptedOdometryPositions[i] = new SwerveModulePosition(wheelPositions[i].distanceMeters,
-                                        wheelPositions[i].angle);
-                }
-                lastAcceptedYawPosition = yawPosition;
-                hasAcceptedOdometrySample = true;
+                return true;
         }
 
         private double driveMotorRotationsToMeters(double motorRotations) {
@@ -1117,27 +1117,35 @@ public class DriveIOComp extends DriveIO {
                         Rotation2d frontRightTurnPosition,
                         Rotation2d backLeftTurnPosition,
                         Rotation2d backRightTurnPosition) {
-                return new SwerveModulePosition[] {
-                                new SwerveModulePosition(
-                                                driveMotorRotationsToMeters(frontLeftDrivePosition),
-                                                frontLeftTurnPosition),
-                                new SwerveModulePosition(
-                                                driveMotorRotationsToMeters(frontRightDrivePosition),
-                                                frontRightTurnPosition),
-                                new SwerveModulePosition(
-                                                driveMotorRotationsToMeters(backLeftDrivePosition),
-                                                backLeftTurnPosition),
-                                new SwerveModulePosition(
-                                                driveMotorRotationsToMeters(backRightDrivePosition),
-                                                backRightTurnPosition)
+                SwerveModulePosition[] wheelPositions = new SwerveModulePosition[] {
+                                new SwerveModulePosition(),
+                                new SwerveModulePosition(),
+                                new SwerveModulePosition(),
+                                new SwerveModulePosition()
                 };
+                populateWheelPositions(
+                                wheelPositions,
+                                frontLeftDrivePosition,
+                                frontRightDrivePosition,
+                                backLeftDrivePosition,
+                                backRightDrivePosition,
+                                frontLeftTurnPosition,
+                                frontRightTurnPosition,
+                                backLeftTurnPosition,
+                                backRightTurnPosition);
+                return wheelPositions;
         }
 
         private double getAverageTagDistanceMeters(PhotonPipelineResult result) {
-                return result.getTargets().stream()
-                                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-                                .average()
-                                .orElse(Double.POSITIVE_INFINITY);
+                int targetCount = result.getTargets().size();
+                if (targetCount == 0) {
+                        return Double.POSITIVE_INFINITY;
+                }
+                double sumDistance = 0.0;
+                for (int i = 0; i < targetCount; i++) {
+                        sumDistance += result.getTargets().get(i).getBestCameraToTarget().getTranslation().getNorm();
+                }
+                return sumDistance / targetCount;
         }
 
         private Matrix<N3, N1> createPhotonVisionStdDevs(
@@ -1205,6 +1213,66 @@ public class DriveIOComp extends DriveIO {
                                 && pose.getY() > Constants.Physical.ROBOT_RADIUS
                                 && pose.getY() < Constants.Physical.FIELD_WIDTH
                                                 - Constants.Physical.ROBOT_RADIUS;
+        }
+
+        private int drainOdometryQueuesToSamples() {
+                int sampleCount = timestampQueue.size();
+                sampleCount = Math.min(sampleCount, frontLeftDrivePositionQueue.size());
+                sampleCount = Math.min(sampleCount, frontRightDrivePositionQueue.size());
+                sampleCount = Math.min(sampleCount, backLeftDrivePositionQueue.size());
+                sampleCount = Math.min(sampleCount, backRightDrivePositionQueue.size());
+                sampleCount = Math.min(sampleCount, frontLeftTurnPositionQueue.size());
+                sampleCount = Math.min(sampleCount, frontRightTurnPositionQueue.size());
+                sampleCount = Math.min(sampleCount, backLeftTurnPositionQueue.size());
+                sampleCount = Math.min(sampleCount, backRightTurnPositionQueue.size());
+                sampleCount = Math.min(sampleCount, yawPositionQueue.size());
+                sampleCount = Math.min(sampleCount, pitchPositionQueue.size());
+                sampleCount = Math.min(sampleCount, rollPositionQueue.size());
+                sampleCount = Math.min(sampleCount, ODOMETRY_QUEUE_CAPACITY);
+
+                for (int i = 0; i < sampleCount; i++) {
+                        timestampSamples[i] = pollQueueValue(timestampQueue);
+                        frontLeftDriveSamples[i] = pollQueueValue(frontLeftDrivePositionQueue);
+                        frontRightDriveSamples[i] = pollQueueValue(frontRightDrivePositionQueue);
+                        backLeftDriveSamples[i] = pollQueueValue(backLeftDrivePositionQueue);
+                        backRightDriveSamples[i] = pollQueueValue(backRightDrivePositionQueue);
+                        frontLeftTurnSamples[i] = Rotation2d.fromRotations(pollQueueValue(frontLeftTurnPositionQueue));
+                        frontRightTurnSamples[i] = Rotation2d
+                                        .fromRotations(pollQueueValue(frontRightTurnPositionQueue));
+                        backLeftTurnSamples[i] = Rotation2d.fromRotations(pollQueueValue(backLeftTurnPositionQueue));
+                        backRightTurnSamples[i] = Rotation2d.fromRotations(pollQueueValue(backRightTurnPositionQueue));
+                        yawSamples[i] = Rotation2d.fromDegrees(pollQueueValue(yawPositionQueue));
+                        pitchSamples[i] = Rotation2d.fromDegrees(pollQueueValue(pitchPositionQueue));
+                        rollSamples[i] = Rotation2d.fromDegrees(pollQueueValue(rollPositionQueue));
+                }
+
+                clearOdometryQueues();
+                return sampleCount;
+        }
+
+        private static double pollQueueValue(Queue<Double> queue) {
+                Double value = queue.poll();
+                return value != null ? value.doubleValue() : 0.0;
+        }
+
+        private void populateWheelPositions(
+                        SwerveModulePosition[] wheelPositions,
+                        double frontLeftDrivePosition,
+                        double frontRightDrivePosition,
+                        double backLeftDrivePosition,
+                        double backRightDrivePosition,
+                        Rotation2d frontLeftTurnPosition,
+                        Rotation2d frontRightTurnPosition,
+                        Rotation2d backLeftTurnPosition,
+                        Rotation2d backRightTurnPosition) {
+                wheelPositions[0].distanceMeters = driveMotorRotationsToMeters(frontLeftDrivePosition);
+                wheelPositions[0].angle = frontLeftTurnPosition;
+                wheelPositions[1].distanceMeters = driveMotorRotationsToMeters(frontRightDrivePosition);
+                wheelPositions[1].angle = frontRightTurnPosition;
+                wheelPositions[2].distanceMeters = driveMotorRotationsToMeters(backLeftDrivePosition);
+                wheelPositions[2].angle = backLeftTurnPosition;
+                wheelPositions[3].distanceMeters = driveMotorRotationsToMeters(backRightDrivePosition);
+                wheelPositions[3].angle = backRightTurnPosition;
         }
 
 }

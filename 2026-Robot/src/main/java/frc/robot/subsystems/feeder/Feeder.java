@@ -69,6 +69,10 @@ public class Feeder extends SubsystemBase {
     io.setRollerTorque(amps, maxpercent);
   }
 
+  public void setRollerPercent(double maxpercent) {
+    io.setRollerPercent(maxpercent);
+  }
+
   public void setDyeRotorRPM(double rpm) {
     Logger.recordOutput("Feeder/Dye Rotor RPM Setpoint", rpm);
     io.setDyeRotorRPM(rpm);
@@ -90,32 +94,34 @@ public class Feeder extends SubsystemBase {
     // }
     switch (systemState) {
       case FEED:
-        setDyeRotorRPM(67.0);
-        setRollerTorque(100, 1.0);
+        setDyeRotorRPM(100);
+        setRollerTorque(90, 1.0);
         // setDyeRotorPercent(1.0);
         break;
       case REVERSE:
         setDyeRotorTorque(-80, 0.4);
-        setRollerTorque(-100, 0.8);
+        setRollerTorque(-90, 0.4);
         // setDyeRotorPercent(-0.4);
         // setDyeRotorRPM(-60.0);
         break;
       case DEFAULT:
         // setDyeRotorTorque(-30, 0.1);
         setDyeRotorPercent(0.0);
-        setRollerTorque(0, 0.0);
+        setRollerPercent(0.0);
         break;
       default:
         setDyeRotorPercent(0.0);
-        setRollerTorque(0, 0.0);
+        setRollerPercent(0.0);
         break;
     }
-    Logger.recordOutput("Feeder/Feeder State", systemState);
+    // Logger.recordOutput("Feeder/Feeder State", systemState);
     Logger.recordOutput("States/Feeder State", systemState);
     Logger.recordOutput("Feeder/Dye Rotor Current", io.getDyeRotorCurrent());
     Logger.recordOutput("Feeder/Dye Rotor RPM", io.getDyeRotorRPM());
     Logger.recordOutput("Feeder/Roller RPM", io.getRollerRPM());
-    Logger.recordOutput("Feeder/Roller Stator Current", io.getRollerStatorCurrent());
-    Logger.recordOutput("Feeder/Roller Supply Current", io.getRollerSupplyCurrent());
+    Logger.recordOutput("Feeder/Roller Stator Current",
+        io.getRollerStatorCurrent());
+    // Logger.recordOutput("Feeder/Roller Supply Current",
+    // io.getRollerSupplyCurrent());
   }
 }

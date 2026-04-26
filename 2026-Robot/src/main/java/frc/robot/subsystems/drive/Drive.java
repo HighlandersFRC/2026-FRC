@@ -25,12 +25,14 @@ import frc.robot.OI;
 import frc.robot.RobotState;
 import frc.robot.Constants.Field;
 import frc.robot.tools.controlloops.PID;
+import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.Vector;
 
 // **Zero Wheels with the bolt head showing on the left when the front side(battery) is facing down/away from you**
 
 public class Drive extends SubsystemBase {
   static final Lock odometryLock = new ReentrantLock();
+  private static final Vector ZERO_VECTOR = new Vector(0.0, 0.0);
 
   private DriveIO io;
   private Peripherals peripherals;
@@ -95,14 +97,13 @@ public class Drive extends SubsystemBase {
     IDLE_SLOW,
     IDLE_SLOWISH,
     STOP,
-    DRIVE_TO_PRE_CLIMB,
-    DRIVE_TO_ALIGN_CLIMB,
-    DRIVE_TO_ALIGN_CLIMB_FINISH,
     SNAKE,
   }
 
   private DriveState wantedState = DriveState.IDLE;
   private DriveState systemState = DriveState.IDLE;
+  // private TunableNumber driveFutureExtimateTime = new
+  // TunableNumber("Drive/Future Estimate Time", 1.0);
 
   /**
    * Creates a new instance of the Swerve Drive subsystem.
@@ -158,6 +159,7 @@ public class Drive extends SubsystemBase {
 
     xDebouncer.setDebounceType(DebounceType.kBoth);
     yDebouncer.setDebounceType(DebounceType.kBoth);
+    SmartDashboard.putData("Field", field);
   }
 
   public void teleopInit() {
@@ -347,7 +349,7 @@ public class Drive extends SubsystemBase {
    * @param turn The rate at which the robot should turn in radians per second.
    */
   public void autoRobotCentricTurn(double turn) {
-    io.drive(new Vector(0, 0), turn);
+    io.drive(ZERO_VECTOR, turn);
   }
 
   /**
@@ -432,7 +434,7 @@ public class Drive extends SubsystemBase {
       // yLimiter.reset(vy);
       // }
       controllerVector = controllerVector.scaled(0.41);
-      controllerVector = controllerVector.cap(0.9);
+      controllerVector = controllerVector.cap(1.2);
       turn *= 0.41;
       if (Math.abs(turn) > Math.PI / 4.0) {
         turn = Math.PI / 4.0 * Math.copySign(1, turn);
@@ -504,14 +506,12 @@ public class Drive extends SubsystemBase {
   private int hitNumberClimb = 0;
 
   public boolean hitSetPoint(Pose2d pose) {
-    double x = pose.getX();
-    double y = pose.getY();
-    double theta = pose.getRotation().getRadians();
-    if (Math
-        .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.01690
-        && getAngleDifferenceDegrees(Math.toDegrees(theta),
-            Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
+    Pose2d currentPose = getMt2Pose2d();
+    double dx = pose.getX() - currentPose.getX();
+    double dy = pose.getY() - currentPose.getY();
+    if (Math.hypot(dx, dy) < 0.01690
+        && getAngleDifferenceDegrees(pose.getRotation().getDegrees(),
+            currentPose.getRotation().getDegrees()) < 1.5) {
       hitNumber += 1;
     } else {
       hitNumber = 0;
@@ -526,12 +526,10 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean hitSetPointClimb(Pose2d pose) {
-    double x = pose.getX();
-    double y = pose.getY();
-    double theta = pose.getRotation().getRadians();
-    if (Math.abs(x - getMt2Pose2dX()) < 0.02 && Math.abs(y - getMt2Pose2dY()) < 0.01690
-        && getAngleDifferenceDegrees(Math.toDegrees(theta),
-            Math.toDegrees(getMt2Pose2dAngle())) < 1.5) {
+    Pose2d currentPose = getMt2Pose2d();
+    if (Math.abs(pose.getX() - currentPose.getX()) < 0.02 && Math.abs(pose.getY() - currentPose.getY()) < 0.01690
+        && getAngleDifferenceDegrees(pose.getRotation().getDegrees(),
+            currentPose.getRotation().getDegrees()) < 1.5) {
       hitNumberClimb += 1;
     } else {
       hitNumberClimb = 0;
@@ -546,17 +544,15 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean hitSetPointSemiGenerous(Pose2d pose) {
-    double x = pose.getX();
-    double y = pose.getY();
-    double theta = pose.getRotation().getRadians();
+    Pose2d currentPose = getMt2Pose2d();
+    double dx = pose.getX() - currentPose.getX();
+    double dy = pose.getY() - currentPose.getY();
     // Logger.recordOutput("Error for semi-generous", Math
     // .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
     // + Math.pow((y - getMt2Pose2dY()), 2)));
-    if (Math
-        .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.02
-        && getAngleDifferenceDegrees(Math.toDegrees(theta),
-            Math.toDegrees(getMt2Pose2dAngle())) < 2) {
+    if (Math.hypot(dx, dy) < 0.02
+        && getAngleDifferenceDegrees(pose.getRotation().getDegrees(),
+            currentPose.getRotation().getDegrees()) < 2) {
       hitNumberSemiGenerous += 1;
     } else {
       hitNumberSemiGenerous = 0;
@@ -569,14 +565,12 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean hitSetPointGenerous(Pose2d pose) {
-    double x = pose.getX();
-    double y = pose.getY();
-    double theta = pose.getRotation().getRadians();
-    if (Math
-        .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.10
-        && getAngleDifferenceDegrees(Math.toDegrees(theta),
-            Math.toDegrees(getMt2Pose2dAngle())) < 2.5) {
+    Pose2d currentPose = getMt2Pose2d();
+    double dx = pose.getX() - currentPose.getX();
+    double dy = pose.getY() - currentPose.getY();
+    if (Math.hypot(dx, dy) < 0.10
+        && getAngleDifferenceDegrees(pose.getRotation().getDegrees(),
+            currentPose.getRotation().getDegrees()) < 2.5) {
       hitNumberGenerous += 1;
     } else {
       hitNumberGenerous = 0;
@@ -589,14 +583,12 @@ public class Drive extends SubsystemBase {
   }
 
   public boolean hitSetPointUltraGenerous(Pose2d pose) {
-    double x = pose.getX();
-    double y = pose.getY();
-    double theta = pose.getRotation().getRadians();
-    if (Math
-        .sqrt(Math.pow((x - getMt2Pose2dX()), 2)
-            + Math.pow((y - getMt2Pose2dY()), 2)) < 0.10
-        && getAngleDifferenceDegrees(Math.toDegrees(theta),
-            Math.toDegrees(getMt2Pose2dAngle())) < 10.0) {
+    Pose2d currentPose = getMt2Pose2d();
+    double dx = pose.getX() - currentPose.getX();
+    double dy = pose.getY() - currentPose.getY();
+    if (Math.hypot(dx, dy) < 0.10
+        && getAngleDifferenceDegrees(pose.getRotation().getDegrees(),
+            currentPose.getRotation().getDegrees()) < 10.0) {
       hitNumberUltraGenerous += 1;
     } else {
       hitNumberUltraGenerous = 0;
@@ -629,27 +621,13 @@ public class Drive extends SubsystemBase {
     xVelNoFF = xxPID.getResult();
     yVelNoFF = yyPID.getResult();
     thetaVelNoFF = -thetaaPID.getResult();
-    double finalX = xVelNoFF;
-    double finalY = yVelNoFF;
-    double finalTheta = thetaVelNoFF;
-    Number[] velocityArray = new Number[] {
-        finalX,
-        -finalY,
-        finalTheta,
-    };
-
-    Vector velocityVector = new Vector();
-    double desiredThetaChange = 0;
-    velocityVector.setI(velocityArray[0].doubleValue());
-    velocityVector.setJ(velocityArray[1].doubleValue());
-    desiredThetaChange = velocityArray[2].doubleValue();
-
-    autoDrive(velocityVector, desiredThetaChange);
+    Vector velocityVector = new Vector(xVelNoFF, -yVelNoFF);
+    autoDrive(velocityVector, thetaVelNoFF);
 
   }
 
   public void stop() {
-    io.drive(new Vector(), 0.0);
+    io.drive(ZERO_VECTOR, 0.0);
   }
 
   public void driveToXTheta(double x, double theta) {
@@ -665,27 +643,11 @@ public class Drive extends SubsystemBase {
     double xVelNoFF = xxPID.getResult();
     double yVelNoFF = OI.getDriverLeftX() * 2.9;
     double thetaVelNoFF = -thetaaPID.getResult();
-    double finalX = xVelNoFF;
-    double finalY = yVelNoFF;
-    double finalTheta = thetaVelNoFF;
-    Number[] velocityArray = new Number[] {
-        finalX,
-        -finalY,
-        finalTheta,
-    };
-
-    Vector velocityVector = new Vector();
-    double desiredThetaChange = 0;
+    Vector velocityVector = new Vector(xVelNoFF, -yVelNoFF);
     if (getFieldSide().equals("red")) {
-      velocityVector.setI(velocityArray[0].doubleValue());
-      velocityVector.setJ(-velocityArray[1].doubleValue());
-    } else {
-      velocityVector.setI(velocityArray[0].doubleValue());
-      velocityVector.setJ(velocityArray[1].doubleValue());
+      velocityVector.setJ(-velocityVector.getJ());
     }
-    desiredThetaChange = velocityArray[2].doubleValue();
-
-    autoDrive(velocityVector, desiredThetaChange);
+    autoDrive(velocityVector, thetaVelNoFF);
   }
 
   public void driveOnLine(Vector lineVector, Translation2d pointOnLine, double angrad) {
@@ -795,7 +757,6 @@ public class Drive extends SubsystemBase {
       vector = vector.cap(1.5);
       // turnRadiansPerSec *= 0.67;
       turnRadiansPerSec *= 0.9;
-      System.out.println("Slowing down for middle");
     }
     io.drive(vector, turnRadiansPerSec);
   }
@@ -820,10 +781,10 @@ public class Drive extends SubsystemBase {
   }
 
   public ChassisSpeeds getPredictedDriveVelocityFromSim(double secondsInFuture) {
-    ChassisSpeeds expected = Constants.Simulation.getExpectedDriveSpeeds(secondsInFuture,
+    return getPredictedDriveVelocityFromSim(
+        secondsInFuture,
         getChassisSpeeds(),
-        io.getWantedChassisSpeeds());
-    return expected;
+        getMt2Pose2d().getRotation());
   }
 
   /**
@@ -998,7 +959,7 @@ public class Drive extends SubsystemBase {
     // Logger.recordOutput("Error inside radius",
     // Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta,
     // 2)));
-    return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2) + Math.pow(deltaTheta, 2)) < radius;
+    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaTheta * deltaTheta) < radius;
   }
 
   private DriveState handleStateTransition() {
@@ -1017,12 +978,6 @@ public class Drive extends SubsystemBase {
         return DriveState.IDLE_SLOWISH;
       case STOP:
         return DriveState.STOP;
-      case DRIVE_TO_ALIGN_CLIMB:
-        return DriveState.DRIVE_TO_ALIGN_CLIMB;
-      case DRIVE_TO_ALIGN_CLIMB_FINISH:
-        return DriveState.DRIVE_TO_ALIGN_CLIMB_FINISH;
-      case DRIVE_TO_PRE_CLIMB:
-        return DriveState.DRIVE_TO_PRE_CLIMB;
       case SNAKE:
         return DriveState.SNAKE; // disable this for now
       default:
@@ -1036,60 +991,31 @@ public class Drive extends SubsystemBase {
 
   Field2d field = new Field2d();
 
-  public Pose2d getClimbPrepSetpoint() {
-    if (Globals.fieldSide.equals("blue")) {
-      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseRightBlueSide.getTranslation());
-      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseLeftBlueSide.getTranslation());
-      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
-        return Constants.Physical.preClimbPoseRightBlueSide;
-      } else {
-        return Constants.Physical.preClimbPoseLeftBlueSide;
-      }
-    } else {
-      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseRightRedSide.getTranslation());
-      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.preClimbPoseLeftRedSide.getTranslation());
-      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
-        return Constants.Physical.preClimbPoseRightRedSide;
-      } else {
-        return Constants.Physical.preClimbPoseLeftRedSide;
-      }
-    }
-  }
-
-  public Pose2d getClimbAlignSetpoint() {
-    if (Globals.fieldSide.equals("blue")) {
-      double distanceFromRightBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseRightBlueSide.getTranslation());
-      double distanceFromLeftBlueSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseLeftBlueSide.getTranslation());
-      if (distanceFromRightBlueSide < distanceFromLeftBlueSide) {
-        return Constants.Physical.climbPoseRightBlueSide;
-      } else {
-        return Constants.Physical.climbPoseLeftBlueSide;
-      }
-    } else {
-      double distanceFromRightRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseRightRedSide.getTranslation());
-      double distanceFromLeftRedSide = getMt2Pose2d().getTranslation()
-          .getDistance(Constants.Physical.climbPoseLeftRedSide.getTranslation());
-      if (distanceFromRightRedSide < distanceFromLeftRedSide) {
-        return Constants.Physical.climbPoseRightRedSide;
-      } else {
-        return Constants.Physical.climbPoseLeftRedSide;
-      }
-    }
-  }
-
   public ChassisSpeeds getFutureVelocity() {
+    return getFutureVelocity(getChassisSpeeds(), getMt2Pose2d().getRotation());
+  }
 
+  private ChassisSpeeds getPredictedDriveVelocityFromSim(
+      double secondsInFuture,
+      ChassisSpeeds robotRelativeSpeeds,
+      Rotation2d robotRotation) {
+    ChassisSpeeds expected = Constants.Simulation.getExpectedDriveSpeeds(
+        secondsInFuture,
+        robotRelativeSpeeds,
+        io.getWantedChassisSpeeds());
+    if (Math.abs(expected.omegaRadiansPerSecond) < 0.1) {
+      expected.omegaRadiansPerSecond = 0;
+    }
+    return ChassisSpeeds.fromRobotRelativeSpeeds(expected, robotRotation);
+  }
+
+  private ChassisSpeeds getFutureVelocity(
+      ChassisSpeeds robotRelativeSpeeds,
+      Rotation2d robotRotation) {
     previousSpeeds = currentSpeeds;
     currentSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-        getChassisSpeeds(),
-        getMt2Pose2d().getRotation());
+        robotRelativeSpeeds,
+        robotRotation);
 
     acceleration = currentSpeeds.minus(previousSpeeds)
         .times(Globals.loopPeriodSecs == 0.0 ? 0.0 : 1.0 / Globals.loopPeriodSecs);
@@ -1115,11 +1041,13 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putData("Field", field);
     field.setRobotPose(getMt2Pose2d());
     io.update(systemState);
-    RobotState.getInstance().setRobotVelocity(getChassisSpeeds());
-    RobotState.getInstance().setRobotSetpointVelocity(io.getWantedChassisSpeeds());
+    Pose2d estimatedPose = getMt2Pose2d();
+    ChassisSpeeds measuredSpeeds = getChassisSpeeds();
+    ChassisSpeeds wantedSpeeds = io.getWantedChassisSpeeds();
+    RobotState.getInstance().setRobotVelocity(measuredSpeeds);
+    RobotState.getInstance().setRobotSetpointVelocity(wantedSpeeds);
 
     // if (robotCentric) {
     // Logger.recordOutput("Drive/Driving Mode", "Robot Centric");
@@ -1134,14 +1062,16 @@ public class Drive extends SubsystemBase {
     }
 
     Logger.recordOutput("States/Drive State", systemState);
-    Logger.recordOutput("Drive/Drive State", systemState);
-    Logger.recordOutput("Drive/MT2 Odometry", getMt2Pose2d());
-    // Logger.recordOutput("Drive/Expected Speed",
-    // Constants.chassisSpeedsToVector(getPredictedDriveVelocityFromSim(1.0)).magnitude());
-    Logger.recordOutput("Drive/Actual Speed",
-        Constants.chassisSpeedsToVector(getChassisSpeeds()).magnitude());
-    Logger.recordOutput("Testing/Feed Setpoint",
-        new Pose2d(Constants.DynamicPassing.getTarget(getMt2Pose2d().getTranslation()), new Rotation2d()));
+    // Logger.recordOutput("Drive/Drive State", systemState);
+    Logger.recordOutput("Drive/MT2 Odometry", estimatedPose);
+    // Logger.recordOutput("Drive/Actual Speed RC", measuredSpeeds);
+    // Logger.recordOutput("Drive/Kinematic Expected Speed",
+    // getFutureVelocity(measuredSpeeds, estimatedPose.getRotation()));
+    // Logger.recordOutput("Testing/Feed Setpoint",
+    // new
+    // Pose2d(Constants.DynamicPassing.getTarget(estimatedPose.getTranslation()),
+    // new Rotation2d()));
+    // Logger.recordOutput("Drive/Wanted Velocity", wantedSpeeds);
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
       systemState = DriveState.DEFAULT;
@@ -1187,19 +1117,6 @@ public class Drive extends SubsystemBase {
       case STOP:
         stop();
         break;
-      case DRIVE_TO_PRE_CLIMB:
-        Pose2d climbPrepSetpoint = getClimbPrepSetpoint();
-        Logger.recordOutput("climb prep", climbPrepSetpoint);
-        driveToPoint(climbPrepSetpoint);
-        break;
-      case DRIVE_TO_ALIGN_CLIMB:
-        Pose2d climbAlignSetpoint = getClimbAlignSetpoint();
-        Logger.recordOutput("climb align", climbAlignSetpoint);
-        driveToPoint(climbAlignSetpoint);
-        break;
-      case DRIVE_TO_ALIGN_CLIMB_FINISH:
-        autoRobotCentricDrive(new Vector(0, 0.67), 0.0);
-        break;
       default:
         break;
     }
@@ -1215,7 +1132,7 @@ public class Drive extends SubsystemBase {
    * @return The adjusted y-coordinate.
    */
   public double getAdjustedY(double originalX, double originalY) {
-    double adjustedY = originalY * Math.sqrt((1 - (Math.pow(originalX, 2)) / 2));
+    double adjustedY = originalY * Math.sqrt(1 - (originalX * originalX) / 2.0);
     return adjustedY;
   }
 
@@ -1228,7 +1145,7 @@ public class Drive extends SubsystemBase {
    * @return The adjusted x-coordinate.
    */
   public double getAdjustedX(double originalX, double originalY) {
-    double adjustedX = originalX * Math.sqrt((1 - (Math.pow(originalY, 2)) / 2));
+    double adjustedX = originalX * Math.sqrt(1 - (originalY * originalY) / 2.0);
     return adjustedX;
   }
 }

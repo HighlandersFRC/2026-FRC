@@ -7,6 +7,7 @@ package frc.robot.subsystems.shooter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.littletonrobotics.junction.ConsoleSource;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.filter.Debouncer;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.ShotCalculator.ShotSolution;
 import frc.robot.tools.wrappers.ShotLogger;
 
@@ -35,6 +37,7 @@ public class Shooter extends SubsystemBase {
   private ShooterState systemState = ShooterState.IDLE;
   private Translation3d _trajectorySetpoint = new Translation3d(0, 0, 0);
   private Rotation2d idleTurretAngle = new Rotation2d(0.0);
+  private double idleRobotAngularVelocityRadPerSec = 0.0;
   private ShotSolution wantedShotSolution = new ShotSolution(idleTurretAngle, 0.0, idleTurretAngle, 0.0, 0.0);
 
   public List<ShotLogger> shotLog = new ArrayList<>();
@@ -49,6 +52,9 @@ public class Shooter extends SubsystemBase {
 
   private Debouncer readyToShootDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
   private Debouncer readyToFeedDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
+
+  private TunableNumber turretLookAhead = new TunableNumber("Shooter/Turret Lookahead Time",
+      Constants.PIDConstants.Turret.TURRET_LOOKAHEAD_TIME);
 
   public Shooter() {
     if (RobotBase.isReal()) {
@@ -94,20 +100,28 @@ public class Shooter extends SubsystemBase {
   }
 
   private void normalShoot() {
-    // Logger.recordOutput("Shooter/Wanted Turret Angle",
-    // wantedShotSolution.turretAngle.getDegrees());
-    if (wantedShotSolution.robotVelocity.isPresent()) {
-      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
-          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.225);
-      // Logger.recordOutput("Shooter/Predicted Turret Angle",
-      // prediction.getDegrees());
-      setTurretAngle(prediction);
-    } else {
-      setTurretAngle(wantedShotSolution.turretAngle);
-
-    }
+    Logger.recordOutput("Shooter/Wanted Turret Angle",
+        wantedShotSolution.turretAngle.getDegrees());
+    setTurretAngle(getPredictedTurretAngle(wantedShotSolution.turretAngle));
     moveHoodToAngle(wantedShotSolution.hoodAngle);
     setFlywheelRPM(wantedShotSolution.flywheelRPM);
+  }
+
+  private Rotation2d getPredictedTurretAngle(Rotation2d baseTurretAngle) {
+    if (wantedShotSolution.robotVelocity.isPresent()) {
+      return Constants.SetPoints.Turret.getFutureSetpointEstimate(
+          baseTurretAngle,
+          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond,
+          turretLookAhead.get());
+    }
+    return baseTurretAngle;
+  }
+
+  private Rotation2d getPredictedIdleTurretAngle() {
+    return Constants.SetPoints.Turret.getFutureSetpointEstimate(
+        idleTurretAngle,
+        idleRobotAngularVelocityRadPerSec,
+        turretLookAhead.get());
   }
 
   public boolean readyToShoot() {
@@ -121,8 +135,9 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.turretAngle)
             .getRadians());
 
-    double turretPrecisionRequired = Math
-        .atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
+    double turretPrecisionRequired = Math.atan((Constants.Field.HUB_RADIUS - Constants.Field.BALL_WIDTH) /
+        wantedShotSolution.distanceToTarget);
+
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
@@ -221,7 +236,7 @@ public class Shooter extends SubsystemBase {
       whyBad += "and ready ";
     }
     Logger.recordOutput("Shooter/Why Bad Passing", whyBad);
-    if (turretAngleError > Math.toRadians(15.0)) {
+    if (turretAngleError > Math.toRadians(120.0)) {
       return false;
     }
     return debouncedReady;
@@ -312,8 +327,18 @@ public class Shooter extends SubsystemBase {
     idleTurretAngle = angle;
   }
 
+  public void passIdleTurretAngleToIdle(Rotation2d angle, double robotAngularVelocityRadPerSec) {
+    idleTurretAngle = angle;
+    idleRobotAngularVelocityRadPerSec = robotAngularVelocityRadPerSec;
+  }
+
   @Override
   public void periodic() {
+    if (turretLookAhead.changed()) {
+      Logger.recordOutput("Shooter/Turret Lookahead Time", turretLookAhead.get());
+      Constants.PIDConstants.Turret.TURRET_LOOKAHEAD_TIME = turretLookAhead.get();
+    }
+
     io.updateInputs();
     Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
@@ -350,17 +375,14 @@ public class Shooter extends SubsystemBase {
       default:
         break;
     }
-    if (readyToShoot()) {
-      detectAndLogShot();
-    }
 
-    if (DriverStation.isDisabled()) {
-      Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
-    }
+    // if (DriverStation.isDisabled()) {
+    // Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
+    // }
   }
 
   private void trackTarget() {
-    io.setTurretAngle(getRelativeAngleFromRotation2d(idleTurretAngle));
+    setTurretAngle(getPredictedIdleTurretAngle());
     io.setHoodAngle(new Rotation2d(Constants.SetPoints.Hood.HOOD_MAX_ANGLE_RADIANS));
     io.setFlywheelPercent(0.0);
   }

@@ -22,6 +22,7 @@ public class SlowFollower extends AutoFollower {
 
     private Number[] desiredVelocityArray = new Number[4];
     private double desiredThetaChange = 0;
+    private final Vector velocityVector = new Vector();
 
     public double pathStartTime;
 
@@ -87,7 +88,6 @@ public class SlowFollower extends AutoFollower {
             timesStagnated = 0;
         }
 
-        Vector velocityVector = new Vector();
         desiredVelocityArray[0] = desiredVelocityArray[0].doubleValue() * Constants.Autonomous.SLOW_FOLLOWER_MULTIPLIER;
         desiredVelocityArray[1] = desiredVelocityArray[1].doubleValue() * Constants.Autonomous.SLOW_FOLLOWER_MULTIPLIER;
         desiredVelocityArray[2] = desiredVelocityArray[2].doubleValue() * Constants.Autonomous.SLOW_FOLLOWER_MULTIPLIER;

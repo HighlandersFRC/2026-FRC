@@ -94,4 +94,9 @@ class FeederIOSim implements FeederIO {
         }
         dyeRotorWantedVelocity = pct * Constants.Physical.Feeder.DYE_ROTOR_MAX_SPEED_MPS;
     }
+
+    @Override
+    public void setRollerPercent(double maxpercent) {
+
+    }
 }
