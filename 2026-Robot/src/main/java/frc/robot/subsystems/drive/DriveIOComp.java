@@ -175,14 +175,6 @@ public class DriveIOComp extends DriveIO {
         private final List<Pose2d> acceptedPhotonPoses = new ArrayList<>(16);
 
         private ChassisSpeeds wantedChassisSpeeds = new ChassisSpeeds();
-        private SwerveModulePosition[] lastAcceptedOdometryPositions = new SwerveModulePosition[] {
-                        new SwerveModulePosition(),
-                        new SwerveModulePosition(),
-                        new SwerveModulePosition(),
-                        new SwerveModulePosition()
-        };
-        private Rotation2d lastAcceptedYawPosition = Rotation2d.kZero;
-        private boolean hasAcceptedOdometrySample = false;
 
         private record PendingVisionObservation(
                         String logKey,
@@ -361,7 +353,6 @@ public class DriveIOComp extends DriveIO {
                         setYaw(pose.getRotation().getDegrees());
                         RobotState.getInstance().resetPose(pose, currentWheelPositions,
                                         Optional.of(pose.getRotation()));
-                        seedAcceptedOdometryState(currentWheelPositions, pose.getRotation());
                         resetPhotonHeadingData(Timer.getFPGATimestamp(), pose.getRotation());
                 } finally {
                         Drive.odometryLock.unlock();
@@ -551,7 +542,6 @@ public class DriveIOComp extends DriveIO {
                                         Optional.of(rollSamples[i]),
                                         Optional.of(pitchSamples[i]),
                                         Optional.of(yawPosition)));
-                        seedAcceptedOdometryState(odometryWheelPositionScratch, yawPosition);
                         acceptedSamples++;
                 }
 
@@ -840,29 +830,7 @@ public class DriveIOComp extends DriveIO {
         }
 
         private boolean shouldAcceptOdometrySample(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
-                if (!hasAcceptedOdometrySample) {
-                        return true;
-                }
-
-                double maxModuleDelta = 0.0;
-                for (int i = 0; i < wheelPositions.length; i++) {
-                        maxModuleDelta = Math.max(
-                                        maxModuleDelta,
-                                        Math.abs(wheelPositions[i].distanceMeters
-                                                        - lastAcceptedOdometryPositions[i].distanceMeters));
-                }
-                double yawDelta = Math.abs(yawPosition.minus(lastAcceptedYawPosition).getRadians());
-                return maxModuleDelta > DriveConstants.odometryTranslationDeadbandMeters
-                                || yawDelta > DriveConstants.odometryYawDeadbandRadians;
-        }
-
-        private void seedAcceptedOdometryState(SwerveModulePosition[] wheelPositions, Rotation2d yawPosition) {
-                for (int i = 0; i < wheelPositions.length; i++) {
-                        lastAcceptedOdometryPositions[i].distanceMeters = wheelPositions[i].distanceMeters;
-                        lastAcceptedOdometryPositions[i].angle = wheelPositions[i].angle;
-                }
-                lastAcceptedYawPosition = yawPosition;
-                hasAcceptedOdometrySample = true;
+                return true;
         }
 
         private double driveMotorRotationsToMeters(double motorRotations) {
