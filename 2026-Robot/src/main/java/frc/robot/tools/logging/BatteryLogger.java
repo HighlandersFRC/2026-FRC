@@ -28,67 +28,70 @@ public class BatteryLogger {
     private static final BatteryLogger batteryLogger = new BatteryLogger();
 
     public void reportCurrentUsage(String key, double... amps) {
-        double totalAmps = 0.0;
-        for (double amp : amps)
-            totalAmps += Math.abs(amp);
+        // double totalAmps = 0.0;
+        // for (double amp : amps)
+        // totalAmps += Math.abs(amp);
 
-        double power = totalAmps * batteryVoltage;
-        double energy = power * Globals.loopPeriodSecs;
+        // double power = totalAmps * batteryVoltage;
+        // double energy = power * Globals.loopPeriodSecs;
 
-        totalCurrent += totalAmps;
-        totalPower += power;
-        totalEnergy += energy;
+        // totalCurrent += totalAmps;
+        // totalPower += power;
+        // totalEnergy += energy;
 
-        subsytemCurrents.put(key, totalAmps);
-        subsytemPowers.put(key, power);
-        subsytemEnergies.merge(key, energy, Double::sum);
+        // subsytemCurrents.put(key, totalAmps);
+        // subsytemPowers.put(key, power);
+        // subsytemEnergies.merge(key, energy, Double::sum);
 
-        String[] keys = key.split("/|-");
-        if (keys.length < 2) {
-            return;
-        }
+        // String[] keys = key.split("/|-");
+        // if (keys.length < 2) {
+        // return;
+        // }
 
-        String subkey = "";
-        for (int i = 0; i < keys.length - 1; i++) {
-            subkey += keys[i];
-            if (i < keys.length - 2) {
-                subkey += "/";
-            }
-            subsytemCurrents.merge(subkey, totalAmps, Double::sum);
-            subsytemPowers.merge(subkey, power, Double::sum);
-            subsytemEnergies.merge(subkey, energy, Double::sum);
-        }
+        // String subkey = "";
+        // for (int i = 0; i < keys.length - 1; i++) {
+        // subkey += keys[i];
+        // if (i < keys.length - 2) {
+        // subkey += "/";
+        // }
+        // subsytemCurrents.merge(subkey, totalAmps, Double::sum);
+        // subsytemPowers.merge(subkey, power, Double::sum);
+        // subsytemEnergies.merge(subkey, energy, Double::sum);
+        // }
     }
 
     public void periodicAfterScheduler() {
-        reportCurrentUsage("Controls/roboRIO", rioCurrent);
-        reportCurrentUsage("Controls/CANcoders", 0.05 * 4);
-        reportCurrentUsage("Controls/Pigeon", 0.04);
-        reportCurrentUsage("Controls/CANivore", 0.03);
-        reportCurrentUsage("Controls/Radio", 0.5);
+        // reportCurrentUsage("Controls/roboRIO", rioCurrent);
+        // reportCurrentUsage("Controls/CANcoders", 0.05 * 4);
+        // reportCurrentUsage("Controls/Pigeon", 0.04);
+        // reportCurrentUsage("Controls/CANivore", 0.03);
+        // reportCurrentUsage("Controls/Radio", 0.5);
 
-        Logger.recordOutput("EnergyLogger/Current", totalCurrent, "amps");
-        Logger.recordOutput("EnergyLogger/Power", totalPower, "watts");
-        Logger.recordOutput("EnergyLogger/Energy", joulesToWattHours(totalEnergy), "watt hours");
+        // Logger.recordOutput("EnergyLogger/Current", totalCurrent, "amps");
+        // Logger.recordOutput("EnergyLogger/Power", totalPower, "watts");
+        // Logger.recordOutput("EnergyLogger/Energy", joulesToWattHours(totalEnergy),
+        // "watt hours");
 
-        for (var entry : subsytemCurrents.entrySet()) {
-            Logger.recordOutput("EnergyLogger/Current/" + entry.getKey(), entry.getValue(), "amps");
-            subsytemCurrents.put(entry.getKey(), 0.0);
-        }
-        for (var entry : subsytemPowers.entrySet()) {
-            Logger.recordOutput("EnergyLogger/Power/" + entry.getKey(), entry.getValue(), "watts");
-            subsytemPowers.put(entry.getKey(), 0.0);
-        }
-        for (var entry : subsytemEnergies.entrySet()) {
-            Logger.recordOutput(
-                    "EnergyLogger/Energy/" + entry.getKey(),
-                    joulesToWattHours(entry.getValue()),
-                    "watt hours");
-        }
+        // for (var entry : subsytemCurrents.entrySet()) {
+        // Logger.recordOutput("EnergyLogger/Current/" + entry.getKey(),
+        // entry.getValue(), "amps");
+        // subsytemCurrents.put(entry.getKey(), 0.0);
+        // }
+        // for (var entry : subsytemPowers.entrySet()) {
+        // Logger.recordOutput("EnergyLogger/Power/" + entry.getKey(), entry.getValue(),
+        // "watts");
+        // subsytemPowers.put(entry.getKey(), 0.0);
+        // }
+        // for (var entry : subsytemEnergies.entrySet()) {
+        // Logger.recordOutput(
+        // "EnergyLogger/Energy/" + entry.getKey(),
+        // joulesToWattHours(entry.getValue()),
+        // "watt hours");
+        // }
 
-        // Reset power and curren totals, before next loop
-        totalPower = 0.0;
-        totalCurrent = 0.0;
+        // // Reset power and curren totals, before next loop
+        // totalPower = 0.0;
+        // totalCurrent = 0.0;
     }
 
     public double getTotalCurrent() {
@@ -115,7 +118,7 @@ public class BatteryLogger {
         this.batteryVoltage = batteryVoltage2;
     }
 
-    public static BatteryLogger getInstance(){
+    public static BatteryLogger getInstance() {
         return batteryLogger;
     }
 
