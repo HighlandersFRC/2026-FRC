@@ -117,7 +117,7 @@ public class RobotState {
         }
         estimatedPose = pose;
         odometryPose = pose;
-        copyWheelPositionsInto(lastWheelPositions, wheelPositions);
+        lastWheelPositions = copyWheelPositions(wheelPositions);
         poseBuffer.clear();
         rotationBuffer.clear();
     }
@@ -135,7 +135,7 @@ public class RobotState {
 
         Twist2d twist = kinematics.toTwist2d(lastWheelPositions, observation.wheelPositions());
         twist = new Twist2d(twist.dx * tiltScale, twist.dy * tiltScale, twist.dtheta * tiltScale);
-        copyWheelPositionsInto(lastWheelPositions, observation.wheelPositions());
+        lastWheelPositions = copyWheelPositions(observation.wheelPositions());
 
         Pose2d lastOdometryPose = odometryPose;
         odometryPose = odometryPose.exp(twist);
@@ -178,19 +178,31 @@ public class RobotState {
         Transform2d odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
         Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
 
-        double xVariance = observation.stdDevs().get(0, 0) * observation.stdDevs().get(0, 0);
-        double yVariance = observation.stdDevs().get(1, 0) * observation.stdDevs().get(1, 0);
-        double thetaVariance = observation.stdDevs().get(2, 0) * observation.stdDevs().get(2, 0);
+        double[] r = new double[3];
+        for (int i = 0; i < 3; i++) {
+            r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
+        }
 
-        double kx = getKalmanGain(qStdDevs.get(0, 0), xVariance);
-        double ky = getKalmanGain(qStdDevs.get(1, 0), yVariance);
-        double kTheta = getKalmanGain(qStdDevs.get(2, 0), thetaVariance);
+        Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
+        for (int row = 0; row < 3; row++) {
+            double stdDev = qStdDevs.get(row, 0);
+            if (stdDev == 0.0) {
+                visionK.set(row, row, 0.0);
+            } else {
+                visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
+            }
+        }
 
         Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose().toPose2d());
+        Matrix<N3, N1> kTimesTransform = visionK.times(VecBuilder.fill(
+                transform.getX(),
+                transform.getY(),
+                transform.getRotation().getRadians()));
+
         Transform2d scaledTransform = new Transform2d(
-                transform.getX() * kx,
-                transform.getY() * ky,
-                Rotation2d.fromRadians(transform.getRotation().getRadians() * kTheta));
+                kTimesTransform.get(0, 0),
+                kTimesTransform.get(1, 0),
+                Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
 
         estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
     }
@@ -218,19 +230,11 @@ public class RobotState {
     public record VisionObservation(double timestamp, Pose3d visionPose, Matrix<N3, N1> stdDevs) {
     }
 
-    private static double getKalmanGain(double modelVariance, double measurementVariance) {
-        if (modelVariance == 0.0) {
-            return 0.0;
+    private SwerveModulePosition[] copyWheelPositions(SwerveModulePosition[] wheelPositions) {
+        SwerveModulePosition[] copiedPositions = new SwerveModulePosition[wheelPositions.length];
+        for (int i = 0; i < wheelPositions.length; i++) {
+            copiedPositions[i] = new SwerveModulePosition(wheelPositions[i].distanceMeters, wheelPositions[i].angle);
         }
-        return modelVariance / (modelVariance + Math.sqrt(modelVariance * measurementVariance));
-    }
-
-    private static void copyWheelPositionsInto(
-            SwerveModulePosition[] destination,
-            SwerveModulePosition[] source) {
-        for (int i = 0; i < source.length; i++) {
-            destination[i].distanceMeters = source[i].distanceMeters;
-            destination[i].angle = source[i].angle;
-        }
+        return copiedPositions;
     }
 }

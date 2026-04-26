@@ -435,16 +435,16 @@ public class DriveIOComp extends DriveIO {
                 // batteryLogger.reportCurrentUsage("Drive/BackLeftTurn",
                 // backLeft.getAngleMotorSupplyCurrent());
 
-                // Logger.recordOutput("Swerve/Front Right Drive Current",
-                // frontRight.getDriveMotorCurrent());
+                Logger.recordOutput("Swerve/Front Right Drive Current",
+                                frontRight.getDriveMotorCurrent());
                 // Logger.recordOutput("Swerve/Front Left Drive Current",
                 // frontLeft.getDriveMotorCurrent());
                 // Logger.recordOutput("Swerve/Back Right Drive Current",
                 // backRight.getDriveMotorCurrent());
                 // Logger.recordOutput("Swerve/Back Left Drive Current",
                 // backLeft.getDriveMotorCurrent());
-                // Logger.recordOutput("Swerve/Front Right Angle Current",
-                // frontRight.getAngleMotorCurrent());
+                Logger.recordOutput("Swerve/Front Right Angle Current",
+                                frontRight.getAngleMotorCurrent());
                 // Logger.recordOutput("Swerve/Front Left Angle Current",
                 // frontLeft.getAngleMotorCurrent());
                 // Logger.recordOutput("Swerve/Back Right Angle Current",

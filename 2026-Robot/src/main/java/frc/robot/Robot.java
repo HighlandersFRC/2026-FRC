@@ -169,21 +169,6 @@ public class Robot extends LoggedRobot {
     Globals.runTime = now - Globals.initTime;
     m_robotContainer.peripherals.periodic();
     Logger.recordOutput("Loop Times", Globals.loopPeriodSecs);
-    // Only start accumulating loop times after the enable delay has elapsed
-    if (Globals.loopAvgActive) {
-      // If not yet started, check whether the 3s delay has passed
-      if (!Globals.loopAvgStarted) {
-        if (now - Globals.loopAvgEnableTimestamp >= 3.0) {
-          Globals.loopAvgStarted = true;
-        }
-      }
-      if (Globals.loopAvgStarted) {
-        Globals.loopAvgSumSecs += Globals.loopPeriodSecs;
-        Globals.loopAvgCount += 1;
-        double avg = Globals.loopAvgSumSecs / Globals.loopAvgCount;
-        Logger.recordOutput("LoopTimes/Average", avg);
-      }
-    }
     m_logHandler.write();
 
     batteryInputs.batteryVoltage = RobotController.getBatteryVoltage();
@@ -201,9 +186,6 @@ public class Robot extends LoggedRobot {
     OI.driverController.setRumble(RumbleType.kBothRumble, 0);
     OI.operatorController.setRumble(RumbleType.kBothRumble, 0);
     java.util.logging.Logger.getGlobal().info("Robot Disabled");
-    // Stop counting loop averages while disabled
-    Globals.loopAvgActive = false;
-    Globals.loopAvgStarted = false;
   }
 
   @Override
@@ -222,16 +204,6 @@ public class Robot extends LoggedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     java.util.logging.Logger.getGlobal().info("Auto init time" + (Timer.getFPGATimestamp() - autoInitTime));
     m_autonomousCommand.schedule();
-    // Prepare loop average counting when enabled: reset accumulators and
-    // record enable timestamp. Actual accumulation will start after 3s.
-    double now = Timer.getFPGATimestamp();
-    Globals.loopAvgSumSecs = 0.0;
-    Globals.loopAvgCount = 0;
-    Globals.loopAvgEnableTimestamp = now;
-    Globals.loopAvgStarted = false;
-    Globals.loopAvgActive = true;
-    // Reset prevTimeSecs so the first measured loop after enable isn't huge
-    Globals.prevTimeSecs = now;
   }
 
   @Override
@@ -259,15 +231,6 @@ public class Robot extends LoggedRobot {
     java.util.logging.Logger.getGlobal().info("field side" + Globals.fieldSide);
 
     this.m_robotContainer.drive.teleopInit();
-    // Prepare loop average counting when enabled: reset accumulators and
-    // record enable timestamp. Actual accumulation will start after 3s.
-    double now = Timer.getFPGATimestamp();
-    Globals.loopAvgSumSecs = 0.0;
-    Globals.loopAvgCount = 0;
-    Globals.loopAvgEnableTimestamp = now;
-    Globals.loopAvgStarted = false;
-    Globals.loopAvgActive = true;
-    Globals.prevTimeSecs = now;
   }
 
   @Override
@@ -279,15 +242,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
-    // Prepare loop average counting in test mode: reset accumulators and
-    // record enable timestamp. Actual accumulation will start after 3s.
-    double now = Timer.getFPGATimestamp();
-    Globals.loopAvgSumSecs = 0.0;
-    Globals.loopAvgCount = 0;
-    Globals.loopAvgEnableTimestamp = now;
-    Globals.loopAvgStarted = false;
-    Globals.loopAvgActive = true;
-    Globals.prevTimeSecs = now;
   }
 
   @Override
@@ -296,16 +250,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationInit() {
-    // Prepare loop average counting in simulation when enabled: reset
-    // accumulators and record enable timestamp. Actual accumulation will
-    // start after 3s.
-    double now = Timer.getFPGATimestamp();
-    Globals.loopAvgSumSecs = 0.0;
-    Globals.loopAvgCount = 0;
-    Globals.loopAvgEnableTimestamp = now;
-    Globals.loopAvgStarted = false;
-    Globals.loopAvgActive = true;
-    Globals.prevTimeSecs = now;
   }
 
   @Override

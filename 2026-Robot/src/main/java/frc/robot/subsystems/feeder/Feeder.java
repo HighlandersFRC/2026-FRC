@@ -116,11 +116,11 @@ public class Feeder extends SubsystemBase {
     }
     // Logger.recordOutput("Feeder/Feeder State", systemState);
     Logger.recordOutput("States/Feeder State", systemState);
-    // Logger.recordOutput("Feeder/Dye Rotor Current", io.getDyeRotorCurrent());
-    // Logger.recordOutput("Feeder/Dye Rotor RPM", io.getDyeRotorRPM());
-    // Logger.recordOutput("Feeder/Roller RPM", io.getRollerRPM());
-    // Logger.recordOutput("Feeder/Roller Stator Current",
-    // io.getRollerStatorCurrent());
+    Logger.recordOutput("Feeder/Dye Rotor Current", io.getDyeRotorCurrent());
+    Logger.recordOutput("Feeder/Dye Rotor RPM", io.getDyeRotorRPM());
+    Logger.recordOutput("Feeder/Roller RPM", io.getRollerRPM());
+    Logger.recordOutput("Feeder/Roller Stator Current",
+        io.getRollerStatorCurrent());
     // Logger.recordOutput("Feeder/Roller Supply Current",
     // io.getRollerSupplyCurrent());
   }

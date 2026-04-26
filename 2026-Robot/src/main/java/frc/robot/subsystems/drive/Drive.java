@@ -1043,7 +1043,7 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     field.setRobotPose(getMt2Pose2d());
     io.update(systemState);
-    // Pose2d estimatedPose = getMt2Pose2d();
+    Pose2d estimatedPose = getMt2Pose2d();
     ChassisSpeeds measuredSpeeds = getChassisSpeeds();
     ChassisSpeeds wantedSpeeds = io.getWantedChassisSpeeds();
     RobotState.getInstance().setRobotVelocity(measuredSpeeds);
@@ -1061,12 +1061,9 @@ public class Drive extends SubsystemBase {
       systemState = newState;
     }
 
-    // Logger.recordOutput("States/Drive State", systemState);
+    Logger.recordOutput("States/Drive State", systemState);
     // Logger.recordOutput("Drive/Drive State", systemState);
-    // Logger.recordOutput("Drive/MT2 Odometry", estimatedPose);
-    // Logger.recordOutput("Drive/Expected Speed",
-    // getPredictedDriveVelocityFromSim(driveFutureExtimateTime.get(),
-    // measuredSpeeds, estimatedPose.getRotation()));
+    Logger.recordOutput("Drive/MT2 Odometry", estimatedPose);
     // Logger.recordOutput("Drive/Actual Speed RC", measuredSpeeds);
     // Logger.recordOutput("Drive/Kinematic Expected Speed",
     // getFutureVelocity(measuredSpeeds, estimatedPose.getRotation()));
