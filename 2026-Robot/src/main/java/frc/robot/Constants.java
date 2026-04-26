@@ -332,7 +332,7 @@ public final class Constants {
                 }
 
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
-                public static final double FEED_RADIUS = inchesToMeters(33.39);
+                public static final double FEED_RADIUS = inchesToMeters(67.0);
                 public static final double BALL_WIDTH = 0.15;
         }
 
@@ -490,8 +490,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(60.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(360.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(30.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(330.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(

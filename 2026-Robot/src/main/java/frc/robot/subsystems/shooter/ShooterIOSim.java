@@ -19,6 +19,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Globals;
+import frc.robot.subsystems.shooter.Shooter.ShooterState;
 import frc.robot.tools.controlloops.PID;
 
 class ShooterIOSim implements ShooterIO {
@@ -159,7 +160,7 @@ class ShooterIOSim implements ShooterIO {
     }
 
     @Override
-    public void updateInputs() {
+    public void updateInputs(ShooterState currentState) {
         double dt = Globals.loopPeriodSecs;
         int numSteps = Math.max(1, (int) Math.floor(dt / Constants.Simulation.closedLoopSimResolution));
         turretSlot0.setSetPoint(turretPositionSetpointRad);

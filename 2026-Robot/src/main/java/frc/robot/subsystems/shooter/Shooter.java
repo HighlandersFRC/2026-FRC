@@ -188,32 +188,23 @@ public class Shooter extends SubsystemBase {
             .minus(wantedShotSolution.hoodAngle)
             .getRadians());
     double turretAngleError;
-    if (wantedShotSolution.robotVelocity.isPresent()) {
-      Rotation2d prediction = Constants.SetPoints.Turret.getFutureSetpointEstimate(wantedShotSolution.turretAngle,
-          wantedShotSolution.robotVelocity.get().omegaRadiansPerSecond, 0.2);
-      turretAngleError = Math.abs(
-          getRobotRelativeTurretAngle()
-              .minus(prediction)
-              .getRadians());
-    } else {
-      turretAngleError = Math.abs(
-          getRobotRelativeTurretAngle()
-              .minus(wantedShotSolution.turretAngle)
-              .getRadians());
+    turretAngleError = Math.abs(
+        getRobotRelativeTurretAngle()
+            .minus(wantedShotSolution.turretAngle)
+            .getRadians());
 
-    }
     double turretPrecisionRequired = Math
         .atan((Constants.Field.FEED_RADIUS - Constants.Field.BALL_WIDTH) / wantedShotSolution.distanceToTarget);
     Logger.recordOutput("Shooter/Turret Precision Required",
         Math.toDegrees(turretPrecisionRequired));
-    Logger.recordOutput("Shooter/Turret Error Passing", turretAngleError);
+    Logger.recordOutput("Shooter/Turret Error Passing", Math.toDegrees(turretAngleError));
     Logger.recordOutput("Shooter/Hood Error Passing", hoodAngleError);
     double flywheelRPMError = Math
         .abs(getFlywheelRPM()
             - wantedShotSolution.flywheelRPM);
     Logger.recordOutput("Shooter/Flywheel RPM Error Passing", flywheelRPMError);
     boolean ready = hoodAngleError < Constants.SetPoints.Hood.HOOD_FEED_PRECISION
-        && turretAngleError < Math.toRadians(5.0)
+        && turretAngleError < turretPrecisionRequired
         && flywheelRPMError < Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION;
     boolean debouncedReady = readyToFeedDebouncer.calculate(ready);
     Logger.recordOutput("Shooter/Ready To Pass Raw", ready);
@@ -226,7 +217,7 @@ public class Shooter extends SubsystemBase {
       if (hoodAngleError >= Constants.SetPoints.Hood.HOOD_FEED_PRECISION) {
         whyBad += "Hood ";
       }
-      if (turretAngleError >= Math.toRadians(5.0)) {
+      if (turretAngleError >= turretPrecisionRequired) {
         whyBad += "Turret ";
       }
       if (flywheelRPMError >= Constants.SetPoints.Flywheel.FLYWHEEL_RPM_FEED_PRECISION) {
@@ -339,7 +330,7 @@ public class Shooter extends SubsystemBase {
       Constants.PIDConstants.Turret.TURRET_LOOKAHEAD_TIME = turretLookAhead.get();
     }
 
-    io.updateInputs();
+    io.updateInputs(systemState);
     Logger.recordOutput("Shooter/Hood Angle", getHoodAngle().getDegrees());
     Logger.recordOutput("Shooter/Turret Angle", getRobotRelativeTurretAngle().getDegrees());
     Logger.recordOutput("Shooter/Flywheel RPM", getFlywheelRPM());

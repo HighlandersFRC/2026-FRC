@@ -1,9 +1,10 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.subsystems.shooter.Shooter.ShooterState;
 
 interface ShooterIO {
-    void updateInputs();
+    void updateInputs(ShooterState currentState);
 
     Rotation2d getHoodAngle();
 

@@ -17,9 +17,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.RobotState;
+import frc.robot.subsystems.shooter.Shooter.ShooterState;
 import frc.robot.Constants;
 import frc.robot.Globals;
 import frc.robot.OI;
@@ -119,6 +122,8 @@ class ShooterIOComp implements ShooterIO {
         // Velocity", 2.0);
         // private TunableNumber flywheelAcceleration = new TunableNumber("Flywheel
         // Position Acceleration", 2.0);
+
+        private ShooterState currentState = ShooterState.DEFAULT;
 
         public ShooterIOComp() {
                 initializingTurret = true;
@@ -248,11 +253,19 @@ class ShooterIOComp implements ShooterIO {
         }
 
         private double getTurretHubVelocityFieldCentric() {
-                double x = RobotState.getInstance().getEstimatedPose().getX();
-                double y = RobotState.getInstance().getEstimatedPose().getY();
+                Translation2d target;
+                Translation2d robot = RobotState.getInstance().getEstimatedPose().getTranslation();
+                if (currentState == ShooterState.NORMAL_SHOOT && !Constants.Field.isInAllianceZone(robot)) {
+                        target = Constants.DynamicPassing.getTarget(robot);
+                } else {
+                        target = Constants.Field.getHubPose().toTranslation2d();
+                }
+                Translation2d deltaS = target.minus(robot);
+                double x = deltaS.getX();
+                double y = deltaS.getY();
                 double dx = RobotState.getInstance().getFieldVelocity().vxMetersPerSecond;
                 double dy = RobotState.getInstance().getFieldVelocity().vyMetersPerSecond;
-                return ((x * dy) + (y * dx)) / ((x * x) + (y * y)); // might be negative idk
+                return (-(x * dy) + (y * dx)) / ((x * x) + (y * y)); // might be negative idk
         }
 
         private double getTurretAngularVelocity() {
@@ -466,7 +479,7 @@ class ShooterIOComp implements ShooterIO {
         // private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
         @Override
-        public void updateInputs() {
+        public void updateInputs(ShooterState currentState) {
                 Globals.turretAngle = getTurretAngle();
                 // Logger.recordOutput("Shooter/Turret vel unfiltered",
                 // Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble()));
