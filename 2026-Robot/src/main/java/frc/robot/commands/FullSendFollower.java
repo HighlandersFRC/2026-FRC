@@ -19,6 +19,7 @@ public class FullSendFollower extends AutoFollower {
 
     private Number[] desiredVelocityArray = new Number[4];
     private double desiredThetaChange = 0;
+    private final Vector velocityVector = new Vector();
 
     public double pathStartTime;
 
@@ -82,8 +83,6 @@ public class FullSendFollower extends AutoFollower {
         } else {
             timesStagnated = 0;
         }
-
-        Vector velocityVector = new Vector();
 
         desiredVelocityArray[0] = desiredVelocityArray[0].doubleValue();
         // * Constants.Autonomous.FULL_SEND_FOLLOWER_MULTIPLIER;

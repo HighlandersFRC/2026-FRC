@@ -30,9 +30,9 @@
           },
           {
             "title": "Selected Auto",
-            "x": 896.0,
-            "y": 0.0,
-            "width": 128.0,
+            "x": 768.0,
+            "y": 128.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -65,19 +65,6 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
-            }
-          },
-          {
-            "title": "Climber Position",
-            "x": 768.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Climber/Climber Position",
-              "period": 0.06,
-              "data_type": "double"
             }
           },
           {
@@ -215,7 +202,7 @@
           {
             "title": "Field Side",
             "x": 896.0,
-            "y": 128.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",

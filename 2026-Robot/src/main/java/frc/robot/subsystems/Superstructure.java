@@ -38,18 +38,14 @@ public class Superstructure extends SubsystemBase {
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
-  double outakeIdleInitTime = 0;
-  boolean outakeIdleInit = false;
-  boolean firstTimeDefault = true;
-  boolean firstTimeAutoClimb = true;
-  double alignTime = Timer.getFPGATimestamp();
   private SuperState lastState = SuperState.IDLE;
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();
   private ArrayList<Translation3d> trajectoryVelocity = new ArrayList<Translation3d>();
-  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 2000);
-  private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 60.0);
-  private TunableNumber manualShootTurretAngle = new TunableNumber("Manual Shoot Turret Angle", 0.0);
+  private TunableNumber manualShootRPM = new TunableNumber("Manual Shoot RPM", 0.0);
+  private TunableNumber manualShootHoodAngle = new TunableNumber("Manual Shoot Hood Angle", 0.0);
+  // private TunableNumber manualShootTurretAngle = new TunableNumber("Manual
+  // Shoot Turret Angle", 0.0);
   private ShotSolution presetShotSolution = new ShotSolution(new Rotation2d(Math.toRadians(60.0)), 2000,
       new Rotation2d(Math.PI),
       0.0, 0.0);
@@ -642,10 +638,12 @@ public class Superstructure extends SubsystemBase {
       tempLastState = currentSuperState;
     }
     Logger.recordOutput("States/Super State", currentSuperState);
-    Logger.recordOutput("Testing/Manual Shoot RPM", manualShootRPM.get());
-    Logger.recordOutput("Testing/Manual Shoot Hood Angle", manualShootHoodAngle.get());
-    Logger.recordOutput("Testing/Manual Shoot Turret Angle", manualShootTurretAngle.get());
-    Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot());
+    // Logger.recordOutput("Testing/Manual Shoot RPM", manualShootRPM.get());
+    // Logger.recordOutput("Testing/Manual Shoot Hood Angle",
+    // manualShootHoodAngle.get());
+    // Logger.recordOutput("Testing/Manual Shoot Turret Angle",
+    // manualShootTurretAngle.get());
+    // Logger.recordOutput("Shooter/Ready to Shoot", shooter.readyToShoot());
     applyStates();
 
   }

@@ -14,7 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.feeder.Feeder.FeederState;
-import frc.robot.tools.logging.BatteryLogger;
+// import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.TunableNumber;
 
 class FeederIOComp implements FeederIO {
@@ -27,7 +27,7 @@ class FeederIOComp implements FeederIO {
 
     private final VelocityDutyCycle dyeRotorControl = new VelocityDutyCycle(0.0);
 
-    private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
+    // private final BatteryLogger batteryLogger = BatteryLogger.getInstance();
 
     private final TorqueCurrentFOC rollerControl = new TorqueCurrentFOC(0.0);
 
@@ -123,10 +123,12 @@ class FeederIOComp implements FeederIO {
 
     @Override
     public void updateInputs(FeederState systemState) {
-        batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor", dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
-        batteryLogger.reportCurrentUsage("DyeRotor/Roller", rollerMotor.getSupplyCurrent().getValueAsDouble());
-        batteryLogger.reportCurrentUsage("DyeRotor/Second Roller",
-                secondRollerMotor.getSupplyCurrent().getValueAsDouble());
+        // batteryLogger.reportCurrentUsage("DyeRotor/DyeRotorMotor",
+        // dyeRotorMotor.getSupplyCurrent().getValueAsDouble());
+        // batteryLogger.reportCurrentUsage("DyeRotor/Roller",
+        // rollerMotor.getSupplyCurrent().getValueAsDouble());
+        // batteryLogger.reportCurrentUsage("DyeRotor/Second Roller",
+        // secondRollerMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Online/Dye Rotor Online", dyeRotorMotor.isConnected());
         Logger.recordOutput("Online/Dye Roller Online", rollerMotor.isConnected());
         Logger.recordOutput("Online/Dye Roller Second Motor Online", secondRollerMotor.isConnected());

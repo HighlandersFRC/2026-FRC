@@ -193,7 +193,7 @@ public class Intake extends SubsystemBase {
     if (systemState != IntakeState.ZERO) {
       firstTimeZeroed = true;
     }
-    Logger.recordOutput("Intake/Intake State", systemState);
+    // Logger.recordOutput("Intake/Intake State", systemState);
     Logger.recordOutput("States/Intake State", systemState);
     // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake/Intake Position", getIntakePosition());
@@ -206,8 +206,9 @@ public class Intake extends SubsystemBase {
     // io.getIntakeAcceleration());
     // Logger.recordOutput("Intake/Dynamic Intake Speed", dynamicIntakeSpeed);
     Logger.recordOutput("Intake Roller Vel", io.getIntakeRollerVelocity());
-    Logger.recordOutput("Intake Follower Roller Vel", io.getIntakeFollowerRollerVelocity());
-    Logger.recordOutput("Intake Roller Temp", io.getIntakeRollerTemp());
+    Logger.recordOutput("Intake Follower Roller Vel",
+        io.getIntakeFollowerRollerVelocity());
+    // Logger.recordOutput("Intake Roller Temp", io.getIntakeRollerTemp());
     switch (systemState) {
       case UP:
         setIntakeUp();

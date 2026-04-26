@@ -163,20 +163,21 @@ public class Robot extends LoggedRobot {
     }
     // Logger.recordOutput("Field Side", Globals.fieldSide);
     Logger.recordOutput("Left Side?", OI.isLeftSide());
-    Globals.loopPeriodSecs = Timer.getFPGATimestamp() - Globals.prevTimeSecs;
-    Globals.prevTimeSecs = Timer.getFPGATimestamp();
-    Globals.runTime = Timer.getFPGATimestamp() - Globals.initTime;
+    double now = Timer.getFPGATimestamp();
+    Globals.loopPeriodSecs = now - Globals.prevTimeSecs;
+    Globals.prevTimeSecs = now;
+    Globals.runTime = now - Globals.initTime;
     m_robotContainer.peripherals.periodic();
     Logger.recordOutput("Loop Times", Globals.loopPeriodSecs);
     m_logHandler.write();
 
-  batteryInputs.batteryVoltage = RobotController.getBatteryVoltage();
-  batteryInputs.rioCurrent = RobotController.getInputCurrent();
-  Logger.processInputs("BatteryLogger", batteryInputs);
-  batteryLogger.setBatteryVoltage(batteryInputs.batteryVoltage);
-  batteryLogger.setRioCurrent(batteryInputs.rioCurrent);
+    batteryInputs.batteryVoltage = RobotController.getBatteryVoltage();
+    batteryInputs.rioCurrent = RobotController.getInputCurrent();
+    Logger.processInputs("BatteryLogger", batteryInputs);
+    batteryLogger.setBatteryVoltage(batteryInputs.batteryVoltage);
+    batteryLogger.setRioCurrent(batteryInputs.rioCurrent);
 
-  batteryLogger.periodicAfterScheduler();
+    batteryLogger.periodicAfterScheduler();
 
   }
 

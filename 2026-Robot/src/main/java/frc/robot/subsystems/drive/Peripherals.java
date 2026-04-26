@@ -47,15 +47,16 @@ public class Peripherals {
   }
 
   boolean limelightIsConnected = false;
-  double lastBeatTime = 0.0;
+  long lastBeatTimeMs = 0L;
   int lastBeatInt = 0;
 
   public void periodic() {
     int beatCounter = (int) LimelightHelpers.getHeartbeat(Constants.Vision.LIMELIGHT_NAME);
+    long nowMs = System.currentTimeMillis();
     if (beatCounter == lastBeatInt) {
       limelightIsConnected = false;
-    } else if ((System.currentTimeMillis() - lastBeatTime > 10000)) {
-      lastBeatTime = System.currentTimeMillis();
+    } else if ((nowMs - lastBeatTimeMs > 10000L)) {
+      lastBeatTimeMs = nowMs;
       limelightIsConnected = true;
       lastBeatInt = beatCounter;
     }

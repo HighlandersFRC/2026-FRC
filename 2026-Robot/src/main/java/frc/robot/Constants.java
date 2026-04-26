@@ -103,58 +103,6 @@ public final class Constants {
 
                 public static final double GRAVITY_ACCEL_MS2 = 9.806;
 
-                // 1.437/1.736 4.115
-                public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.455,
-                                4.121),
-                                new Rotation2d(Math.toRadians(-90.0)));
-                public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                                1.736,
-                                4.121),
-                                new Rotation2d(Math.toRadians(-90.0)));
-
-                // public static Pose2d climbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                // 1.483,
-                // 4.018),
-                // new Rotation2d(Math.toRadians(-90.0)));
-                // public static Pose2d preClimbPoseLeftBlueSide = new Pose2d(new Translation2d(
-                // 1.736,
-                // 4.018),
-
-                // new Rotation2d(Math.toRadians(-90.0)));
-                public static Pose2d climbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                1.455, 3.262),
-                                new Rotation2d(Math.toRadians(-90.0)));
-                public static Pose2d preClimbPoseRightBlueSide = new Pose2d(new Translation2d(
-                                1.736,
-                                3.262),
-                                new Rotation2d(Math.toRadians(-90.0)));
-
-                // public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
-                // 14.94, 3.94), new Rotation2d(Math.PI / 2));
-                // public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
-                // 14.6, 3.94), new Rotation2d(Math.PI / 2));
-
-                // public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
-                // 14.94, 4.84), new Rotation2d(Math.PI / 2));
-                // public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
-                // 14.6, 4.84), new Rotation2d(Math.PI / 2));
-
-                // 33.75 in
-                public static Pose2d climbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - climbPoseLeftBlueSide.getX(),
-                                FIELD_WIDTH - climbPoseLeftBlueSide.getY()), new Rotation2d(Math.PI / 2));
-                public static Pose2d preClimbPoseLeftRedSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - preClimbPoseLeftBlueSide.getX(),
-                                FIELD_WIDTH - preClimbPoseLeftBlueSide.getY()), new Rotation2d(Math.PI / 2));
-
-                public static Pose2d climbPoseRightRedSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - climbPoseRightBlueSide.getX(),
-                                FIELD_WIDTH - climbPoseRightBlueSide.getY()), new Rotation2d(Math.PI / 2));
-                public static Pose2d preClimbPoseRightRedSide = new Pose2d(new Translation2d(
-                                FIELD_LENGTH - preClimbPoseRightBlueSide.getX(),
-                                FIELD_WIDTH - preClimbPoseRightBlueSide.getY()), new Rotation2d(Math.PI / 2));
-
                 public static final class Drive {
                         public static final double xAccelLimit = 3.5;
                         public static final double yAccelLimit = 3.5;
@@ -642,29 +590,6 @@ public final class Constants {
                         public static final double DYE_ROTOR_SPEED_MPS = 1.0;
                         public static final double DYE_ROTOR_AMPS = 60.0;
                 }
-
-                public static final class Climber { // TODO: tune ALL OF THESE because they are just guesses
-                        public static final double CLIMBER_HOOKS_RETRACT_ZONE = 1.0; // climber position that the hooks
-                                                                                     // come out at (assuming climber
-                                                                                     // initializes to zero)
-                        public static final double CLIMBER_L1_EXTEND_HEIGHT_INCHES = 20.25; // climber position to get
-                                                                                            // ready to grab l1
-                        public static final double CLIMBER_AUTON_L1_RETRACT_HEIGHT_INCHES = 15.0; // climber position to
-                                                                                                  // hover off the
-                                                                                                  // ground in auto
-                                                                                                  // (already latched on
-                                                                                                  // L1) // 15.0
-                        public static final double CLIMBER_L2_EXTEND_HEIGHT_INCHES = 0.8; // climber position to get
-                                                                                          // ready to grab L2 (already
-                                                                                          // latched on L1) // 0.4
-                        public static final double CLIMBER_L3_EXTEND_HEIGHT_INCHES = 19.85; // climber position to get
-                                                                                            // ready to grab L3 (already
-                                                                                            // latched on L2) // 19.85
-                        public static final double CLIMBER_L3_RETRACT_HEIGHT_INCHES = 9.5; // climber position to hover
-                                                                                           // above L2 (scoring L3)
-                                                                                           // (already latched on L3)
-                                                                                           // // 9.5
-                }
         }
 
         public static TunableNumber shooterMPStoRPM = new TunableNumber("shooterMPStoRPM", 1.150000);
@@ -948,13 +873,6 @@ public final class Constants {
                         public static final double DYE_ROTOR_GEAR_RATIO = (28.0 / 12.0) * (48.0 / 18.0)
                                         * (150.0 / 18.0); // hex bot
                         public static final double ROLLER_GEAR_RATIO = (24.0 / 16.0) * (32.0 / 24.0); // hex bot
-                }
-
-                public static final class Climber {
-                        public static final double CLIMBER_MOTOR_INCHES_PER_ROTATION = 0.25287202867;
-                        public static final double CLIMBER_MAX_INCHES = 20.48;
-                        public static final double CLIMBER_MAX_ROTATIONS = CLIMBER_MAX_INCHES
-                                        / CLIMBER_MOTOR_INCHES_PER_ROTATION;
                 }
         }
 

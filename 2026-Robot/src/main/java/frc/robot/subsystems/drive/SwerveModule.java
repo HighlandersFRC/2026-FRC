@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems.drive;
 
-import org.apache.commons.math3.analysis.function.Constant;
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
@@ -173,8 +170,10 @@ public class SwerveModule extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = limit;
     currentLimitsConfigs.SupplyCurrentLimit = limit;
-    angleMotor.getConfigurator().apply(currentLimitsConfigs);
-    System.out.println("Angle Current Limit: " + limit);
+    new Thread(() -> {
+      angleMotor.getConfigurator().apply(currentLimitsConfigs);
+    }).start();
+    // System.out.println("Angle Current Limit: " + limit);
   }
 
   public void setDriveCurrentLimits(double limit) {
@@ -183,8 +182,10 @@ public class SwerveModule extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = limit;
     currentLimitsConfigs.SupplyCurrentLimit = limit;
-    driveMotor.getConfigurator().apply(currentLimitsConfigs);
-    System.out.println("Drive Current Limit: " + limit);
+    new Thread(() -> {
+      driveMotor.getConfigurator().apply(currentLimitsConfigs);
+    }).start();
+    // System.out.println("Drive Current Limit: " + limit);
   }
 
   /**
@@ -443,14 +444,16 @@ public class SwerveModule extends SubsystemBase {
    */
   public void drive(Vector vector, double turnValue, double navxAngle) {
     // turnValue = -turnValue;
-    if (Math.abs(vector.getI()) < 0.001 && Math.abs(vector.getJ()) < 0.001 && Math.abs(turnValue) < 0.01) {
+    double vectorI = vector.getI();
+    double vectorJ = vector.getJ();
+    if (Math.abs(vectorI) < 0.001 && Math.abs(vectorJ) < 0.001 && Math.abs(turnValue) < 0.01) {
       // stops motors when joysticks are at 0
       driveMotor.setControl(velocityTorqueFOCRequest.withVelocity(0.0));
       // driveMotor.setControl(velocityTorqueFOCRequestDriveMotorStop.withVelocity(0.0));
       angleMotor.setControl(velocityTorqueFOCRequestAngleMotor.withVelocity(0.0));
     } else {
-      double angleWanted = Math.atan2(vector.getJ(), vector.getI());
-      double wheelPower = Math.sqrt(Math.pow(vector.getI(), 2) + Math.pow(vector.getJ(), 2));
+      double angleWanted = Math.atan2(vectorJ, vectorI);
+      double wheelPower = Math.hypot(vectorI, vectorJ);
 
       // field centric math
       double angleWithNavx = angleWanted + navxAngle;
@@ -462,12 +465,11 @@ public class SwerveModule extends SubsystemBase {
       double turnY = turnValue * (Constants.angleToUnitVectorJ(torqueAngle()));
 
       // adds turn and strafe vectors
-      Vector finalVector = new Vector();
-      finalVector.setI(xValueWithNavx + turnX);
-      finalVector.setJ(yValueWithNavx + turnY);
+      double finalX = xValueWithNavx + turnX;
+      double finalY = yValueWithNavx + turnY;
 
-      double finalAngle = -Math.atan2(finalVector.getJ(), finalVector.getI());
-      double finalVelocity = Math.sqrt(Math.pow(finalVector.getI(), 2) + Math.pow(finalVector.getJ(), 2));
+      double finalAngle = -Math.atan2(finalY, finalX);
+      double finalVelocity = Math.hypot(finalX, finalY);
 
       if (finalVelocity > Constants.Physical.TOP_SPEED) {
         finalVelocity = Constants.Physical.TOP_SPEED;
@@ -476,7 +478,7 @@ public class SwerveModule extends SubsystemBase {
       double velocityRPS = (MPSToRPS(finalVelocity));
 
       double currentAngle = getWheelPosition();
-      double currentAngleBelow360 = (getWheelPosition()) % (Math.toRadians(360));
+      double currentAngleBelow360 = currentAngle % (2.0 * Math.PI);
 
       // runs angle through optimizer to optimize wheel motion
       double setpointAngle = findClosestAngle(currentAngleBelow360, finalAngle);

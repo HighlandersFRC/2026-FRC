@@ -375,13 +375,10 @@ public class Shooter extends SubsystemBase {
       default:
         break;
     }
-    if (readyToShoot()) {
-      detectAndLogShot();
-    }
 
-    if (DriverStation.isDisabled()) {
-      Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
-    }
+    // if (DriverStation.isDisabled()) {
+    // Logger.recordOutput("Shooter/Shot Log", shotLog.toString());
+    // }
   }
 
   private void trackTarget() {
