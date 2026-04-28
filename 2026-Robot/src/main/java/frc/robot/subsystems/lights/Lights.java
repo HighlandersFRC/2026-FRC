@@ -62,25 +62,8 @@ public class Lights extends SubsystemBase {
     DISABLED,
     DEFAULT,
     INTAKING,
-    PLACING,
-    SCORING,
-    FEEDER
-  }
-
-  public enum ItemState {
-    CORAL,
-    ALGAE,
-    NONE,
-  }
-
-  public enum ManualState {
-    MANUAL,
-    AUTO,
-  }
-
-  public enum AlgaeState {
-    ALGAE,
-    CORAL,
+    SHOOT_PREP,
+    SHOOTING
   }
 
   public enum AllianceState {
@@ -90,27 +73,7 @@ public class Lights extends SubsystemBase {
 
   private LightsState wantedState = LightsState.DISABLED;
   private LightsState systemState = LightsState.DISABLED;
-
-  private AlgaeState algaeState = AlgaeState.CORAL;
-  private ManualState manualState = ManualState.MANUAL;
-  private ItemState itemState = ItemState.NONE;
   private AllianceState allianceState = AllianceState.RED;
-
-  public void updateAlgaeMode(boolean algaeMode) {
-    if (algaeMode) {
-      algaeState = AlgaeState.ALGAE;
-    } else {
-      algaeState = AlgaeState.CORAL;
-    }
-  }
-
-  public void updateManualMode(boolean manualMode) {
-    if (manualMode) {
-      manualState = ManualState.MANUAL;
-    } else {
-      manualState = ManualState.AUTO;
-    }
-  }
 
   /*
    * Lights codes are as follows:
@@ -155,12 +118,10 @@ public class Lights extends SubsystemBase {
         return LightsState.DEFAULT;
       case INTAKING:
         return LightsState.INTAKING;
-      case PLACING:
-        return LightsState.PLACING;
-      case SCORING:
-        return LightsState.SCORING;
-      case FEEDER:
-        return LightsState.FEEDER;
+      case SHOOT_PREP:
+        return LightsState.SHOOT_PREP;
+      case SHOOTING:
+        return LightsState.SHOOTING;
       default:
         return LightsState.DISABLED;
     }
@@ -211,18 +172,16 @@ public class Lights extends SubsystemBase {
     if (partyMode) {
       weLikeToParty();
     } else {
-
       if (systemState != LightsState.DISABLED) {
-        switch (manualState) {
-          case MANUAL:
-            setManual();
+        switch (allianceState) {
+          case RED:
+            io.setFrontLEDs(100, 0, 0);
             break;
-          case AUTO:
-            setAuto();
+          case BLUE:
+            io.setFrontLEDs(0, 0, 100);
             break;
           default:
-            io.setFrontLEDs(10, 50, 10);
-            io.setSwerveLEDs(10, 50, 10);
+            io.setFrontLEDs(125, 80, 0);
             break;
         }
       } else {
@@ -239,45 +198,23 @@ public class Lights extends SubsystemBase {
       }
       switch (systemState) {
         case DEFAULT:
-          switch (itemState) {
-            case CORAL:
-              setCoralBouncing();
-              break;
-            case ALGAE:
-              setAlgaeBouncing();
+          switch (allianceState) {
+            case RED:
+              setRedBouncing();
               break;
             default:
-              switch (algaeState) {
-                case ALGAE:
-                  setAlgaeSolid();
-                  break;
-                default:
-                  setCoralSolid();
-                  break;
-              }
+              setBlueBouncing();
               break;
           }
           break;
         case INTAKING:
-          switch (itemState) {
-            case CORAL:
-              setFlashGreen();
-              break;
-            case ALGAE:
-              setFlashGreen();
-            default:
-              setFlashPurple();
-              break;
-          }
-          break;
-        case PLACING:
           setFlashYellow();
           break;
-        case SCORING:
-          setStrobeGreen();
+        case SHOOT_PREP:
+          setStrobePurple();
           break;
-        case FEEDER:
-          setFlashPurple();
+        case SHOOTING:
+          setStrobeGreen();
           break;
         default:
           if (OI.autoChooser.isConnected()) {
@@ -289,7 +226,6 @@ public class Lights extends SubsystemBase {
                 setBlueBouncing();
                 break;
             }
-            ;
           } else {
             setFlashYellow();
           }
@@ -396,22 +332,6 @@ public class Lights extends SubsystemBase {
     io.setSwerveLEDs(0, 75, 25, 0, ledsPerSwerve * 0, ledsPerSwerve * 2);
   }
 
-  public void setCoralFlashing() {
-    io.animateBack(coralFlashing);
-  }
-
-  public void setAlgaeFlashing() {
-    io.animateBack(algaeFlashing);
-  }
-
-  public void setCoralStrobing() {
-    io.animateBack(coralStrobing);
-  }
-
-  public void setAlgaeStrobing() {
-    io.animateBack(algaeStrobing);
-  }
-
   public void setCoralBouncing() {
     io.animateBack(coralKnightRiderAnimation);
   }
@@ -435,24 +355,6 @@ public class Lights extends SubsystemBase {
     io.animateBack(party);
     io.animateFront(party);
     io.animateSwerve(party);
-  }
-
-  public void setManual() {
-    switch (allianceState) {
-      case RED:
-        io.setFrontLEDs(100, 0, 0);
-        break;
-      case BLUE:
-        io.setFrontLEDs(0, 0, 100);
-        break;
-      default:
-        io.setFrontLEDs(125, 80, 0);
-        break;
-    }
-  }
-
-  public void setAuto() {
-    io.setFrontLEDs(80, 0, 80);
   }
 
   /**

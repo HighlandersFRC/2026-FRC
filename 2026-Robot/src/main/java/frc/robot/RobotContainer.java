@@ -57,7 +57,8 @@ public class RobotContainer {
         final Shooter shooter = new Shooter();
         final Feeder feeder = new Feeder();
         final Intake intake = new Intake();
-        Superstructure superstructure = new Superstructure(drive, shooter, intake, feeder);
+        final Lights lights = new Lights();
+        Superstructure superstructure = new Superstructure(drive, shooter, intake, feeder, lights);
 
         HashMap<String, Supplier<Command>> commandMap = new HashMap<String, Supplier<Command>>() {
                 {
