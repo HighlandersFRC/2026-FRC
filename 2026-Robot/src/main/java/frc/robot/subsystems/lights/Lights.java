@@ -137,7 +137,6 @@ public class Lights extends SubsystemBase {
       case DISABLED:
       default:
         setDisabledAllianceFlow();
-
         break;
     }
   }
@@ -155,36 +154,27 @@ public class Lights extends SubsystemBase {
         .withColor(allianceColor(175))
         .withSize(10)
         .withBounceMode(LarsonBounceValue.Front)
-        .withFrameRate(34.0));
+        .withFrameRate(100.0));
   }
 
   private void setIntakingFlow() {
-    io.setLEDs(new ColorFlowAnimation(LED_START_INDEX, LED_END_INDEX)
-        .withSlot(ANIMATION_SLOT)
-        .withColor(rgb(210, 125, 0))
-        .withFrameRate(48.0));
-  }
-
-  private void setShootPrepTwinkle() {
     io.setLEDs(new TwinkleAnimation(LED_START_INDEX, LED_END_INDEX)
         .withSlot(ANIMATION_SLOT)
         .withColor(rgb(145, 0, 210))
         .withMaxLEDsOnProportion(0.45)
-        .withFrameRate(90.0));
+        .withFrameRate(100.0));
+  }
+
+  private void setShootPrepTwinkle() {
+    io.setLEDs(new SolidColor(LED_START_INDEX, LED_END_INDEX)
+        .withColor(rgb(251, 83, 5)));
   }
 
   private void setShootingStrobe() {
     io.setLEDs(new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
         .withSlot(ANIMATION_SLOT)
-        .withColor(rgb(0, 210, 45))
-        .withFrameRate(12.0));
-  }
-
-  private void setAutoChooserMissingWarning() {
-    io.setLEDs(new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
-        .withSlot(ANIMATION_SLOT)
-        .withColor(rgb(220, 145, 0))
-        .withFrameRate(6.0));
+        .withColor(rgb(0, 210, 0))
+        .withFrameRate(1.0));
   }
 
   private void setPartyRainbow() {
@@ -210,13 +200,6 @@ public class Lights extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    if (OI.isRedSide()) {
-      allianceState = AllianceState.RED;
-    } else {
-      allianceState = AllianceState.BLUE;
-    }
-
     LightsState newState = handleStateTransition();
     if (!DriverStation.isEnabled()) {
       newState = LightsState.DISABLED;
@@ -225,6 +208,7 @@ public class Lights extends SubsystemBase {
     systemState = newState;
 
     if (systemState != lastAppliedState) {
+      System.out.println("Applying lights state: " + systemState);
       applyAnimation();
       lastAppliedState = systemState;
     }
@@ -233,5 +217,9 @@ public class Lights extends SubsystemBase {
     Logger.recordOutput("States/Lights Wanted State", wantedState);
     Logger.recordOutput("States/Lights Alliance", allianceState);
     Logger.recordOutput("States/Lights Party Mode", partyMode);
+  }
+
+  public void init(AllianceState alliance) {
+    allianceState = alliance;
   }
 }
