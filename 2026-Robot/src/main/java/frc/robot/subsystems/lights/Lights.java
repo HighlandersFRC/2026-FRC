@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.controls.StrobeAnimation;
 import com.ctre.phoenix6.controls.TwinkleAnimation;
@@ -158,23 +159,24 @@ public class Lights extends SubsystemBase {
   }
 
   private void setIntakingFlow() {
-    io.setLEDs(new TwinkleAnimation(LED_START_INDEX, LED_END_INDEX)
+    io.setLEDs(new SingleFadeAnimation(LED_START_INDEX, LED_END_INDEX)
         .withSlot(ANIMATION_SLOT)
-        .withColor(rgb(145, 0, 210))
-        .withMaxLEDsOnProportion(0.45)
+        .withColor(rgb(255, 255, 0))
         .withFrameRate(100.0));
   }
 
   private void setShootPrepTwinkle() {
-    io.setLEDs(new SolidColor(LED_START_INDEX, LED_END_INDEX)
-        .withColor(rgb(251, 83, 5)));
+    io.setLEDs(new SingleFadeAnimation(LED_START_INDEX, LED_END_INDEX)
+        .withSlot(ANIMATION_SLOT)
+        .withColor(rgb(255, 0, 255))
+        .withFrameRate(300.0));
   }
 
   private void setShootingStrobe() {
-    io.setLEDs(new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
+    io.setLEDs(new SingleFadeAnimation(LED_START_INDEX, LED_END_INDEX)
         .withSlot(ANIMATION_SLOT)
-        .withColor(rgb(0, 210, 0))
-        .withFrameRate(1.0));
+        .withColor(rgb(0, 255, 0))
+        .withFrameRate(300.0));
   }
 
   private void setPartyRainbow() {

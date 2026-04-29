@@ -3,6 +3,7 @@ package frc.robot.subsystems.lights;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.controls.StrobeAnimation;
 import com.ctre.phoenix6.controls.TwinkleAnimation;
@@ -41,6 +42,11 @@ public class LightsIOComp implements LightsIO {
 
     @Override
     public void setLEDs(TwinkleAnimation animation) {
+        candle.setControl(animation);
+    }
+
+    @Override
+    public void setLEDs(SingleFadeAnimation animation) {
         candle.setControl(animation);
     }
 }
