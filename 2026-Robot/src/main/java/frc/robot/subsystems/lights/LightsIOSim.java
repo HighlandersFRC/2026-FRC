@@ -1,47 +1,44 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.Animation;
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.controls.ColorFlowAnimation;
+import com.ctre.phoenix6.controls.LarsonAnimation;
+import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.controls.StrobeAnimation;
+import com.ctre.phoenix6.controls.TwinkleAnimation;
 
 public class LightsIOSim implements LightsIO {
 
     @Override
-    public void setSwerveLEDs(int r, int g, int b) {
+    public void setLEDs(SolidColor color) {
+        Logger.recordOutput("Lights/SimControl", color.toString());
     }
 
     @Override
-    public void setFrontLEDs(int r, int g, int b) {
+    public void setLEDs(ColorFlowAnimation animation) {
+        Logger.recordOutput("Lights/SimControl", animation.toString());
     }
 
     @Override
-    public void setBackLEDs(int r, int g, int b) {
+    public void setLEDs(LarsonAnimation animation) {
+        Logger.recordOutput("Lights/SimControl", animation.toString());
     }
 
     @Override
-    public void clearSwerveAnimation(int i) {
+    public void setLEDs(RainbowAnimation animation) {
+        Logger.recordOutput("Lights/SimControl", animation.toString());
     }
 
     @Override
-    public void clearBackAnimation(int i) {
+    public void setLEDs(StrobeAnimation animation) {
+        Logger.recordOutput("Lights/SimControl", animation.toString());
     }
 
     @Override
-    public void clearFrontAnimation(int i) {
-    }
-
-    @Override
-    public void animateSwerve(Animation animation) {
-    }
-
-    @Override
-    public void animateBack(Animation animation) {
-    }
-
-    @Override
-    public void animateFront(Animation animation) {
-    }
-
-    @Override
-    public void setSwerveLEDs(int r, int g, int b, int w, int start, int count) {
+    public void setLEDs(TwinkleAnimation animation) {
+        Logger.recordOutput("Lights/SimControl", animation.toString());
     }
 
 }

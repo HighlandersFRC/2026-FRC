@@ -1,27 +1,24 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.Animation;
+import com.ctre.phoenix6.controls.ColorFlowAnimation;
+import com.ctre.phoenix6.controls.LarsonAnimation;
+import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.controls.StrobeAnimation;
+import com.ctre.phoenix6.controls.TwinkleAnimation;
 
 public interface LightsIO {
 
-    void setSwerveLEDs(int r, int g, int b);
+    void setLEDs(SolidColor color);
 
-    void setFrontLEDs(int r, int g, int b);
+    void setLEDs(ColorFlowAnimation animation);
 
-    void setBackLEDs(int r, int g, int b);
+    void setLEDs(LarsonAnimation animation);
 
-    void clearSwerveAnimation(int i);
+    void setLEDs(RainbowAnimation animation);
 
-    void clearBackAnimation(int i);
+    void setLEDs(StrobeAnimation animation);
 
-    void clearFrontAnimation(int i);
-
-    void animateSwerve(Animation animation);
-
-    void animateBack(Animation animation);
-
-    void animateFront(Animation animation);
-
-    void setSwerveLEDs(int r, int g, int b, int w, int start, int count);
+    void setLEDs(TwinkleAnimation animation);
 
 }
