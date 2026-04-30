@@ -518,6 +518,8 @@ class ShooterIOComp implements ShooterIO {
 
                 Logger.recordOutput("Online/Encoder One Online", encoderOne.isConnected());
                 Logger.recordOutput("Online/Encoder Two Online", encoderTwo.isConnected());
+                Logger.recordOutput("Flywheel motor target",
+                                flywheelMaster.getClosedLoopReference().getValueAsDouble());
                 Logger.recordOutput("Online/Hood CanCoder",
                                 !hoodMotor.getFault_RemoteSensorDataInvalid().getValue());
                 if (turretP.changed() || turretI.changed() || turretD.changed() ||
