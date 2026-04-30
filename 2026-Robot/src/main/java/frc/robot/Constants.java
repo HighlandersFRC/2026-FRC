@@ -665,6 +665,13 @@ public final class Constants {
                         public static final double kS1 = 5.0;
                         public static final double kV1 = 0.3;
                         public static final double kA1 = 50.0;
+
+                        public static final double kP2 = 5.5;
+                        public static final double kI2 = 0.0;
+                        public static final double kD2 = 0.0;
+                        public static final double kS2 = 5.0;
+                        public static final double kV2 = 0.5;
+                        public static final double kA2 = 50.0;
                 }
 
                 public static final class Feeder {
