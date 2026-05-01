@@ -95,6 +95,8 @@ class IntakeIOComp implements IntakeIO {
                 Logger.recordOutput("Online/Intake Roller Master Online", rollerMotorMaster.isConnected());
                 Logger.recordOutput("Online/Intake Roller Follower Online", rollerMotorFollower.isConnected());
                 Logger.recordOutput("Online/Intake Pivot Online", pivotMotor.isConnected());
+                Logger.recordOutput("Intake/Roller1Temp", rollerMotorMaster.getDeviceTemp().getValueAsDouble());
+                Logger.recordOutput("Intake/Roller2Temp", rollerMotorFollower.getDeviceTemp().getValueAsDouble());
         }
 
         @Override

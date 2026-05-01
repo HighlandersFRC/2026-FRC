@@ -670,7 +670,7 @@ public final class Constants {
                         public static final double kI2 = 0.0;
                         public static final double kD2 = 0.0;
                         public static final double kS2 = 5.0;
-                        public static final double kV2 = 0.5;
+                        public static final double kV2 = 0.37;
                         public static final double kA2 = 50.0;
                 }
 

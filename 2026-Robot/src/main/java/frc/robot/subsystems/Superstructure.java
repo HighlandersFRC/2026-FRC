@@ -277,14 +277,29 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootState() {
     // Shooter
-    ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-        new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
-        Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+    ShotSolution shotSolution;
+    if (OI.getOperatorLB()) {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getPredictedDriveVelocityFromSim(1.0));
+      Logger.recordOutput("Simming", true);
+    } else {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getFutureVelocity());
+      Logger.recordOutput("Simming", false);
+    }
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
 
+    if (shotSolution.flywheelRPM > 2600) {
+      Globals.farAway = true;
+    } else {
+      Globals.farAway = false;
+    }
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.JIGGLE);
@@ -301,7 +316,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -319,13 +334,28 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootingState() {
     // Shooter
-    ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-        new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
-        Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+    ShotSolution shotSolution;
+    if (OI.getOperatorLB()) {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getPredictedDriveVelocityFromSim(1.0));
+      Logger.recordOutput("Simming", true);
+    } else {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getFutureVelocity());
+      Logger.recordOutput("Simming", false);
+    }
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
+    if (shotSolution.flywheelRPM > 2700) {
+      Globals.farAway = true;
+    } else {
+      Globals.farAway = false;
+    }
     // Feeder
     feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
 
@@ -354,7 +384,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -386,7 +416,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateHubShot(
         new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.Field.getHubPose().toTranslation2d(),
-        drive.getFutureVelocity());
+        drive.getPredictedDriveVelocityFromSim(1.0));
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);

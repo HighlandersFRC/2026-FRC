@@ -202,23 +202,23 @@ public class Lights extends SubsystemBase {
 
   @Override
   public void periodic() {
-    LightsState newState = handleStateTransition();
-    if (!DriverStation.isEnabled()) {
-      newState = LightsState.DISABLED;
-    }
+    // LightsState newState = handleStateTransition();
+    // if (!DriverStation.isEnabled()) {
+    // newState = LightsState.DISABLED;
+    // }
 
-    systemState = newState;
+    // systemState = newState;
 
-    if (systemState != lastAppliedState) {
-      System.out.println("Applying lights state: " + systemState);
-      applyAnimation();
-      lastAppliedState = systemState;
-    }
+    // if (systemState != lastAppliedState) {
+    // System.out.println("Applying lights state: " + systemState);
+    // applyAnimation();
+    // lastAppliedState = systemState;
+    // }
 
-    Logger.recordOutput("States/Lights State", systemState);
-    Logger.recordOutput("States/Lights Wanted State", wantedState);
-    Logger.recordOutput("States/Lights Alliance", allianceState);
-    Logger.recordOutput("States/Lights Party Mode", partyMode);
+    // Logger.recordOutput("States/Lights State", systemState);
+    // Logger.recordOutput("States/Lights Wanted State", wantedState);
+    // Logger.recordOutput("States/Lights Alliance", allianceState);
+    // Logger.recordOutput("States/Lights Party Mode", partyMode);
   }
 
   public void init(AllianceState alliance) {
