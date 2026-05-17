@@ -334,6 +334,12 @@ public final class Constants {
                 public static final double HUB_RADIUS = inchesToMeters(21.0);
                 public static final double FEED_RADIUS = inchesToMeters(67.0);
                 public static final double BALL_WIDTH = 0.15;
+
+                public static Pose2d clampToField(Pose2d pose) {
+                        double clampedX = Math.max(0.0, Math.min(Constants.Physical.FIELD_LENGTH, pose.getX()));
+                        double clampedY = Math.max(0.0, Math.min(Constants.Physical.FIELD_WIDTH, pose.getY()));
+                        return new Pose2d(clampedX, clampedY, pose.getRotation());
+                }
         }
 
         public class DynamicPassing { // chatgpt ahh code for dynamic passing
@@ -678,9 +684,26 @@ public final class Constants {
         }
 
         // Vision constants (e.g. camera offsets)
+
         public static final class Vision {
 
                 public static final String LIMELIGHT_NAME = "limelight-turret";
+                public static final int LIMELIGHT_SEARCH_PIPELINE = 0;
+                public static final int LIMELIGHT_TRACKING_PIPELINE = 0;
+                public static final float LIMELIGHT_SEARCH_DOWNSCALE = 1.5f;
+                public static final float LIMELIGHT_TRACKING_DOWNSCALE = 2.0f;
+                public static final float LIMELIGHT_TIGHT_CROP_DOWNSCALE = 3.0f;
+                public static final double LIMELIGHT_HORIZONTAL_FOV_DEGREES = 82.0;
+                public static final double LIMELIGHT_VERTICAL_FOV_DEGREES = 56.0;
+                public static final double LIMELIGHT_PREDICTION_MARGIN_DEGREES = 8.0;
+                public static final double LIMELIGHT_MIN_FORWARD_DISTANCE_METERS = 0.15;
+                public static final double LIMELIGHT_MAX_TRACKING_DISTANCE_METERS = 6.5;
+                public static final double LIMELIGHT_CROP_BASE_PADDING = 0.18;
+                public static final double LIMELIGHT_CROP_CLOSE_TAG_EXTRA_PADDING = 0.24;
+                public static final double LIMELIGHT_MIN_CROP_SPAN_X = 0.45;
+                public static final double LIMELIGHT_MIN_CROP_SPAN_Y = 0.40;
+                public static final double LIMELIGHT_CROP_Y_BIAS = 0.18;
+                public static final int LIMELIGHT_MAX_FILTER_TAGS = 6;
 
                 // Poses of cameras relative to robot, {x, y, z, rx, ry, rz}, in meters and
                 // radians
@@ -730,7 +753,7 @@ public final class Constants {
                         }
                 }
 
-                public static void updateLimelightPoseFromTurret(Pose3d robotToTurret, Rotation2d turretAngle,
+                public static Pose3d updateLimelightPoseFromTurret(Pose3d robotToTurret, Rotation2d turretAngle,
                                 Transform3d turretToCam,
                                 String limelightName) {
 
@@ -762,6 +785,8 @@ public final class Constants {
                         } catch (Exception e) {
                                 System.out.println("Could not set limelight pose: " + e.getMessage());
                         }
+
+                        return robotToCam;
                 }
 
                 public static double getLimelightAngVelRelToField(double turretVel, double robotVel) {
