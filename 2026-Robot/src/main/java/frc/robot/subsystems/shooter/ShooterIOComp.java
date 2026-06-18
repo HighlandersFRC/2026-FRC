@@ -118,6 +118,19 @@ class ShooterIOComp implements ShooterIO {
         private TunableNumber flyWheelA1 = new TunableNumber("Flywheel Position kA1",
                         Constants.PIDConstants.Flywheel.kA1);
 
+        private TunableNumber flywheelP2 = new TunableNumber("Flywheel Position kP2",
+                        Constants.PIDConstants.Flywheel.kP2);
+        private TunableNumber flywheelI2 = new TunableNumber("Flywheel Position kI2",
+                        Constants.PIDConstants.Flywheel.kI2);
+        private TunableNumber flywheelD2 = new TunableNumber("Flywheel Position kD2",
+                        Constants.PIDConstants.Flywheel.kD2);
+        private TunableNumber flywheelS2 = new TunableNumber("Flywheel Position kS2",
+                        Constants.PIDConstants.Flywheel.kS2);
+        private TunableNumber flywheelV2 = new TunableNumber("Flywheel Position kV2",
+                        Constants.PIDConstants.Flywheel.kV2);
+        private TunableNumber flyWheelA2 = new TunableNumber("Flywheel Position kA2",
+                        Constants.PIDConstants.Flywheel.kA2);
+
         // private TunableNumber flywheelVelocity = new TunableNumber("Flywheel Position
         // Velocity", 2.0);
         // private TunableNumber flywheelAcceleration = new TunableNumber("Flywheel
@@ -170,6 +183,12 @@ class ShooterIOComp implements ShooterIO {
                 flywheelConfig.Slot1.kS = Constants.PIDConstants.Flywheel.kS1;
                 flywheelConfig.Slot1.kV = Constants.PIDConstants.Flywheel.kV1;
                 flywheelConfig.Slot1.kA = Constants.PIDConstants.Flywheel.kA1;
+                flywheelConfig.Slot2.kP = Constants.PIDConstants.Flywheel.kP2;
+                flywheelConfig.Slot2.kI = Constants.PIDConstants.Flywheel.kI2;
+                flywheelConfig.Slot2.kD = Constants.PIDConstants.Flywheel.kD2;
+                flywheelConfig.Slot2.kS = Constants.PIDConstants.Flywheel.kS2;
+                flywheelConfig.Slot2.kV = Constants.PIDConstants.Flywheel.kV2;
+                flywheelConfig.Slot2.kA = Constants.PIDConstants.Flywheel.kA2;
                 flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
                 flywheelConfig.CurrentLimits.StatorCurrentLimit = 70;
@@ -200,6 +219,12 @@ class ShooterIOComp implements ShooterIO {
                 flywheelFollowerConfig.Slot1.kS = Constants.PIDConstants.Flywheel.kS1;
                 flywheelFollowerConfig.Slot1.kV = Constants.PIDConstants.Flywheel.kV1;
                 flywheelFollowerConfig.Slot1.kA = Constants.PIDConstants.Flywheel.kA1;
+                flywheelFollowerConfig.Slot2.kP = Constants.PIDConstants.Flywheel.kP2;
+                flywheelFollowerConfig.Slot2.kI = Constants.PIDConstants.Flywheel.kI2;
+                flywheelFollowerConfig.Slot2.kD = Constants.PIDConstants.Flywheel.kD2;
+                flywheelFollowerConfig.Slot2.kS = Constants.PIDConstants.Flywheel.kS2;
+                flywheelFollowerConfig.Slot2.kV = Constants.PIDConstants.Flywheel.kV2;
+                flywheelFollowerConfig.Slot2.kA = Constants.PIDConstants.Flywheel.kA2;
                 flywheelFollowerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                 flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
                 flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 70;
@@ -237,14 +262,14 @@ class ShooterIOComp implements ShooterIO {
                 // CANcoder Configuration
                 CANcoderConfiguration encoderOneConfig = new CANcoderConfiguration();
                 encoderOneConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-                encoderOneConfig.MagnetSensor.MagnetOffset = -0.185546875; // TODO: Try calculating offset from
-                                                                           // previous zero
-                                                                           // data
+                encoderOneConfig.MagnetSensor.MagnetOffset = -0.063720703125; // TODO: Try calculating offset from
+                                                                              // previous zero
+                                                                              // data
                 encoderOneConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderOne.getConfigurator().apply(encoderOneConfig);
                 CANcoderConfiguration encoderTwoConfig = new CANcoderConfiguration();
                 encoderTwoConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.415771484375;
+                encoderTwoConfig.MagnetSensor.MagnetOffset = -0.888671875;
                 encoderTwoConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
                 encoderTwo.getConfigurator().apply(encoderTwoConfig);
 
@@ -369,11 +394,18 @@ class ShooterIOComp implements ShooterIO {
                 // .withLimitReverseMotion(true));
                 // flywheelFollower.setControl(
                 // flywheelControl.withVelocity(velocitySetpoint).withSlot(0).withEnableFOC(true));
+                if (velocitySetpoint > 44.167) {
 
-                flywheelMaster.setControl(
-                                flywheelControl2.withVelocity(velocitySetpoint).withSlot(1));
-                flywheelFollower.setControl(
-                                flywheelControl2.withVelocity(velocitySetpoint).withSlot(1));
+                        flywheelMaster.setControl(
+                                        flywheelControl2.withVelocity(velocitySetpoint).withSlot(2));
+                        flywheelFollower.setControl(
+                                        flywheelControl2.withVelocity(velocitySetpoint).withSlot(2));
+                } else {
+                        flywheelMaster.setControl(
+                                        flywheelControl2.withVelocity(velocitySetpoint).withSlot(1));
+                        flywheelFollower.setControl(
+                                        flywheelControl2.withVelocity(velocitySetpoint).withSlot(1));
+                }
 
                 // }
         }
@@ -518,6 +550,8 @@ class ShooterIOComp implements ShooterIO {
 
                 Logger.recordOutput("Online/Encoder One Online", encoderOne.isConnected());
                 Logger.recordOutput("Online/Encoder Two Online", encoderTwo.isConnected());
+                Logger.recordOutput("Flywheel motor target",
+                                flywheelMaster.getClosedLoopReference().getValueAsDouble());
                 Logger.recordOutput("Online/Hood CanCoder",
                                 !hoodMotor.getFault_RemoteSensorDataInvalid().getValue());
                 if (turretP.changed() || turretI.changed() || turretD.changed() ||
@@ -652,6 +686,70 @@ class ShooterIOComp implements ShooterIO {
                         flywheelFollowerConfig.Slot1.kS = flywheelS1.get();
                         flywheelFollowerConfig.Slot1.kV = flywheelV1.get();
                         flywheelFollowerConfig.Slot1.kA = flyWheelA1.get();
+                        flywheelFollowerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
+                        flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
+                        flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 70;
+                        flywheelFollowerConfig.CurrentLimits.SupplyCurrentLimit = 70;
+                        flywheelFollowerConfig.Voltage.PeakForwardVoltage = 32.0;
+                        flywheelFollowerConfig.Voltage.PeakReverseVoltage = 0.0;
+                        flywheelFollowerConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
+                        flywheelFollowerConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+                        flywheelFollowerConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
+                        flywheelFollowerConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
+                        flywheelFollowerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+                        flywheelFollowerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+                        // flywheelFollowerConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+                        flywheelFollower.getConfigurator().apply(flywheelFollowerConfig);
+                        flywheelFollower.setNeutralMode(NeutralModeValue.Coast);
+                }
+
+                if (flywheelP2.changed() || flywheelI2.changed() || flywheelD2.changed() ||
+                                flywheelS2.changed() || flywheelV2
+                                                .changed()
+                                || flyWheelA2.changed()) {
+                        System.out.println("Updating Flywheel PID Constants");
+                        TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
+                        flywheelConfig.Slot1.kP = flywheelP1.get();
+                        flywheelConfig.Slot1.kI = flywheelI1.get();
+                        flywheelConfig.Slot1.kD = flywheelD1.get();
+                        flywheelConfig.Slot1.kS = flywheelS1.get();
+                        flywheelConfig.Slot1.kV = flywheelV1.get();
+                        flywheelConfig.Slot1.kA = flyWheelA1.get();
+                        flywheelConfig.Slot2.kP = flywheelP2.get();
+                        flywheelConfig.Slot2.kI = flywheelI2.get();
+                        flywheelConfig.Slot2.kD = flywheelD2.get();
+                        flywheelConfig.Slot2.kS = flywheelS2.get();
+                        flywheelConfig.Slot2.kV = flywheelV2.get();
+                        flywheelConfig.Slot2.kA = flyWheelA2.get();
+                        flywheelConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
+                        flywheelConfig.Feedback.RotorToSensorRatio = 1.0;
+                        flywheelConfig.CurrentLimits.StatorCurrentLimit = 70;
+                        flywheelConfig.CurrentLimits.SupplyCurrentLimit = 70;
+                        flywheelConfig.Voltage.PeakForwardVoltage = 32.0;
+                        flywheelConfig.Voltage.PeakReverseVoltage = 0.0;
+                        flywheelConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
+                        flywheelConfig.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+                        flywheelConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
+                        flywheelConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
+                        flywheelConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+                        flywheelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+                        // flywheelConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+                        flywheelMaster.getConfigurator().apply(flywheelConfig);
+                        flywheelMaster.setNeutralMode(NeutralModeValue.Coast);
+
+                        TalonFXConfiguration flywheelFollowerConfig = new TalonFXConfiguration();
+                        flywheelFollowerConfig.Slot1.kP = flywheelP1.get();
+                        flywheelFollowerConfig.Slot1.kI = flywheelI1.get();
+                        flywheelFollowerConfig.Slot1.kD = flywheelD1.get();
+                        flywheelFollowerConfig.Slot1.kS = flywheelS1.get();
+                        flywheelFollowerConfig.Slot1.kV = flywheelV1.get();
+                        flywheelFollowerConfig.Slot1.kA = flyWheelA1.get();
+                        flywheelFollowerConfig.Slot2.kP = flywheelP2.get();
+                        flywheelFollowerConfig.Slot2.kI = flywheelI2.get();
+                        flywheelFollowerConfig.Slot2.kD = flywheelD2.get();
+                        flywheelFollowerConfig.Slot2.kS = flywheelS2.get();
+                        flywheelFollowerConfig.Slot2.kV = flywheelV2.get();
+                        flywheelFollowerConfig.Slot2.kA = flyWheelA2.get();
                         flywheelFollowerConfig.Feedback.SensorToMechanismRatio = Constants.Ratios.Shooter.FLYWHEEL_GEAR_RATIO;
                         flywheelFollowerConfig.Feedback.RotorToSensorRatio = 1.0;
                         flywheelFollowerConfig.CurrentLimits.StatorCurrentLimit = 70;

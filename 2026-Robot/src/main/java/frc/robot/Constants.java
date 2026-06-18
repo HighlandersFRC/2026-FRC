@@ -27,7 +27,7 @@ import frc.robot.tools.math.Vector;
 public final class Constants {
         public static final class Autonomous {
                 public static final int STAGNATE_BOOST = 100;
-                public static final int STAGNATE_THRESHOLD = 9; // Number of cycles of stagnation before ending path
+                public static final int STAGNATE_THRESHOLD = 10; // Number of cycles of stagnation before ending path
                 // lookahead distance is a function:
                 // LOOKAHEAD = AUTONOMOUS_LOOKAHEAD_DISTANCE * velocity + MIN_LOOKAHEAD_DISTANCE
                 // their constants
@@ -490,8 +490,8 @@ public final class Constants {
                 }
 
                 public static class Turret {
-                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(30.0);
-                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(330.0);
+                        public static final double TURRET_MIN_ANGLE_RADIANS = -Math.toRadians(45.0);
+                        public static final double TURRET_MAX_ANGLE_RADIANS = Math.toRadians(350.0);
                         public static final double TURRET_PRECISION = degreesToRadians(1.476);
 
                         public static Rotation2d getTurretAngleSetpointForTrajectory(
@@ -533,7 +533,8 @@ public final class Constants {
                                         { 3.533, 69, 2425, 1.07 }, { 4.065, 68, 2500, 1.19 }, { 4.257, 67, 2550, 1.10 },
                                         { 4.584, 66, 2600, 1.18 }, { 4.782, 65, 2650, 1.19 }, { 4.996, 64, 2700, 1.20 },
                                         { 5.255, 63, 2725, 1.14 }, { 5.547, 62, 2790, 1.12 }, { 5.789, 61, 2890, 1.14 },
-                                        { 6.056, 60, 3005, 1.22 }, { 6.280, 59, 3110, 1.16 }
+                                        { 6.056, 60, 3005, 1.22 }, { 6.280, 59, 3110, 1.16 }, { 6.5, 58, 3200, 1.16 },
+                                        { 6.7, 57, 3300, 1.16 }
                         };
 
                         private final static double FEED_DISTANCE_OFFSET = 0.0;
@@ -664,6 +665,13 @@ public final class Constants {
                         public static final double kS1 = 5.0;
                         public static final double kV1 = 0.3;
                         public static final double kA1 = 50.0;
+
+                        public static final double kP2 = 5.5;
+                        public static final double kI2 = 0.0;
+                        public static final double kD2 = 0.0;
+                        public static final double kS2 = 5.0;
+                        public static final double kV2 = 0.37;
+                        public static final double kA2 = 50.0;
                 }
 
                 public static final class Feeder {

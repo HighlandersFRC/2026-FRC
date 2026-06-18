@@ -28,6 +28,7 @@ import frc.robot.subsystems.intake.Intake.IntakeState;
 
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterState;
+import frc.robot.subsystems.lights.Lights;
 import frc.robot.tools.logging.TunableNumber;
 import frc.robot.tools.math.PhysicsModel;
 import frc.robot.tools.math.ShotCalculator;
@@ -38,6 +39,7 @@ public class Superstructure extends SubsystemBase {
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
+  private final Lights lights;
   private SuperState lastState = SuperState.IDLE;
   private SuperState tempLastState = SuperState.IDLE;
   private ArrayList<Translation3d> trajectoryPoint = new ArrayList<Translation3d>();
@@ -76,11 +78,12 @@ public class Superstructure extends SubsystemBase {
   private SuperState wantedSuperState = SuperState.IDLE;
   private SuperState currentSuperState = SuperState.IDLE;
 
-  public Superstructure(Drive drive, Shooter shooter, Intake intake, Feeder feeder) {
+  public Superstructure(Drive drive, Shooter shooter, Intake intake, Feeder feeder, Lights lights) {
     this.drive = drive;
     this.shooter = shooter;
     this.intake = intake;
     this.feeder = feeder;
+    this.lights = lights;
   }
 
   public void setWantedState(SuperState wantedState) {
@@ -274,14 +277,29 @@ public class Superstructure extends SubsystemBase {
 
   private void handleShootState() {
     // Shooter
-    ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-        new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
-        Constants.Field.getHubPose().toTranslation2d(),
-        drive.getPredictedDriveVelocityFromSim(1.0));
+    ShotSolution shotSolution;
+    if (OI.getOperatorLB()) {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getPredictedDriveVelocityFromSim(1.0));
+      Logger.recordOutput("Simming", true);
+    } else {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getFutureVelocity());
+      Logger.recordOutput("Simming", false);
+    }
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
 
+    if (shotSolution.flywheelRPM > 2600) {
+      Globals.farAway = true;
+    } else {
+      Globals.farAway = false;
+    }
     // Feeder
     feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.JIGGLE);
@@ -290,6 +308,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOT_PREP);
   }
 
   private void handleShootNoJiggleState() {
@@ -310,17 +329,33 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOT_PREP);
   }
 
   private void handleShootingState() {
     // Shooter
-    ShotSolution shotSolution = ShotCalculator.calculateHubShot(
-        new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
-        Constants.Field.getHubPose().toTranslation2d(),
-        drive.getPredictedDriveVelocityFromSim(1.0));
+    ShotSolution shotSolution;
+    if (OI.getOperatorLB()) {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getPredictedDriveVelocityFromSim(1.0));
+      Logger.recordOutput("Simming", true);
+    } else {
+      shotSolution = ShotCalculator.calculateHubShot(
+          new Pose2d(getTurretFieldPosition().toTranslation2d(), drive.getMt2Pose2d().getRotation()),
+          Constants.Field.getHubPose().toTranslation2d(),
+          drive.getFutureVelocity());
+      Logger.recordOutput("Simming", false);
+    }
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
+    if (shotSolution.flywheelRPM > 2700) {
+      Globals.farAway = true;
+    } else {
+      Globals.farAway = false;
+    }
     // Feeder
     feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
 
@@ -341,6 +376,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOTING);
   }
 
   private void handleShootingNoJiggleState() {
@@ -372,6 +408,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOTING);
   }
 
   private void handleShootingNoFeedState() {
@@ -403,6 +440,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOTING);
   }
 
   private void handlePresetShootState() {
@@ -415,6 +453,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOT_PREP);
   }
 
   private void handlePresetShootingState() {
@@ -427,6 +466,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOW);
     }
+    lights.setWantedState(Lights.LightsState.SHOOTING);
   }
 
   private void handlePassState() {
@@ -436,7 +476,7 @@ public class Superstructure extends SubsystemBase {
         new Pose2d(turret.toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.DynamicPassing.getTarget(turret
             .toTranslation2d()),
-        drive.getPredictedDriveVelocityFromSim(1.0));
+        drive.getFutureVelocity());
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -448,6 +488,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOWISH);
     }
+    lights.setWantedState(Lights.LightsState.SHOOT_PREP);
   }
 
   private void handlePassingState() {
@@ -456,7 +497,7 @@ public class Superstructure extends SubsystemBase {
     ShotSolution shotSolution = ShotCalculator.calculateFeedShot(
         new Pose2d(turret.toTranslation2d(), drive.getMt2Pose2d().getRotation()),
         Constants.DynamicPassing.getTarget(turret.toTranslation2d()),
-        drive.getPredictedDriveVelocityFromSim(1.0));
+        drive.getFutureVelocity());
     ShotSolution rotatedShotSolution = shotSolution.rotateTurretAngle(drive.getMt2Pose2d().getRotation().unaryMinus());
     shooter.setWantedState(ShooterState.NORMAL_SHOOT,
         rotatedShotSolution);
@@ -469,6 +510,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT_SLOWISH);
     }
+    lights.setWantedState(Lights.LightsState.SHOOTING);
   }
 
   public void handleDefaultState() {
@@ -476,6 +518,7 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.DEFAULT);
     // intake.setWantedState(IntakeState.DOWN);
     shooter.setWantedState(ShooterState.DEFAULT);
+    lights.setWantedState(Lights.LightsState.DEFAULT);
   }
 
   public Translation3d getTurretFieldPosition() {
@@ -507,6 +550,7 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.DEFAULT);
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.DYNAMIC_INTAKING);
+    lights.setWantedState(Lights.LightsState.SHOOT_PREP);
   }
 
   public void handleManualShootingState() { // TODO: not actual manual shooting
@@ -532,6 +576,7 @@ public class Superstructure extends SubsystemBase {
     feeder.setWantedState(FeederState.FEED); // Pass ball into shooter
     drive.setWantedState(DriveState.DEFAULT);
     intake.setWantedState(IntakeState.JIGGLE);
+    lights.setWantedState(Lights.LightsState.SHOOTING);
   }
 
   public void handleIntakeingState() {
@@ -543,6 +588,7 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT);
     }
+    lights.setWantedState(Lights.LightsState.INTAKING);
   }
 
   public void handleIntakingNoSlowState() {
@@ -555,10 +601,12 @@ public class Superstructure extends SubsystemBase {
     } else {
       drive.setWantedState(DriveState.DEFAULT);
     }
+    lights.setWantedState(Lights.LightsState.INTAKING);
   }
 
   public void handleIntakeUpState() {
     intake.setWantedState(IntakeState.UP);
+    lights.setWantedState(Lights.LightsState.DEFAULT);
   }
 
   public void handleIdleState() {
@@ -566,6 +614,7 @@ public class Superstructure extends SubsystemBase {
     shooter.setWantedState(ShooterState.DEFAULT);
     feeder.setWantedState(FeederState.DEFAULT);
     intake.setWantedState(IntakeState.DOWN);
+    lights.setWantedState(Lights.LightsState.DEFAULT);
   }
 
   public void handleZeroState() {
@@ -573,6 +622,7 @@ public class Superstructure extends SubsystemBase {
     intake.setWantedState(IntakeState.ZERO);
     feeder.setWantedState(FeederState.DEFAULT);
     shooter.setWantedState(ShooterState.IDLE);
+    lights.setWantedState(Lights.LightsState.DEFAULT);
   }
 
   public void PARTY() {

@@ -10,4 +10,5 @@ public class Globals {
     public static String fieldSide = "red";
     public static Rotation2d turretAngle = new Rotation2d(0);
     public static double turretVelocity = 0.0;
+    public static boolean farAway = false;
 }

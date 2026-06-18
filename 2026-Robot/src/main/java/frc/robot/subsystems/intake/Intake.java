@@ -221,7 +221,7 @@ public class Intake extends SubsystemBase {
       case INTAKING:
         setIntakeDown();
         // setRollerPercent(0.9);
-        setRollerTorque(80, 0.75);
+        setRollerTorque(80, 0.90);
 
         break;
       case OUTAKE:
@@ -230,7 +230,7 @@ public class Intake extends SubsystemBase {
         break;
       case DYNAMIC_INTAKING:
         setIntakeDown();
-        setRollerTorque(80, 0.75);
+        setRollerTorque(80, 0.90);
         // setRollerPercent(0.9);
         break;
       case JIGGLE:

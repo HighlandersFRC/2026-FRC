@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.PolarAutoFollower;
 import frc.robot.subsystems.Superstructure.SuperState;
+import frc.robot.subsystems.lights.Lights.AllianceState;
 import frc.robot.tools.logging.AdvantageKitMultiLevelLogHandler;
 import frc.robot.tools.logging.BatteryLogger;
 import frc.robot.tools.logging.ShiftManager;
@@ -93,6 +94,11 @@ public class Robot extends LoggedRobot {
 
     m_robotContainer.peripherals.init();
     m_robotContainer.drive.init();
+    if (OI.isRedSide()) {
+      m_robotContainer.lights.init(AllianceState.RED);
+    } else {
+      m_robotContainer.lights.init(AllianceState.BLUE);
+    }
 
     // PortForwarder.add(4000, "10.44.99.40", 5800);
     PortForwarder.add(4001, "10.99.99.40", 5801);
@@ -231,6 +237,11 @@ public class Robot extends LoggedRobot {
     java.util.logging.Logger.getGlobal().info("field side" + Globals.fieldSide);
 
     this.m_robotContainer.drive.teleopInit();
+    if (OI.isRedSide()) {
+      m_robotContainer.lights.init(AllianceState.RED);
+    } else {
+      m_robotContainer.lights.init(AllianceState.BLUE);
+    }
   }
 
   @Override

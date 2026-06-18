@@ -9,7 +9,9 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Globals;
 import frc.robot.OI;
+import frc.robot.RobotState;
 import frc.robot.tools.logging.TunableNumber;
 
 public class Feeder extends SubsystemBase {
@@ -92,10 +94,18 @@ public class Feeder extends SubsystemBase {
     // } else {
     // setDyeRotorPercent(0);
     // }
+    Logger.recordOutput("Feeder/Far away", Globals.farAway);
     switch (systemState) {
       case FEED:
-        setDyeRotorRPM(100);
-        setRollerTorque(90, 1.0);
+        if (Globals.farAway) {
+          System.out.println("slowing");
+          setDyeRotorRPM(65);
+          setRollerTorque(70, 0.7);
+        } else {
+          System.out.println("fast");
+          setDyeRotorRPM(100);
+          setRollerTorque(90, 1.0);
+        }
         // setDyeRotorPercent(1.0);
         break;
       case REVERSE:

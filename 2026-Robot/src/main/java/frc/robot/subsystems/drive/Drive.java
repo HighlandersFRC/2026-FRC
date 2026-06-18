@@ -744,20 +744,22 @@ public class Drive extends SubsystemBase {
    *                          per second.
    */
   public void autoDrive(Vector vector, double turnRadiansPerSec) {
-    if (wantedState == DriveState.IDLE_SLOW) {
+    if (wantedState == DriveState.IDLE_SLOW && !Constants.Field.isOnBump(getMt2Pose2d().getTranslation())) {
       vector = vector.scaled(0.41);
       vector = vector.cap(0.67);
       turnRadiansPerSec *= 0.41;
       if (Math.abs(turnRadiansPerSec) > Math.PI / 6.0) {
         turnRadiansPerSec = Math.PI / 6.0 * Math.copySign(1, turnRadiansPerSec);
       }
-    } else if (wantedState == DriveState.IDLE_SLOWISH
-        && Constants.Field.isNearMiddle(getMt2Pose2d().getTranslation()) && !isComingBack()) {
-      // vector = vector.scaled(0.9);
-      // vector = vector.cap(1.5);
-      // // turnRadiansPerSec *= 0.67;
-      // turnRadiansPerSec *= 0.9;
     }
+    // else if (wantedState == DriveState.IDLE_SLOWISH
+    // && Constants.Field.isNearMiddle(getMt2Pose2d().getTranslation()) &&
+    // !isComingBack()) {
+    // // vector = vector.scaled(0.9);
+    // // vector = vector.cap(1.5);
+    // // // turnRadiansPerSec *= 0.67;
+    // // turnRadiansPerSec *= 0.9;
+    // }
     io.drive(vector, turnRadiansPerSec);
   }
 
